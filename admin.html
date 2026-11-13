@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - EIS Trading Hub</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; text-align: center; }
+        .stat-card h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 10px; }
+        .stat-card p { font-size: 24px; font-weight: 700; color: var(--primary); }
+        .app-item { border-bottom: 1px solid var(--border); padding: 15px 0; }
+        .btn-small { padding: 6px 12px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo"><span class="logo-icon">▲</span> EIS Trading Hub</div>
+        <nav class="nav-links">
+            <a href="dashboard.html" class="btn btn-ghost">My Dashboard</a>
+            <button id="btn-logout" class="btn btn-ghost" style="color: var(--danger);">Log Out</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Admin Dashboard</h1>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Manage applications and system settings.</p>
+
+        <div class="admin-grid">
+            <div class="stat-card"><h3>Total Applications</h3><p id="stat-total">0</p></div>
+            <div class="stat-card"><h3>In Review</h3><p id="stat-review">0</p></div>
+            <div class="stat-card"><h3>Completed</h3><p id="stat-completed">0</p></div>
+        </div>
+
+        <div class="card">
+            <h2>All Applications</h2>
+            <div id="admin-apps-list">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer"><p>&copy; 2024 EIS Trading Hub. All rights reserved.</p></footer>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>
