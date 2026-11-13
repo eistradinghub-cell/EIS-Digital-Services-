@@ -1,0 +1,26 @@
+:root { --primary: #1f4fe0; --primary-hover: #153bb5; --bg: #f4f7fc; --surface: #ffffff; --text: #0d2540; --text-muted: #5a6b80; --border: #e2e8f0; --danger: #b3261e; --success: #0b7a5f; --font-main: 'Inter', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-main); background-color: var(--bg); color: var(--text); line-height: 1.6; }
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+.logo { font-weight: 700; font-size: 18px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+.nav-links { display: flex; gap: 10px; }
+.btn { padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; display: inline-block; text-align: center; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
+.btn-block { width: 100%; margin-top: 15px; }
+.btn-large { padding: 14px 28px; font-size: 16px; }
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; min-height: calc(100vh - 130px); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.auth-card { max-width: 400px; margin: 40px auto; }
+.input-group { margin-bottom: 16px; }
+.input-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.input-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; }
+.input-group input:focus { border-color: var(--primary); }
+h1, h2 { margin-bottom: 10px; text-align: center; }
+.hero { text-align: center; padding: 60px 20px; }
+.hero p { font-size: 18px; color: var(--text-muted); margin-bottom: 30px; }
+.error-msg { color: var(--danger); font-size: 14px; margin-top: 10px; text-align: center; }
+.success-msg { color: var(--success); font-size: 14px; margin-top: 10px; text-align: center; }
+.footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border); background: var(--surface); }
