@@ -1,22 +1,14 @@
 import { supabase } from './auth.js';
 
 let currentUser = null;
-let userProfile = null;
 
 async function initAdmin() {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error || !session) {
-        window.location.href = 'index.html';
-        return;
-    }
-
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
     currentUser = session.user;
 
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-    userProfile = profile;
 
-    // Security Check: Kick out non-admins
     if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
         alert('Access Denied. You are not an administrator.');
         window.location.href = 'dashboard.html';
@@ -35,12 +27,11 @@ async function loadAdminData() {
 
         if (error) throw error;
 
-        // Update Stats
         document.getElementById('stat-total').textContent = apps.length;
         document.getElementById('stat-review').textContent = apps.filter(a => a.status === 'In review').length;
         document.getElementById('stat-completed').textContent = apps.filter(a => a.status === 'Completed').length;
+        document.getElementById('stat-products').textContent = '0'; // Placeholder
 
-        // Render List
         const container = document.getElementById('admin-apps-list');
         if (apps.length === 0) {
             container.innerHTML = '<p>No applications found.</p>';
@@ -50,32 +41,46 @@ async function loadAdminData() {
         container.innerHTML = '';
         apps.forEach(app => {
             const div = document.createElement('div');
-            div.className = 'app-item';
+            div.className = 'app-card';
             
-            const customerName = app.profiles?.full_name || 'Unknown Customer';
+            const customerName = app.profiles?.full_name || 'Unknown';
             const customerEmail = app.profiles?.email || 'No email';
+            const fd = app.form_data || {};
+            
+            let borderColor = 'var(--blue)';
+            if (app.status === 'Completed') borderColor = '#12b894';
+            if (app.status === 'Rejected') borderColor = 'var(--bad)';
+            if (app.status === 'In review') borderColor = '#8a6a00';
+            div.style.borderLeftColor = borderColor;
 
             div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <strong>${app.service_name}</strong> (₦${app.amount.toLocaleString()})<br>
-                        <span style="font-size: 13px; color: var(--text-muted);">Customer: ${customerName} (${customerEmail})</span><br>
-                        <span style="font-size: 12px; color: var(--primary); font-weight: 600;">Status: ${app.status}</span>
-                    </div>
-                    <div style="text-align: right;">
-                        <select class="status-update" data-id="${app.id}" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
-                            <option value="In review" ${app.status === 'In review' ? 'selected' : ''}>In review</option>
-                            <option value="Completed" ${app.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                            <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                        </select>
-                    </div>
+                <div class="app-head">
+                    <div class="app-title">${customerName} <span>${app.id.split('-')[0]}</span></div>
+                    <div style="font-size: 12px; color: var(--mu);">${new Date(app.created_at).toLocaleDateString()}</div>
+                </div>
+                <div class="app-body">
+                    <div class="detail-row"><span class="lbl">First Name</span><span class="val">${fd.firstName || '-'}</span></div>
+                    <div class="detail-row"><span class="lbl">Last Name</span><span class="val">${fd.lastName || '-'}</span></div>
+                    <div class="detail-row"><span class="lbl">Email</span><span class="val">${fd.email || customerEmail}</span></div>
+                    <div class="detail-row"><span class="lbl">Phone</span><span class="val">${fd.phone || '-'}</span></div>
+                    <div class="detail-row"><span class="lbl">BVN</span><span class="val">${fd.bvn || '-'}</span></div>
+                    <div class="detail-row"><span class="lbl">Bank Name</span><span class="val">${fd.bankName || '-'}</span></div>
+                    <div class="detail-row"><span class="lbl">Account No</span><span class="val">${fd.accountNo || '-'}</span></div>
+                    <div class="detail-row"><span class="lbl">Service</span><span class="val">${app.service_name}</span></div>
+                </div>
+                <div class="app-foot">
+                    <select class="status-select" data-id="${app.id}">
+                        <option value="In review" ${app.status === 'In review' ? 'selected' : ''}>In review</option>
+                        <option value="In progress" ${app.status === 'In progress' ? 'selected' : ''}>In progress</option>
+                        <option value="Completed" ${app.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                        <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                    </select>
                 </div>
             `;
             container.appendChild(div);
         });
 
-        // Add listeners to update status
-        document.querySelectorAll('.status-update').forEach(sel => {
+        document.querySelectorAll('.status-select').forEach(sel => {
             sel.addEventListener('change', async (e) => {
                 const newStatus = e.target.value;
                 const appId = e.target.getAttribute('data-id');
@@ -85,10 +90,10 @@ async function loadAdminData() {
                 
                 if (error) {
                     alert('Failed to update: ' + error.message);
+                    sel.disabled = false;
                 } else {
-                    loadAdminData(); // reload stats
+                    loadAdminData(); 
                 }
-                sel.disabled = false;
             });
         });
 
