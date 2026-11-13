@@ -10,7 +10,6 @@ async function init() {
     if (!session) { window.location.href = 'index.html'; return; }
     currentUser = session.user;
 
-    // Populate State dropdowns
     ['f-agentState', 'f-stateRes'].forEach(id => {
         const sel = document.getElementById(id);
         sel.innerHTML = '<option value="">Select state</option>';
@@ -64,17 +63,32 @@ document.getElementById('btn-pay').onclick = async () => {
     const btn = document.getElementById('btn-pay');
     btn.textContent = 'Processing...'; btn.disabled = true;
 
-    const ref = 'EIS-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    const { error } = await supabase.from('payments').insert([{ reference: ref, user_id: currentUser.id, service_name: selectedService.name, amount: selectedService.price, status: 'successful' }]);
-    
-    if (error) {
-        alert('Payment failed: ' + error.message);
-        btn.textContent = `Pay ₦${selectedService.price.toLocaleString()} (Demo)`;
-        btn.disabled = false;
-    } else {
+    try {
+        // Tabbatar da cewa profile din yana nan kafin a yi payment
+        await supabase.from('profiles').upsert({
+            id: currentUser.id,
+            email: currentUser.email,
+            role: 'customer'
+        }, { onConflict: 'id' });
+
+        const ref = 'EIS-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        const { error: payError } = await supabase.from('payments').insert([{ 
+            reference: ref, 
+            user_id: currentUser.id, 
+            service_name: selectedService.name, 
+            amount: selectedService.price, 
+            status: 'successful' 
+        }]);
+
+        if (payError) throw payError;
+
         document.getElementById('pay-section').style.display = 'none';
         document.getElementById('app-form').style.display = 'block';
         document.getElementById('f-email').value = currentUser.email;
+
+    } catch (error) {
+        alert('Payment failed: ' + error.message);
+        btn.textContent = `Pay ₦${selectedService.price.toLocaleString()} (Demo)`;
         btn.disabled = false;
     }
 };
@@ -115,7 +129,7 @@ document.getElementById('app-form').onsubmit = async (e) => {
 
 async function loadApps() {
     const tbody = document.getElementById('apps-list');
-    const { data: apps, error } = await supabase.from('applications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    const { data: apps } = await supabase.from('applications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     
     if (!apps || apps.length === 0) { 
         tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No applications yet.</td></tr>'; 
