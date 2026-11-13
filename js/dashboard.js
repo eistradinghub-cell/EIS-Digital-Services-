@@ -10,7 +10,6 @@ async function init() {
     if (!session) { window.location.href = 'index.html'; return; }
     currentUser = session.user;
 
-    // Populate State dropdowns
     ['f-agentState', 'f-stateRes'].forEach(id => {
         const sel = document.getElementById(id);
         sel.innerHTML = '<option value="">Select state</option>';
@@ -36,21 +35,15 @@ async function loadServices() {
         if (error) throw error;
 
         container.innerHTML = '';
-        if (!services || services.length === 0) {
-            container.innerHTML = '<p>No services available at the moment. Please check back later.</p>';
-            return;
-        }
-
         services.forEach(svc => {
-            const div = document.createElement('div');
-            div.className = 'service-card';
-            div.innerHTML = `<h3>${svc.name}</h3><div class="price">₦${svc.price.toLocaleString()}</div>`;
+            const div = document.createElement('button');
+            div.innerHTML = `${svc.name} <small>₦${svc.price.toLocaleString()}</small>`;
             div.onclick = () => {
-                document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
-                div.classList.add('selected');
+                document.querySelectorAll('.svcs button').forEach(c => c.classList.remove('on'));
+                div.classList.add('on');
                 selectedService = svc;
                 document.getElementById('pay-section').style.display = 'block';
-                document.getElementById('btn-pay').textContent = `Pay ₦${svc.price.toLocaleString()} (Demo)`;
+                document.getElementById('btn-pay').textContent = `Pay ₦${svc.price.toLocaleString()} (demo)`;
             };
             container.appendChild(div);
         });
@@ -63,35 +56,18 @@ document.getElementById('btn-pay').onclick = async () => {
     if (!selectedService) return;
     const btn = document.getElementById('btn-pay');
     btn.textContent = 'Processing...'; btn.disabled = true;
-
     try {
-        // 1. Tabbatar da cewa profile din mai amfani din yana nan
-        await supabase.from('profiles').upsert({
-            id: currentUser.id,
-            email: currentUser.email,
-            role: 'customer'
-        }, { onConflict: 'id' });
-
-        // 2. Yin rijistar biyan kudi
+        await supabase.from('profiles').upsert({ id: currentUser.id, email: currentUser.email, role: 'customer' }, { onConflict: 'id' });
         const ref = 'EIS-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-        const { error: payError } = await supabase.from('payments').insert([{ 
-            reference: ref, 
-            user_id: currentUser.id, 
-            service_name: selectedService.name, 
-            amount: selectedService.price, 
-            status: 'successful' 
-        }]);
-
+        const { error: payError } = await supabase.from('payments').insert([{ reference: ref, user_id: currentUser.id, service_name: selectedService.name, amount: selectedService.price, status: 'successful' }]);
         if (payError) throw payError;
-
-        // 3. Nuna form din cikawa
         document.getElementById('pay-section').style.display = 'none';
         document.getElementById('app-form').style.display = 'block';
         document.getElementById('f-email').value = currentUser.email;
-
     } catch (error) {
-        alert('Payment failed: ' + error.message);
-        btn.textContent = `Pay ₦${selectedService.price.toLocaleString()} (Demo)`;
+        document.getElementById('pay-msg').textContent = 'Payment failed: ' + error.message;
+        document.getElementById('pay-msg').className = 'msg err';
+        btn.textContent = `Pay ₦${selectedService.price.toLocaleString()} (demo)`;
         btn.disabled = false;
     }
 };
@@ -102,7 +78,6 @@ document.getElementById('app-form').onsubmit = async (e) => {
     const msgEl = document.getElementById('form-msg');
     btn.textContent = 'Submitting...'; btn.disabled = true;
     msgEl.textContent = '';
-
     const formData = {
         kegow: document.getElementById('f-kegow').value, agentState: document.getElementById('f-agentState').value,
         bvn: document.getElementById('f-bvn').value, bankName: document.getElementById('f-bankName').value,
@@ -111,49 +86,27 @@ document.getElementById('app-form').onsubmit = async (e) => {
         email: document.getElementById('f-email').value, phone: document.getElementById('f-phone').value,
         address: document.getElementById('f-address').value, stateRes: document.getElementById('f-stateRes').value, dob: document.getElementById('f-dob').value,
     };
-
-    const { error } = await supabase.from('applications').insert([{
-        user_id: currentUser.id, service_name: selectedService.name, amount: selectedService.price, status: 'In review', form_data: formData
-    }]);
-
+    const { error } = await supabase.from('applications').insert([{ user_id: currentUser.id, service_name: selectedService.name, amount: selectedService.price, status: 'In review', form_data: formData }]);
     if (error) {
-        msgEl.textContent = error.message;
-        msgEl.style.color = 'red';
-        btn.textContent = 'Submit Application'; btn.disabled = false;
+        msgEl.textContent = error.message; msgEl.className = 'msg err';
+        btn.textContent = 'Submit application'; btn.disabled = false;
     } else {
-        msgEl.textContent = 'Application submitted successfully!';
-        msgEl.style.color = 'green';
-        e.target.reset();
-        document.getElementById('app-form').style.display = 'none';
-        btn.textContent = 'Submit Application'; btn.disabled = false;
-        loadApps();
+        msgEl.textContent = 'Application submitted successfully!'; msgEl.className = 'msg ok';
+        e.target.reset(); document.getElementById('app-form').style.display = 'none';
+        btn.textContent = 'Submit application'; btn.disabled = false; loadApps();
     }
 };
 
 async function loadApps() {
     const tbody = document.getElementById('apps-list');
     const { data: apps } = await supabase.from('applications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-    
-    if (!apps || apps.length === 0) { 
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No applications yet.</td></tr>'; 
-        return; 
-    }
-    
+    if (!apps || apps.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No applications yet.</td></tr>'; return; }
     tbody.innerHTML = '';
     apps.forEach(app => {
-        const date = new Date(app.created_at).toLocaleDateString();
-        let statusColor = app.status === 'Completed' ? 'var(--success)' : (app.status === 'Rejected' ? 'var(--danger)' : 'var(--primary)');
-        tbody.innerHTML += `
-            <tr>
-                <td><strong>${app.service_name}</strong></td>
-                <td>${app.id.split('-')[0]}</td>
-                <td>${date}</td>
-                <td><span style="color: ${statusColor}; font-weight: 600;">${app.status}</span></td>
-            </tr>
-        `;
+        tbody.innerHTML += `<tr><td>${app.form_data.firstName}</td><td>${app.id.split('-')[0]}</td><td>${app.service_name}</td><td><strong style="color:var(--blue);">${app.status}</strong></td></tr>`;
     });
 }
 
-document.getElementById('btn-logout').onclick = async () => { await supabase.auth.signOut(); window.location.href = 'index.html'; };
+document.getElementById('nav-logout').onclick = async () => { await supabase.auth.signOut(); window.location.href = 'index.html'; };
 
 init();
