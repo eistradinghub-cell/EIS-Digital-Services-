@@ -7,118 +7,126 @@
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f4f7fc; --sf: #fff; --ink: #0d2540; --mu: #5a6b80; --ln: #e2e8f0; --blue: #1f4fe0; --blue-deep: #0d2a63; --blue-soft: #eaf0ff; --mint: #12b894; --bad: #b3261e; --shadow-sm: 0 1px 2px rgba(13,37,64,.06); --shadow-md: 0 4px 16px rgba(13,37,64,.08); }
-        * { box-sizing: border-box; }
-        body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-        .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
-        .sec { padding: 40px 0; }
-        .site-header { background: rgba(255,255,255,.95); border-bottom: 1px solid var(--ln); position: sticky; top: 0; z-index: 50; }
-        .nav-row { display: flex; align-items: center; justify-content: space-between; min-height: 68px; padding: 10px 16px; max-width: 1080px; margin: 0 auto; flex-wrap: wrap; gap: 10px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 20px; }
-        .brand-mark { width: 36px; height: 36px; }
-        .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn { display: inline-flex; align-items: center; justify-content: center; font: 600 15px 'Inter', sans-serif; padding: 11px 20px; border-radius: 10px; border: 0; cursor: pointer; background: var(--blue); color: #fff; text-decoration: none; transition: all .15s; }
-        .btn-ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--ln); }
-        .btn-ghost:hover { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
-        .btn-primary { background: var(--blue); }
-        .card { background: #fff; border: 1px solid var(--ln); border-radius: 14px; padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
-        .card.wide { max-width: none; }
-        .svcs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
-        @media(max-width:600px) { .svcs { grid-template-columns: 1fr; } }
-        .svcs button { background: #fff; border: 1.5px solid var(--ln); padding: 16px; border-radius: 10px; text-align: left; cursor: pointer; transition: .15s; }
-        .svcs button:hover { border-color: var(--blue); }
-        .svcs button.on { border-color: var(--blue); background: var(--blue-soft); box-shadow: 0 0 0 3px rgba(31,79,224,.15); }
-        .svcs small { display: block; color: var(--blue); font: 700 16px 'Plus Jakarta Sans', sans-serif; margin-top: 4px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
-        .form-grid .full { grid-column: 1 / -1; }
-        label { display: block; font: 600 14px 'Inter', sans-serif; margin: 14px 0 6px; }
-        input, select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--ln); border-radius: 8px; font: 400 16px 'Inter', sans-serif; background: #fff; color: var(--ink); }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
-        .demo { background: #fff4cc; border: 1px solid #e6d177; padding: 10px; border-radius: 8px; font-size: 14px; margin: 10px 0; color: #8a6a00; }
-        .msg { margin: 14px 0 0; font: 500 14px 'Inter', sans-serif; min-height: 1.4em; }
-        .msg.err { color: var(--bad); } .msg.ok { color: #0b7a5f; }
-        .support-card { background: linear-gradient(135deg, #1f4fe0, #3a68ff); color: #fff; border: 0; padding: 14px 18px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
-        .support-icon { width: 40px; height: 40px; background: rgba(255,255,255,.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .support-text h4 { margin: 0; font-weight: 700; font-size: 15px; }
-        .support-text p { margin: 0; font-size: 12px; opacity: .9; }
-        .support-btn { background: #fff; color: #1f4fe0; font-weight: 600; padding: 8px 16px; font-size: 14px; border-radius: 8px; text-decoration: none; }
+        :root { --primary: #1f4fe0; --primary-hover: #153bb5; --bg: #f4f7fc; --surface: #ffffff; --text: #0d2540; --text-muted: #5a6b80; --border: #e2e8f0; --danger: #b3261e; --success: #0b7a5f; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .logo { font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .nav-links { display: flex; gap: 10px; }
+        .btn { padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; display: inline-block; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+        .btn-ghost:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
+        .container { max-width: 1080px; margin: 0 auto; padding: 20px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+        
+        .service-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        @media(max-width: 600px) { .service-list { grid-template-columns: 1fr; } }
+        .service-card { border: 2px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .service-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(31,79,224,0.1); }
+        .service-card.selected { border-color: var(--primary); background: #eaf0ff; box-shadow: 0 4px 12px rgba(31,79,224,0.2); }
+        .service-card h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; margin-bottom: 10px; }
+        .service-card .price { font-size: 24px; font-weight: 800; color: var(--primary); }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; outline: none; }
+        .input-group input:focus { border-color: var(--primary); }
+        .full-width { grid-column: 1 / -1; }
+        
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { background: var(--bg); font-weight: 600; color: var(--text-muted); }
+        
+        .chat-box { background: linear-gradient(135deg, #1f4fe0, #3a68ff); color: white; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .chat-box h3 { margin-bottom: 10px; }
+        .chat-box p { font-size: 14px; opacity: 0.9; margin-bottom: 20px; }
+        .chat-btn { background: white; color: var(--primary); font-weight: 700; padding: 12px 24px; border-radius: 8px; text-decoration: none; }
     </style>
 </head>
 <body>
+    <header class="navbar">
+        <div class="logo"><span>▲</span> EIS Trading Hub</div>
+        <nav class="nav-links">
+            <a href="admin.html" class="btn btn-ghost" id="nav-admin" style="display: none;">Admin Panel</a>
+            <button id="btn-logout" class="btn btn-ghost" style="color: var(--danger); border-color: var(--danger);">Log Out</button>
+        </nav>
+    </header>
 
-<header class="site-header">
-  <div class="nav-row">
-    <a class="brand" href="index.html">
-      <svg class="brand-mark" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/><path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="26" r="2.6" fill="#12b894"/></svg>
-      EIS <span style="font-weight: 600; font-size: 12px; color: var(--mu); margin-left: 4px;">Digital Services</span>
-    </a>
-    <nav class="nav-links">
-      <a href="index.html" class="btn btn-ghost">Home</a>
-      <a href="admin.html" class="btn btn-ghost" id="nav-admin" style="display: none;">Admin</a>
-      <button id="btn-logout" class="btn btn-ghost" style="color: var(--bad);">Log Out</button>
-    </nav>
-  </div>
-</header>
+    <main class="container">
+        <div class="card">
+            <h1 style="font-family: 'Plus Jakarta Sans'; font-size: 24px;">Customer Dashboard</h1>
+            <p id="welcome" style="color: var(--text-muted); margin-top: 5px;">Welcome back!</p>
+        </div>
 
-<main class="wrap sec">
-    <div class="card" style="margin-bottom: 20px;">
-        <h2 style="margin: 0;">Dashboard</h2>
-        <p id="who" style="color: var(--mu); font-weight: 500; margin-top: 10px;">Loading...</p>
-    </div>
+        <div class="grid-2">
+            <div>
+                <div class="card">
+                    <h2 style="font-size: 18px; margin-bottom: 10px;">1. Choose a Service</h2>
+                    <div class="service-list" id="services-container">
+                        <p>Loading services...</p>
+                    </div>
+                    <div id="pay-section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+                        <div style="background: #fff4cc; color: #8a6a00; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
+                            Demo payment only. No real money is charged.
+                        </div>
+                        <button id="btn-pay" class="btn btn-primary" style="width: 100%;">Pay Now</button>
+                    </div>
+                </div>
 
-    <div class="card wide">
-      <h3 style="margin-top: 0;">1. Choose a service</h3>
-      <div class="svcs" id="svcs"></div>
-      <div id="pay" style="display: none;">
-        <div class="demo">Demo payment only. No real money is charged.</div>
-        <button id="paybtn" class="btn btn-primary">Pay Now</button>
-      </div>
-      <p class="msg" id="m-pay"></p>
-    </div>
+                <form class="card" id="app-form" style="display: none;">
+                    <h2 style="font-size: 18px; margin-bottom: 10px;">2. Application Form</h2>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">Please fill in your details accurately for verification.</p>
+                    <div class="form-grid">
+                        <div class="input-group"><label>KEGOW Account Number</label><input type="text" id="f-kegow" required></div>
+                        <div class="input-group"><label>Agent Location State</label><select id="f-agentState" required></select></div>
+                        <div class="input-group"><label>BVN (11 digits)</label><input type="text" id="f-bvn" maxlength="11" required></div>
+                        <div class="input-group"><label>Bank Name</label><input type="text" id="f-bankName" required></div>
+                        <div class="input-group"><label>Account Number</label><input type="text" id="f-accountNo" maxlength="10" required></div>
+                        <div class="input-group"><label>Account Name</label><input type="text" id="f-accountName" required></div>
+                        <div class="input-group"><label>First Name</label><input type="text" id="f-firstName" required></div>
+                        <div class="input-group"><label>Last Name</label><input type="text" id="f-lastName" required></div>
+                        <div class="input-group"><label>Email Address</label><input type="email" id="f-email" required></div>
+                        <div class="input-group"><label>Phone Number</label><input type="tel" id="f-phone" required></div>
+                        <div class="input-group full-width"><label>Home Address</label><textarea id="f-address" rows="2" required></textarea></div>
+                        <div class="input-group"><label>State of Residence</label><select id="f-stateRes" required></select></div>
+                        <div class="input-group"><label>Date of Birth</label><input type="date" id="f-dob" required></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Submit Application</button>
+                    <p id="form-msg" class="error-msg" style="text-align: center; margin-top: 10px; font-weight: 600;"></p>
+                </form>
 
-    <form class="card wide" id="f-app" style="display: none;">
-      <h3 style="margin-top: 0;">2. Application form</h3>
-      <div class="form-grid">
-        <div><label>KEGOW account number</label><input type="text" id="a-kegow" required></div>
-        <div><label>Agent location state</label><select id="a-agentState" required></select></div>
-        <div><label>BVN number (11 digits)</label><input type="text" id="a-bvn" required></div>
-        <div><label>Bank name</label><input type="text" id="a-bankName" required></div>
-        <div><label>Account number (10 digits)</label><input type="text" id="a-accountNo" required></div>
-        <div><label>Account name</label><input type="text" id="a-accountName" required></div>
-        <div><label>Agent first name</label><input type="text" id="a-firstName" required></div>
-        <div><label>Last name</label><input type="text" id="a-lastName" required></div>
-        <div><label>Email</label><input type="email" id="a-email" required></div>
-        <div><label>Phone number</label><input type="tel" id="a-phone" required></div>
-        <div class="full"><label>Home address</label><textarea id="a-address" required></textarea></div>
-        <div><label>State of residence</label><select id="a-stateRes" required></select></div>
-        <div><label>Date of birth</label><input type="date" id="a-dob" required></div>
-      </div>
-      <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 18px;">Submit application</button>
-      <p class="msg" id="m-app"></p>
-    </form>
+                <div class="card">
+                    <h2 style="font-size: 18px; margin-bottom: 10px;">My Applications</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Service</th><th>Reference</th><th>Date</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="apps-list">
+                                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No applications yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-    <div class="card wide">
-      <h3 style="margin-top: 0;">My applications</h3>
-      <div style="overflow-x: auto; border: 1px solid var(--ln); border-radius: 8px;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-          <thead><tr style="background: var(--blue-soft); color: var(--blue-deep); text-align: left;">
-            <th style="padding: 12px;">Name</th><th style="padding: 12px;">Ref</th><th style="padding: 12px;">Service</th><th style="padding: 12px;">Status</th>
-          </tr></thead>
-          <tbody id="mine"></tbody>
-        </table>
-      </div>
-    </div>
+            <div>
+                <div class="chat-box">
+                    <h3>Need Help?</h3>
+                    <p>Our support team is available to assist you with any questions or issues regarding your application.</p>
+                    <a href="support.html" class="chat-btn">Open Live Chat</a>
+                </div>
+            </div>
+        </div>
+    </main>
 
-    <div class="support-card">
-      <div class="support-icon">💬</div>
-      <div class="support-text">
-        <h4>Need Help? Customer Care</h4>
-        <p>Chat with our support team.</p>
-      </div>
-      <a href="support.html" class="support-btn">Open Chat →</a>
-    </div>
-</main>
-
-<script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
