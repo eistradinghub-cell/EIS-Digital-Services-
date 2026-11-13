@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support - EIS Trading Hub</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .chat-container { display: flex; flex-direction: column; height: 75vh; background: #e5ddd5; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-top: 20px; }
+        .chat-header { background: linear-gradient(135deg,#1f4fe0,#3a68ff); color: white; padding: 15px 20px; display: flex; align-items: center; gap: 10px; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg-bubble { max-width: 75%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.4; }
+        .msg-mine { align-self: flex-end; background: #dcf8c6; color: #000; border-bottom-right-radius: 3px; }
+        .msg-theirs { align-self: flex-start; background: #fff; color: #000; border-bottom-left-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+        .msg-time { font-size: 10px; color: #666; text-align: right; margin-top: 4px; }
+        .chat-input-area { padding: 10px; background: #f0f0f0; display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 25px; outline: none; }
+        .chat-input-area button { background: #1f4fe0; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo"><span class="logo-icon">▲</span> EIS Trading Hub</div>
+        <nav class="nav-links">
+            <a href="dashboard.html" class="btn btn-ghost">Back to Dashboard</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div style="width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1f4fe0; font-weight: 700;">EIS</div>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px;">EIS Support</h3>
+                    <span style="font-size: 12px; opacity: 0.8;">● Online</span>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will load here -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button id="btn-send-msg">➤</button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/support.js"></script>
+</body>
+</html>
