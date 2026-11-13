@@ -10,6 +10,7 @@ async function init() {
     if (!session) { window.location.href = 'index.html'; return; }
     currentUser = session.user;
 
+    // Populate State dropdowns
     ['f-agentState', 'f-stateRes'].forEach(id => {
         const sel = document.getElementById(id);
         sel.innerHTML = '<option value="">Select state</option>';
@@ -64,13 +65,14 @@ document.getElementById('btn-pay').onclick = async () => {
     btn.textContent = 'Processing...'; btn.disabled = true;
 
     try {
-        // Tabbatar da cewa profile din yana nan kafin a yi payment
+        // 1. Tabbatar da cewa profile din mai amfani din yana nan
         await supabase.from('profiles').upsert({
             id: currentUser.id,
             email: currentUser.email,
             role: 'customer'
         }, { onConflict: 'id' });
 
+        // 2. Yin rijistar biyan kudi
         const ref = 'EIS-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         const { error: payError } = await supabase.from('payments').insert([{ 
             reference: ref, 
@@ -82,6 +84,7 @@ document.getElementById('btn-pay').onclick = async () => {
 
         if (payError) throw payError;
 
+        // 3. Nuna form din cikawa
         document.getElementById('pay-section').style.display = 'none';
         document.getElementById('app-form').style.display = 'block';
         document.getElementById('f-email').value = currentUser.email;
