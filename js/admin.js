@@ -27,57 +27,52 @@ async function loadAdminData() {
 
         if (error) throw error;
 
+        // Update Stats
         document.getElementById('stat-total').textContent = apps.length;
         document.getElementById('stat-review').textContent = apps.filter(a => a.status === 'In review').length;
         document.getElementById('stat-completed').textContent = apps.filter(a => a.status === 'Completed').length;
-        document.getElementById('stat-products').textContent = '0'; // Placeholder
+        document.getElementById('stat-rejected').textContent = apps.filter(a => a.status === 'Rejected').length;
 
-        const container = document.getElementById('admin-apps-list');
+        const tbody = document.getElementById('admin-apps-list');
         if (apps.length === 0) {
-            container.innerHTML = '<p>No applications found.</p>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">No applications found.</td></tr>';
             return;
         }
 
-        container.innerHTML = '';
+        tbody.innerHTML = '';
         apps.forEach(app => {
-            const div = document.createElement('div');
-            div.className = 'app-card';
-            
-            const customerName = app.profiles?.full_name || 'Unknown';
-            const customerEmail = app.profiles?.email || 'No email';
             const fd = app.form_data || {};
+            const customer = app.profiles?.full_name || 'Unknown';
+            const email = app.profiles?.email || 'No email';
             
-            let borderColor = 'var(--blue)';
-            if (app.status === 'Completed') borderColor = '#12b894';
-            if (app.status === 'Rejected') borderColor = 'var(--bad)';
-            if (app.status === 'In review') borderColor = '#8a6a00';
-            div.style.borderLeftColor = borderColor;
+            let badge = 'badge-review';
+            if (app.status === 'Completed') badge = 'badge-completed';
+            if (app.status === 'Rejected') badge = 'badge-rejected';
 
-            div.innerHTML = `
-                <div class="app-head">
-                    <div class="app-title">${customerName} <span>${app.id.split('-')[0]}</span></div>
-                    <div style="font-size: 12px; color: var(--mu);">${new Date(app.created_at).toLocaleDateString()}</div>
-                </div>
-                <div class="app-body">
-                    <div class="detail-row"><span class="lbl">First Name</span><span class="val">${fd.firstName || '-'}</span></div>
-                    <div class="detail-row"><span class="lbl">Last Name</span><span class="val">${fd.lastName || '-'}</span></div>
-                    <div class="detail-row"><span class="lbl">Email</span><span class="val">${fd.email || customerEmail}</span></div>
-                    <div class="detail-row"><span class="lbl">Phone</span><span class="val">${fd.phone || '-'}</span></div>
-                    <div class="detail-row"><span class="lbl">BVN</span><span class="val">${fd.bvn || '-'}</span></div>
-                    <div class="detail-row"><span class="lbl">Bank Name</span><span class="val">${fd.bankName || '-'}</span></div>
-                    <div class="detail-row"><span class="lbl">Account No</span><span class="val">${fd.accountNo || '-'}</span></div>
-                    <div class="detail-row"><span class="lbl">Service</span><span class="val">${app.service_name}</span></div>
-                </div>
-                <div class="app-foot">
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <strong>${customer}</strong><br>
+                    <span style="font-size: 12px; color: #666;">${email}</span>
+                </td>
+                <td><strong>${app.service_name}</strong><br><span style="font-size: 12px;">₦${app.amount.toLocaleString()}</span></td>
+                <td>
+                    <div style="font-size: 12px; line-height: 1.6;">
+                        <strong>BVN:</strong> ${fd.bvn || '-'}<br>
+                        <strong>Bank:</strong> ${fd.bankName || '-'} (${fd.accountNo || '-'})
+                    </div>
+                </td>
+                <td><span class="badge ${badge}">${app.status}</span></td>
+                <td>
                     <select class="status-select" data-id="${app.id}">
                         <option value="In review" ${app.status === 'In review' ? 'selected' : ''}>In review</option>
                         <option value="In progress" ${app.status === 'In progress' ? 'selected' : ''}>In progress</option>
                         <option value="Completed" ${app.status === 'Completed' ? 'selected' : ''}>Completed</option>
                         <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
                     </select>
-                </div>
+                </td>
             `;
-            container.appendChild(div);
+            tbody.appendChild(tr);
         });
 
         document.querySelectorAll('.status-select').forEach(sel => {
@@ -98,7 +93,7 @@ async function loadAdminData() {
         });
 
     } catch (err) {
-        document.getElementById('admin-apps-list').innerHTML = `<p class="error-msg">Error: ${err.message}</p>`;
+        document.getElementById('admin-apps-list').innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Error: ${err.message}</td></tr>`;
     }
 }
 
