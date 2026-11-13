@@ -8,7 +8,6 @@ async function initChat() {
     if (!session) { window.location.href = 'index.html'; return; }
     currentUser = session.user;
 
-    // 1. Get or Create Conversation
     const { data: convs } = await supabase.from('chat_conversations').select('id').eq('customer_id', currentUser.id).single();
     
     if (convs) {
@@ -36,7 +35,7 @@ async function loadMessages() {
     
     box.innerHTML = '';
     if (msgs.length === 0) {
-        box.innerHTML = '<p style="text-align:center; color:#888; font-size:12px;">Start the conversation...</p>';
+        box.innerHTML = '<p style="text-align:center; color:#888; font-size:13px;">Start the conversation...</p>';
     } else {
         msgs.forEach(m => appendMessage(m));
     }
@@ -74,7 +73,6 @@ async function sendMessage() {
     if (error) alert('Failed to send message: ' + error.message);
 }
 
-// Realtime Listener
 function setupRealtime() {
     supabase.channel('chat-room')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `conversation_id=eq.${currentConversationId}` }, payload => {
@@ -85,5 +83,10 @@ function setupRealtime() {
         })
         .subscribe();
 }
+
+document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
+});
 
 initChat();
