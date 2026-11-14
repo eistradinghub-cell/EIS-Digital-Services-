@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,12 +10,14 @@
     <meta name="theme-color" content="#ffffff">
 
     <meta name="description"
-          content="EIS Digital Services - Professional digital services and application management platform.">
+          content="EIS Digital Services - Manage your account and applications online.">
 
     <title>EIS Digital Services</title>
 
+    <!-- Latest CSS -->
     <link rel="stylesheet" href="css/styles.css?v=15">
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link rel="preconnect"
@@ -26,41 +27,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
           rel="stylesheet">
 
-    <style>
-
-        .view[hidden] {
-            display: none !important;
-        }
-
-        .auth-card {
-            max-width: 480px;
-            margin: 20px auto;
-        }
-
-        .auth-card input {
-            width: 100%;
-        }
-
-        .auth-card button:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
-
-        .msg:empty {
-            display: none;
-        }
-
-        .nav-links button {
-            cursor: pointer;
-        }
-
-    </style>
-
 </head>
 
-
 <body>
-
 
 <!-- =====================================
      HEADER
@@ -113,20 +82,17 @@
             <nav id="nav-auth"
                  class="nav-links">
 
-                <button
-                    type="button"
-                    id="btn-show-login"
-                    class="btn">
+                <button type="button"
+                        id="btn-show-login"
+                        class="btn">
 
                     Log in
 
                 </button>
 
-
-                <button
-                    type="button"
-                    id="btn-show-signup"
-                    class="btn btn-primary">
+                <button type="button"
+                        id="btn-show-signup"
+                        class="btn btn-primary">
 
                     Sign up
 
@@ -148,11 +114,10 @@
 
                 </a>
 
-
-                <button
-                    type="button"
-                    id="btn-logout"
-                    class="btn">
+                <button type="button"
+                        id="btn-logout"
+                        class="btn"
+                        style="color:var(--bad);">
 
                     Log out
 
@@ -167,25 +132,19 @@
 </header>
 
 
-
 <!-- =====================================
      MAIN CONTENT
 ===================================== -->
 
 <main>
 
+    <!-- HOME VIEW -->
 
-    <!-- =================================
-         HOME PAGE
-    ================================== -->
-
-    <section class="view"
-             id="view-home">
+    <section class="view" id="view-home">
 
         <section class="hero">
 
             <div class="hero-grid">
-
 
                 <div>
 
@@ -194,7 +153,6 @@
                         ENROLL · GET VERIFIED · EARN
 
                     </p>
-
 
                     <h1>
 
@@ -210,7 +168,6 @@
 
                     </h1>
 
-
                     <p class="lead">
 
                         Create your account, explore available
@@ -219,14 +176,12 @@
 
                     </p>
 
-
                     <div class="hero-actions">
 
-                        <button
-                            type="button"
-                            id="cta"
-                            class="btn btn-primary"
-                            style="padding:14px 28px;font-size:16px;">
+                        <button type="button"
+                                id="cta"
+                                class="btn btn-primary"
+                                style="padding:14px 28px;font-size:16px;">
 
                             Get started
 
@@ -235,7 +190,6 @@
                     </div>
 
                 </div>
-
 
 
                 <!-- HERO CARD -->
@@ -249,7 +203,6 @@
                             Application
 
                         </span>
-
 
                         <span class="chip chip-green">
 
@@ -299,13 +252,11 @@
                             background:var(--blue);
                         "></div>
 
-
                         <div style="
                             height:40px;
                             border-radius:6px;
                             background:var(--mint);
                         "></div>
-
 
                         <div style="
                             height:40px;
@@ -324,21 +275,18 @@
     </section>
 
 
-
-    <!-- =================================
-         LOGIN PAGE
-    ================================== -->
+    <!-- =====================================
+         LOGIN VIEW
+    ====================================== -->
 
     <section class="view wrap"
              id="view-login"
-             hidden
-             style="padding-top:20px;">
+             style="display:none;padding-top:20px;">
 
         <form class="card auth-card"
               id="form-login">
 
             <h2>Welcome Back</h2>
-
 
             <p style="color:var(--mu);margin-top:5px;">
 
@@ -353,10 +301,10 @@
 
             </label>
 
-
             <input
                 type="email"
                 id="login-email"
+                name="email"
                 placeholder="Enter your email"
                 autocomplete="email"
                 required
@@ -369,19 +317,18 @@
 
             </label>
 
-
             <input
                 type="password"
                 id="login-password"
+                name="password"
                 placeholder="Enter your password"
                 autocomplete="current-password"
                 required
             >
 
 
-            <button
-                type="submit"
-                class="btn btn-primary btn-block">
+            <button type="submit"
+                    class="btn btn-primary btn-block">
 
                 Log In
 
@@ -403,7 +350,7 @@
 
                 New here?
 
-                <a href="#signup"
+                <a href="#"
                    id="link-to-signup"
                    style="
                        color:var(--blue);
@@ -421,21 +368,18 @@
     </section>
 
 
-
-    <!-- =================================
-         SIGNUP PAGE
-    ================================== -->
+    <!-- =====================================
+         SIGNUP VIEW
+    ====================================== -->
 
     <section class="view wrap"
              id="view-signup"
-             hidden
-             style="padding-top:20px;">
+             style="display:none;padding-top:20px;">
 
         <form class="card auth-card"
               id="form-signup">
 
             <h2>Create Account</h2>
-
 
             <p style="color:var(--mu);margin-top:5px;">
 
@@ -450,10 +394,10 @@
 
             </label>
 
-
             <input
                 type="text"
                 id="signup-name"
+                name="full_name"
                 placeholder="Enter your full name"
                 autocomplete="name"
                 required
@@ -466,10 +410,10 @@
 
             </label>
 
-
             <input
                 type="email"
                 id="signup-email"
+                name="email"
                 placeholder="Enter your email"
                 autocomplete="email"
                 required
@@ -482,10 +426,10 @@
 
             </label>
 
-
             <input
                 type="tel"
                 id="signup-phone"
+                name="phone"
                 placeholder="Enter your phone number"
                 autocomplete="tel"
                 required
@@ -498,10 +442,10 @@
 
             </label>
 
-
             <input
                 type="password"
                 id="signup-password"
+                name="password"
                 placeholder="Minimum 8 characters"
                 autocomplete="new-password"
                 minlength="8"
@@ -509,9 +453,8 @@
             >
 
 
-            <button
-                type="submit"
-                class="btn btn-primary btn-block">
+            <button type="submit"
+                    class="btn btn-primary btn-block">
 
                 Create Account
 
@@ -540,7 +483,7 @@
 
                 Already have an account?
 
-                <a href="#login"
+                <a href="#"
                    id="link-to-login"
                    style="
                        color:var(--blue);
@@ -557,9 +500,7 @@
 
     </section>
 
-
 </main>
-
 
 
 <!-- =====================================
@@ -578,115 +519,13 @@
 </footer>
 
 
-
 <!-- =====================================
-     PAGE NAVIGATION
-     WORKS INDEPENDENTLY
+     SUPABASE AUTHENTICATION
 ===================================== -->
 
-<script>
-
-(function () {
-
-    const home = document.getElementById('view-home');
-
-    const login = document.getElementById('view-login');
-
-    const signup = document.getElementById('view-signup');
-
-
-    function showPage(page) {
-
-        [home, login, signup].forEach(element => {
-
-            if (!element) return;
-
-            element.hidden = element !== page;
-
-        });
-
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-
-    }
-
-
-    // LOGIN BUTTON
-
-    document
-        .getElementById('btn-show-login')
-        ?.addEventListener('click', function () {
-
-            showPage(login);
-
-        });
-
-
-    // SIGNUP BUTTON
-
-    document
-        .getElementById('btn-show-signup')
-        ?.addEventListener('click', function () {
-
-            showPage(signup);
-
-        });
-
-
-    // GET STARTED BUTTON
-
-    document
-        .getElementById('cta')
-        ?.addEventListener('click', function () {
-
-            showPage(signup);
-
-        });
-
-
-    // CREATE ACCOUNT LINK
-
-    document
-        .getElementById('link-to-signup')
-        ?.addEventListener('click', function (event) {
-
-            event.preventDefault();
-
-            showPage(signup);
-
-        });
-
-
-    // LOGIN LINK
-
-    document
-        .getElementById('link-to-login')
-        ?.addEventListener('click', function (event) {
-
-            event.preventDefault();
-
-            showPage(login);
-
-        });
-
-
-})();
-
+<script type="module"
+        src="js/auth.js?v=15">
 </script>
-
-
-
-<!-- =====================================
-     AUTHENTICATION JAVASCRIPT
-===================================== -->
-
-<script
-    type="module"
-    src="js/auth.js?v=15">
-</script>
-
 
 </body>
 
