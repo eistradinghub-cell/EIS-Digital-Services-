@@ -1,17 +1,20 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from
+'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 /* =========================================
    EIS DIGITAL SERVICES
    SUPABASE CONFIGURATION
 ========================================= */
 
-const SUPABASE_URL = 'https://mbihyrbfeatcynspzune.supabase.co';
+const SUPABASE_URL =
+'https://mbihyrbfeatcynspzune.supabase.co';
 
-const SUPABASE_ANON_KEY = 'sb_publishable_alh5WL2JbOK6yW_5z5Fq4A_kJQHWt1-';
+const SUPABASE_ANON_KEY =
+'sb_publishable_alh5WL2JbOK6yW_5z5Fq4A_kJQHWt1-';
 
 
 /* =========================================
-   INITIALIZE SUPABASE CLIENT
+   INITIALIZE SUPABASE
 ========================================= */
 
 export const supabase = createClient(
@@ -42,23 +45,15 @@ export const supabase = createClient(
 
 export async function getCurrentSession() {
 
-    try {
+    const { data, error } =
+        await supabase.auth.getSession();
 
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-            console.error('Session Error:', error);
-            return null;
-        }
-
-        return data.session;
-
-    } catch (error) {
-
-        console.error('Unexpected Session Error:', error);
-
+    if (error) {
+        console.error('Session Error:', error);
         return null;
     }
+
+    return data.session;
 }
 
 
@@ -68,23 +63,15 @@ export async function getCurrentSession() {
 
 export async function getCurrentUser() {
 
-    try {
+    const { data, error } =
+        await supabase.auth.getUser();
 
-        const { data, error } = await supabase.auth.getUser();
-
-        if (error) {
-            console.error('User Error:', error);
-            return null;
-        }
-
-        return data.user;
-
-    } catch (error) {
-
-        console.error('Unexpected User Error:', error);
-
+    if (error) {
+        console.error('User Error:', error);
         return null;
     }
+
+    return data.user;
 }
 
 
@@ -101,28 +88,20 @@ export async function isAuthenticated() {
 
 
 /* =========================================
-   SIGN OUT
+   LOGOUT
 ========================================= */
 
 export async function logoutUser() {
 
-    try {
+    const { error } =
+        await supabase.auth.signOut();
 
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            console.error('Logout Error:', error);
-            throw error;
-        }
-
-        window.location.replace('index.html');
-
-    } catch (error) {
-
-        console.error('Unexpected Logout Error:', error);
-
+    if (error) {
+        console.error('Logout Error:', error);
         throw error;
     }
+
+    window.location.replace('./index.html');
 }
 
 
@@ -149,7 +128,7 @@ export function onAuthStateChange(callback) {
 
 
 /* =========================================
-   EXPORT DEFAULT CLIENT
+   DEFAULT EXPORT
 ========================================= */
 
 export default supabase;
