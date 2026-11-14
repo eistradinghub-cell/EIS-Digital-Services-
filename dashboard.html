@@ -1,87 +1,588 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - EIS Trading Hub</title>
-    <!-- ?v=10 ZAI TILASTA SABON TSARI -->
-    <link rel="stylesheet" href="css/styles.css?v=10">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#ffffff">
+
+    <meta name="description"
+          content="EIS Digital Services Dashboard">
+
+    <title>Dashboard - EIS Digital Services</title>
+
+    <link rel="stylesheet" href="css/styles.css?v=12">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        .dashboard-intro {
+            margin-bottom: 22px;
+        }
+
+        .dashboard-intro h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 28px;
+        }
+
+        .dashboard-intro p {
+            color: var(--mu);
+            margin-top: 8px;
+        }
+
+        .dashboard-card {
+            margin-bottom: 25px;
+        }
+
+        .svcs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 18px;
+        }
+
+        .service-card {
+            padding: 18px;
+            border: 1px solid var(--ln);
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .service-card h3 {
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            margin-bottom: 15px;
+        }
+
+        .service-card button {
+            width: 100%;
+        }
+
+        #pay-section {
+            margin-top: 22px;
+            padding: 18px;
+            border: 1px solid var(--ln);
+            border-radius: 12px;
+            background: #f8faff;
+        }
+
+        .demo {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #fff7df;
+            color: #805b00;
+            font-size: 13px;
+        }
+
+        #app-form {
+            margin-top: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .form-grid > div {
+            min-width: 0;
+        }
+
+        .form-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        .form-grid input,
+        .form-grid select,
+        .form-grid textarea {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .msg {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .msg.ok {
+            color: #15803d;
+        }
+
+        .msg.err {
+            color: #dc2626;
+        }
+
+        .msg.info {
+            color: #1d4ed8;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        #apps-list td {
+            padding: 12px;
+        }
+
+        @media(max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid .full {
+                grid-column: auto;
+            }
+
+            .dashboard-intro h1 {
+                font-size: 24px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+
 </head>
+
 <body>
+
+    <!-- HEADER -->
+
     <header class="site-header">
-      <div class="nav-row">
-        <a class="brand" href="dashboard.html">
-          <svg class="brand-mark" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/><path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="26" r="2.6" fill="#12b894"/></svg>
-          <span class="brand-text"><b>EIS</b><span>Digital Services</span></span>
-        </a>
-        <div class="nav-right">
-          <nav class="nav-links">
-            <a href="dashboard.html" class="btn active">Dashboard</a>
-            <a href="#" class="btn">Marketplace</a>
-            <a href="admin.html" id="nav-admin" class="btn" style="display: none;">Admin</a>
-            <button id="nav-logout" class="btn" style="color: var(--bad); border-color: var(--bad);">Log out</button>
-          </nav>
-          <a href="support.html" id="msgBtn" class="icon-btn">
-             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-          </a>
+
+        <div class="nav-row">
+
+            <a class="brand" href="dashboard.html">
+
+                <svg class="brand-mark" viewBox="0 0 48 48">
+
+                    <rect x="2" y="2"
+                          width="44" height="44"
+                          rx="12" fill="#1f4fe0"/>
+
+                    <path d="M14 32 L24 14 L34 32"
+                          stroke="#fff"
+                          stroke-width="3.4"
+                          fill="none"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
+
+                    <circle cx="24" cy="26"
+                            r="2.6"
+                            fill="#12b894"/>
+
+                </svg>
+
+                <span class="brand-text">
+                    <b>EIS</b>
+                    <span>Digital Services</span>
+                </span>
+
+            </a>
+
+
+            <div class="nav-right">
+
+                <nav class="nav-links">
+
+                    <a href="dashboard.html"
+                       class="btn active">
+                        Dashboard
+                    </a>
+
+                    <a href="marketplace.html"
+                       class="btn">
+                        Marketplace
+                    </a>
+
+                    <!-- Hidden until admin role is verified -->
+
+                    <a href="admin.html"
+                       id="nav-admin"
+                       class="btn"
+                       style="display:none;">
+                        Admin
+                    </a>
+
+                    <button
+                        id="nav-logout"
+                        type="button"
+                        class="btn"
+                        style="color:var(--bad); border-color:var(--bad);">
+
+                        Log out
+
+                    </button>
+
+                </nav>
+
+                <a href="support.html"
+                   id="msgBtn"
+                   class="icon-btn"
+                   aria-label="Customer support">
+
+                    <svg viewBox="0 0 24 24"
+                         width="24"
+                         height="24"
+                         fill="none"
+                         stroke="var(--blue)"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8
+                        8.5 8.5 0 0 1-7.6 4.7
+                        8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7
+                        a8.38 8.38 0 0 1-.9-3.8
+                        8.5 8.5 0 0 1 4.7-7.6
+                        8.38 8.38 0 0 1 3.8-.9h.5
+                        a8.48 8.48 0 0 1 8 8v.5z">
+                        </path>
+
+                    </svg>
+
+                </a>
+
+            </div>
+
         </div>
-      </div>
+
     </header>
 
+
+    <!-- MAIN CONTENT -->
+
     <main class="wrap sec">
-        <div class="card">
-            <h1 style="font-family: 'Plus Jakarta Sans'; font-size: 24px;">Dashboard</h1>
-            <p id="welcome" style="color: var(--mu); margin-top: 5px;">Loading profile...</p>
-        </div>
 
-        <div class="card">
-            <h3 style="font-family: 'Plus Jakarta Sans'; margin-bottom: 10px;">1. Choose a service</h3>
-            <div class="svcs" id="services-container">
+
+        <!-- DASHBOARD INTRO -->
+
+        <section class="card dashboard-intro">
+
+            <h1>Dashboard</h1>
+
+            <p id="welcome">
+                Loading profile...
+            </p>
+
+        </section>
+
+
+        <!-- SERVICES -->
+
+        <section class="card dashboard-card">
+
+            <h2 style="font-family:'Plus Jakarta Sans';">
+                1. Choose a service
+            </h2>
+
+            <div id="services-container" class="svcs">
+
                 <p>Loading services...</p>
-            </div>
-            <div id="pay-section" style="display: none; margin-top: 20px;">
-                <div class="demo">Demo payment only. No real money is charged.</div>
-                <button id="btn-pay" class="btn btn-primary" style="width: 100%;">Pay Now</button>
-            </div>
-            <p class="msg" id="pay-msg"></p>
-        </div>
 
-        <form class="card" id="app-form" style="display: none;">
-            <h3 style="font-family: 'Plus Jakarta Sans'; margin-bottom: 10px;">2. Application form</h3>
-            <div class="form-grid">
-                <div><label>KEGOW account number</label><input type="text" id="f-kegow" required></div>
-                <div><label>Agent location state</label><select id="f-agentState" required></select></div>
-                <div><label>BVN number (11 digits)</label><input type="text" id="f-bvn" required></div>
-                <div><label>Bank name</label><input type="text" id="f-bankName" required></div>
-                <div><label>Account number (10 digits)</label><input type="text" id="f-accountNo" required></div>
-                <div><label>Account name</label><input type="text" id="f-accountName" required></div>
-                <div><label>Agent first name</label><input type="text" id="f-firstName" required></div>
-                <div><label>Last name</label><input type="text" id="f-lastName" required></div>
-                <div><label>Email</label><input type="email" id="f-email" required></div>
-                <div><label>Phone number</label><input type="tel" id="f-phone" required></div>
-                <div class="full"><label>Home address</label><textarea id="f-address" required></textarea></div>
-                <div><label>State of residence</label><select id="f-stateRes" required></select></div>
-                <div><label>Date of birth</label><input type="date" id="f-dob" required></div>
             </div>
-            <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 18px;">Submit application</button>
-            <p class="msg" id="form-msg"></p>
+
+
+            <!-- PAYMENT SECTION -->
+
+            <div id="pay-section"
+                 style="display:none;">
+
+                <h3>2. Payment</h3>
+
+                <div class="demo">
+
+                    DEMO PAYMENT ONLY.
+
+                    No real money is charged.
+                    This is for testing the application workflow.
+
+                </div>
+
+                <button
+                    id="btn-pay"
+                    type="button"
+                    class="btn btn-primary"
+                    style="width:100%;">
+
+                    Pay Now
+
+                </button>
+
+            </div>
+
+
+            <p id="pay-msg" class="msg"></p>
+
+        </section>
+
+
+        <!-- APPLICATION FORM -->
+
+        <form class="card dashboard-card"
+              id="app-form"
+              style="display:none;">
+
+            <h2 style="font-family:'Plus Jakarta Sans';">
+                3. Application Form
+            </h2>
+
+            <p style="color:var(--mu); margin:10px 0 20px;">
+
+                Complete the required fields below.
+
+            </p>
+
+
+            <div class="form-grid">
+
+
+                <div>
+                    <label for="f-kegow">
+                        KEGOW account number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="f-kegow">
+                </div>
+
+
+                <div>
+                    <label for="f-agentState">
+                        Agent location state
+                    </label>
+
+                    <select id="f-agentState" required>
+                        <option value="">Select State</option>
+                    </select>
+                </div>
+
+
+                <div>
+                    <label for="f-bvn">
+                        BVN number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="f-bvn">
+                </div>
+
+
+                <div>
+                    <label for="f-bankName">
+                        Bank name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="f-bankName">
+                </div>
+
+
+                <div>
+                    <label for="f-accountNo">
+                        Account number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="f-accountNo">
+                </div>
+
+
+                <div>
+                    <label for="f-accountName">
+                        Account name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="f-accountName">
+                </div>
+
+
+                <div>
+                    <label for="f-firstName">
+                        First name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="f-firstName"
+                        required>
+                </div>
+
+
+                <div>
+                    <label for="f-lastName">
+                        Last name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="f-lastName"
+                        required>
+                </div>
+
+
+                <div>
+                    <label for="f-email">
+                        Email address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="f-email"
+                        required>
+                </div>
+
+
+                <div>
+                    <label for="f-phone">
+                        Phone number
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="f-phone"
+                        required>
+                </div>
+
+
+                <div class="full">
+
+                    <label for="f-address">
+                        Home address
+                    </label>
+
+                    <textarea
+                        id="f-address"
+                        rows="3">
+                    </textarea>
+
+                </div>
+
+
+                <div>
+                    <label for="f-stateRes">
+                        State of residence
+                    </label>
+
+                    <select id="f-stateRes" required>
+                        <option value="">Select State</option>
+                    </select>
+                </div>
+
+
+                <div>
+                    <label for="f-dob">
+                        Date of birth
+                    </label>
+
+                    <input
+                        type="date"
+                        id="f-dob">
+                </div>
+
+
+            </div>
+
+
+            <button
+                class="btn btn-primary"
+                type="submit"
+                style="width:100%; margin-top:20px;">
+
+                Submit application
+
+            </button>
+
+
+            <p id="form-msg" class="msg"></p>
+
         </form>
 
-        <div class="card">
-            <h3 style="font-family: 'Plus Jakarta Sans'; margin-bottom: 10px;">My applications</h3>
-            <div style="overflow-x: auto;">
+
+        <!-- MY APPLICATIONS -->
+
+        <section class="card dashboard-card">
+
+            <h2 style="font-family:'Plus Jakarta Sans';">
+                My Applications
+            </h2>
+
+            <div class="table-wrapper"
+                 style="margin-top:15px;">
+
                 <table>
-                    <thead><tr><th>Name</th><th>Reference</th><th>Service</th><th>Status</th></tr></thead>
+
+                    <thead>
+
+                        <tr>
+                            <th>Name</th>
+                            <th>Reference</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
                     <tbody id="apps-list">
-                        <tr><td colspan="4" style="text-align: center;">No applications yet.</td></tr>
+
+                        <tr>
+                            <td colspan="4"
+                                style="text-align:center;">
+
+                                Loading applications...
+
+                            </td>
+                        </tr>
+
                     </tbody>
+
                 </table>
+
             </div>
-        </div>
+
+        </section>
+
+
     </main>
 
-    <!-- ?v=10 ZAI TILASTA SABON TSARI -->
-    <script type="module" src="js/dashboard.js?v=10"></script>
+
+    <!-- FOOTER -->
+
+    <footer class="site-footer">
+
+        <div class="wrap">
+
+            <p>
+                &copy; 2026 EIS Digital Services.
+                All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- DASHBOARD JAVASCRIPT -->
+
+    <script
+        type="module"
+        src="js/dashboard.js?v=12">
+    </script>
+
 </body>
+
 </html>
