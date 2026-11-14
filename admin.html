@@ -3,10 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f4f7fc">
 
     <meta name="description"
@@ -14,7 +11,6 @@
 
     <title>Admin Dashboard | EIS Trading Hub</title>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link rel="preconnect"
@@ -24,22 +20,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
           rel="stylesheet">
 
-    <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="css/styles.css?v=21">
-
+    <link rel="stylesheet" href="css/styles.css?v=22">
 </head>
 
-<body>
+<body class="admin-page">
 
-    <!-- =====================================
-         HEADER
-    ====================================== -->
-
+    <!-- HEADER -->
     <header class="site-header">
 
         <div class="header-inner">
-
-            <!-- BRAND -->
 
             <a href="dashboard.html" class="brand">
 
@@ -52,18 +41,11 @@
 
             </a>
 
-
-            <!-- NAVIGATION -->
-
             <nav class="nav-links">
 
-                <a href="dashboard.html">
-                    Dashboard
-                </a>
+                <a href="dashboard.html">Dashboard</a>
 
-                <a href="marketplace.html">
-                    Marketplace
-                </a>
+                <a href="marketplace.html">Marketplace</a>
 
                 <a href="admin.html"
                    class="active"
@@ -75,15 +57,10 @@
                     type="button"
                     id="nav-logout"
                     class="logout-button">
-
                     Log out
-
                 </button>
 
             </nav>
-
-
-            <!-- CUSTOMER SUPPORT -->
 
             <a href="support.html"
                id="msgBtn"
@@ -114,51 +91,29 @@
     </header>
 
 
-
-    <!-- =====================================
-         MAIN ADMIN CONTENT
-    ====================================== -->
-
+    <!-- MAIN ADMIN CONTENT -->
     <main class="admin-container">
 
-
         <!-- PAGE HEADING -->
-
         <section class="page-heading">
 
             <div>
-
-                <span class="eyebrow">
-                    EIS MANAGEMENT
-                </span>
+                <span class="eyebrow">EIS MANAGEMENT</span>
 
                 <h1>Overview</h1>
 
                 <p>
                     Manage applications, services and payment records.
                 </p>
-
             </div>
-
-
-            <!-- ADMIN PROFILE -->
 
             <div class="admin-identity">
 
-                <div class="admin-avatar">
-                    A
-                </div>
+                <div class="admin-avatar">A</div>
 
                 <div>
-
-                    <strong id="admin-name">
-                        Administrator
-                    </strong>
-
-                    <small id="admin-email">
-                        Loading administrator...
-                    </small>
-
+                    <strong id="admin-name">Administrator</strong>
+                    <small id="admin-email">Loading administrator...</small>
                 </div>
 
             </div>
@@ -166,146 +121,68 @@
         </section>
 
 
-
         <!-- SYSTEM MESSAGE -->
-
         <div id="admin-message"
              class="notice"
              role="status"
              aria-live="polite"
              hidden>
-
         </div>
 
 
-
-        <!-- =====================================
-             STATISTICS
-        ====================================== -->
-
+        <!-- STATISTICS -->
         <section class="stat-grid">
 
-
-            <!-- TOTAL APPLICATIONS -->
-
             <article class="stat-card">
-
-                <span>
-                    Applications
-                </span>
-
-                <strong id="stat-total">
-                    0
-                </strong>
-
-                <small>
-                    All applications
-                </small>
-
+                <span>Applications</span>
+                <strong id="stat-total">0</strong>
+                <small>All applications</small>
             </article>
 
-
-
-            <!-- IN REVIEW -->
-
             <article class="stat-card">
-
-                <span>
-                    In Review
-                </span>
-
-                <strong id="stat-review">
-                    0
-                </strong>
-
-                <small>
-                    Awaiting review
-                </small>
-
+                <span>In Review</span>
+                <strong id="stat-review">0</strong>
+                <small>Awaiting review</small>
             </article>
 
-
-
-            <!-- COMPLETED -->
-
             <article class="stat-card">
-
-                <span>
-                    Completed
-                </span>
-
-                <strong id="stat-completed">
-                    0
-                </strong>
-
-                <small>
-                    Completed applications
-                </small>
-
+                <span>Completed</span>
+                <strong id="stat-completed">0</strong>
+                <small>Completed applications</small>
             </article>
 
-
-
-            <!-- PRODUCTS -->
-
             <article class="stat-card">
-
-                <span>
-                    Products
-                </span>
-
-                <strong id="stat-products">
-                    0
-                </strong>
-
-                <small>
-                    Registered services
-                </small>
-
+                <span>Products</span>
+                <strong id="stat-products">0</strong>
+                <small>Registered services</small>
             </article>
-
 
         </section>
 
 
-
-        <!-- =====================================
-             APPLICATION MANAGEMENT
-        ====================================== -->
-
+        <!-- APPLICATION MANAGEMENT -->
         <section class="panel">
 
             <div class="panel-heading">
 
                 <div>
-
-                    <h2>
-                        Applications Management
-                    </h2>
+                    <h2>Applications Management</h2>
 
                     <p>
                         Review customer applications and manage their status.
                     </p>
-
                 </div>
-
 
                 <button
                     type="button"
                     id="refresh-applications"
                     class="secondary-button">
-
                     Refresh
-
                 </button>
 
             </div>
 
-
-            <!-- APPLICATION LIST -->
-
-            <div id="admin-apps-list"
-                 class="app-list">
+            <div id="admin-apps-list" class="app-list">
 
                 <div class="loading">
                     Loading applications...
@@ -316,44 +193,29 @@
         </section>
 
 
-
-        <!-- =====================================
-             PRODUCTS AND SERVICES
-        ====================================== -->
-
+        <!-- PRODUCTS AND SERVICES -->
         <section class="panel">
 
             <div class="panel-heading">
 
                 <div>
-
-                    <h2>
-                        Products & Services
-                    </h2>
+                    <h2>Products & Services</h2>
 
                     <p>
                         View registered services and their prices.
                     </p>
-
                 </div>
-
 
                 <button
                     type="button"
                     id="refresh-services"
                     class="secondary-button">
-
                     Refresh
-
                 </button>
 
             </div>
 
-
-            <!-- SERVICES LIST -->
-
-            <div id="admin-services-list"
-                 class="simple-list">
+            <div id="admin-services-list" class="simple-list">
 
                 <div class="loading">
                     Loading services...
@@ -364,44 +226,29 @@
         </section>
 
 
-
-        <!-- =====================================
-             PAYMENT MANAGEMENT
-        ====================================== -->
-
+        <!-- PAYMENT MANAGEMENT -->
         <section class="panel">
 
             <div class="panel-heading">
 
                 <div>
-
-                    <h2>
-                        Payment Records
-                    </h2>
+                    <h2>Payment Records</h2>
 
                     <p>
                         Monitor payment records and their statuses.
                     </p>
-
                 </div>
-
 
                 <button
                     type="button"
                     id="refresh-payments"
                     class="secondary-button">
-
                     Refresh
-
                 </button>
 
             </div>
 
-
-            <!-- PAYMENTS LIST -->
-
-            <div id="admin-payments-list"
-                 class="simple-list">
+            <div id="admin-payments-list" class="simple-list">
 
                 <div class="loading">
                     Loading payment records...
@@ -411,34 +258,21 @@
 
         </section>
 
-
     </main>
 
 
-
-    <!-- =====================================
-         FOOTER
-    ====================================== -->
-
+    <!-- FOOTER -->
     <footer class="site-footer">
 
         <p>
-            © 2026 EIS Trading Hub.
-            All rights reserved.
+            © 2026 EIS Trading Hub. All rights reserved.
         </p>
 
     </footer>
 
 
-
-    <!-- =====================================
-         ADMIN JAVASCRIPT
-    ====================================== -->
-
-    <script type="module"
-            src="js/admin.js?v=21">
-    </script>
-
+    <!-- ADMIN JAVASCRIPT -->
+    <script type="module" src="js/admin.js?v=22"></script>
 
 </body>
 </html>
