@@ -1,116 +1,125 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { supabase } from './supabase.js';
 
-const SUPABASE_URL = 'https://mbihyrbfeatcynspzune.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_alh5WL2JbOK6yW_5z5Fq4A_kJQHWt1-';
+let currentUser = null;
+let selectedService = null;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const STATES = ['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','FCT Abuja','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'];
 
-// --- LOGIC NA SHAFIN INDEX (Login/Signup) ---
-if (document.getElementById('form-login')) {
-    const viewHome = document.getElementById('view-home');
-    const viewLogin = document.getElementById('view-login');
-    const viewSignup = document.getElementById('view-signup');
-    const navAuth = document.getElementById('nav-auth');
-    const navUser = document.getElementById('nav-user');
+async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
+    currentUser = session.user;
 
-    // Aikin nuna shafuka
-    function showView(v) { 
-        if(viewHome) viewHome.style.display='none'; 
-        if(viewLogin) viewLogin.style.display='none'; 
-        if(viewSignup) viewSignup.style.display='none'; 
-        if(v) v.style.display='block'; 
-    }
-
-    // Maɓallan da ke canza shafi
-    const btnShowLogin = document.getElementById('btn-show-login');
-    const btnShowSignup = document.getElementById('btn-show-signup');
-    const ctaBtn = document.getElementById('cta');
-    const linkToSignup = document.getElementById('link-to-signup');
-    const linkToLogin = document.getElementById('link-to-login');
-
-    if(btnShowLogin) btnShowLogin.addEventListener('click', () => showView(viewLogin));
-    if(btnShowSignup) btnShowSignup.addEventListener('click', () => showView(viewSignup));
-    if(ctaBtn) ctaBtn.addEventListener('click', () => showView(viewSignup));
-    if(linkToSignup) linkToSignup.addEventListener('click', (e) => { e.preventDefault(); showView(viewSignup); });
-    if(linkToLogin) linkToLogin.addEventListener('click', (e) => { e.preventDefault(); showView(viewLogin); });
-
-    // Wannan shine ke duba ko mutum ya shiga
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (session) {
-            // Idan ya shiga: Boye Login/Signup, nuna Dashboard/Logout
-            if(navAuth) navAuth.style.display = 'none'; 
-            if(navUser) navUser.style.display = 'flex'; 
-            if (viewLogin && viewLogin.style.display === 'block' || viewSignup && viewSignup.style.display === 'block') {
-                window.location.href = 'dashboard.html';
-            }
-        } else {
-            // Idan bai shiga ba: Nuna Login/Signup, boye Dashboard/Logout
-            if(navAuth) navAuth.style.display = 'flex'; 
-            if(navUser) navUser.style.display = 'none'; 
-            showView(viewHome);
-        }
+    ['f-agentState', 'f-stateRes'].forEach(id => {
+        const sel = document.getElementById(id);
+        if(!sel) return;
+        sel.innerHTML = '<option value="">Select state</option>';
+        STATES.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
     });
 
-    // Aikin yin Signup
-    const signupForm = document.getElementById('form-signup');
-    if(signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]'); 
-            btn.textContent = 'Creating...'; btn.disabled = true;
-            const errEl = document.getElementById('signup-error'); errEl.textContent = '';
-            const succEl = document.getElementById('signup-success'); succEl.textContent = '';
-            const name = document.getElementById('signup-name').value;
-            const email = document.getElementById('signup-email').value;
-            const phone = document.getElementById('signup-phone').value;
-            const password = document.getElementById('signup-password').value;
-
-            try {
-                const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
-                if (authError) throw authError;
-
-                if (authData.user) {
-                    const { error: profileError } = await supabase.from('profiles').insert([{ id: authData.user.id, email, full_name: name, phone, role: 'customer' }]);
-                    if (profileError) throw profileError;
-                }
-                succEl.textContent = 'Account created! Redirecting to dashboard...';
-                setTimeout(() => window.location.href = 'dashboard.html', 1500);
-            } catch (error) { 
-                errEl.textContent = error.message; 
-            } finally { 
-                btn.textContent = 'Sign Up'; btn.disabled = false; 
+    try {
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        if (profile) {
+            document.getElementById('welcome').textContent = `Welcome back, ${profile.full_name || profile.email}`;
+            if (profile.role === 'admin' || profile.role === 'super_admin') {
+                document.getElementById('nav-admin').style.display = 'inline-block';
             }
-        });
+        } else {
+            document.getElementById('welcome').textContent = `Welcome back, ${currentUser.email}`;
+        }
+    } catch(e) {
+        document.getElementById('welcome').textContent = `Welcome back, ${currentUser.email}`;
     }
 
-    // Aikin yin Login
-    const loginForm = document.getElementById('form-login');
-    if(loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]'); 
-            btn.textContent = 'Logging in...'; btn.disabled = true;
-            const errEl = document.getElementById('login-error'); errEl.textContent = '';
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            try {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                window.location.href = 'dashboard.html';
-            } catch (error) { 
-                errEl.textContent = error.message; 
-            } finally { 
-                btn.textContent = 'Log In'; btn.disabled = false; 
-            }
-        });
-    }
+    loadServices();
+    loadApps();
+}
 
-    // Aikin Logout
-    const logoutBtn = document.getElementById('btn-logout');
-    if(logoutBtn) {
-        logoutBtn.addEventListener('click', async () => { 
-            await supabase.auth.signOut(); 
-            window.location.reload(); 
+async function loadServices() {
+    const container = document.getElementById('services-container');
+    if(!container) return;
+    try {
+        const { data: services, error } = await supabase.from('services').select('*').order('price', { ascending: true });
+        if (error) throw error;
+
+        container.innerHTML = '';
+        if(!services || services.length === 0) {
+            container.innerHTML = '<p>No services found. Please ensure Database is populated.</p>';
+            return;
+        }
+
+        services.forEach(svc => {
+            const div = document.createElement('button');
+            div.innerHTML = `${svc.name} <small>₦${svc.price.toLocaleString()}</small>`;
+            div.onclick = () => {
+                document.querySelectorAll('.svcs button').forEach(c => c.classList.remove('on'));
+                div.classList.add('on');
+                selectedService = svc;
+                document.getElementById('pay-section').style.display = 'block';
+                document.getElementById('btn-pay').textContent = `Pay ₦${svc.price.toLocaleString()} (demo)`;
+            };
+            container.appendChild(div);
         });
+    } catch (err) {
+        container.innerHTML = `<p style="color:red;">Failed to load services: ${err.message}</p>`;
     }
 }
+
+document.getElementById('btn-pay').onclick = async () => {
+    if (!selectedService) return;
+    const btn = document.getElementById('btn-pay');
+    btn.textContent = 'Processing...'; btn.disabled = true;
+    try {
+        await supabase.from('profiles').upsert({ id: currentUser.id, email: currentUser.email, role: 'customer' }, { onConflict: 'id' });
+        const ref = 'EIS-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        const { error: payError } = await supabase.from('payments').insert([{ reference: ref, user_id: currentUser.id, service_name: selectedService.name, amount: selectedService.price, status: 'successful' }]);
+        if (payError) throw payError;
+        document.getElementById('pay-section').style.display = 'none';
+        document.getElementById('app-form').style.display = 'block';
+        document.getElementById('f-email').value = currentUser.email;
+    } catch (error) {
+        document.getElementById('pay-msg').textContent = 'Payment failed: ' + error.message;
+        document.getElementById('pay-msg').className = 'msg err';
+        btn.textContent = `Pay ₦${selectedService.price.toLocaleString()} (demo)`;
+        btn.disabled = false;
+    }
+};
+
+document.getElementById('app-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const msgEl = document.getElementById('form-msg');
+    btn.textContent = 'Submitting...'; btn.disabled = true;
+    msgEl.textContent = '';
+    const formData = {
+        kegow: document.getElementById('f-kegow').value, agentState: document.getElementById('f-agentState').value,
+        bvn: document.getElementById('f-bvn').value, bankName: document.getElementById('f-bankName').value,
+        accountNo: document.getElementById('f-accountNo').value, accountName: document.getElementById('f-accountName').value,
+        firstName: document.getElementById('f-firstName').value, lastName: document.getElementById('f-lastName').value,
+        email: document.getElementById('f-email').value, phone: document.getElementById('f-phone').value,
+        address: document.getElementById('f-address').value, stateRes: document.getElementById('f-stateRes').value, dob: document.getElementById('f-dob').value,
+    };
+    const { error } = await supabase.from('applications').insert([{ user_id: currentUser.id, service_name: selectedService.name, amount: selectedService.price, status: 'In review', form_data: formData }]);
+    if (error) {
+        msgEl.textContent = error.message; msgEl.className = 'msg err';
+        btn.textContent = 'Submit application'; btn.disabled = false;
+    } else {
+        msgEl.textContent = 'Application submitted successfully!'; msgEl.className = 'msg ok';
+        e.target.reset(); document.getElementById('app-form').style.display = 'none';
+        btn.textContent = 'Submit application'; btn.disabled = false; loadApps();
+    }
+};
+
+async function loadApps() {
+    const tbody = document.getElementById('apps-list');
+    const { data: apps } = await supabase.from('applications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    if (!apps || apps.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No applications yet.</td></tr>'; return; }
+    tbody.innerHTML = '';
+    apps.forEach(app => {
+        tbody.innerHTML += `<tr><td>${app.form_data.firstName}</td><td>${app.id.split('-')[0]}</td><td>${app.service_name}</td><td><strong style="color:var(--blue);">${app.status}</strong></td></tr>`;
+    });
+}
+
+document.getElementById('nav-logout').onclick = async () => { await supabase.auth.signOut(); window.location.href = 'index.html'; };
+
+init();
