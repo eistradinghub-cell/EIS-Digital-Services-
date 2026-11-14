@@ -1,17 +1,23 @@
 import { supabase } from './supabase.js';
 
-if (document.getElementById('form-login')) {
+if (document.getElementById('form-login') || document.getElementById('view-home')) {
     const viewHome = document.getElementById('view-home');
     const viewLogin = document.getElementById('view-login');
     const viewSignup = document.getElementById('view-signup');
     const navAuth = document.getElementById('nav-auth');
     const navUser = document.getElementById('nav-user');
 
+    // Aikin nuna shafuka
     function showView(v) { 
         if(viewHome) viewHome.style.display = (v === viewHome ? 'block' : 'none'); 
         if(viewLogin) viewLogin.style.display = (v === viewLogin ? 'block' : 'none'); 
         if(viewSignup) viewSignup.style.display = (v === viewSignup ? 'block' : 'none'); 
     }
+
+    // MAFITA: Da farko, boye duk wani abu na user sannan ka nuna na auth
+    if(navAuth) navAuth.style.display = 'flex';
+    if(navUser) navUser.style.display = 'none';
+    showView(viewHome);
 
     const btnShowLogin = document.getElementById('btn-show-login');
     const btnShowSignup = document.getElementById('btn-show-signup');
@@ -25,20 +31,21 @@ if (document.getElementById('form-login')) {
     if(linkToSignup) linkToSignup.addEventListener('click', (e) => { e.preventDefault(); showView(viewSignup); });
     if(linkToLogin) linkToLogin.addEventListener('click', (e) => { e.preventDefault(); showView(viewLogin); });
 
+    // Duba idan mutum ya shiga
     supabase.auth.onAuthStateChange((event, session) => {
         if (session) {
+            // Idan ya shiga: Boye Login/Signup, nuna Dashboard/Logout
             if(navAuth) navAuth.style.display = 'none'; 
             if(navUser) navUser.style.display = 'flex'; 
-            if (viewLogin && viewLogin.style.display === 'block' || viewSignup && viewSignup.style.display === 'block') {
-                window.location.href = 'dashboard.html';
-            }
         } else {
+            // Idan bai shiga ba: Nuna Login/Signup, boye Dashboard/Logout
             if(navAuth) navAuth.style.display = 'flex'; 
             if(navUser) navUser.style.display = 'none'; 
             showView(viewHome);
         }
     });
 
+    // Aikin Signup
     const signupForm = document.getElementById('form-signup');
     if(signupForm) {
         signupForm.addEventListener('submit', async (e) => {
@@ -69,6 +76,7 @@ if (document.getElementById('form-login')) {
         });
     }
 
+    // Aikin Login
     const loginForm = document.getElementById('form-login');
     if(loginForm) {
         loginForm.addEventListener('submit', async (e) => {
