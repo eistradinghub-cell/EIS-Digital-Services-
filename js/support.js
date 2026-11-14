@@ -1,493 +1,562 @@
-/* =====================================================
+import { supabase } from './supabase.js';
+
+/* =========================================
    EIS DIGITAL SERVICES
-   FILE 7: js/support.js
-   Customer Support Chat System
-===================================================== */
-
-import { supabase } from "./supabase.js";
-
-/* ===============================
-   GLOBAL VARIABLES
-================================ */
+   CUSTOMER SUPPORT CHAT
+========================================= */
 
 let currentUser = null;
 let currentConversation = null;
 let realtimeChannel = null;
-let isSending = false;
+let sendingMessage = false;
 
-/* ===============================
-   TABLE NAMES
-================================ */
 
-const CHAT_TABLES = {
-    conversations: "chat_conversations",
-    messages: "chat_messages"
-};
+/* =========================================
+   DOM ELEMENTS
+========================================= */
 
-/* ===============================
-   DOM HELPERS
-================================ */
+const chatMessages = document.getElementById('chat-messages');
+const chatInput = document.getElementById('chat-input');
+const chatForm = document.getElementById('chat-form');
+const sendButton = document.getElementById('btn-send-msg');
+const logoutButton = document.getElementById('logout-btn');
+const noticeBox = document.getElementById('support-message');
 
-function getElement(id) {
-    return document.getElementById(id);
-}
 
-function showMessage(message, type = "info") {
-    const container =
-        getElement("chat-notification") ||
-        getElement("support-message") ||
-        getElement("notification");
+/* =========================================
+   NOTIFICATION
+========================================= */
 
-    if (!container) {
-        console.log(message);
-        return;
-    }
+function showNotice(message, type = 'error') {
 
-    container.textContent = message;
-    container.className = `notification ${type}`;
-    container.hidden = false;
+    if (!noticeBox) return;
 
-    clearTimeout(showMessage.timer);
+    noticeBox.textContent = message;
+    noticeBox.className = `chat-notice ${type}`;
 
-    showMessage.timer = setTimeout(() => {
-        container.hidden = true;
+    setTimeout(() => {
+        noticeBox.textContent = '';
+        noticeBox.className = 'chat-notice';
     }, 5000);
 }
 
-/* ===============================
-   AUTHENTICATION
-================================ */
 
-async function checkSupportSession() {
-    try {
-        const {
-            data: { user },
-            error
-        } = await supabase.auth.getUser();
+/* =========================================
+   LOADING MESSAGE
+========================================= */
 
-        if (error) throw error;
+function showLoading(message) {
 
-        if (!user) {
-            window.location.href = "index.html";
-            return false;
-        }
+    if (!chatMessages) return;
 
-        currentUser = user;
+    chatMessages.replaceChildren();
 
-        return true;
+    const paragraph = document.createElement('p');
 
-    } catch (error) {
-        console.error("Support authentication error:", error);
+    paragraph.textContent = message;
+    paragraph.style.textAlign = 'center';
+    paragraph.style.color = '#777';
+    paragraph.style.fontSize = '13px';
 
-        window.location.href = "index.html";
-
-        return false;
-    }
+    chatMessages.appendChild(paragraph);
 }
 
-/* ===============================
-   CREATE OR GET CONVERSATION
-================================ */
 
-async function getConversation() {
-    if (!currentUser) return null;
+/* =========================================
+   FORMAT DATE
+========================================= */
 
-    try {
-        const { data, error } = await supabase
-            .from(CHAT_TABLES.conversations)
-            .select("*")
-            .eq("customer_id", currentUser.id)
-            .order("created_at", { ascending: false })
-            .limit(1);
+function formatTime(dateValue) {
 
-        if (error) throw error;
+    if (!dateValue) return '';
 
-        if (data && data.length > 0) {
-            currentConversation = data[0];
-            return currentConversation;
-        }
+    const date = new Date(dateValue);
 
-        const { data: newConversation, error: createError } =
-            await supabase
-                .from(CHAT_TABLES.conversations)
-                .insert([{
-                    customer_id: currentUser.id,
-                    status: "open"
-                }])
-                .select()
-                .single();
+    if (Number.isNaN(date.getTime())) return '';
 
-        if (createError) throw createError;
+    return date.toLocaleString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: 'numeric',
+        month: 'short'
+    });
+}
 
-        currentConversation = newConversation;
 
-        return currentConversation;
+/* =========================================
+   DISPLAY MESSAGE
+========================================= */
 
-    } catch (error) {
-        console.error("Conversation error:", error);
+function displayMessage(message) {
 
-        showMessage(
-            "Unable to open customer support conversation.",
-            "error"
-        );
+    if (!chatMessages || !message) return;
+
+    // Prevent duplicate messages
+    if (
+        message.id &&
+        chatMessages.querySelector(
+            `[data-message-id="${CSS.escape(String(message.id))}"]`
+        )
+    ) {
+        return;
+    }
+
+    const isMine = message.sender_id === currentUser?.id;
+
+    const bubble = document.createElement('div');
+
+    bubble.className = isMine
+        ? 'msg-bubble msg-mine'
+        : 'msg-bubble msg-theirs';
+
+    if (message.id) {
+        bubble.dataset.messageId = message.id;
+    }
+
+    const content = document.createElement('div');
+
+    // Actual database column: content
+    content.textContent = message.content || '';
+
+    bubble.appendChild(content);
+
+    const time = document.createElement('div');
+
+    // Actual database column: created_at
+    time.className = 'msg-time';
+    time.textContent = formatTime(message.created_at);
+
+    bubble.appendChild(time);
+
+    chatMessages.appendChild(bubble);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+
+/* =========================================
+   LOAD CURRENT USER
+========================================= */
+
+async function loadCurrentUser() {
+
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data.user) {
+
+        console.error('Authentication Error:', error);
+
+        window.location.replace('index.html');
 
         return null;
     }
+
+    currentUser = data.user;
+
+    return currentUser;
 }
 
-/* ===============================
-   DISPLAY MESSAGE
-================================ */
 
-function displayMessage(message) {
-    const container =
-        getElement("chat-messages") ||
-        getElement("messages-container");
+/* =========================================
+   GET OR CREATE CONVERSATION
+========================================= */
 
-    if (!container || !message) return;
+async function getConversation() {
 
-    const messageId = String(message.messageid || message.MessageID || message.id || "");
-
-    if (
-        messageId &&
-        container.querySelector(`[data-message-id="${CSS.escape(messageId)}"]`)
-    ) {
-        return;
+    if (!currentUser) {
+        throw new Error('User authentication required.');
     }
 
-    const wrapper = document.createElement("div");
+    // Actual database column: customer_id
+    const { data: existingConversation, error: fetchError } =
+        await supabase
+            .from('chat_conversations')
+            .select('*')
+            .eq('customer_id', currentUser.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
-    wrapper.className = "chat-message";
-
-    if (
-        String(message.sender_id || message.SenderID) ===
-        String(currentUser?.id)
-    ) {
-        wrapper.classList.add("my-message");
-    } else {
-        wrapper.classList.add("other-message");
+    if (fetchError) {
+        console.error('Conversation Fetch Error:', fetchError);
+        throw fetchError;
     }
 
-    if (messageId) {
-        wrapper.dataset.messageId = messageId;
+    if (existingConversation) {
+
+        currentConversation = existingConversation;
+
+        return currentConversation;
     }
 
-    const content = document.createElement("p");
-
-    content.textContent =
-        message.message_content ||
-        message.MessageContent ||
-        "";
-
-    const timestamp = document.createElement("small");
-
-    const rawDate =
-        message.timestamp ||
-        message.Timestamp ||
-        message.created_at;
-
-    timestamp.textContent = rawDate
-        ? new Date(rawDate).toLocaleString("en-NG")
-        : "";
-
-    wrapper.append(content, timestamp);
-
-    container.appendChild(wrapper);
-
-    container.scrollTop = container.scrollHeight;
-}
-
-/* ===============================
-   LOAD MESSAGES
-================================ */
-
-async function loadMessages() {
-    if (!currentConversation) return [];
-
-    const container =
-        getElement("chat-messages") ||
-        getElement("messages-container");
-
-    try {
-        const { data, error } = await supabase
-            .from(CHAT_TABLES.messages)
-            .select("*")
-            .eq(
-                "conversation_id",
-                currentConversation.id ||
-                currentConversation.conversationid ||
-                currentConversation.ConversationID
-            )
-            .order("created_at", { ascending: true });
-
-        if (error) throw error;
-
-        if (container) {
-            container.replaceChildren();
-
-            if (!data || data.length === 0) {
-                const empty = document.createElement("p");
-
-                empty.textContent =
-                    "No messages yet. Send a message to start chatting.";
-
-                container.appendChild(empty);
-            } else {
-                data.forEach(displayMessage);
-            }
-        }
-
-        return data || [];
-
-    } catch (error) {
-        console.error("Load messages error:", error);
-
-        showMessage(
-            "Unable to load chat messages.",
-            "error"
-        );
-
-        return [];
-    }
-}
-
-/* ===============================
-   SEND MESSAGE
-================================ */
-
-async function sendMessage(event) {
-    if (event) event.preventDefault();
-
-    if (isSending) return;
-
-    if (!currentUser || !currentConversation) {
-        showMessage(
-            "Chat is not ready. Please refresh the page.",
-            "error"
-        );
-
-        return;
-    }
-
-    const input =
-        getElement("chat-input") ||
-        getElement("message-input");
-
-    if (!input) {
-        showMessage("Message input was not found.", "error");
-        return;
-    }
-
-    const content = input.value.trim();
-
-    if (!content) {
-        showMessage("Please enter a message.", "error");
-        return;
-    }
-
-    if (content.length > 5000) {
-        showMessage(
-            "Message is too long. Maximum is 5000 characters.",
-            "error"
-        );
-
-        return;
-    }
-
-    const conversationId =
-        currentConversation.id ||
-        currentConversation.conversationid ||
-        currentConversation.ConversationID;
-
-    const sendButton =
-        getElement("send-message") ||
-        getElement("send-button");
-
-    try {
-        isSending = true;
-
-        if (sendButton) {
-            sendButton.disabled = true;
-        }
-
-        const messageData = {
-            conversation_id: conversationId,
-            customer_id: currentUser.id,
-            sender_id: currentUser.id,
-            sender_role: "customer",
-            message_type: "text",
-            message_content: content,
-            timestamp: new Date().toISOString(),
-            delivery_status: "sent",
-            read_status: "unread"
-        };
-
-        const { data, error } = await supabase
-            .from(CHAT_TABLES.messages)
-            .insert([messageData])
+    // Create new conversation
+    const { data: newConversation, error: createError } =
+        await supabase
+            .from('chat_conversations')
+            .insert({
+                customer_id: currentUser.id,
+                status: 'open'
+            })
             .select()
             .single();
 
-        if (error) throw error;
+    if (createError) {
+        console.error('Conversation Creation Error:', createError);
+        throw createError;
+    }
 
-        input.value = "";
+    currentConversation = newConversation;
 
+    return currentConversation;
+}
+
+
+/* =========================================
+   LOAD CHAT MESSAGES
+========================================= */
+
+async function loadMessages() {
+
+    if (!currentConversation) return;
+
+    showLoading('Loading messages...');
+
+    // Actual database column: conversation_id
+    const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('conversation_id', currentConversation.id)
+        .order('created_at', { ascending: true });
+
+    if (error) {
+
+        console.error('Messages Loading Error:', error);
+
+        showNotice('Unable to load messages.');
+
+        return;
+    }
+
+    chatMessages.replaceChildren();
+
+    if (!data || data.length === 0) {
+
+        const emptyMessage = document.createElement('p');
+
+        emptyMessage.textContent =
+            'No messages yet. Send us a message to start a conversation.';
+
+        emptyMessage.style.textAlign = 'center';
+        emptyMessage.style.color = '#777';
+        emptyMessage.style.fontSize = '13px';
+
+        chatMessages.appendChild(emptyMessage);
+
+        return;
+    }
+
+    data.forEach(displayMessage);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+
+/* =========================================
+   SEND MESSAGE
+========================================= */
+
+async function sendMessage() {
+
+    if (sendingMessage) return;
+
+    const messageText = chatInput?.value.trim();
+
+    if (!messageText) return;
+
+    if (!currentUser || !currentConversation) {
+
+        showNotice('Chat is not ready. Please refresh the page.');
+
+        return;
+    }
+
+    sendingMessage = true;
+
+    if (sendButton) {
+        sendButton.disabled = true;
+    }
+
+    try {
+
+        /*
+         Actual database columns:
+
+         conversation_id
+         sender_id
+         sender_role
+         content
+         attachment_url
+         is_read
+         created_at
+        */
+
+        const { data, error } = await supabase
+            .from('chat_messages')
+            .insert({
+                conversation_id: currentConversation.id,
+                sender_id: currentUser.id,
+                sender_role: 'customer',
+                content: messageText,
+                is_read: false
+            })
+            .select()
+            .single();
+
+        if (error) {
+
+            console.error('Send Message Error:', error);
+
+            showNotice(
+                'Message could not be sent. Please try again.'
+            );
+
+            return;
+        }
+
+        // Display immediately.
+        // Realtime duplicate messages are prevented by ID.
         displayMessage(data);
 
-    } catch (error) {
-        console.error("Send message error:", error);
+        chatInput.value = '';
 
-        showMessage(
-            error.message || "Message could not be sent.",
-            "error"
-        );
+        /*
+         Update conversation preview.
+         This is separate from message sending so that
+         a preview-update failure does not undo the message.
+        */
+
+        const { error: updateError } = await supabase
+            .from('chat_conversations')
+            .update({
+                last_message: messageText,
+                last_message_at: data.created_at
+            })
+            .eq('id', currentConversation.id);
+
+        if (updateError) {
+            console.warn(
+                'Conversation Preview Update Error:',
+                updateError
+            );
+        }
+
+    } catch (error) {
+
+        console.error('Unexpected Send Error:', error);
+
+        showNotice('An unexpected error occurred.');
 
     } finally {
-        isSending = false;
+
+        sendingMessage = false;
 
         if (sendButton) {
             sendButton.disabled = false;
         }
 
-        input.focus();
+        chatInput?.focus();
     }
 }
 
-/* ===============================
+
+/* =========================================
    REALTIME CHAT
-================================ */
+========================================= */
 
 function subscribeToMessages() {
+
     if (!currentConversation) return;
 
+    // Remove previous subscription
     if (realtimeChannel) {
+
         supabase.removeChannel(realtimeChannel);
+
         realtimeChannel = null;
     }
-
-    const conversationId =
-        currentConversation.id ||
-        currentConversation.conversationid ||
-        currentConversation.ConversationID;
 
     realtimeChannel = supabase
-        .channel(`support-chat-${conversationId}`)
+        .channel(
+            `eis-support-${currentConversation.id}`
+        )
         .on(
-            "postgres_changes",
+            'postgres_changes',
             {
-                event: "INSERT",
-                schema: "public",
-                table: CHAT_TABLES.messages,
-                filter: `conversation_id=eq.${conversationId}`
+                event: 'INSERT',
+                schema: 'public',
+                table: 'chat_messages',
+                filter: `conversation_id=eq.${currentConversation.id}`
             },
-            payload => {
+            (payload) => {
+
                 displayMessage(payload.new);
+
             }
         )
-        .subscribe(status => {
-            console.log("Chat realtime status:", status);
-        });
-}
+        .subscribe((status) => {
 
-/* ===============================
-   CLEANUP
-================================ */
+            console.log('Chat Realtime Status:', status);
 
-function cleanupChat() {
-    if (realtimeChannel) {
-        supabase.removeChannel(realtimeChannel);
-        realtimeChannel = null;
-    }
-}
+            if (status === 'SUBSCRIBED') {
 
-/* ===============================
-   EVENT LISTENERS
-================================ */
+                console.log('EIS Support Realtime Connected');
 
-function initializeChatEvents() {
-    const form =
-        getElement("chat-form") ||
-        getElement("message-form");
-
-    if (form) {
-        form.addEventListener("submit", sendMessage);
-    }
-
-    const sendButton =
-        getElement("send-message") ||
-        getElement("send-button");
-
-    if (sendButton && !form) {
-        sendButton.addEventListener("click", sendMessage);
-    }
-
-    const input =
-        getElement("chat-input") ||
-        getElement("message-input");
-
-    if (input) {
-        input.addEventListener("keydown", event => {
-            if (
-                event.key === "Enter" &&
-                !event.shiftKey &&
-                !event.isComposing
-            ) {
-                event.preventDefault();
-                sendMessage(event);
             }
+
+            if (status === 'CHANNEL_ERROR') {
+
+                console.error('Realtime Channel Error');
+
+                showNotice(
+                    'Live connection interrupted. Try refreshing.',
+                    'error'
+                );
+            }
+
         });
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout() {
+
+    try {
+
+        if (realtimeChannel) {
+
+            await supabase.removeChannel(realtimeChannel);
+
+            realtimeChannel = null;
+        }
+
+        const { error } = await supabase.auth.signOut();
+
+        if (error) throw error;
+
+        window.location.replace('index.html');
+
+    } catch (error) {
+
+        console.error('Logout Error:', error);
+
+        showNotice('Unable to log out. Please try again.');
     }
 }
 
-/* ===============================
+
+/* =========================================
+   EVENT LISTENERS
+========================================= */
+
+function setupEventListeners() {
+
+    if (chatForm) {
+
+        chatForm.addEventListener('submit', (event) => {
+
+            event.preventDefault();
+
+            sendMessage();
+
+        });
+
+    } else if (sendButton) {
+
+        sendButton.addEventListener('click', sendMessage);
+
+    }
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener('click', logout);
+
+    }
+
+}
+
+
+/* =========================================
    INITIALIZE SUPPORT
-================================ */
+========================================= */
 
 async function initializeSupport() {
-    const authenticated = await checkSupportSession();
 
-    if (!authenticated) return;
+    try {
 
-    initializeChatEvents();
+        showLoading('Connecting to support...');
 
-    const conversation = await getConversation();
+        const user = await loadCurrentUser();
 
-    if (!conversation) return;
+        if (!user) return;
 
-    await loadMessages();
+        await getConversation();
 
-    subscribeToMessages();
+        await loadMessages();
+
+        subscribeToMessages();
+
+        console.log('EIS Support Initialized Successfully');
+
+    } catch (error) {
+
+        console.error('Support Initialization Error:', error);
+
+        showLoading(
+            'Unable to connect to support. Please refresh the page.'
+        );
+
+        showNotice(
+            'Support connection failed. Please try again.'
+        );
+    }
 }
 
-/* ===============================
-   AUTH STATE
-================================ */
 
-supabase.auth.onAuthStateChange(event => {
-    if (event === "SIGNED_OUT") {
-        cleanupChat();
-        window.location.href = "index.html";
+/* =========================================
+   CLEANUP
+========================================= */
+
+window.addEventListener('beforeunload', () => {
+
+    if (realtimeChannel) {
+
+        supabase.removeChannel(realtimeChannel);
+
+        realtimeChannel = null;
     }
+
 });
 
-/* ===============================
-   START SUPPORT
-================================ */
 
-document.addEventListener("DOMContentLoaded", () => {
-    initializeSupport();
-});
+/* =========================================
+   START APPLICATION
+========================================= */
 
-window.addEventListener("beforeunload", cleanupChat);
+setupEventListeners();
 
-/* ===============================
-   GLOBAL FUNCTIONS
-================================ */
+initializeSupport();
+
+
+/* =========================================
+   PUBLIC SUPPORT API
+========================================= */
 
 window.EISSupport = {
-    getConversation,
+    initializeSupport,
     loadMessages,
     sendMessage,
-    subscribeToMessages,
-    cleanupChat
+    logout
 };
