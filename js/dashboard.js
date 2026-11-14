@@ -1,64 +1,46 @@
-/* =========================================================
+/* =====================================================
    EIS DIGITAL SERVICES
    FILE 5: js/dashboard.js
-   Dashboard Management
-   ========================================================= */
+   Compatible with current dashboard.html and schema
+===================================================== */
 
 import { supabase } from "./supabase.js";
 
 /* ===============================
-   GLOBAL SETTINGS
+   VARIABLES
 ================================ */
 
-const TABLES = {
-    profiles: "profiles",
-    services: "services",
-    applications: "applications",
-    payments: "payments"
-};
-
 let currentUser = null;
-let currentProfile = null;
+let selectedService = null;
 let servicesCache = [];
 let applicationsCache = [];
 
+const $ = (id) => document.getElementById(id);
+
+
 /* ===============================
-   SAFE DOM HELPERS
+   MESSAGES
 ================================ */
 
-function getElement(id) {
-    return document.getElementById(id);
-}
-
-function setText(id, value) {
-    const element = getElement(id);
-
-    if (element) {
-        element.textContent = value ?? "";
-    }
-}
-
 function showMessage(message, type = "info") {
-    const container =
-        getElement("dashboard-message") ||
-        getElement("message-box") ||
-        getElement("notification");
+    const box =
+        $("dashboard-message") ||
+        $("pay-msg") ||
+        $("form-msg");
 
-    if (!container) {
+    if (!box) {
         alert(message);
         return;
     }
 
-    container.textContent = message;
-    container.className = `notification ${type}`;
-    container.hidden = false;
-
-    clearTimeout(showMessage.timer);
-
-    showMessage.timer = setTimeout(() => {
-        container.hidden = true;
-    }, 5000);
+    box.textContent = message;
+    box.className = `msg ${type}`;
 }
+
+
+/* ===============================
+   FORMAT
+================================ */
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat("en-NG", {
@@ -68,35 +50,19 @@ function formatCurrency(amount) {
     }).format(Number(amount) || 0);
 }
 
+
 function formatDate(date) {
     if (!date) return "N/A";
 
-    const parsed = new Date(date);
+    const value = new Date(date);
 
-    if (Number.isNaN(parsed.getTime())) {
+    if (Number.isNaN(value.getTime())) {
         return "N/A";
     }
 
-    return parsed.toLocaleDateString("en-NG", {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-    });
+    return value.toLocaleDateString("en-NG");
 }
 
-function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, character => {
-        const entities = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-        };
-
-        return entities[character];
-    });
-}
 
 /* ===============================
    AUTHENTICATION
@@ -112,7 +78,7 @@ async function checkUserSession() {
         if (error) throw error;
 
         if (!user) {
-            window.location.href = "index.html";
+            window.location.replace("index.html");
             return false;
         }
 
@@ -121,473 +87,418 @@ async function checkUserSession() {
         return true;
 
     } catch (error) {
-        console.error("Session error:", error);
+        console.error("Authentication error:", error);
 
-        window.location.href = "index.html";
+        window.location.replace("index.html");
 
         return false;
     }
 }
 
+
 /* ===============================
-   LOAD USER PROFILE
+   LOAD PROFILE
 ================================ */
 
 async function loadUserProfile() {
-    if (!currentUser) return null;
+    if (!currentUser) return;
+
+    const welcome = $("welcome");
+
+    if (welcome) {
+        welcome.textContent =
+            `Welcome, ${currentUser.email}`;
+    }
 
     try {
         const { data, error } = await supabase
-            .from(TABLES.profiles)
-            .select("*")
+            .from("profiles")
+            .select("full_name,email,phone")
             .eq("id", currentUser.id)
             .maybeSingle();
 
         if (error) throw error;
 
-        currentProfile = data;
-
-        if (data) {
-            setText("user-name", data.full_name || data.name || "Customer");
-            setText("profile-name", data.full_name || data.name || "Customer");
-            setText("user-email", currentUser.email);
-            setText("profile-email", currentUser.email);
-        } else {
-            setText("user-name", currentUser.email);
-            setText("user-email", currentUser.email);
+        if (data && welcome) {
+            welcome.textContent =
+                `Welcome, ${data.full_name || currentUser.email}`;
         }
 
-        return data;
-
     } catch (error) {
-        console.error("Profile loading error:", error);
-
-        showMessage(
-            "An kasa ɗauko bayanan profile ɗinka.",
-            "error"
-        );
-
-        return null;
+        console.error("Profile error:", error);
     }
 }
+
 
 /* ===============================
    LOAD SERVICES
 ================================ */
 
 async function loadServices() {
-    const container =
-        getElement("services-container") ||
-        getElement("services-list");
+    const container = $("services-container");
+
+    if (!container) return;
+
+    container.textContent = "Loading services...";
 
     try {
         const { data, error } = await supabase
-            .from(TABLES.services)
-            .select("*")
-            .eq("active", true)
-            .order("created_at", { ascending: false });
+            .from("services")
+            .select("id,name,price")
+            .order("created_at", {
+                ascending: false
+            });
 
         if (error) throw error;
 
         servicesCache = data || [];
 
-        if (!container) return servicesCache;
-
         container.replaceChildren();
 
         if (servicesCache.length === 0) {
-            const message = document.createElement("p");
-            message.textContent = "No services are currently available.";
-            container.appendChild(message);
+            container.textContent =
+                "No services are available at the moment.";
 
-            return servicesCache;
+            return;
         }
 
         servicesCache.forEach(service => {
-            const card = document.createElement("div");
 
+            const card = document.createElement("div");
             card.className = "service-card";
 
             const title = document.createElement("h3");
-            title.textContent = service.name || service.title || "Service";
-
-            const description = document.createElement("p");
-            description.textContent =
-                service.description || "No description available.";
+            title.textContent = service.name || "Service";
 
             const price = document.createElement("p");
-            price.textContent = formatCurrency(service.price);
+            price.textContent =
+                formatCurrency(service.price);
 
             const button = document.createElement("button");
             button.type = "button";
-            button.textContent = "Apply Now";
+            button.className = "btn btn-primary";
+            button.textContent = "Select Service";
 
             button.addEventListener("click", () => {
-                selectService(service.id);
+                selectService(service);
             });
 
-            card.append(title, description, price, button);
+            card.append(title, price, button);
 
             container.appendChild(card);
         });
 
-        return servicesCache;
-
     } catch (error) {
-        console.error("Services error:", error);
+        console.error("Services loading error:", error);
 
-        if (container) {
-            container.textContent = "Unable to load services.";
-        }
+        container.textContent =
+            "Unable to load services. Please try again.";
 
-        showMessage(
-            "An samu matsala wajen ɗauko services.",
-            "error"
-        );
-
-        return [];
     }
 }
+
 
 /* ===============================
    SELECT SERVICE
 ================================ */
 
-function selectService(serviceId) {
-    const service = servicesCache.find(
-        item => String(item.id) === String(serviceId)
-    );
+function selectService(service) {
+    selectedService = service;
 
-    if (!service) {
-        showMessage("Ba a sami wannan service ba.", "error");
-        return;
-    }
+    const form = $("app-form");
 
-    const serviceInput =
-        getElement("service-id") ||
-        getElement("selected-service");
+    if (form) {
+        form.style.display = "block";
 
-    if (serviceInput) {
-        serviceInput.value = service.id;
-    }
-
-    setText("selected-service-name", service.name || service.title);
-    setText("selected-service-price", formatCurrency(service.price));
-
-    const applicationSection =
-        getElement("application-section");
-
-    if (applicationSection) {
-        applicationSection.scrollIntoView({
+        form.scrollIntoView({
             behavior: "smooth",
             block: "start"
         });
     }
+
+    showMessage(
+        `Selected service: ${service.name}`,
+        "ok"
+    );
 }
+
+
+/* ===============================
+   SAFE APPLICATION FORM
+================================ */
+
+function prepareApplicationForm() {
+    const form = $("app-form");
+
+    if (!form) return;
+
+    /*
+      Hide sensitive fields during testing.
+      Never collect real BVN, bank account details,
+      passwords, PINs or card details here.
+    */
+
+    const sensitiveFields = [
+        "f-bvn",
+        "f-bankName",
+        "f-accountNo",
+        "f-accountName",
+        "f-address",
+        "f-dob",
+        "f-kegow"
+    ];
+
+    sensitiveFields.forEach(id => {
+        const field = $(id);
+
+        if (field) {
+            field.required = false;
+
+            const wrapper = field.closest(".form-grid > div");
+
+            if (wrapper) {
+                wrapper.style.display = "none";
+            }
+        }
+    });
+
+    /*
+      Populate state dropdowns.
+    */
+
+    const states = [
+        "Abia", "Adamawa", "Akwa Ibom", "Anambra",
+        "Bauchi", "Bayelsa", "Benue", "Borno",
+        "Cross River", "Delta", "Ebonyi", "Edo",
+        "Ekiti", "Enugu", "FCT", "Gombe",
+        "Imo", "Jigawa", "Kaduna", "Kano",
+        "Katsina", "Kebbi", "Kogi", "Kwara",
+        "Lagos", "Nasarawa", "Niger", "Ogun",
+        "Ondo", "Osun", "Oyo", "Plateau",
+        "Rivers", "Sokoto", "Taraba",
+        "Yobe", "Zamfara"
+    ];
+
+    [
+        "f-agentState",
+        "f-stateRes"
+    ].forEach(id => {
+
+        const select = $(id);
+
+        if (!select) return;
+
+        select.replaceChildren();
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Select State";
+
+        select.appendChild(placeholder);
+
+        states.forEach(state => {
+            const option = document.createElement("option");
+
+            option.value = state;
+            option.textContent = state;
+
+            select.appendChild(option);
+        });
+
+    });
+}
+
 
 /* ===============================
    LOAD APPLICATIONS
 ================================ */
 
 async function loadApplications() {
-    if (!currentUser) return [];
+    const container = $("apps-list");
 
-    const container =
-        getElement("applications-container") ||
-        getElement("applications-list");
+    if (!currentUser || !container) return;
+
+    container.innerHTML = "";
 
     try {
         const { data, error } = await supabase
-            .from(TABLES.applications)
-            .select("*")
+            .from("applications")
+            .select(
+                "id,user_id,service_name,amount,status,created_at"
+            )
             .eq("user_id", currentUser.id)
-            .order("created_at", { ascending: false });
+            .order("created_at", {
+                ascending: false
+            });
 
         if (error) throw error;
 
         applicationsCache = data || [];
 
-        if (!container) {
-            updateDashboardStatistics();
-            return applicationsCache;
-        }
-
-        container.replaceChildren();
-
         if (applicationsCache.length === 0) {
-            const message = document.createElement("p");
-            message.textContent = "You have not submitted any application yet.";
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
 
-            container.appendChild(message);
+            cell.colSpan = 4;
+            cell.textContent = "No applications yet.";
 
-            updateDashboardStatistics();
+            row.appendChild(cell);
+            container.appendChild(row);
 
-            return applicationsCache;
+            return;
         }
 
         applicationsCache.forEach(application => {
-            const card = document.createElement("div");
 
-            card.className = "application-card";
+            const row = document.createElement("tr");
 
-            const title = document.createElement("h3");
-            title.textContent =
-                application.service_name ||
-                application.service ||
-                "Application";
+            const name = document.createElement("td");
+            name.textContent = currentUser.email || "Customer";
 
-            const status = document.createElement("p");
-            status.textContent =
-                `Status: ${application.status || "Pending"}`;
-
-            const reference = document.createElement("p");
+            const reference = document.createElement("td");
             reference.textContent =
-                `Reference: ${application.id}`;
+                String(application.id).slice(0, 8);
 
-            const date = document.createElement("p");
-            date.textContent =
-                `Date: ${formatDate(application.created_at)}`;
+            const service = document.createElement("td");
+            service.textContent =
+                application.service_name || "Service";
 
-            card.append(title, status, reference, date);
+            const status = document.createElement("td");
+            status.textContent =
+                application.status || "Pending";
 
-            container.appendChild(card);
+            row.append(
+                name,
+                reference,
+                service,
+                status
+            );
+
+            container.appendChild(row);
         });
-
-        updateDashboardStatistics();
-
-        return applicationsCache;
 
     } catch (error) {
         console.error("Applications error:", error);
 
-        if (container) {
-            container.textContent =
-                "Unable to load your applications.";
-        }
+        container.innerHTML = "";
 
-        showMessage(
-            "An samu matsala wajen ɗauko applications.",
-            "error"
-        );
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
 
-        return [];
+        cell.colSpan = 4;
+        cell.textContent =
+            "Unable to load applications.";
+
+        row.appendChild(cell);
+        container.appendChild(row);
     }
 }
 
-/* ===============================
-   DASHBOARD STATISTICS
-================================ */
-
-function updateDashboardStatistics() {
-    const total = applicationsCache.length;
-
-    const pending = applicationsCache.filter(
-        item => String(item.status).toLowerCase() === "pending"
-    ).length;
-
-    const approved = applicationsCache.filter(
-        item => String(item.status).toLowerCase() === "approved"
-    ).length;
-
-    const rejected = applicationsCache.filter(
-        item => String(item.status).toLowerCase() === "rejected"
-    ).length;
-
-    setText("total-applications", total);
-    setText("pending-applications", pending);
-    setText("approved-applications", approved);
-    setText("rejected-applications", rejected);
-
-    setText("stat-total", total);
-    setText("stat-pending", pending);
-    setText("stat-approved", approved);
-    setText("stat-rejected", rejected);
-}
 
 /* ===============================
    SUBMIT APPLICATION
 ================================ */
 
 async function submitApplication(event) {
-    if (event) {
-        event.preventDefault();
-    }
+    event.preventDefault();
+
+    const form = $("app-form");
 
     if (!currentUser) {
-        showMessage("Please login first.", "error");
+        showMessage("Please log in first.", "err");
         return;
     }
 
-    const form =
-        getElement("application-form") ||
-        getElement("service-form");
-
-    if (!form) {
-        showMessage("Application form was not found.", "error");
+    if (!selectedService) {
+        showMessage(
+            "Please select a service first.",
+            "err"
+        );
         return;
     }
 
-    const submitButton =
-        form.querySelector('[type="submit"]');
+    const firstName = $("f-firstName")?.value.trim();
+    const lastName = $("f-lastName")?.value.trim();
+    const email = $("f-email")?.value.trim();
+    const phone = $("f-phone")?.value.trim();
+    const agentState = $("f-agentState")?.value;
+    const stateResidence = $("f-stateRes")?.value;
 
-    const serviceInput =
-        getElement("service-id") ||
-        getElement("selected-service");
-
-    const serviceId = serviceInput?.value;
-
-    if (!serviceId) {
-        showMessage("Please select a service first.", "error");
+    if (
+        !firstName ||
+        !lastName ||
+        !email ||
+        !phone ||
+        !agentState ||
+        !stateResidence
+    ) {
+        showMessage(
+            "Please complete all required fields.",
+            "err"
+        );
         return;
     }
 
-    const service = servicesCache.find(
-        item => String(item.id) === String(serviceId)
+    const button = form.querySelector(
+        'button[type="submit"]'
     );
 
-    if (!service) {
-        showMessage("Selected service is unavailable.", "error");
-        return;
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Submitting...";
     }
-
-    const formData = new FormData(form);
-    const safeFormData = {};
-
-    for (const [key, value] of formData.entries()) {
-        if (typeof value === "string") {
-            safeFormData[key] = value.trim();
-        }
-    }
-
-    /*
-      IMPORTANT:
-      Do not collect or store real BVN, passwords,
-      bank PINs, card details or other highly sensitive
-      identity information in this browser-based form.
-      Use dummy data while testing.
-    */
-
-    const applicationData = {
-        user_id: currentUser.id,
-        service_id: service.id,
-        service_name: service.name || service.title || "Service",
-        status: "pending",
-        form_data: safeFormData
-    };
 
     try {
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.textContent = "Submitting...";
-        }
+        const safeFormData = {
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            phone: phone,
+            agent_state: agentState,
+            state_of_residence: stateResidence
+        };
 
-        const { data, error } = await supabase
-            .from(TABLES.applications)
-            .insert([applicationData])
-            .select()
-            .single();
+        const { error } = await supabase
+            .from("applications")
+            .insert([{
+                user_id: currentUser.id,
+                service_name: selectedService.name,
+                amount: Number(selectedService.price) || 0,
+                status: "pending",
+                form_data: safeFormData
+            }]);
 
         if (error) throw error;
 
         showMessage(
             "Application submitted successfully!",
-            "success"
+            "ok"
         );
 
         form.reset();
 
-        if (serviceInput) {
-            serviceInput.value = "";
-        }
+        selectedService = null;
+
+        form.style.display = "none";
 
         await loadApplications();
 
-        return data;
-
     } catch (error) {
-        console.error("Application submission error:", error);
+        console.error("Application submission:", error);
 
         showMessage(
             error.message || "Application submission failed.",
-            "error"
+            "err"
         );
 
-        return null;
-
     } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = "Submit Application";
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Submit application";
         }
     }
 }
 
-/* ===============================
-   DEMO PAYMENT
-================================ */
-
-async function createDemoPayment(serviceId) {
-    if (!currentUser) {
-        showMessage("Please login first.", "error");
-        return null;
-    }
-
-    const service = servicesCache.find(
-        item => String(item.id) === String(serviceId)
-    );
-
-    if (!service) {
-        showMessage("Service not found.", "error");
-        return null;
-    }
-
-    /*
-      THIS IS ONLY A TEST RECORD.
-      It does not process real money.
-      Never mark a real payment as successful
-      without verification from a payment provider
-      through a secure backend.
-    */
-
-    const reference =
-        "EIS-DEMO-" +
-        Date.now() +
-        "-" +
-        Math.random().toString(36).slice(2, 8).toUpperCase();
-
-    try {
-        const { data, error } = await supabase
-            .from(TABLES.payments)
-            .insert([{
-                ref: reference,
-                user_id: currentUser.id,
-                service_id: service.id,
-                amount: Number(service.price) || 0,
-                status: "pending"
-            }])
-            .select()
-            .single();
-
-        if (error) throw error;
-
-        showMessage(
-            "Demo payment record created. No real payment was made.",
-            "info"
-        );
-
-        return data;
-
-    } catch (error) {
-        console.error("Demo payment error:", error);
-
-        showMessage(
-            "An kasa ƙirƙirar demo payment.",
-            "error"
-        );
-
-        return null;
-    }
-}
 
 /* ===============================
    LOGOUT
@@ -599,59 +510,45 @@ async function logoutUser() {
 
         if (error) throw error;
 
-        window.location.href = "index.html";
+        window.location.replace("index.html");
 
     } catch (error) {
         console.error("Logout error:", error);
 
-        showMessage(
-            "Logout failed. Please try again.",
-            "error"
-        );
+        alert("Unable to log out. Please try again.");
     }
 }
 
+
 /* ===============================
-   EVENT LISTENERS
+   INITIALIZE
 ================================ */
 
-function initializeDashboardEvents() {
-    const applicationForm =
-        getElement("application-form") ||
-        getElement("service-form");
+async function initializeDashboard() {
 
-    if (applicationForm) {
-        applicationForm.addEventListener(
+    const authenticated = await checkUserSession();
+
+    if (!authenticated) return;
+
+    prepareApplicationForm();
+
+    const form = $("app-form");
+
+    if (form) {
+        form.addEventListener(
             "submit",
             submitApplication
         );
     }
 
-    const logoutButton =
-        getElement("logout-btn") ||
-        getElement("logout-button");
+    const logout = $("nav-logout");
 
-    if (logoutButton) {
-        logoutButton.addEventListener("click", logoutUser);
+    if (logout) {
+        logout.addEventListener(
+            "click",
+            logoutUser
+        );
     }
-
-    document.querySelectorAll("[data-service-id]").forEach(button => {
-        button.addEventListener("click", () => {
-            selectService(button.dataset.serviceId);
-        });
-    });
-}
-
-/* ===============================
-   INITIALIZE DASHBOARD
-================================ */
-
-async function initializeDashboard() {
-    const authenticated = await checkUserSession();
-
-    if (!authenticated) return;
-
-    initializeDashboardEvents();
 
     await loadUserProfile();
 
@@ -661,36 +558,35 @@ async function initializeDashboard() {
     ]);
 }
 
+
 /* ===============================
-   AUTH STATE LISTENER
+   AUTH LISTENER
 ================================ */
 
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange((event) => {
+
     if (event === "SIGNED_OUT") {
-        window.location.href = "index.html";
+        window.location.replace("index.html");
     }
+
 });
+
 
 /* ===============================
    START
 ================================ */
 
-document.addEventListener("DOMContentLoaded", () => {
-    initializeDashboard();
-});
+initializeDashboard();
+
 
 /* ===============================
-   GLOBAL FUNCTIONS
+   GLOBAL
 ================================ */
 
 window.EISDashboard = {
     loadServices,
     loadApplications,
     loadUserProfile,
-    submitApplication,
     selectService,
-    createDemoPayment,
-    logoutUser,
-    formatCurrency,
-    formatDate
+    logoutUser
 };
