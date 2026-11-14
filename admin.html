@@ -3,340 +3,297 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Dashboard - EIS Digital Services</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="css/styles.css?v=8">
+    <meta name="theme-color" content="#f4f7fc">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <meta name="description"
+          content="EIS Trading Hub Administration Dashboard">
 
-    <style>
-        .admin-heading {
-            margin-bottom: 25px;
-        }
+    <title>Admin Dashboard | EIS Trading Hub</title>
 
-        .admin-heading h1 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin-bottom: 6px;
-        }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 
-        .admin-heading p {
-            color: var(--mu);
-            font-size: 14px;
-        }
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
 
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+          rel="stylesheet">
 
-        .stat-card {
-            background: #fff;
-            border: 1px solid var(--ln);
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-        }
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css?v=21">
 
-        .stat-card span {
-            font-size: 12px;
-            color: var(--mu);
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        .stat-card b {
-            font: 800 26px 'Plus Jakarta Sans', sans-serif;
-            color: var(--blue);
-            margin-top: 8px;
-        }
-
-        .admin-section {
-            background: #fff;
-            border: 1px solid var(--ln);
-            border-radius: 14px;
-            padding: 22px;
-            margin-bottom: 25px;
-        }
-
-        .section-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .section-heading h2 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 19px;
-        }
-
-        .admin-refresh {
-            padding: 9px 15px;
-            border: 1px solid var(--ln);
-            background: #fff;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .application-card,
-        .service-card,
-        .payment-card {
-            border: 1px solid var(--ln);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 15px;
-            background: #fff;
-        }
-
-        .application-card h3,
-        .service-card h3 {
-            margin-bottom: 12px;
-        }
-
-        .application-card p,
-        .payment-card p,
-        .service-card p {
-            font-size: 14px;
-            margin: 7px 0;
-            overflow-wrap: anywhere;
-        }
-
-        .application-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .application-actions button {
-            padding: 9px 15px;
-            border: none;
-            border-radius: 7px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .application-actions button:nth-child(1) {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .application-actions button:nth-child(2) {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .application-actions button:nth-child(3) {
-            background: #f1f5f9;
-            color: #334155;
-        }
-
-        .notification {
-            padding: 13px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .notification[hidden] {
-            display: none;
-        }
-
-        .notification.error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .notification.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .notification.info {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        @media(max-width: 768px) {
-            .stat-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .admin-section {
-                padding: 15px;
-            }
-        }
-
-        @media(max-width: 400px) {
-            .stat-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 9px;
-            }
-
-            .stat-card {
-                padding: 13px;
-            }
-
-            .stat-card b {
-                font-size: 21px;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
+    <!-- =====================================
+         HEADER
+    ====================================== -->
 
     <header class="site-header">
 
-        <div class="nav-row">
+        <div class="header-inner">
 
-            <a class="brand" href="dashboard.html">
+            <!-- BRAND -->
 
-                <svg class="brand-mark" viewBox="0 0 48 48">
-                    <rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
-                    <path d="M14 32 L24 14 L34 32"
-                        stroke="#fff"
-                        stroke-width="3.4"
-                        fill="none"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"/>
-                    <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
-                </svg>
+            <a href="dashboard.html" class="brand">
+
+                <span class="brand-mark">E</span>
 
                 <span class="brand-text">
-                    <b>EIS</b>
-                    <span>Digital Services</span>
+                    <strong>EIS</strong>
+                    <small>Trading Hub</small>
                 </span>
 
             </a>
 
-            <div class="nav-right">
 
-                <nav class="nav-links">
+            <!-- NAVIGATION -->
 
-                    <a href="dashboard.html" class="btn">
-                        Dashboard
-                    </a>
+            <nav class="nav-links">
 
-                    <a href="support.html" class="btn">
-                        Support
-                    </a>
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
 
-                    <a href="admin.html" class="btn active">
-                        Admin
-                    </a>
+                <a href="marketplace.html">
+                    Marketplace
+                </a>
 
-                    <button
-                        id="logout-btn"
-                        type="button"
-                        class="btn"
-                        style="color:var(--bad); border-color:var(--bad);">
+                <a href="admin.html"
+                   class="active"
+                   aria-current="page">
+                    Admin
+                </a>
 
-                        Log out
+                <button
+                    type="button"
+                    id="nav-logout"
+                    class="logout-button">
 
-                    </button>
+                    Log out
 
-                </nav>
+                </button>
 
-            </div>
+            </nav>
+
+
+            <!-- CUSTOMER SUPPORT -->
+
+            <a href="support.html"
+               id="msgBtn"
+               class="chat-button"
+               aria-label="Customer Support">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+
+                    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
+                    8.5 8.5 0 0 1-7.6 4.7
+                    8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
+                    a8.4 8.4 0 0 1-.9-3.8
+                    8.5 8.5 0 0 1 4.7-7.6
+                    8.4 8.4 0 0 1 3.8-.9h.5
+                    a8.5 8.5 0 0 1 8 8z"/>
+
+                </svg>
+
+            </a>
 
         </div>
 
     </header>
 
 
-    <!-- MAIN CONTENT -->
 
-    <main class="wrap sec">
+    <!-- =====================================
+         MAIN ADMIN CONTENT
+    ====================================== -->
 
-        <!-- ADMIN HEADING -->
+    <main class="admin-container">
 
-        <div class="admin-heading">
 
-            <h1>Admin Dashboard</h1>
+        <!-- PAGE HEADING -->
 
-            <p>
-                Welcome,
-                <strong id="admin-name">Administrator</strong>
-            </p>
+        <section class="page-heading">
 
-            <p id="admin-email"></p>
+            <div>
+
+                <span class="eyebrow">
+                    EIS MANAGEMENT
+                </span>
+
+                <h1>Overview</h1>
+
+                <p>
+                    Manage applications, services and payment records.
+                </p>
+
+            </div>
+
+
+            <!-- ADMIN PROFILE -->
+
+            <div class="admin-identity">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong id="admin-name">
+                        Administrator
+                    </strong>
+
+                    <small id="admin-email">
+                        Loading administrator...
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- SYSTEM MESSAGE -->
+
+        <div id="admin-message"
+             class="notice"
+             role="status"
+             aria-live="polite"
+             hidden>
 
         </div>
 
 
-        <!-- NOTIFICATION -->
 
-        <div
-            id="admin-message"
-            class="notification"
-            hidden>
-        </div>
+        <!-- =====================================
+             STATISTICS
+        ====================================== -->
 
-
-        <!-- STATISTICS -->
-
-        <div class="stat-grid">
-
-            <div class="stat-card">
-
-                <span>Total Applications</span>
-
-                <b id="stat-total">0</b>
-
-            </div>
+        <section class="stat-grid">
 
 
-            <div class="stat-card">
+            <!-- TOTAL APPLICATIONS -->
 
-                <span>Pending Applications</span>
+            <article class="stat-card">
 
-                <b id="stat-pending">0</b>
+                <span>
+                    Applications
+                </span>
 
-            </div>
+                <strong id="stat-total">
+                    0
+                </strong>
 
+                <small>
+                    All applications
+                </small>
 
-            <div class="stat-card">
-
-                <span>Approved Applications</span>
-
-                <b id="stat-approved">0</b>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <span>Available Services</span>
-
-                <b id="stat-products">0</b>
-
-            </div>
-
-        </div>
+            </article>
 
 
-        <!-- APPLICATIONS -->
 
-        <section class="admin-section">
+            <!-- IN REVIEW -->
 
-            <div class="section-heading">
+            <article class="stat-card">
 
-                <h2>All Applications</h2>
+                <span>
+                    In Review
+                </span>
+
+                <strong id="stat-review">
+                    0
+                </strong>
+
+                <small>
+                    Awaiting review
+                </small>
+
+            </article>
+
+
+
+            <!-- COMPLETED -->
+
+            <article class="stat-card">
+
+                <span>
+                    Completed
+                </span>
+
+                <strong id="stat-completed">
+                    0
+                </strong>
+
+                <small>
+                    Completed applications
+                </small>
+
+            </article>
+
+
+
+            <!-- PRODUCTS -->
+
+            <article class="stat-card">
+
+                <span>
+                    Products
+                </span>
+
+                <strong id="stat-products">
+                    0
+                </strong>
+
+                <small>
+                    Registered services
+                </small>
+
+            </article>
+
+
+        </section>
+
+
+
+        <!-- =====================================
+             APPLICATION MANAGEMENT
+        ====================================== -->
+
+        <section class="panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <h2>
+                        Applications Management
+                    </h2>
+
+                    <p>
+                        Review customer applications and manage their status.
+                    </p>
+
+                </div>
+
 
                 <button
                     type="button"
                     id="refresh-applications"
-                    class="admin-refresh">
+                    class="secondary-button">
 
                     Refresh
 
@@ -344,46 +301,95 @@
 
             </div>
 
-            <div id="applications-container">
 
-                <p>Loading applications...</p>
+            <!-- APPLICATION LIST -->
 
-            </div>
+            <div id="admin-apps-list"
+                 class="app-list">
 
-        </section>
-
-
-        <!-- SERVICES -->
-
-        <section class="admin-section">
-
-            <div class="section-heading">
-
-                <h2>Available Services</h2>
-
-            </div>
-
-            <div id="services-container">
-
-                <p>Loading services...</p>
+                <div class="loading">
+                    Loading applications...
+                </div>
 
             </div>
 
         </section>
 
 
-        <!-- PAYMENTS -->
 
-        <section class="admin-section">
+        <!-- =====================================
+             PRODUCTS AND SERVICES
+        ====================================== -->
 
-            <div class="section-heading">
+        <section class="panel">
 
-                <h2>Payment Records</h2>
+            <div class="panel-heading">
+
+                <div>
+
+                    <h2>
+                        Products & Services
+                    </h2>
+
+                    <p>
+                        View registered services and their prices.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="refresh-services"
+                    class="secondary-button">
+
+                    Refresh
+
+                </button>
+
+            </div>
+
+
+            <!-- SERVICES LIST -->
+
+            <div id="admin-services-list"
+                 class="simple-list">
+
+                <div class="loading">
+                    Loading services...
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================
+             PAYMENT MANAGEMENT
+        ====================================== -->
+
+        <section class="panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <h2>
+                        Payment Records
+                    </h2>
+
+                    <p>
+                        Monitor payment records and their statuses.
+                    </p>
+
+                </div>
+
 
                 <button
                     type="button"
                     id="refresh-payments"
-                    class="admin-refresh">
+                    class="secondary-button">
 
                     Refresh
 
@@ -391,40 +397,48 @@
 
             </div>
 
-            <div id="payments-container">
 
-                <p>Loading payments...</p>
+            <!-- PAYMENTS LIST -->
+
+            <div id="admin-payments-list"
+                 class="simple-list">
+
+                <div class="loading">
+                    Loading payment records...
+                </div>
 
             </div>
 
         </section>
 
+
     </main>
 
 
-    <!-- FOOTER -->
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
 
     <footer class="site-footer">
 
-        <div class="wrap">
-
-            <p>
-                &copy; 2026 EIS Digital Services.
-                All rights reserved.
-            </p>
-
-        </div>
+        <p>
+            © 2026 EIS Trading Hub.
+            All rights reserved.
+        </p>
 
     </footer>
 
 
-    <!-- JAVASCRIPT -->
 
-    <script
-        type="module"
-        src="js/admin.js?v=8">
+    <!-- =====================================
+         ADMIN JAVASCRIPT
+    ====================================== -->
+
+    <script type="module"
+            src="js/admin.js?v=21">
     </script>
 
-</body>
 
-                        </html>
+</body>
+</html>
