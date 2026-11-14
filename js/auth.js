@@ -14,27 +14,35 @@ const viewSignup = $('view-signup');
 const navAuth = $('nav-auth');
 const navUser = $('nav-user');
 
-let authInitialized = false;
 
 /* =========================================
    PAGE VIEW MANAGEMENT
 ========================================= */
 
 function showView(view) {
+
     [viewHome, viewLogin, viewSignup].forEach(element => {
+
         if (element) {
-            element.style.display = element === view ? 'block' : 'none';
+            element.style.display =
+                element === view ? 'block' : 'none';
         }
+
     });
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
+
 
 /* =========================================
    NAVIGATION MANAGEMENT
 ========================================= */
 
 function updateNavigation(session) {
+
     if (navAuth) {
         navAuth.style.display = session ? 'none' : 'flex';
     }
@@ -42,66 +50,84 @@ function updateNavigation(session) {
     if (navUser) {
         navUser.style.display = session ? 'flex' : 'none';
     }
+
 }
+
 
 /* =========================================
    MESSAGE MANAGEMENT
 ========================================= */
 
 function showMessage(id, message, type = 'err') {
+
     const element = $(id);
 
     if (!element) return;
 
     element.textContent = message;
     element.className = `msg ${type}`;
+
 }
 
+
 function clearMessages() {
+
     [
         'login-error',
         'signup-error',
         'signup-success'
     ].forEach(id => {
+
         const element = $(id);
 
         if (element) {
             element.textContent = '';
         }
+
     });
+
 }
+
 
 /* =========================================
    BUTTON LOADING
 ========================================= */
 
 function setLoading(button, loading, text) {
+
     if (!button) return;
 
     if (loading) {
-        button.dataset.originalText = button.textContent;
+
+        if (!button.dataset.originalText) {
+            button.dataset.originalText = button.textContent;
+        }
+
         button.textContent = text;
         button.disabled = true;
+
     } else {
+
         button.textContent =
             button.dataset.originalText || text;
 
         button.disabled = false;
+
     }
+
 }
+
 
 /* =========================================
    INITIAL AUTHENTICATION
 ========================================= */
 
 async function initializeAuth() {
-    if (authInitialized) return;
-
-    authInitialized = true;
 
     updateNavigation(null);
 
     try {
+
         const {
             data: { session },
             error
@@ -111,19 +137,28 @@ async function initializeAuth() {
 
         updateNavigation(session);
 
-        showView(viewHome);
-
         if (session) {
-            console.log('Authenticated user:', session.user.email);
+
+            console.log(
+                'Authenticated user:',
+                session.user.email
+            );
+
         }
 
     } catch (error) {
-        console.error('Authentication initialization:', error);
+
+        console.error(
+            'Authentication initialization:',
+            error
+        );
 
         updateNavigation(null);
-        showView(viewHome);
+
     }
+
 }
+
 
 /* =========================================
    AUTH STATE LISTENER
@@ -137,46 +172,14 @@ supabase.auth.onAuthStateChange((event, session) => {
         showView(viewHome);
     }
 
-    if (
-        event === 'SIGNED_IN' &&
-        (viewLogin?.style.display === 'block' ||
-         viewSignup?.style.display === 'block')
-    ) {
+    if (event === 'SIGNED_IN') {
+
         window.location.replace('dashboard.html');
+
     }
 
 });
 
-/* =========================================
-   NAVIGATION BUTTONS
-========================================= */
-
-$('btn-show-login')?.addEventListener('click', () => {
-    clearMessages();
-    showView(viewLogin);
-});
-
-$('btn-show-signup')?.addEventListener('click', () => {
-    clearMessages();
-    showView(viewSignup);
-});
-
-$('cta')?.addEventListener('click', () => {
-    clearMessages();
-    showView(viewSignup);
-});
-
-$('link-to-signup')?.addEventListener('click', event => {
-    event.preventDefault();
-    clearMessages();
-    showView(viewSignup);
-});
-
-$('link-to-login')?.addEventListener('click', event => {
-    event.preventDefault();
-    clearMessages();
-    showView(viewLogin);
-});
 
 /* =========================================
    SIGN UP
@@ -192,21 +195,28 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     clearMessages();
 
-    const name = $('signup-name').value.trim();
-    const email = $('signup-email').value.trim().toLowerCase();
-    const phone = $('signup-phone').value.trim();
-    const password = $('signup-password').value;
+    const name = $('signup-name')?.value.trim();
+    const email = $('signup-email')?.value.trim().toLowerCase();
+    const phone = $('signup-phone')?.value.trim();
+    const password = $('signup-password')?.value;
 
     if (!name || !email || !phone || !password) {
-        showMessage('signup-error', 'Please complete all fields.');
+
+        showMessage(
+            'signup-error',
+            'Please complete all fields.'
+        );
+
         return;
     }
 
     if (password.length < 8) {
+
         showMessage(
             'signup-error',
             'Password must contain at least 8 characters.'
         );
+
         return;
     }
 
@@ -214,18 +224,18 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     try {
 
-        const {
-            data,
-            error
-        } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
+
             email,
             password,
+
             options: {
                 data: {
                     full_name: name,
                     phone: phone
                 }
             }
+
         });
 
         if (error) throw error;
@@ -234,43 +244,15 @@ $('form-signup')?.addEventListener('submit', async event => {
             throw new Error('Account creation failed.');
         }
 
-        /*
-         Profile creation should also be handled
-         by a secure database trigger.
-
-         This upsert supports installations where
-         the profile table is accessible to the user.
-        */
-
         if (data.session) {
-
-            const { error: profileError } =
-                await supabase
-                    .from('profiles')
-                    .upsert({
-                        id: data.user.id,
-                        email: email,
-                        full_name: name,
-                        phone: phone,
-                        role: 'customer'
-                    }, {
-                        onConflict: 'id',
-                        ignoreDuplicates: true
-                    });
-
-            if (profileError) {
-                console.error('Profile creation:', profileError);
-            }
 
             showMessage(
                 'signup-success',
-                'Account created successfully! Redirecting...',
+                'Account created successfully!',
                 'ok'
             );
 
-            setTimeout(() => {
-                window.location.replace('dashboard.html');
-            }, 1000);
+            window.location.replace('dashboard.html');
 
         } else {
 
@@ -281,11 +263,12 @@ $('form-signup')?.addEventListener('submit', async event => {
             );
 
             $('form-signup').reset();
+
         }
 
     } catch (error) {
 
-        console.error('Signup error:', error);
+        console.error('Signup Error:', error);
 
         showMessage(
             'signup-error',
@@ -294,11 +277,12 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     } finally {
 
-        setLoading(button, false, 'Sign Up');
+        setLoading(button, false, 'Create Account');
 
     }
 
 });
+
 
 /* =========================================
    LOGIN
@@ -314,11 +298,16 @@ $('form-login')?.addEventListener('submit', async event => {
 
     clearMessages();
 
-    const email = $('login-email').value.trim().toLowerCase();
-    const password = $('login-password').value;
+    const email = $('login-email')?.value.trim().toLowerCase();
+    const password = $('login-password')?.value;
 
     if (!email || !password) {
-        showMessage('login-error', 'Enter your email and password.');
+
+        showMessage(
+            'login-error',
+            'Enter your email and password.'
+        );
+
         return;
     }
 
@@ -326,13 +315,13 @@ $('form-login')?.addEventListener('submit', async event => {
 
     try {
 
-        const {
-            data,
-            error
-        } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
+        const { data, error } =
+            await supabase.auth.signInWithPassword({
+
+                email,
+                password
+
+            });
 
         if (error) throw error;
 
@@ -344,7 +333,7 @@ $('form-login')?.addEventListener('submit', async event => {
 
     } catch (error) {
 
-        console.error('Login error:', error);
+        console.error('Login Error:', error);
 
         showMessage(
             'login-error',
@@ -358,6 +347,7 @@ $('form-login')?.addEventListener('submit', async event => {
     }
 
 });
+
 
 /* =========================================
    LOGOUT
@@ -379,17 +369,21 @@ $('btn-logout')?.addEventListener('click', async () => {
 
     } catch (error) {
 
-        console.error('Logout error:', error);
+        console.error('Logout Error:', error);
 
         alert('Logout failed: ' + error.message);
 
         if (button) button.disabled = false;
+
     }
 
 });
+
 
 /* =========================================
    START APPLICATION
 ========================================= */
 
 initializeAuth();
+
+console.log('EIS Authentication JavaScript Loaded');
