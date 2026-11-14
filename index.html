@@ -4,77 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EIS Trading Hub</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="navbar">
-        <div class="logo"><span class="logo-icon">▲</span> EIS Trading Hub</div>
-        <nav id="nav-auth" class="nav-links">
-            <button id="btn-show-login" class="btn btn-ghost">Log In</button>
-            <button id="btn-show-signup" class="btn btn-primary">Sign Up</button>
-        </nav>
-        <nav id="nav-user" class="nav-links" style="display: none;">
-            <a href="dashboard.html" class="btn btn-ghost">Dashboard</a>
-            <button id="btn-logout" class="btn btn-ghost" style="color: var(--danger);">Log Out</button>
-        </nav>
+    <header class="site-header">
+      <div class="nav-row">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/><path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="26" r="2.6" fill="#12b894"/></svg>
+          <span class="brand-text"><b>EIS</b><span>Digital Services</span></span>
+        </a>
+        <div class="nav-right">
+          <nav id="nav-auth" class="nav-links">
+            <button id="btn-show-login" class="btn">Log in</button>
+            <button id="btn-show-signup" class="btn btn-primary" style="border-color: var(--blue);">Sign up</button>
+          </nav>
+          <nav id="nav-user" class="nav-links" style="display: none;">
+            <a href="dashboard.html" class="btn">Dashboard</a>
+            <button id="btn-logout" class="btn" style="color: var(--bad); border-color: var(--ln);">Log out</button>
+          </nav>
+        </div>
+      </div>
     </header>
 
-    <main class="container">
-        <section id="view-home" class="view">
-            <div class="hero">
-                <h1>Welcome to EIS Trading Hub</h1>
-                <p>Your trusted platform for professional BVN enrollment and digital services.</p>
-                <div class="hero-actions">
-                    <button class="btn btn-primary btn-large" onclick="document.getElementById('btn-show-signup').click()">Get Started</button>
+    <main>
+        <div class="view" id="view-home">
+            <section class="hero">
+                <div class="hero-grid">
+                    <div>
+                        <p class="eyebrow">ENROLL · GET VERIFIED · EARN</p>
+                        <h1>Android BVN<br><span class="accent">Enrollment User</span></h1>
+                        <p class="lead">Sign up, choose your package, pay, and send us your details. We process your application within 24–48 hours.</p>
+                        <div class="hero-actions">
+                            <button id="cta" class="btn btn-primary" style="padding: 14px 28px; font-size: 16px;">Get started</button>
+                        </div>
+                    </div>
+                    <div class="hero-card">
+                        <div class="hero-card-top"><span class="chip chip-blue">Application</span><span class="chip chip-green">Processing</span></div>
+                        <div style="height: 8px; border-radius: 4px; background: var(--ln); margin-bottom: 8px; width: 70%;"></div>
+                        <div style="height: 8px; border-radius: 4px; background: var(--ln); margin-bottom: 8px;"></div>
+                        <div style="height: 8px; border-radius: 4px; background: var(--ln); margin-bottom: 8px; width: 50%;"></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0;">
+                            <div style="height: 40px; border-radius: 6px; background: var(--blue);"></div>
+                            <div style="height: 40px; border-radius: 6px; background: var(--mint);"></div>
+                            <div style="height: 40px; border-radius: 6px; background: var(--blue-soft);"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
-        <section id="view-login" class="view card auth-card" style="display: none;">
-            <h2>Log In to Your Account</h2>
-            <form id="form-login">
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" id="login-email" required placeholder="you@example.com">
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="login-password" required placeholder="••••••••">
-                </div>
+        <div class="view wrap" id="view-login" style="display: none; padding-top: 20px;">
+            <form class="card auth-card" id="form-login">
+                <h2>Log In</h2>
+                <label>Email</label><input type="email" id="login-email" required>
+                <label>Password</label><input type="password" id="login-password" required>
                 <button type="submit" class="btn btn-primary btn-block">Log In</button>
-                <p id="login-error" class="error-msg"></p>
+                <p class="msg" id="login-error"></p>
+                <p style="text-align: center; margin-top: 10px; font-size: 14px;">New here? <a href="#" id="link-to-signup" style="color: var(--blue); text-decoration: none;">Create account</a></p>
             </form>
-        </section>
+        </div>
 
-        <section id="view-signup" class="view card auth-card" style="display: none;">
-            <h2>Create a New Account</h2>
-            <form id="form-signup">
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" id="signup-name" required placeholder="John Doe">
-                </div>
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" id="signup-email" required placeholder="you@example.com">
-                </div>
-                <div class="input-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="signup-phone" required placeholder="08012345678">
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="signup-password" required placeholder="Min. 8 characters">
-                </div>
+        <div class="view wrap" id="view-signup" style="display: none; padding-top: 20px;">
+            <form class="card auth-card" id="form-signup">
+                <h2>Create account</h2>
+                <label>Full Name</label><input type="text" id="signup-name" required>
+                <label>Email</label><input type="email" id="signup-email" required>
+                <label>Phone Number</label><input type="tel" id="signup-phone" required>
+                <label>Password</label><input type="password" id="signup-password" required minlength="8">
                 <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
-                <p id="signup-error" class="error-msg"></p>
-                <p id="signup-success" class="success-msg"></p>
+                <p class="msg" id="signup-error"></p>
+                <p class="msg ok" id="signup-success"></p>
+                <p style="text-align: center; margin-top: 10px; font-size: 14px;">Already have an account? <a href="#" id="link-to-login" style="color: var(--blue); text-decoration: none;">Log in</a></p>
             </form>
-        </section>
+        </div>
     </main>
 
     <footer class="footer"><p>&copy; 2024 EIS Trading Hub. All rights reserved.</p></footer>
 
-    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/auth.js?v=6"></script>
 </body>
-  </html>
+</html>
