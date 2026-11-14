@@ -9,6 +9,7 @@ const SUPABASE_URL = 'https://mbihyrbfeatcynspzune.supabase.co';
 
 const SUPABASE_ANON_KEY = 'sb_publishable_alh5WL2JbOK6yW_5z5Fq4A_kJQHWt1-';
 
+
 /* =========================================
    INITIALIZE SUPABASE CLIENT
 ========================================= */
@@ -34,47 +35,121 @@ export const supabase = createClient(
     }
 );
 
+
 /* =========================================
-   AUTHENTICATION HELPERS
+   GET CURRENT SESSION
 ========================================= */
 
 export async function getCurrentSession() {
-    const { data, error } = await supabase.auth.getSession();
 
-    if (error) {
-        console.error('Session Error:', error);
+    try {
+
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+            console.error('Session Error:', error);
+            return null;
+        }
+
+        return data.session;
+
+    } catch (error) {
+
+        console.error('Unexpected Session Error:', error);
+
         return null;
     }
-
-    return data.session;
 }
+
+
+/* =========================================
+   GET CURRENT USER
+========================================= */
 
 export async function getCurrentUser() {
-    const session = await getCurrentSession();
 
-    if (!session) return null;
+    try {
 
-    const { data, error } = await supabase.auth.getUser();
+        const { data, error } = await supabase.auth.getUser();
 
-    if (error) {
-        console.error('User Error:', error);
+        if (error) {
+            console.error('User Error:', error);
+            return null;
+        }
+
+        return data.user;
+
+    } catch (error) {
+
+        console.error('Unexpected User Error:', error);
+
         return null;
     }
-
-    return data.user;
 }
+
+
+/* =========================================
+   CHECK AUTHENTICATION
+========================================= */
+
+export async function isAuthenticated() {
+
+    const session = await getCurrentSession();
+
+    return Boolean(session);
+}
+
 
 /* =========================================
    SIGN OUT
 ========================================= */
 
 export async function logoutUser() {
-    const { error } = await supabase.auth.signOut();
 
-    if (error) {
-        console.error('Logout Error:', error);
+    try {
+
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            console.error('Logout Error:', error);
+            throw error;
+        }
+
+        window.location.replace('index.html');
+
+    } catch (error) {
+
+        console.error('Unexpected Logout Error:', error);
+
         throw error;
     }
+}
 
-    window.location.replace('index.html');
-      }
+
+/* =========================================
+   AUTH STATE LISTENER
+========================================= */
+
+export function onAuthStateChange(callback) {
+
+    const {
+        data: { subscription }
+    } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+
+            if (typeof callback === 'function') {
+                callback(event, session);
+            }
+
+        }
+    );
+
+    return subscription;
+}
+
+
+/* =========================================
+   EXPORT DEFAULT CLIENT
+========================================= */
+
+export default supabase;
