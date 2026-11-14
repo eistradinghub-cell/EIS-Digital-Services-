@@ -1,23 +1,49 @@
 import { supabase } from './supabase.js';
 
-if (document.getElementById('form-login') || document.getElementById('view-home')) {
+if (document.getElementById('view-home')) {
     const viewHome = document.getElementById('view-home');
     const viewLogin = document.getElementById('view-login');
     const viewSignup = document.getElementById('view-signup');
     const navAuth = document.getElementById('nav-auth');
     const navUser = document.getElementById('nav-user');
 
-    // Aikin nuna shafuka
+    // 1. FARKO: Boye duk maɓallan da suka shafi User kafin a duba ko ya shiga
+    if(navAuth) navAuth.style.display = 'none';
+    if(navUser) navUser.style.display = 'none';
+
     function showView(v) { 
         if(viewHome) viewHome.style.display = (v === viewHome ? 'block' : 'none'); 
         if(viewLogin) viewLogin.style.display = (v === viewLogin ? 'block' : 'none'); 
         if(viewSignup) viewSignup.style.display = (v === viewSignup ? 'block' : 'none'); 
     }
 
-    // MAFITA: Da farko, boye duk wani abu na user sannan ka nuna na auth
-    if(navAuth) navAuth.style.display = 'flex';
-    if(navUser) navUser.style.display = 'none';
-    showView(viewHome);
+    // 2. Duba ko akwai session a yanzu
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            if(navAuth) navAuth.style.display = 'none'; 
+            if(navUser) navUser.style.display = 'flex'; 
+            showView(viewHome);
+        } else {
+            if(navAuth) navAuth.style.display = 'flex'; 
+            if(navUser) navUser.style.display = 'none'; 
+            showView(viewHome);
+        }
+    });
+
+    // 3. Sa ido kan canjin yanayi (Login/Logout)
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (session) {
+            if(navAuth) navAuth.style.display = 'none'; 
+            if(navUser) navUser.style.display = 'flex'; 
+            if (viewLogin && viewLogin.style.display === 'block' || viewSignup && viewSignup.style.display === 'block') {
+                window.location.href = 'dashboard.html';
+            }
+        } else {
+            if(navAuth) navAuth.style.display = 'flex'; 
+            if(navUser) navUser.style.display = 'none'; 
+            showView(viewHome);
+        }
+    });
 
     const btnShowLogin = document.getElementById('btn-show-login');
     const btnShowSignup = document.getElementById('btn-show-signup');
@@ -31,21 +57,6 @@ if (document.getElementById('form-login') || document.getElementById('view-home'
     if(linkToSignup) linkToSignup.addEventListener('click', (e) => { e.preventDefault(); showView(viewSignup); });
     if(linkToLogin) linkToLogin.addEventListener('click', (e) => { e.preventDefault(); showView(viewLogin); });
 
-    // Duba idan mutum ya shiga
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (session) {
-            // Idan ya shiga: Boye Login/Signup, nuna Dashboard/Logout
-            if(navAuth) navAuth.style.display = 'none'; 
-            if(navUser) navUser.style.display = 'flex'; 
-        } else {
-            // Idan bai shiga ba: Nuna Login/Signup, boye Dashboard/Logout
-            if(navAuth) navAuth.style.display = 'flex'; 
-            if(navUser) navUser.style.display = 'none'; 
-            showView(viewHome);
-        }
-    });
-
-    // Aikin Signup
     const signupForm = document.getElementById('form-signup');
     if(signupForm) {
         signupForm.addEventListener('submit', async (e) => {
@@ -66,7 +77,7 @@ if (document.getElementById('form-login') || document.getElementById('view-home'
                     const { error: profileError } = await supabase.from('profiles').insert([{ id: authData.user.id, email, full_name: name, phone, role: 'customer' }]);
                     if (profileError) throw profileError;
                 }
-                succEl.textContent = 'Account created! Redirecting...';
+                succEl.textContent = 'Account created! Redirecting to dashboard...';
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
             } catch (error) { 
                 errEl.textContent = error.message; 
@@ -76,7 +87,6 @@ if (document.getElementById('form-login') || document.getElementById('view-home'
         });
     }
 
-    // Aikin Login
     const loginForm = document.getElementById('form-login');
     if(loginForm) {
         loginForm.addEventListener('submit', async (e) => {
