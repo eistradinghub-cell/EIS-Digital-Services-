@@ -5,7 +5,7 @@ import { supabase } from "./supabase.js";
    ADMIN DASHBOARD
 ========================================= */
 
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 let currentUser = null;
 let currentProfile = null;
@@ -21,17 +21,6 @@ let isLoading = false;
 /* =========================================
    HELPERS
 ========================================= */
-
-function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[char]);
-}
-
 
 function formatCurrency(value) {
     return new Intl.NumberFormat("en-NG", {
@@ -78,7 +67,7 @@ function showMessage(message, type = "info") {
 function showEmpty(container, message) {
     if (!container) return;
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     const element = document.createElement("div");
 
@@ -92,7 +81,7 @@ function showEmpty(container, message) {
 function setLoading(container, message) {
     if (!container) return;
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     const element = document.createElement("div");
 
@@ -100,6 +89,28 @@ function setLoading(container, message) {
     element.textContent = message;
 
     container.appendChild(element);
+}
+
+
+function createElement(tag, className, text) {
+    const element = document.createElement(tag);
+
+    if (className) {
+        element.className = className;
+    }
+
+    if (text !== undefined && text !== null) {
+        element.textContent = String(text);
+    }
+
+    return element;
+}
+
+
+function normalizeStatus(status) {
+    return String(status || "Pending")
+        .trim()
+        .toLowerCase();
 }
 
 
@@ -116,14 +127,12 @@ async function checkAdminSession() {
 
         if (error) throw error;
 
-        const session = data.session;
-
-        if (!session) {
+        if (!data.session) {
             window.location.replace("index.html");
             return false;
         }
 
-        currentUser = session.user;
+        currentUser = data.session.user;
 
         return await verifyAdminRole();
 
@@ -161,14 +170,20 @@ async function verifyAdminRole() {
 
         if (error) throw error;
 
+        if (!data) {
+            throw new Error("Admin profile not found.");
+        }
+
         currentProfile = data;
 
-        const role = String(data.role || "").toLowerCase();
+        const role = String(data.role || "")
+            .trim()
+            .toLowerCase();
 
         if (!["admin", "super_admin"].includes(role)) {
-
-            alert(
-                "Access Denied. You are not an administrator."
+            showMessage(
+                "Access denied. Administrator permission required.",
+                "error"
             );
 
             await supabase.auth.signOut();
@@ -178,11 +193,15 @@ async function verifyAdminRole() {
             return false;
         }
 
-        $("admin-name").textContent =
-            data.full_name || "Administrator";
+        if ($("admin-name")) {
+            $("admin-name").textContent =
+                data.full_name || "Administrator";
+        }
 
-        $("admin-email").textContent =
-            data.email || currentUser.email || "";
+        if ($("admin-email")) {
+            $("admin-email").textContent =
+                data.email || currentUser.email || "";
+        }
 
         return true;
 
@@ -190,9 +209,13 @@ async function verifyAdminRole() {
         console.error("Admin verification error:", error);
 
         showMessage(
-            "Unable to verify administrator permissions. Check your profile and database permissions.",
+            "Admin verification failed. Check your profile and database permissions.",
             "error"
         );
+
+        setTimeout(() => {
+            window.location.replace("dashboard.html");
+        }, 2500);
 
         return false;
     }
@@ -200,7 +223,7 @@ async function verifyAdminRole() {
 
 
 /* =========================================
-   LOAD ADMIN DATA
+   LOAD ALL ADMIN DATA
 ========================================= */
 
 async function loadAdminData() {
@@ -231,32 +254,29 @@ async function loadApplications() {
     setLoading(container, "Loading applications...");
 
     try {
-        /*
-          We use the applications table directly.
-
-          Customer names and email are read from
-          the linked profile only when available.
-        */
-
         const {
             data,
             error
         } = await supabase
             .from("applications")
-            .select(`
-                *,
-                profiles (
-                    full_name,
-                    email
-                )
-            `)
-            .order("created_at", {
-                ascending: false
-            });
+            .select("*");
 
         if (error) throw error;
 
         applicationsCache = data || [];
+
+        /*
+         * Sort locally.
+         * This avoids failure if created_at
+         * is unavailable in the table.
+         */
+
+        applicationsCache.sort((a, b) => {
+            return new Date(b.created_at || 0) -
+                   new Date(a.created_at || 0);
+        });
+
+        await loadApplicationProfiles();
 
         updateApplicationStats();
 
@@ -267,9 +287,65 @@ async function loadApplications() {
 
         showEmpty(
             container,
-            "Unable to load applications. Check your database permissions and relationship settings."
+            "Unable to load applications. Check applications table permissions."
         );
     }
+}
+
+
+/* =========================================
+   APPLICATION CUSTOMER PROFILES
+========================================= */
+
+async function loadApplicationProfiles() {
+    const userIds = [
+        ...new Set(
+            applicationsCache
+                .map(app => app.user_id || app.customer_id)
+                .filter(Boolean)
+        )
+    ];
+
+    if (!userIds.length) {
+        applicationsCache.forEach(app => {
+            app._customerProfile = null;
+        });
+
+        return;
+    }
+
+    const {
+        data,
+        error
+    } = await supabase
+        .from("profiles")
+        .select("id,full_name,email")
+        .in("id", userIds);
+
+    if (error) {
+        console.error("Customer profiles error:", error);
+
+        applicationsCache.forEach(app => {
+            app._customerProfile = null;
+        });
+
+        return;
+    }
+
+    const profileMap = new Map(
+        (data || []).map(profile => [
+            String(profile.id),
+            profile
+        ])
+    );
+
+    applicationsCache.forEach(app => {
+        const userId = app.user_id || app.customer_id;
+
+        app._customerProfile = userId
+            ? profileMap.get(String(userId)) || null
+            : null;
+    });
 }
 
 
@@ -280,28 +356,40 @@ async function loadApplications() {
 function updateApplicationStats() {
     const apps = applicationsCache;
 
-    const review = apps.filter(app =>
-        String(app.status || "").toLowerCase() === "in review"
-    ).length;
+    const review = apps.filter(app => {
+        const status = normalizeStatus(app.status);
+
+        return [
+            "pending",
+            "in review",
+            "in_review"
+        ].includes(status);
+    }).length;
 
     const completed = apps.filter(app =>
-        String(app.status || "").toLowerCase() === "completed"
+        normalizeStatus(app.status) === "completed"
     ).length;
 
-    $("stat-total").textContent = apps.length;
+    if ($("stat-total")) {
+        $("stat-total").textContent = apps.length;
+    }
 
-    $("stat-review").textContent = review;
+    if ($("stat-review")) {
+        $("stat-review").textContent = review;
+    }
 
-    $("stat-completed").textContent = completed;
+    if ($("stat-completed")) {
+        $("stat-completed").textContent = completed;
+    }
 }
 
 
 /* =========================================
-   APPLICATION BORDER COLOR
+   STATUS COLOR
 ========================================= */
 
 function getStatusColor(status) {
-    const value = String(status || "").toLowerCase();
+    const value = normalizeStatus(status);
 
     if (value === "completed") {
         return "var(--good)";
@@ -311,7 +399,11 @@ function getStatusColor(status) {
         return "var(--bad)";
     }
 
-    if (value === "in review") {
+    if (
+        value === "pending" ||
+        value === "in review" ||
+        value === "in_review"
+    ) {
         return "var(--warn)";
     }
 
@@ -328,7 +420,7 @@ function renderApplications() {
 
     if (!container) return;
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     if (!applicationsCache.length) {
         showEmpty(
@@ -340,27 +432,22 @@ function renderApplications() {
     }
 
     applicationsCache.forEach(app => {
-
-        const profile = app.profiles || {};
+        const profile = app._customerProfile || {};
 
         const name =
-            profile.full_name ||
-            "Customer";
+            profile.full_name || "Customer";
 
         const email =
-            profile.email ||
-            "Not available";
+            profile.email || "Not available";
 
         const formData =
             app.form_data || {};
 
         const phone =
-            formData.phone ||
-            "Not available";
+            formData.phone || "Not available";
 
         const service =
-            app.service_name ||
-            "Service";
+            app.service_name || "Service";
 
         const amount =
             formatCurrency(app.amount);
@@ -368,45 +455,37 @@ function renderApplications() {
         const status =
             app.status || "Pending";
 
-        const borderColor =
+        const item = createElement("article", "app-item");
+
+        item.style.borderLeftColor =
             getStatusColor(status);
 
-        const item = document.createElement("article");
+        const heading = createElement("div", "app-head");
 
-        item.className = "app-item";
+        const title = createElement("div");
 
-        item.style.borderLeftColor = borderColor;
+        const customerName =
+            createElement("h3", "", name);
 
-        const heading = document.createElement("div");
+        const applicationId =
+            createElement(
+                "p",
+                "",
+                "Application ID: " + app.id
+            );
 
-        heading.className = "app-head";
+        title.append(customerName, applicationId);
 
-        const title = document.createElement("div");
+        const date = createElement(
+            "span",
+            "app-date",
+            formatDate(app.created_at)
+        );
 
-        const customerName = document.createElement("h3");
+        heading.append(title, date);
 
-        customerName.textContent = name;
-
-        const applicationId = document.createElement("p");
-
-        applicationId.textContent =
-            "Application ID: " + app.id;
-
-        title.appendChild(customerName);
-        title.appendChild(applicationId);
-
-        const date = document.createElement("span");
-
-        date.className = "app-date";
-
-        date.textContent = formatDate(app.created_at);
-
-        heading.appendChild(title);
-        heading.appendChild(date);
-
-        const details = document.createElement("div");
-
-        details.className = "app-details";
+        const details =
+            createElement("div", "app-details");
 
         const detailItems = [
             ["Email", email],
@@ -416,42 +495,37 @@ function renderApplications() {
         ];
 
         detailItems.forEach(([label, value]) => {
+            const detail =
+                createElement("div", "detail-item");
 
-            const detail = document.createElement("div");
+            const labelElement =
+                createElement("span", "", label);
 
-            detail.className = "detail-item";
+            const valueElement =
+                createElement("strong", "", value);
 
-            const labelElement = document.createElement("span");
-
-            labelElement.textContent = label;
-
-            const valueElement = document.createElement("strong");
-
-            valueElement.textContent = value;
-
-            detail.appendChild(labelElement);
-            detail.appendChild(valueElement);
+            detail.append(labelElement, valueElement);
 
             details.appendChild(detail);
-
         });
 
-        const actions = document.createElement("div");
+        const actions =
+            createElement("div", "app-actions");
 
-        actions.className = "app-actions";
+        const currentStatus =
+            createElement(
+                "span",
+                "",
+                "Current status: " + status
+            );
 
-        const currentStatus = document.createElement("span");
-
-        currentStatus.textContent =
-            "Current status: " + status;
-
-        const select = document.createElement("select");
-
-        select.className = "status-select";
+        const select =
+            createElement("select", "status-select");
 
         select.dataset.id = app.id;
 
         const statuses = [
+            "Pending",
             "In review",
             "In progress",
             "Completed",
@@ -459,35 +533,35 @@ function renderApplications() {
         ];
 
         statuses.forEach(statusOption => {
-
-            const option = document.createElement("option");
+            const option =
+                createElement(
+                    "option",
+                    "",
+                    statusOption
+                );
 
             option.value = statusOption;
 
-            option.textContent = statusOption;
-
             if (
-                String(status).toLowerCase() ===
-                statusOption.toLowerCase()
+                normalizeStatus(status) ===
+                normalizeStatus(statusOption)
             ) {
                 option.selected = true;
             }
 
             select.appendChild(option);
-
         });
 
-        select.addEventListener("change", handleStatusChange);
+        select.addEventListener(
+            "change",
+            handleStatusChange
+        );
 
-        actions.appendChild(currentStatus);
-        actions.appendChild(select);
+        actions.append(currentStatus, select);
 
-        item.appendChild(heading);
-        item.appendChild(details);
-        item.appendChild(actions);
+        item.append(heading, details, actions);
 
         container.appendChild(item);
-
     });
 }
 
@@ -509,21 +583,29 @@ async function handleStatusChange(event) {
 
     if (!oldApp) return;
 
-    const oldStatus = oldApp.status;
+    const oldStatus = oldApp.status || "Pending";
 
     select.disabled = true;
 
     try {
         const {
+            data,
             error
         } = await supabase
             .from("applications")
             .update({
                 status: newStatus
             })
-            .eq("id", appId);
+            .eq("id", appId)
+            .select("id,status");
 
         if (error) throw error;
+
+        if (!data || !data.length) {
+            throw new Error(
+                "Update was not confirmed. Check database permissions."
+            );
+        }
 
         showMessage(
             "Application status updated successfully.",
@@ -538,7 +620,7 @@ async function handleStatusChange(event) {
         select.value = oldStatus;
 
         showMessage(
-            "Unable to update application status. Please check permissions.",
+            "Unable to update application status. Check your database permissions.",
             "error"
         );
 
@@ -562,17 +644,22 @@ async function loadServices() {
             error
         } = await supabase
             .from("services")
-            .select("id,name,price")
-            .order("name", {
-                ascending: true
-            });
+            .select("id,name,price");
 
         if (error) throw error;
 
         servicesCache = data || [];
 
-        $("stat-products").textContent =
-            servicesCache.length;
+        servicesCache.sort((a, b) =>
+            String(a.name || "").localeCompare(
+                String(b.name || "")
+            )
+        );
+
+        if ($("stat-products")) {
+            $("stat-products").textContent =
+                servicesCache.length;
+        }
 
         renderServices();
 
@@ -592,7 +679,7 @@ function renderServices() {
 
     if (!container) return;
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     if (!servicesCache.length) {
         showEmpty(
@@ -604,35 +691,34 @@ function renderServices() {
     }
 
     servicesCache.forEach(service => {
+        const item =
+            createElement("div", "admin-service-item");
 
-        const item = document.createElement("div");
+        const info = createElement("div");
 
-        item.className = "admin-service-item";
+        const name = createElement(
+            "strong",
+            "",
+            service.name || "Unnamed service"
+        );
 
-        const info = document.createElement("div");
+        const id = createElement(
+            "small",
+            "",
+            "Service ID: " + service.id
+        );
 
-        const name = document.createElement("strong");
+        info.append(name, id);
 
-        name.textContent = service.name || "Unnamed service";
+        const price = createElement(
+            "strong",
+            "admin-price",
+            formatCurrency(service.price)
+        );
 
-        const id = document.createElement("small");
-
-        id.textContent = "Service ID: " + service.id;
-
-        info.appendChild(name);
-        info.appendChild(id);
-
-        const price = document.createElement("strong");
-
-        price.className = "admin-price";
-
-        price.textContent = formatCurrency(service.price);
-
-        item.appendChild(info);
-        item.appendChild(price);
+        item.append(info, price);
 
         container.appendChild(item);
-
     });
 }
 
@@ -652,14 +738,20 @@ async function loadPayments() {
             error
         } = await supabase
             .from("payments")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+            .select("*");
 
         if (error) throw error;
 
         paymentsCache = data || [];
+
+        /*
+         * Sort only when date information exists.
+         */
+
+        paymentsCache.sort((a, b) => {
+            return new Date(b.created_at || b.created || 0) -
+                   new Date(a.created_at || a.created || 0);
+        });
 
         renderPayments();
 
@@ -668,7 +760,7 @@ async function loadPayments() {
 
         showEmpty(
             container,
-            "Unable to load payment records. Check the payments table and permissions."
+            "Unable to load payment records. Check payments table permissions."
         );
     }
 }
@@ -679,7 +771,7 @@ function renderPayments() {
 
     if (!container) return;
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     if (!paymentsCache.length) {
         showEmpty(
@@ -691,45 +783,57 @@ function renderPayments() {
     }
 
     paymentsCache.forEach(payment => {
+        const item =
+            createElement("div", "admin-payment-item");
 
-        const item = document.createElement("div");
+        const info = createElement("div");
 
-        item.className = "admin-payment-item";
+        const service = createElement(
+            "strong",
+            "",
+            payment.service_name ||
+            payment.service ||
+            "Payment"
+        );
 
-        const info = document.createElement("div");
-
-        const service = document.createElement("strong");
-
-        service.textContent =
-            payment.service_name || "Payment";
-
-        const reference = document.createElement("small");
-
-        reference.textContent =
+        const reference = createElement(
+            "small",
+            "",
             "Reference: " +
-            (payment.reference || payment.ref || "N/A");
+            (
+                payment.reference ||
+                payment.ref ||
+                "N/A"
+            )
+        );
 
-        const date = document.createElement("small");
+        const date = createElement(
+            "small",
+            "",
+            "Date: " +
+            formatDate(
+                payment.created_at ||
+                payment.created
+            )
+        );
 
-        date.textContent =
-            "Date: " + formatDate(payment.created_at);
+        const status = createElement(
+            "small",
+            "",
+            "Status: " + (payment.status || "Not specified")
+        );
 
-        info.appendChild(service);
-        info.appendChild(reference);
-        info.appendChild(date);
+        info.append(service, reference, date, status);
 
-        const amount = document.createElement("strong");
+        const amount = createElement(
+            "strong",
+            "admin-price",
+            formatCurrency(payment.amount)
+        );
 
-        amount.className = "admin-price";
-
-        amount.textContent =
-            formatCurrency(payment.amount);
-
-        item.appendChild(info);
-        item.appendChild(amount);
+        item.append(info, amount);
 
         container.appendChild(item);
-
     });
 }
 
@@ -739,7 +843,6 @@ function renderPayments() {
 ========================================= */
 
 function initializeRefreshButtons() {
-
     $("refresh-applications")?.addEventListener(
         "click",
         loadApplications
@@ -754,7 +857,6 @@ function initializeRefreshButtons() {
         "click",
         loadPayments
     );
-
 }
 
 
@@ -763,7 +865,6 @@ function initializeRefreshButtons() {
 ========================================= */
 
 async function logoutAdmin() {
-
     const button = $("nav-logout");
 
     if (button) {
@@ -806,9 +907,9 @@ async function logoutAdmin() {
 ========================================= */
 
 function initializeRealtime() {
-
     if (realtimeChannel) {
         supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
     }
 
     realtimeChannel = supabase
@@ -821,8 +922,8 @@ function initializeRealtime() {
                 schema: "public",
                 table: "applications"
             },
-            async () => {
-                await loadApplications();
+            () => {
+                loadApplications();
             }
         )
 
@@ -833,8 +934,8 @@ function initializeRealtime() {
                 schema: "public",
                 table: "services"
             },
-            async () => {
-                await loadServices();
+            () => {
+                loadServices();
             }
         )
 
@@ -845,23 +946,28 @@ function initializeRealtime() {
                 schema: "public",
                 table: "payments"
             },
-            async () => {
-                await loadPayments();
+            () => {
+                loadPayments();
             }
         )
 
-        .subscribe((status) => {
-
+        .subscribe(status => {
             if (status === "SUBSCRIBED") {
-                console.log("EIS Admin Realtime connected.");
+                console.log(
+                    "EIS Admin Realtime connected."
+                );
             }
 
-            if (status === "CHANNEL_ERROR") {
-                console.error("Realtime channel error.");
+            if (
+                status === "CHANNEL_ERROR" ||
+                status === "TIMED_OUT"
+            ) {
+                console.error(
+                    "Admin Realtime connection error:",
+                    status
+                );
             }
-
         });
-
 }
 
 
@@ -870,20 +976,13 @@ function initializeRealtime() {
 ========================================= */
 
 function initializeAuthListener() {
-
     supabase.auth.onAuthStateChange(
         (event, session) => {
-
-            if (
-                event === "SIGNED_OUT" ||
-                !session
-            ) {
+            if (event === "SIGNED_OUT" || !session) {
                 window.location.replace("index.html");
             }
-
         }
     );
-
 }
 
 
@@ -892,8 +991,9 @@ function initializeAuthListener() {
 ========================================= */
 
 async function initializeAdminDashboard() {
-
-    console.log("EIS Admin Dashboard initializing...");
+    console.log(
+        "EIS Admin Dashboard initializing..."
+    );
 
     const authorized = await checkAdminSession();
 
@@ -912,8 +1012,9 @@ async function initializeAdminDashboard() {
 
     initializeRealtime();
 
-    console.log("EIS Admin Dashboard ready.");
-
+    console.log(
+        "EIS Admin Dashboard ready."
+    );
 }
 
 
