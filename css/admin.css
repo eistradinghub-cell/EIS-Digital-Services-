@@ -1,0 +1,481 @@
+/* =====================================================
+   EIS TRADING HUB
+   ADMIN DASHBOARD ONLY
+   ISOLATED STYLESHEET
+===================================================== */
+
+.admin-page {
+    --admin-bg: #f4f7fc;
+    --admin-card: #ffffff;
+    --admin-border: #e2e8f0;
+    --admin-text: #0d2540;
+    --admin-muted: #64748b;
+
+    min-height: 100vh;
+    background: var(--admin-bg);
+    color: var(--admin-text);
+    font-family: var(--bd);
+}
+
+/* HEADER */
+
+.admin-page .site-header {
+    background: #fff;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-page .header-inner {
+    max-width: 1200px;
+    min-height: 72px;
+    margin: auto;
+    padding: 12px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.admin-page .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.admin-page .brand-mark {
+    width: 42px;
+    height: 42px;
+}
+
+.admin-page .brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-page .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-page .nav-links a,
+.admin-page .logout-button {
+    padding: 10px 15px;
+    border: 1px solid var(--admin-border);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--admin-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-page .logout-button {
+    cursor: pointer;
+}
+
+.admin-page .nav-links a:hover,
+.admin-page .logout-button:hover {
+    background: #eaf0ff;
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+/* MAIN CONTAINER */
+
+.admin-page .admin-container {
+    width: min(1150px, 100%);
+    margin: auto;
+    padding: 35px 20px 55px;
+}
+
+/* PAGE HEADING */
+
+.admin-page .page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.admin-page .page-heading h1 {
+    font-size: clamp(27px, 4vw, 36px);
+    margin-bottom: 5px;
+}
+
+.admin-page .eyebrow {
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.admin-page .admin-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+}
+
+.admin-page .admin-avatar {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--blue-soft);
+    color: var(--blue);
+    font-weight: 800;
+}
+
+.admin-page .admin-identity strong,
+.admin-page .admin-identity span {
+    display: block;
+}
+
+.admin-page .admin-identity span {
+    color: var(--admin-muted);
+    font-size: 13px;
+}
+
+/* NOTIFICATIONS */
+
+.admin-page .notice {
+    padding: 13px 16px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-border);
+    background: #fff;
+    font-size: 14px;
+}
+
+.admin-page .notice.success {
+    background: var(--good-soft);
+    color: var(--good);
+    border-color: #b7e6d5;
+}
+
+.admin-page .notice.error {
+    background: var(--bad-soft);
+    color: var(--bad);
+    border-color: #f4c5c1;
+}
+
+.admin-page .notice[hidden] {
+    display: none;
+}
+
+/* STATISTICS */
+
+.admin-page .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.admin-page .stat-card {
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    border-radius: 13px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-page .stat-card span {
+    display: block;
+    color: var(--admin-muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.admin-page .stat-card b {
+    display: block;
+    margin-top: 7px;
+    color: var(--blue);
+    font-size: 28px;
+    font-weight: 800;
+}
+
+/* PANELS */
+
+.admin-page .panel {
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-page .panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.admin-page .panel-heading h2 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.admin-page .secondary-button {
+    padding: 9px 14px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--blue);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-page .secondary-button:hover {
+    background: var(--blue-soft);
+}
+
+/* APPLICATIONS */
+
+.admin-page .app-list {
+    display: grid;
+    gap: 15px;
+}
+
+.admin-page .app-item {
+    background: #fff;
+    border: 1px solid var(--admin-border);
+    border-left: 5px solid var(--blue);
+    border-radius: 11px;
+    padding: 18px;
+    margin: 0;
+}
+
+.admin-page .app-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 13px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-page .app-head h3 {
+    font-size: 17px;
+    margin-bottom: 4px;
+}
+
+.admin-page .app-head p {
+    color: var(--admin-muted);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.admin-page .app-date {
+    color: var(--admin-muted);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.admin-page .app-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.admin-page .detail-item {
+    min-width: 0;
+    padding: 10px;
+    background: #f8faff;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+.admin-page .detail-item span,
+.admin-page .detail-item strong {
+    display: block;
+}
+
+.admin-page .detail-item span {
+    color: var(--admin-muted);
+    font-size: 11px;
+    margin-bottom: 3px;
+}
+
+.admin-page .detail-item strong {
+    font-size: 13px;
+}
+
+/* APPLICATION ACTIONS */
+
+.admin-page .app-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-page .status-select {
+    width: auto;
+    min-width: 150px;
+    padding: 9px 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    background: #fff;
+}
+
+/* SERVICES AND PAYMENTS */
+
+.admin-page .simple-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-page .admin-service-item,
+.admin-page .admin-payment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: #fff;
+}
+
+.admin-page .admin-service-item strong,
+.admin-page .admin-payment-item strong {
+    display: block;
+}
+
+.admin-page .admin-service-item small,
+.admin-page .admin-payment-item small {
+    display: block;
+    color: var(--admin-muted);
+    font-size: 12px;
+    margin-top: 4px;
+    overflow-wrap: anywhere;
+}
+
+.admin-page .admin-price {
+    color: var(--good);
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+/* EMPTY AND LOADING */
+
+.admin-page .empty-state,
+.admin-page .loading {
+    padding: 25px 15px;
+    text-align: center;
+    color: var(--admin-muted);
+    background: #f8faff;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* FOOTER */
+
+.admin-page .site-footer {
+    padding: 22px 15px;
+    text-align: center;
+    color: var(--admin-muted);
+    border-top: 1px solid var(--admin-border);
+    background: #fff;
+    font-size: 13px;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+    .admin-page .stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+    .admin-page .header-inner {
+        flex-wrap: wrap;
+        padding: 12px 14px;
+    }
+
+    .admin-page .nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .admin-page .nav-links a,
+    .admin-page .logout-button {
+        flex: 1;
+        text-align: center;
+        padding: 9px 7px;
+        font-size: 12px;
+    }
+
+    .admin-page .admin-container {
+        padding: 23px 13px 40px;
+    }
+
+    .admin-page .stat-grid {
+        gap: 10px;
+    }
+
+    .admin-page .stat-card {
+        padding: 14px;
+    }
+
+    .admin-page .stat-card b {
+        font-size: 23px;
+    }
+
+    .admin-page .panel {
+        padding: 15px;
+    }
+
+    .admin-page .app-details {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-page .app-head {
+        flex-direction: column;
+    }
+
+    .admin-page .app-date {
+        white-space: normal;
+    }
+
+    .admin-page .admin-service-item,
+    .admin-page .admin-payment-item {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-page .stat-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-page .app-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-page .status-select {
+        width: 100%;
+    }
+}
