@@ -1,7 +1,7 @@
 /* =====================================================
    EIS DIGITAL SERVICES
    FILE: js/dashboard.js
-   COMPLETE DASHBOARD SYSTEM
+   CUSTOMER DASHBOARD VERSION 16
 ===================================================== */
 
 import { supabase } from "./supabase.js";
@@ -15,6 +15,7 @@ let currentProfile = null;
 let selectedService = null;
 let servicesCache = [];
 let applicationsCache = [];
+let notificationsCache = [];
 let demoPaymentCompleted = false;
 
 const $ = (id) => document.getElementById(id);
@@ -26,14 +27,10 @@ const $ = (id) => document.getElementById(id);
 
 function showMessage(message, type = "info", targetId = "pay-msg") {
 
-    const box =
-        $(targetId) ||
-        $("dashboard-message") ||
-        $("pay-msg") ||
-        $("form-msg");
+    const box = $(targetId);
 
     if (!box) {
-        alert(message);
+        console.log(message);
         return;
     }
 
@@ -68,7 +65,29 @@ function formatDate(date) {
         return "N/A";
     }
 
-    return value.toLocaleDateString("en-NG");
+    return value.toLocaleDateString("en-NG", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+
+}
+
+
+function formatDateTime(date) {
+
+    if (!date) return "";
+
+    const value = new Date(date);
+
+    if (Number.isNaN(value.getTime())) {
+        return "";
+    }
+
+    return value.toLocaleString("en-NG", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
 
 }
 
@@ -112,7 +131,7 @@ async function checkUserSession() {
 
 
 /* =====================================================
-   LOAD USER PROFILE AND ADMIN ROLE
+   LOAD USER PROFILE
 ===================================================== */
 
 async function loadUserProfile() {
@@ -122,15 +141,12 @@ async function loadUserProfile() {
     const welcome = $("welcome");
     const adminButton = $("nav-admin");
 
-    // Hide admin button initially
     if (adminButton) {
         adminButton.style.display = "none";
     }
 
     if (welcome) {
-
-        welcome.textContent =
-            `Welcome, ${currentUser.email}`;
+        welcome.textContent = `Welcome, ${currentUser.email}`;
     }
 
     try {
@@ -144,34 +160,25 @@ async function loadUserProfile() {
         if (error) throw error;
 
         if (!data) {
-
             console.error("Profile not found.");
-
             return;
         }
 
         currentProfile = data;
 
-        // Welcome message
         if (welcome) {
-
             welcome.textContent =
                 `Welcome, ${data.full_name || currentUser.email}`;
         }
 
-        // Check user role
         const role = String(data.role || "")
             .trim()
             .toLowerCase();
 
-        console.log("Current EIS role:", role);
-
-        // Show Admin button for authorized users
         if (
             ["admin", "super_admin"].includes(role) &&
             adminButton
         ) {
-
             adminButton.style.display = "inline-flex";
         }
 
@@ -226,38 +233,24 @@ async function loadServices() {
         servicesCache.forEach(service => {
 
             const card = document.createElement("div");
-
             card.className = "service-card";
 
             const title = document.createElement("h3");
-
-            title.textContent =
-                service.name || "Service";
+            title.textContent = service.name || "Service";
 
             const price = document.createElement("p");
-
-            price.textContent =
-                formatCurrency(service.price);
+            price.textContent = formatCurrency(service.price);
 
             const button = document.createElement("button");
-
             button.type = "button";
-
             button.className = "btn btn-primary";
-
             button.textContent = "Select Service";
 
             button.addEventListener("click", () => {
-
                 selectService(service);
-
             });
 
-            card.append(
-                title,
-                price,
-                button
-            );
+            card.append(title, price, button);
 
             container.appendChild(card);
 
@@ -284,21 +277,16 @@ function selectService(service) {
     if (!service) return;
 
     selectedService = service;
-
     demoPaymentCompleted = false;
 
     const paySection = $("pay-section");
     const form = $("app-form");
 
-    // Show payment section
     if (paySection) {
-
         paySection.style.display = "block";
     }
 
-    // Keep application form hidden until demo payment
     if (form) {
-
         form.style.display = "none";
     }
 
@@ -307,8 +295,8 @@ function selectService(service) {
     if (payButton) {
 
         payButton.disabled = false;
-
         payButton.textContent = "Pay Now";
+
     }
 
     showMessage(
@@ -322,6 +310,7 @@ function selectService(service) {
             behavior: "smooth",
             block: "center"
         });
+
     }
 
 }
@@ -344,14 +333,13 @@ async function handleDemoPayment() {
     }
 
     const button = $("btn-pay");
-
     const form = $("app-form");
 
     if (button) {
 
         button.disabled = true;
-
         button.textContent = "Processing...";
+
     }
 
     try {
@@ -360,7 +348,7 @@ async function handleDemoPayment() {
           DEMO PAYMENT ONLY.
 
           This does not charge money.
-          Do not treat this as a verified payment.
+          It is not a verified payment.
         */
 
         demoPaymentCompleted = true;
@@ -370,7 +358,6 @@ async function handleDemoPayment() {
             "ok"
         );
 
-        // Show application form
         if (form) {
 
             form.style.display = "block";
@@ -379,10 +366,10 @@ async function handleDemoPayment() {
                 behavior: "smooth",
                 block: "start"
             });
+
         }
 
         if (button) {
-
             button.textContent = "Demo Payment Completed";
         }
 
@@ -400,9 +387,10 @@ async function handleDemoPayment() {
         if (button) {
 
             button.disabled = false;
-
             button.textContent = "Pay Now";
+
         }
+
     }
 
 }
@@ -418,8 +406,10 @@ function prepareApplicationForm() {
 
     if (!form) return;
 
-    // Hide sensitive fields during testing.
-    // Do not collect real BVN or bank details here.
+    /*
+       These fields remain hidden during testing.
+       Do not collect sensitive bank or BVN information.
+    */
 
     const sensitiveFields = [
         "f-kegow",
@@ -439,21 +429,16 @@ function prepareApplicationForm() {
 
         field.required = false;
 
-        const wrapper =
-            field.closest(".form-grid > div");
+        const wrapper = field.closest(".form-grid > div");
 
         if (wrapper) {
-
             wrapper.style.display = "none";
         }
 
     });
 
 
-    // Nigerian states
-
     const states = [
-
         "Abia",
         "Adamawa",
         "Akwa Ibom",
@@ -491,9 +476,7 @@ function prepareApplicationForm() {
         "Taraba",
         "Yobe",
         "Zamfara"
-
     ];
-
 
     [
         "f-agentState",
@@ -507,22 +490,18 @@ function prepareApplicationForm() {
 
         select.replaceChildren();
 
-        const placeholder =
-            document.createElement("option");
+        const placeholder = document.createElement("option");
 
         placeholder.value = "";
-
         placeholder.textContent = "Select State";
 
         select.appendChild(placeholder);
 
         states.forEach(state => {
 
-            const option =
-                document.createElement("option");
+            const option = document.createElement("option");
 
             option.value = state;
-
             option.textContent = state;
 
             select.appendChild(option);
@@ -530,6 +509,30 @@ function prepareApplicationForm() {
         });
 
     });
+
+}
+
+
+/* =====================================================
+   APPLICATION STATUS BADGE
+===================================================== */
+
+function createStatusBadge(status) {
+
+    const badge = document.createElement("span");
+
+    const normalized = String(status || "pending")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_");
+
+    badge.className = `status-badge ${normalized}`;
+
+    badge.textContent = String(status || "Pending")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, letter => letter.toUpperCase());
+
+    return badge;
 
 }
 
@@ -565,15 +568,13 @@ async function loadApplications() {
         if (applicationsCache.length === 0) {
 
             const row = document.createElement("tr");
-
             const cell = document.createElement("td");
 
-            cell.colSpan = 4;
-
+            cell.colSpan = 5;
             cell.textContent = "No applications yet.";
+            cell.style.textAlign = "center";
 
             row.appendChild(cell);
-
             container.appendChild(row);
 
             return;
@@ -590,25 +591,37 @@ async function loadApplications() {
                 currentUser.email ||
                 "Customer";
 
+
             const reference = document.createElement("td");
 
             reference.textContent =
-                String(application.id).slice(0, 8);
+                String(application.id).slice(0, 8).toUpperCase();
+
 
             const service = document.createElement("td");
 
             service.textContent =
                 application.service_name || "Service";
 
+
+            const submitted = document.createElement("td");
+
+            submitted.textContent =
+                formatDate(application.created_at);
+
+
             const status = document.createElement("td");
 
-            status.textContent =
-                application.status || "Pending";
+            status.appendChild(
+                createStatusBadge(application.status)
+            );
+
 
             row.append(
                 name,
                 reference,
                 service,
+                submitted,
                 status
             );
 
@@ -623,19 +636,182 @@ async function loadApplications() {
         container.replaceChildren();
 
         const row = document.createElement("tr");
-
         const cell = document.createElement("td");
 
-        cell.colSpan = 4;
-
-        cell.textContent =
-            "Unable to load applications.";
+        cell.colSpan = 5;
+        cell.textContent = "Unable to load applications.";
+        cell.style.textAlign = "center";
 
         row.appendChild(cell);
-
         container.appendChild(row);
 
     }
+
+}
+
+
+/* =====================================================
+   LOAD NOTIFICATIONS
+===================================================== */
+
+async function loadNotifications() {
+
+    if (!currentUser) return;
+
+    const list = $("notifications-list");
+    const count = $("notification-count");
+
+    if (list) {
+        list.textContent = "Loading notifications...";
+    }
+
+    try {
+
+        const { data, error } = await supabase
+            .from("notifications")
+            .select("id,user_id,title,message,is_read,created_at")
+            .eq("user_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            })
+            .limit(20);
+
+        if (error) throw error;
+
+        notificationsCache = data || [];
+
+        const unread = notificationsCache.filter(
+            notification => !notification.is_read
+        ).length;
+
+        if (count) {
+
+            count.textContent = unread > 99 ? "99+" : String(unread);
+
+            count.style.display =
+                unread > 0 ? "flex" : "none";
+
+        }
+
+        renderNotifications();
+
+    } catch (error) {
+
+        console.error("Notifications loading error:", error);
+
+        if (list) {
+            list.textContent =
+                "Unable to load notifications.";
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER NOTIFICATIONS
+===================================================== */
+
+function renderNotifications() {
+
+    const list = $("notifications-list");
+
+    if (!list) return;
+
+    list.replaceChildren();
+
+    if (notificationsCache.length === 0) {
+
+        const empty = document.createElement("p");
+
+        empty.textContent = "You have no notifications.";
+        empty.style.color = "#7b8495";
+        empty.style.fontSize = "13px";
+
+        list.appendChild(empty);
+
+        return;
+    }
+
+    notificationsCache.forEach(notification => {
+
+        const item = document.createElement("div");
+
+        item.className = "notification-item";
+
+        if (!notification.is_read) {
+            item.style.background = "#f5f8ff";
+        }
+
+        const title = document.createElement("strong");
+
+        title.textContent =
+            notification.title || "Notification";
+
+
+        const message = document.createElement("p");
+
+        message.textContent =
+            notification.message || "";
+
+
+        const time = document.createElement("time");
+
+        time.textContent =
+            formatDateTime(notification.created_at);
+
+
+        item.append(title, message, time);
+
+        list.appendChild(item);
+
+    });
+
+}
+
+
+/* =====================================================
+   NOTIFICATION DROPDOWN
+===================================================== */
+
+function setupNotificationDropdown() {
+
+    const button = $("notification-button");
+    const dropdown = $("notification-dropdown");
+
+    if (!button || !dropdown) return;
+
+    button.addEventListener("click", () => {
+
+        const isOpen =
+            dropdown.classList.toggle("open");
+
+        button.setAttribute(
+            "aria-expanded",
+            String(isOpen)
+        );
+
+    });
+
+
+    document.addEventListener("click", event => {
+
+        if (
+            !button.contains(event.target) &&
+            !dropdown.contains(event.target)
+        ) {
+
+            dropdown.classList.remove("open");
+
+            button.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+        }
+
+    });
 
 }
 
@@ -683,24 +859,13 @@ async function submitApplication(event) {
         return;
     }
 
-    const firstName =
-        $("f-firstName")?.value.trim();
+    const firstName = $("f-firstName")?.value.trim();
+    const lastName = $("f-lastName")?.value.trim();
+    const email = $("f-email")?.value.trim();
+    const phone = $("f-phone")?.value.trim();
 
-    const lastName =
-        $("f-lastName")?.value.trim();
-
-    const email =
-        $("f-email")?.value.trim();
-
-    const phone =
-        $("f-phone")?.value.trim();
-
-    const agentState =
-        $("f-agentState")?.value;
-
-    const stateResidence =
-        $("f-stateRes")?.value;
-
+    const agentState = $("f-agentState")?.value;
+    const stateResidence = $("f-stateRes")?.value;
 
     if (
         !firstName ||
@@ -720,7 +885,6 @@ async function submitApplication(event) {
         return;
     }
 
-
     const button = form.querySelector(
         'button[type="submit"]'
     );
@@ -728,49 +892,36 @@ async function submitApplication(event) {
     if (button) {
 
         button.disabled = true;
-
         button.textContent = "Submitting...";
-    }
 
+    }
 
     try {
 
         const safeFormData = {
 
             first_name: firstName,
-
             last_name: lastName,
-
             email: email,
-
             phone: phone,
-
             agent_state: agentState,
-
             state_of_residence: stateResidence
 
         };
-
 
         const { error } = await supabase
             .from("applications")
             .insert([{
 
                 user_id: currentUser.id,
-
                 service_name: selectedService.name,
-
                 amount: Number(selectedService.price) || 0,
-
                 status: "pending",
-
                 form_data: safeFormData
 
             }]);
 
-
         if (error) throw error;
-
 
         showMessage(
             "Application submitted successfully!",
@@ -778,26 +929,20 @@ async function submitApplication(event) {
             "form-msg"
         );
 
-
         form.reset();
 
         selectedService = null;
-
         demoPaymentCompleted = false;
 
         form.style.display = "none";
 
-
         const paySection = $("pay-section");
 
         if (paySection) {
-
             paySection.style.display = "none";
         }
 
-
         await loadApplications();
-
 
     } catch (error) {
 
@@ -817,8 +962,8 @@ async function submitApplication(event) {
         if (button) {
 
             button.disabled = false;
-
             button.textContent = "Submit application";
+
         }
 
     }
@@ -845,9 +990,7 @@ async function logoutUser() {
 
         console.error("Logout error:", error);
 
-        alert(
-            "Unable to log out. Please try again."
-        );
+        alert("Unable to log out. Please try again.");
 
     }
 
@@ -860,18 +1003,14 @@ async function logoutUser() {
 
 async function initializeDashboard() {
 
-    const authenticated =
-        await checkUserSession();
+    const authenticated = await checkUserSession();
 
     if (!authenticated) return;
 
-
-    // Prepare form
-
     prepareApplicationForm();
 
+    setupNotificationDropdown();
 
-    // Application form listener
 
     const form = $("app-form");
 
@@ -881,10 +1020,9 @@ async function initializeDashboard() {
             "submit",
             submitApplication
         );
+
     }
 
-
-    // Logout listener
 
     const logout = $("nav-logout");
 
@@ -894,10 +1032,9 @@ async function initializeDashboard() {
             "click",
             logoutUser
         );
+
     }
 
-
-    // Payment listener
 
     const payButton = $("btn-pay");
 
@@ -907,34 +1044,30 @@ async function initializeDashboard() {
             "click",
             handleDemoPayment
         );
+
     }
 
-
-    // Hide payment and application form initially
 
     const paySection = $("pay-section");
 
     if (paySection) {
-
         paySection.style.display = "none";
     }
 
     if (form) {
-
         form.style.display = "none";
     }
 
 
-    // Load dashboard information
-
     await loadUserProfile();
-
 
     await Promise.all([
 
         loadServices(),
 
-        loadApplications()
+        loadApplications(),
+
+        loadNotifications()
 
     ]);
 
@@ -950,6 +1083,7 @@ supabase.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_OUT") {
 
         window.location.replace("index.html");
+
     }
 
 });
@@ -971,6 +1105,8 @@ window.EISDashboard = {
     loadServices,
 
     loadApplications,
+
+    loadNotifications,
 
     loadUserProfile,
 
