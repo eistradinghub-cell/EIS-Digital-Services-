@@ -1,7 +1,7 @@
 /* =====================================================
    EIS TRADING HUB
    ADMIN DASHBOARD STYLESHEET
-   VERSION 24
+   VERSION 25
    Admin page only
 ===================================================== */
 
@@ -138,6 +138,13 @@
     font-size: 15px;
     font-weight: 900;
     letter-spacing: -1px;
+}
+
+.admin-page .admin-brand-logo {
+    display: block;
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
 }
 
 .admin-page .admin-brand-text {
@@ -1407,6 +1414,17 @@
     font-weight: 750;
 }
 
+.admin-page .conversation-info .conversation-email {
+    display: block;
+    margin-top: 3px;
+    color: #71809a;
+    font-size: 9px;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .admin-page .conversation-info p {
     margin: 5px 0;
 
@@ -1560,14 +1578,20 @@
     font-size: 12px;
 }
 
-.admin-page .admin-chat-header span {
+.admin-page .admin-chat-header .chat-customer-email {
     display: block;
-
-    margin-top: 5px;
-
+    margin-top: 4px;
     color: var(--admin-muted);
-
     font-size: 10px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.admin-page .admin-chat-header #chat-customer-status {
+    display: block;
+    margin-top: 4px;
+    color: var(--admin-muted);
+    font-size: 9px;
 }
 
 .admin-page .admin-chat-messages {
@@ -2126,5 +2150,5 @@
 
 
 /* =====================================================
-   END OF EIS ADMIN CSS
+   28. END OF EIS ADMIN CSS
 ===================================================== */
