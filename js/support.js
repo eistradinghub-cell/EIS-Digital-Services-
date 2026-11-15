@@ -3,13 +3,14 @@ import { supabase } from './supabase.js';
 /* =========================================
    EIS DIGITAL SERVICES
    CUSTOMER SUPPORT CHAT
+   UPDATED VERSION
 ========================================= */
 
 let currentUser = null;
 let currentConversation = null;
 let realtimeChannel = null;
 let sendingMessage = false;
-
+let markingMessagesRead = false;
 
 /* =========================================
    DOM ELEMENTS
@@ -22,13 +23,11 @@ const sendButton = document.getElementById('btn-send-msg');
 const logoutButton = document.getElementById('logout-btn');
 const noticeBox = document.getElementById('support-message');
 
-
 /* =========================================
    NOTIFICATION
 ========================================= */
 
 function showNotice(message, type = 'error') {
-
     if (!noticeBox) return;
 
     noticeBox.textContent = message;
@@ -40,13 +39,11 @@ function showNotice(message, type = 'error') {
     }, 5000);
 }
 
-
 /* =========================================
    LOADING MESSAGE
 ========================================= */
 
 function showLoading(message) {
-
     if (!chatMessages) return;
 
     chatMessages.replaceChildren();
@@ -61,13 +58,11 @@ function showLoading(message) {
     chatMessages.appendChild(paragraph);
 }
 
-
 /* =========================================
    FORMAT DATE
 ========================================= */
 
 function formatTime(dateValue) {
-
     if (!dateValue) return '';
 
     const date = new Date(dateValue);
@@ -82,16 +77,13 @@ function formatTime(dateValue) {
     });
 }
 
-
 /* =========================================
    DISPLAY MESSAGE
 ========================================= */
 
 function displayMessage(message) {
-
     if (!chatMessages || !message) return;
 
-    // Prevent duplicate messages
     if (
         message.id &&
         chatMessages.querySelector(
@@ -115,14 +107,12 @@ function displayMessage(message) {
 
     const content = document.createElement('div');
 
-    // Actual database column: content
     content.textContent = message.content || '';
 
     bubble.appendChild(content);
 
     const time = document.createElement('div');
 
-    // Actual database column: created_at
     time.className = 'msg-time';
     time.textContent = formatTime(message.created_at);
 
@@ -133,17 +123,14 @@ function displayMessage(message) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-
 /* =========================================
    LOAD CURRENT USER
 ========================================= */
 
 async function loadCurrentUser() {
-
     const { data, error } = await supabase.auth.getUser();
 
     if (error || !data.user) {
-
         console.error('Authentication Error:', error);
 
         window.location.replace('index.html');
@@ -156,25 +143,20 @@ async function loadCurrentUser() {
     return currentUser;
 }
 
-
 /* =========================================
    GET OR CREATE CONVERSATION
 ========================================= */
 
 async function getConversation() {
-
     if (!currentUser) {
         throw new Error('User authentication required.');
     }
 
-    // Actual database column: customer_id
     const { data: existingConversation, error: fetchError } =
         await supabase
             .from('chat_conversations')
             .select('*')
             .eq('customer_id', currentUser.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
             .maybeSingle();
 
     if (fetchError) {
@@ -183,19 +165,16 @@ async function getConversation() {
     }
 
     if (existingConversation) {
-
         currentConversation = existingConversation;
-
         return currentConversation;
     }
 
-    // Create new conversation
     const { data: newConversation, error: createError } =
         await supabase
             .from('chat_conversations')
             .insert({
                 customer_id: currentUser.id,
-                status: 'open'
+                status: 'Open'
             })
             .select()
             .single();
@@ -210,18 +189,46 @@ async function getConversation() {
     return currentConversation;
 }
 
+/* =========================================
+   MARK ADMIN MESSAGES AS READ
+========================================= */
+
+async function markAdminMessagesRead() {
+    if (!currentConversation || markingMessagesRead) return;
+
+    markingMessagesRead = true;
+
+    try {
+        const { error } = await supabase
+            .from('chat_messages')
+            .update({
+                is_read: true
+            })
+            .eq('conversation_id', currentConversation.id)
+            .eq('sender_role', 'admin')
+            .eq('is_read', false);
+
+        if (error) {
+            console.warn('Mark Messages Read Error:', error);
+        }
+
+    } catch (error) {
+        console.error('Unexpected Read Error:', error);
+
+    } finally {
+        markingMessagesRead = false;
+    }
+}
 
 /* =========================================
    LOAD CHAT MESSAGES
 ========================================= */
 
 async function loadMessages() {
-
     if (!currentConversation) return;
 
     showLoading('Loading messages...');
 
-    // Actual database column: conversation_id
     const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
@@ -229,7 +236,6 @@ async function loadMessages() {
         .order('created_at', { ascending: true });
 
     if (error) {
-
         console.error('Messages Loading Error:', error);
 
         showNotice('Unable to load messages.');
@@ -240,7 +246,6 @@ async function loadMessages() {
     chatMessages.replaceChildren();
 
     if (!data || data.length === 0) {
-
         const emptyMessage = document.createElement('p');
 
         emptyMessage.textContent =
@@ -258,15 +263,15 @@ async function loadMessages() {
     data.forEach(displayMessage);
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
-}
 
+    await markAdminMessagesRead();
+}
 
 /* =========================================
    SEND MESSAGE
 ========================================= */
 
 async function sendMessage() {
-
     if (sendingMessage) return;
 
     const messageText = chatInput?.value.trim();
@@ -274,9 +279,7 @@ async function sendMessage() {
     if (!messageText) return;
 
     if (!currentUser || !currentConversation) {
-
         showNotice('Chat is not ready. Please refresh the page.');
-
         return;
     }
 
@@ -287,19 +290,6 @@ async function sendMessage() {
     }
 
     try {
-
-        /*
-         Actual database columns:
-
-         conversation_id
-         sender_id
-         sender_role
-         content
-         attachment_url
-         is_read
-         created_at
-        */
-
         const { data, error } = await supabase
             .from('chat_messages')
             .insert({
@@ -313,7 +303,6 @@ async function sendMessage() {
             .single();
 
         if (error) {
-
             console.error('Send Message Error:', error);
 
             showNotice(
@@ -323,41 +312,25 @@ async function sendMessage() {
             return;
         }
 
-        // Display immediately.
-        // Realtime duplicate messages are prevented by ID.
         displayMessage(data);
 
         chatInput.value = '';
 
         /*
-         Update conversation preview.
-         This is separate from message sending so that
-         a preview-update failure does not undo the message.
+          The database trigger automatically updates:
+          - last_message
+          - last_message_at
+          - unread_admin_count
+
+          No direct conversation UPDATE is needed here.
         */
 
-        const { error: updateError } = await supabase
-            .from('chat_conversations')
-            .update({
-                last_message: messageText,
-                last_message_at: data.created_at
-            })
-            .eq('id', currentConversation.id);
-
-        if (updateError) {
-            console.warn(
-                'Conversation Preview Update Error:',
-                updateError
-            );
-        }
-
     } catch (error) {
-
         console.error('Unexpected Send Error:', error);
 
         showNotice('An unexpected error occurred.');
 
     } finally {
-
         sendingMessage = false;
 
         if (sendButton) {
@@ -368,27 +341,20 @@ async function sendMessage() {
     }
 }
 
-
 /* =========================================
    REALTIME CHAT
 ========================================= */
 
 function subscribeToMessages() {
-
     if (!currentConversation) return;
 
-    // Remove previous subscription
     if (realtimeChannel) {
-
         supabase.removeChannel(realtimeChannel);
-
         realtimeChannel = null;
     }
 
     realtimeChannel = supabase
-        .channel(
-            `eis-support-${currentConversation.id}`
-        )
+        .channel(`eis-support-${currentConversation.id}`)
         .on(
             'postgres_changes',
             {
@@ -397,24 +363,22 @@ function subscribeToMessages() {
                 table: 'chat_messages',
                 filter: `conversation_id=eq.${currentConversation.id}`
             },
-            (payload) => {
-
+            async (payload) => {
                 displayMessage(payload.new);
 
+                if (payload.new?.sender_role === 'admin') {
+                    await markAdminMessagesRead();
+                }
             }
         )
         .subscribe((status) => {
-
             console.log('Chat Realtime Status:', status);
 
             if (status === 'SUBSCRIBED') {
-
                 console.log('EIS Support Realtime Connected');
-
             }
 
             if (status === 'CHANNEL_ERROR') {
-
                 console.error('Realtime Channel Error');
 
                 showNotice(
@@ -422,23 +386,17 @@ function subscribeToMessages() {
                     'error'
                 );
             }
-
         });
 }
-
 
 /* =========================================
    LOGOUT
 ========================================= */
 
 async function logout() {
-
     try {
-
         if (realtimeChannel) {
-
             await supabase.removeChannel(realtimeChannel);
-
             realtimeChannel = null;
         }
 
@@ -449,53 +407,38 @@ async function logout() {
         window.location.replace('index.html');
 
     } catch (error) {
-
         console.error('Logout Error:', error);
 
         showNotice('Unable to log out. Please try again.');
     }
 }
 
-
 /* =========================================
    EVENT LISTENERS
 ========================================= */
 
 function setupEventListeners() {
-
     if (chatForm) {
-
         chatForm.addEventListener('submit', (event) => {
-
             event.preventDefault();
-
             sendMessage();
-
         });
 
     } else if (sendButton) {
-
         sendButton.addEventListener('click', sendMessage);
-
     }
 
     if (logoutButton) {
-
         logoutButton.addEventListener('click', logout);
-
     }
-
 }
-
 
 /* =========================================
    INITIALIZE SUPPORT
 ========================================= */
 
 async function initializeSupport() {
-
     try {
-
         showLoading('Connecting to support...');
 
         const user = await loadCurrentUser();
@@ -511,7 +454,6 @@ async function initializeSupport() {
         console.log('EIS Support Initialized Successfully');
 
     } catch (error) {
-
         console.error('Support Initialization Error:', error);
 
         showLoading(
@@ -524,22 +466,16 @@ async function initializeSupport() {
     }
 }
 
-
 /* =========================================
    CLEANUP
 ========================================= */
 
 window.addEventListener('beforeunload', () => {
-
     if (realtimeChannel) {
-
         supabase.removeChannel(realtimeChannel);
-
         realtimeChannel = null;
     }
-
 });
-
 
 /* =========================================
    START APPLICATION
@@ -548,7 +484,6 @@ window.addEventListener('beforeunload', () => {
 setupEventListeners();
 
 initializeSupport();
-
 
 /* =========================================
    PUBLIC SUPPORT API
