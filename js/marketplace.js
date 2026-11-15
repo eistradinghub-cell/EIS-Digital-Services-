@@ -1,10 +1,16 @@
- import { supabase } from "./supabase.js";
+import { supabase } from "./supabase.js";
 
 const productsContainer = document.getElementById("marketplace-products");
 const searchInput = document.getElementById("marketplace-search");
 
+const WHATSAPP_NUMBER = "2347044034497";
+
 let allProducts = [];
 const sliderTimers = new Map();
+
+let lightboxImages = [];
+let lightboxIndex = 0;
+let lightboxOpen = false;
 
 function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -68,6 +74,11 @@ function formatDate(date) {
     });
 }
 
+function stopAllSliders() {
+    sliderTimers.forEach((timer) => clearInterval(timer));
+    sliderTimers.clear();
+}
+
 function showMessage(message, type = "empty") {
     stopAllSliders();
 
@@ -78,26 +89,21 @@ function showMessage(message, type = "empty") {
     `;
 }
 
-function stopAllSliders() {
-    sliderTimers.forEach((timer) => clearInterval(timer));
-    sliderTimers.clear();
-}
-
 function setSliderImage(card, index) {
     const images = JSON.parse(card.dataset.images || "[]");
 
     if (!images.length) return;
 
     const safeIndex = (index + images.length) % images.length;
+
     card.dataset.currentIndex = String(safeIndex);
 
     const mainImage = card.querySelector("[data-main-image]");
     const counter = card.querySelector("[data-image-counter]");
     const dots = card.querySelectorAll("[data-slide-dot]");
-    const downloadButton = card.querySelector("[data-download]");
 
     if (mainImage) {
-        mainImage.style.opacity = "0.35";
+        mainImage.style.opacity = "0.4";
         mainImage.src = images[safeIndex];
 
         mainImage.onload = () => {
@@ -121,12 +127,6 @@ function setSliderImage(card, index) {
             dotIndex === safeIndex ? "true" : "false"
         );
     });
-
-    if (downloadButton) {
-        downloadButton.dataset.download = images[safeIndex];
-        downloadButton.dataset.filename =
-            `EIS-Product-Image-${safeIndex + 1}`;
-    }
 }
 
 function moveSlider(card, direction) {
@@ -142,13 +142,17 @@ function startSlider(card) {
     stopSlider(card);
 
     const timer = setInterval(() => {
-        if (document.hidden || card.matches(":hover") ||
-            card.contains(document.activeElement)) {
+        if (
+            document.hidden ||
+            card.matches(":hover") ||
+            card.contains(document.activeElement) ||
+            lightboxOpen
+        ) {
             return;
         }
 
         moveSlider(card, 1);
-    }, 3500);
+    }, 4000);
 
     sliderTimers.set(card, timer);
 }
@@ -161,6 +165,195 @@ function stopSlider(card) {
         sliderTimers.delete(card);
     }
 }
+
+/* WHATSAPP ORDER */
+
+function createWhatsAppLink(product) {
+    const message = [
+        "Hello EIS Digital Services,",
+        "",
+        "I am interested in ordering this product:",
+        `Product: ${product.title || "Product"}`,
+        `Price: ${formatPrice(product.price)}`,
+        "",
+        "Please provide more information about availability and ordering."
+    ].join("\n");
+
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+/* FULL SCREEN IMAGE VIEWER */
+
+function createLightbox() {
+    if (document.getElementById("marketplace-lightbox")) return;
+
+    const lightbox = document.createElement("div");
+
+    lightbox.id = "marketplace-lightbox";
+    lightbox.className = "marketplace-lightbox";
+
+    lightbox.innerHTML = `
+        <button
+            type="button"
+            class="lightbox-close"
+            aria-label="Close image"
+        >×</button>
+
+        <button
+            type="button"
+            class="lightbox-prev"
+            aria-label="Previous image"
+        >‹</button>
+
+        <img
+            class="lightbox-image"
+            src=""
+            alt="Product full view"
+        >
+
+        <button
+            type="button"
+            class="lightbox-next"
+            aria-label="Next image"
+        >›</button>
+
+        <div class="lightbox-counter"></div>
+    `;
+
+    document.body.appendChild(lightbox);
+
+    lightbox.addEventListener("click", (event) => {
+        if (
+            event.target === lightbox ||
+            event.target.closest(".lightbox-close")
+        ) {
+            closeLightbox();
+        }
+
+        if (event.target.closest(".lightbox-prev")) {
+            changeLightboxImage(-1);
+        }
+
+        if (event.target.closest(".lightbox-next")) {
+            changeLightboxImage(1);
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (!lightboxOpen) return;
+
+        if (event.key === "Escape") {
+            closeLightbox();
+        }
+
+        if (event.key === "ArrowRight") {
+            changeLightboxImage(1);
+        }
+
+        if (event.key === "ArrowLeft") {
+            changeLightboxImage(-1);
+        }
+    });
+
+    let touchStartX = 0;
+
+    lightbox.addEventListener("touchstart", (event) => {
+        touchStartX = event.changedTouches[0].clientX;
+    }, { passive: true });
+
+    lightbox.addEventListener("touchend", (event) => {
+        const difference =
+            event.changedTouches[0].clientX - touchStartX;
+
+        if (Math.abs(difference) < 50) return;
+
+        changeLightboxImage(difference < 0 ? 1 : -1);
+    }, { passive: true });
+}
+
+function openLightbox(images, index = 0) {
+    if (!images.length) return;
+
+    createLightbox();
+
+    lightboxImages = images;
+    lightboxIndex = index;
+    lightboxOpen = true;
+
+    const lightbox = document.getElementById("marketplace-lightbox");
+
+    lightbox.classList.add("active");
+    document.body.classList.add("lightbox-active");
+
+    if (!history.state || !history.state.marketplaceLightbox) {
+        history.pushState(
+            { marketplaceLightbox: true },
+            "",
+            window.location.href
+        );
+    }
+
+    updateLightbox();
+}
+
+function updateLightbox() {
+    const lightbox = document.getElementById("marketplace-lightbox");
+
+    if (!lightbox) return;
+
+    const image = lightbox.querySelector(".lightbox-image");
+    const counter = lightbox.querySelector(".lightbox-counter");
+
+    image.src = lightboxImages[lightboxIndex];
+
+    counter.textContent =
+        `${lightboxIndex + 1} / ${lightboxImages.length}`;
+
+    const previous = lightbox.querySelector(".lightbox-prev");
+    const next = lightbox.querySelector(".lightbox-next");
+
+    previous.style.display =
+        lightboxImages.length > 1 ? "flex" : "none";
+
+    next.style.display =
+        lightboxImages.length > 1 ? "flex" : "none";
+}
+
+function changeLightboxImage(direction) {
+    if (lightboxImages.length < 2) return;
+
+    lightboxIndex =
+        (lightboxIndex + direction + lightboxImages.length) %
+        lightboxImages.length;
+
+    updateLightbox();
+}
+
+function closeLightbox(fromHistory = false) {
+    if (!lightboxOpen) return;
+
+    lightboxOpen = false;
+
+    const lightbox = document.getElementById("marketplace-lightbox");
+
+    if (lightbox) {
+        lightbox.classList.remove("active");
+    }
+
+    document.body.classList.remove("lightbox-active");
+
+    if (!fromHistory && history.state?.marketplaceLightbox) {
+        history.back();
+    }
+}
+
+window.addEventListener("popstate", () => {
+    if (lightboxOpen) {
+        closeLightbox(true);
+    }
+});
+
+/* PRODUCT CARD */
 
 function createProductCard(product) {
     const images = getProductImages(product);
@@ -177,7 +370,6 @@ function createProductCard(product) {
                 data-slider-card
                 data-images="${escapeHTML(JSON.stringify(images))}"
                 data-current-index="0"
-                style="position:relative;overflow:hidden;"
             >
 
                 <img
@@ -186,8 +378,12 @@ function createProductCard(product) {
                     src="${escapeHTML(images[0])}"
                     alt="${safeTitle}"
                     loading="lazy"
-                    style="transition:opacity .25s ease;"
+                    title="Tap to view full image"
                 >
+
+                <span
+                    class="marketplace-zoom-hint"
+                >Tap image to enlarge</span>
 
                 ${images.length > 1 ? `
                     <span
@@ -197,66 +393,25 @@ function createProductCard(product) {
 
                     <button
                         type="button"
+                        class="marketplace-slide-button slide-prev"
                         data-slide-prev
-                        aria-label="Previous product image"
-                        style="
-                            position:absolute;
-                            top:45%;
-                            left:9px;
-                            width:36px;
-                            height:36px;
-                            border:0;
-                            border-radius:50%;
-                            background:rgba(0,0,0,.58);
-                            color:white;
-                            font-size:22px;
-                            cursor:pointer;
-                        "
+                        aria-label="Previous image"
                     >‹</button>
 
                     <button
                         type="button"
+                        class="marketplace-slide-button slide-next"
                         data-slide-next
-                        aria-label="Next product image"
-                        style="
-                            position:absolute;
-                            top:45%;
-                            right:9px;
-                            width:36px;
-                            height:36px;
-                            border:0;
-                            border-radius:50%;
-                            background:rgba(0,0,0,.58);
-                            color:white;
-                            font-size:22px;
-                            cursor:pointer;
-                        "
+                        aria-label="Next image"
                     >›</button>
 
-                    <div
-                        class="marketplace-slider-dots"
-                        style="
-                            display:flex;
-                            justify-content:center;
-                            gap:7px;
-                            padding:10px;
-                        "
-                    >
+                    <div class="marketplace-slider-dots">
                         ${images.map((image, index) => `
                             <button
                                 type="button"
                                 data-slide-dot="${index}"
                                 aria-label="Show image ${index + 1}"
                                 class="${index === 0 ? "active" : ""}"
-                                style="
-                                    width:9px;
-                                    height:9px;
-                                    padding:0;
-                                    border:0;
-                                    border-radius:50%;
-                                    background:${index === 0 ? "#1f4fe0" : "#c5ccda"};
-                                    cursor:pointer;
-                                "
                             ></button>
                         `).join("")}
                     </div>
@@ -272,6 +427,8 @@ function createProductCard(product) {
             </div>
         `;
 
+    const whatsappLink = createWhatsAppLink(product);
+
     return `
         <article class="marketplace-card">
 
@@ -279,7 +436,9 @@ function createProductCard(product) {
 
             <div class="marketplace-card-content">
 
-                <h3>${safeTitle}</h3>
+                <h3 class="marketplace-product-title">
+                    ${safeTitle}
+                </h3>
 
                 <div class="marketplace-price">
                     ${safePrice}
@@ -289,16 +448,15 @@ function createProductCard(product) {
                     ${safeDescription}
                 </p>
 
-                ${images.length ? `
-                    <button
-                        type="button"
-                        class="marketplace-download"
-                        data-download="${escapeHTML(images[0])}"
-                        data-filename="EIS-Product-Image-1"
-                    >
-                        ↓ Download Image
-                    </button>
-                ` : ""}
+                <a
+                    class="marketplace-order"
+                    href="${escapeHTML(whatsappLink)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <span>Order on WhatsApp</span>
+                    <span class="whatsapp-arrow">→</span>
+                </a>
 
                 ${safeDate ? `
                     <span class="marketplace-date">
@@ -312,6 +470,8 @@ function createProductCard(product) {
     `;
 }
 
+/* RENDER PRODUCTS */
+
 function renderProducts(products) {
     stopAllSliders();
 
@@ -324,10 +484,12 @@ function renderProducts(products) {
         .map(createProductCard)
         .join("");
 
-    productsContainer.querySelectorAll("[data-slider-card]").forEach(
-        (card) => startSlider(card)
-    );
+    productsContainer
+        .querySelectorAll("[data-slider-card]")
+        .forEach(startSlider);
 }
+
+/* SEARCH */
 
 function searchProducts() {
     const searchTerm = searchInput.value.trim().toLowerCase();
@@ -343,60 +505,18 @@ function searchProducts() {
     renderProducts(filtered);
 }
 
-async function downloadImage(url, filename, button) {
-    if (!url) return;
-
-    const originalText = button.textContent;
-
-    button.disabled = true;
-    button.textContent = "Downloading...";
-
-    try {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error("Image download failed.");
-        }
-
-        const blob = await response.blob();
-        const objectURL = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = objectURL;
-        link.download = `${filename || "EIS-Product"}.jpg`;
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        setTimeout(() => URL.revokeObjectURL(objectURL), 3000);
-
-        button.textContent = "Downloaded";
-
-    } catch (error) {
-        console.error("Image download error:", error);
-
-        button.textContent = "Opening image...";
-
-        window.open(url, "_blank", "noopener,noreferrer");
-
-    } finally {
-        setTimeout(() => {
-            button.disabled = false;
-            button.textContent = originalText;
-        }, 1800);
-    }
-}
+/* EVENTS */
 
 function setupProductEvents() {
     productsContainer.addEventListener("click", (event) => {
         const next = event.target.closest("[data-slide-next]");
         const previous = event.target.closest("[data-slide-prev]");
         const dot = event.target.closest("[data-slide-dot]");
-        const download = event.target.closest("[data-download]");
+        const mainImage = event.target.closest("[data-main-image]");
 
         if (next || previous || dot) {
             const card = event.target.closest("[data-slider-card]");
+
             if (!card) return;
 
             if (next) {
@@ -410,34 +530,42 @@ function setupProductEvents() {
             return;
         }
 
-        if (download) {
-            downloadImage(
-                download.dataset.download,
-                download.dataset.filename,
-                download
-            );
+        if (mainImage) {
+            const card = mainImage.closest("[data-slider-card]");
+
+            if (!card) return;
+
+            const images = JSON.parse(card.dataset.images || "[]");
+            const currentIndex = Number(card.dataset.currentIndex || 0);
+
+            openLightbox(images, currentIndex);
         }
     });
 
     productsContainer.addEventListener("mouseenter", (event) => {
         const card = event.target.closest("[data-slider-card]");
+
         if (card) stopSlider(card);
     }, true);
 
     productsContainer.addEventListener("mouseleave", (event) => {
         const card = event.target.closest("[data-slider-card]");
+
         if (card) startSlider(card);
     }, true);
 
     productsContainer.addEventListener("touchstart", (event) => {
         const card = event.target.closest("[data-slider-card]");
+
         if (!card) return;
 
-        card.dataset.touchStartX = String(event.changedTouches[0].clientX);
+        card.dataset.touchStartX =
+            String(event.changedTouches[0].clientX);
     }, { passive: true });
 
     productsContainer.addEventListener("touchend", (event) => {
         const card = event.target.closest("[data-slider-card]");
+
         if (!card) return;
 
         const startX = Number(card.dataset.touchStartX || 0);
@@ -449,6 +577,8 @@ function setupProductEvents() {
         moveSlider(card, difference < 0 ? 1 : -1);
     }, { passive: true });
 }
+
+/* LOAD PRODUCTS */
 
 async function loadProducts() {
     showMessage("Loading products...", "loading");
@@ -470,7 +600,8 @@ async function loadProducts() {
         console.error("Marketplace loading error:", error);
 
         showMessage(
-            "Unable to load products: " + (error.message || "Please try again."),
+            "Unable to load products: " +
+            (error.message || "Please try again."),
             "error"
         );
     }
@@ -483,7 +614,7 @@ if (searchInput) {
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
         stopAllSliders();
-    } else {
+    } else if (!lightboxOpen) {
         productsContainer
             .querySelectorAll("[data-slider-card]")
             .forEach(startSlider);
