@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1f4fe0">
+    <meta name="description" content="Explore products at EIS Digital Services Marketplace.">
+
+    <title>Marketplace | EIS Digital Services</title>
+
+    <link rel="stylesheet" href="css/styles.css?v=15">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body.marketplace-page {
+            margin: 0;
+            min-height: 100vh;
+            background: #f5f7fc;
+            font-family: 'Inter', sans-serif;
+            color: #17233b;
+        }
+
+        .marketplace-main {
+            width: min(1180px, 100%);
+            margin: auto;
+            padding: 35px 20px 60px;
+        }
+
+        .marketplace-hero {
+            padding: 38px;
+            border-radius: 20px;
+            background: linear-gradient(120deg, #1f4fe0, #1236a5);
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .marketplace-hero h1 {
+            margin: 0 0 12px;
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(25px, 5vw, 36px);
+        }
+
+        .marketplace-hero p {
+            max-width: 600px;
+            margin: 0;
+            color: rgba(255,255,255,.9);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .marketplace-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .marketplace-toolbar h2 {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 21px;
+        }
+
+        .marketplace-search {
+            width: min(340px, 100%);
+            padding: 13px 15px;
+            border: 1px solid #dce2ed;
+            border-radius: 10px;
+            background: white;
+            outline: none;
+            font: inherit;
+            font-size: 13px;
+        }
+
+        .marketplace-search:focus {
+            border-color: #1f4fe0;
+            box-shadow: 0 0 0 3px rgba(31,79,224,.1);
+        }
+
+        .marketplace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 20px;
+        }
+
+        .marketplace-product {
+            overflow: hidden;
+            border: 1px solid #e8ecf3;
+            border-radius: 15px;
+            background: white;
+            transition: .2s ease;
+        }
+
+        .marketplace-product:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(20,45,90,.09);
+        }
+
+        .marketplace-product-image {
+            width: 100%;
+            height: 205px;
+            display: block;
+            object-fit: cover;
+            background: #edf1f8;
+        }
+
+        .marketplace-product-content {
+            padding: 17px;
+        }
+
+        .marketplace-product-content h3 {
+            margin: 0 0 9px;
+            font-size: 16px;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .marketplace-product-description {
+            min-height: 40px;
+            margin: 0 0 14px;
+            color: #718096;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .marketplace-product-price {
+            margin: 0;
+            color: #1f4fe0;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .marketplace-status {
+            display: none;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid #e5eaf2;
+            border-radius: 12px;
+            background: white;
+            color: #68758b;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .marketplace-status.show {
+            display: block;
+        }
+
+        .marketplace-refresh {
+            padding: 11px 17px;
+            border: 0;
+            border-radius: 9px;
+            background: #1f4fe0;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .marketplace-refresh:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .marketplace-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1f4fe0;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        @media(max-width: 600px) {
+            .marketplace-main {
+                padding: 22px 13px 40px;
+            }
+
+            .marketplace-hero {
+                padding: 25px 20px;
+            }
+
+            .marketplace-toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .marketplace-search {
+                width: 100%;
+            }
+
+            .marketplace-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .marketplace-product-image {
+                height: 145px;
+            }
+
+            .marketplace-product-content {
+                padding: 12px;
+            }
+
+            .marketplace-product-content h3 {
+                font-size: 13px;
+            }
+
+            .marketplace-product-description {
+                font-size: 11px;
+            }
+
+            .marketplace-product-price {
+                font-size: 16px;
+            }
+        }
+
+        @media(max-width: 360px) {
+            .marketplace-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .marketplace-product-image {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body class="marketplace-page">
+
+<header class="site-header">
+    <div class="nav-row">
+
+        <a class="brand" href="dashboard.html">
+            <svg class="brand-mark" viewBox="0 0 48 48">
+                <rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
+                <path d="M14 32 L24 14 L34 32"
+                      stroke="#fff"
+                      stroke-width="3.4"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+                <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
+            </svg>
+
+            <span class="brand-text">
+                <b>EIS</b>
+                <span>Digital Services</span>
+            </span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="dashboard.html" class="btn">Dashboard</a>
+            <a href="marketplace.html" class="btn active">Marketplace</a>
+        </nav>
+
+    </div>
+</header>
+
+<main class="marketplace-main">
+
+    <a href="dashboard.html" class="marketplace-back">
+        ← Back to Dashboard
+    </a>
+
+    <section class="marketplace-hero">
+        <h1>EIS Marketplace</h1>
+        <p>
+            Discover products available at EIS Digital Services.
+            Browse our marketplace and explore the products listed here.
+        </p>
+    </section>
+
+    <section>
+
+        <div class="marketplace-toolbar">
+            <h2>Available Products</h2>
+
+            <input
+                type="search"
+                id="marketplace-search"
+                class="marketplace-search"
+                placeholder="Search products..."
+                aria-label="Search products"
+            >
+        </div>
+
+        <div
+            id="marketplace-status"
+            class="marketplace-status show"
+            role="status"
+            aria-live="polite">
+            Loading products...
+        </div>
+
+        <div
+            id="marketplace-products"
+            class="marketplace-grid">
+        </div>
+
+        <div style="text-align:center;margin-top:25px;">
+            <button
+                type="button"
+                id="marketplace-reload"
+                class="marketplace-refresh">
+                Refresh Products
+            </button>
+        </div>
+
+    </section>
+
+</main>
+
+<script type="module" src="js/marketplace.js?v=1"></script>
+
+</body>
+      </html>
