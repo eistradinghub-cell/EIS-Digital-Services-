@@ -3,9 +3,8 @@ import { supabase } from "./supabase.js";
 /* =====================================================
    EIS TRADING HUB
    ADMIN DASHBOARD ENGINE
-   VERSION 24
+   UPDATED VERSION 25
 ===================================================== */
-
 
 /* =====================================================
    1. GLOBAL VARIABLES
@@ -19,6 +18,7 @@ let currentProfile = null;
 let applicationsCache = [];
 let servicesCache = [];
 let conversationsCache = [];
+
 let currentConversation = null;
 
 let realtimeChannels = [];
@@ -32,7 +32,7 @@ let isSendingMessage = false;
 ===================================================== */
 
 function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
@@ -84,7 +84,7 @@ function formatShortDate(value) {
 
 
 function normalizeStatus(status) {
-    return String(status || "pending")
+    return String(status || "In review")
         .trim()
         .toLowerCase()
         .replace(/\s+/g, "_");
@@ -99,7 +99,6 @@ function showNotice(message, type = "success") {
     clearTimeout(noticeTimer);
 
     notice.textContent = message;
-
     notice.className = "admin-notice " + type;
     notice.hidden = false;
 
@@ -204,20 +203,14 @@ async function initializeAdmin() {
             .eq("id", currentUser.id)
             .single();
 
-        if (profileError) {
-            console.error("Admin profile error:", profileError);
+        if (profileError) throw profileError;
 
-            showNotice(
-                "Unable to verify your administrator profile.",
-                "error"
-            );
-
-            return;
-        }
-
-        if (!profile || !["admin", "super_admin"].includes(
-            String(profile.role || "").toLowerCase()
-        )) {
+        if (
+            !profile ||
+            !["admin", "super_admin"].includes(
+                String(profile.role || "").toLowerCase()
+            )
+        ) {
             showNotice(
                 "Access denied. Administrator permission is required.",
                 "error"
@@ -232,16 +225,13 @@ async function initializeAdmin() {
         currentProfile = profile;
 
         updateAdminIdentity();
-
         updateDate();
 
-        await loadAllDashboardData();
-
         setupNavigation();
-
         setupSidebar();
-
         setupEventListeners();
+
+        await loadAllDashboardData();
 
         setupRealtime();
 
@@ -251,7 +241,7 @@ async function initializeAdmin() {
         console.error("Admin initialization error:", error);
 
         showNotice(
-            error.message || "Unable to initialize the admin dashboard.",
+            error.message || "Unable to initialize admin dashboard.",
             "error"
         );
     }
@@ -271,7 +261,6 @@ function updateAdminIdentity() {
         "Administrator";
 
     const email = currentProfile.email || "";
-
     const role = currentProfile.role || "admin";
 
     if ($("sidebar-admin-name")) {
@@ -345,13 +334,10 @@ function renderStatistics() {
     const total = applicationsCache.length;
 
     const review = applicationsCache.filter(app => {
-        const status = normalizeStatus(app.status);
-
         return [
-            "pending",
             "in_review",
-            "processing"
-        ].includes(status);
+            "in_progress"
+        ].includes(normalizeStatus(app.status));
     }).length;
 
     const completed = applicationsCache.filter(app => {
@@ -395,11 +381,7 @@ function renderStatistics() {
 
 async function loadApplications() {
     setLoading("admin-apps-list", "Loading applications...");
-
-    setLoading(
-        "applications-full-list",
-        "Loading applications..."
-    );
+    setLoading("applications-full-list", "Loading applications...");
 
     const { data, error } = await supabase
         .from("applications")
@@ -410,7 +392,6 @@ async function loadApplications() {
         console.error("Applications error:", error);
 
         showError("admin-apps-list", error.message);
-
         showError("applications-full-list", error.message);
 
         return;
@@ -421,7 +402,6 @@ async function loadApplications() {
     await loadApplicationCustomers();
 
     renderApplications();
-
     renderStatistics();
 }
 
@@ -447,10 +427,8 @@ async function loadApplicationCustomers() {
         return;
     }
 
-    const profiles = data || [];
-
     const profileMap = new Map(
-        profiles.map(profile => [profile.id, profile])
+        (data || []).map(profile => [profile.id, profile])
     );
 
     applicationsCache = applicationsCache.map(app => ({
@@ -473,11 +451,10 @@ function getApplicationHTML(app) {
         "Not provided";
 
     const options = [
-        ["pending", "Pending"],
-        ["in_review", "In Review"],
-        ["processing", "Processing"],
-        ["completed", "Completed"],
-        ["rejected", "Rejected"]
+        ["In review", "In Review"],
+        ["In progress", "In Progress"],
+        ["Completed", "Completed"],
+        ["Rejected", "Rejected"]
     ];
 
     return `
@@ -510,7 +487,9 @@ function getApplicationHTML(app) {
                 ` : ""}
 
                 <span class="admin-status ${escapeHTML(status)}">
-                    ${escapeHTML(status.replace(/_/g, " "))}
+                    ${escapeHTML(
+                        String(app.status || "In review")
+                    )}
                 </span>
 
             </div>
@@ -524,8 +503,8 @@ function getApplicationHTML(app) {
 
                     ${options.map(([value, label]) => `
                         <option
-                            value="${value}"
-                            ${status === value ? "selected" : ""}>
+                            value="${escapeHTML(value)}"
+                            ${String(app.status || "In review") === value ? "selected" : ""}>
                             ${label}
                         </option>
                     `).join("")}
@@ -579,11 +558,10 @@ function renderApplications() {
 
 async function updateApplicationStatus(appId, newStatus) {
     const allowedStatuses = [
-        "pending",
-        "in_review",
-        "processing",
-        "completed",
-        "rejected"
+        "In review",
+        "In progress",
+        "Completed",
+        "Rejected"
     ];
 
     if (!allowedStatuses.includes(newStatus)) {
@@ -612,7 +590,6 @@ async function updateApplicationStatus(appId, newStatus) {
         );
 
         await loadApplications();
-
         return;
     }
 
@@ -628,7 +605,6 @@ async function updateApplicationStatus(appId, newStatus) {
 
 async function loadServices() {
     setLoading("admin-services-list", "Loading services...");
-
     setLoading("prices-services-list", "Loading services...");
 
     setLoading(
@@ -645,9 +621,7 @@ async function loadServices() {
         console.error("Services error:", error);
 
         showError("admin-services-list", error.message);
-
         showError("prices-services-list", error.message);
-
         showError("marketplace-services-list", error.message);
 
         return;
@@ -656,7 +630,6 @@ async function loadServices() {
     servicesCache = data || [];
 
     renderServices();
-
     renderStatistics();
 }
 
@@ -705,7 +678,6 @@ function getServiceHTML(service, showActions = false) {
 function renderServices() {
     if (!servicesCache.length) {
         showEmpty("admin-services-list", "No services found.");
-
         showEmpty("prices-services-list", "No services found.");
 
         showEmpty(
@@ -790,11 +762,14 @@ async function addService(event) {
     event.preventDefault();
 
     const name = $("service-name")?.value.trim();
-
     const price = Number($("service-price")?.value);
 
     if (!name || !Number.isFinite(price) || price < 0) {
-        showNotice("Enter a valid service name and price.", "error");
+        showNotice(
+            "Enter a valid service name and price.",
+            "error"
+        );
+
         return;
     }
 
@@ -808,14 +783,11 @@ async function addService(event) {
     try {
         const { error } = await supabase
             .from("services")
-            .insert({
-                name,
-                price
-            });
+            .insert({ name, price });
 
         if (error) throw error;
 
-        $("add-service-form").reset();
+        $("add-service-form")?.reset();
 
         showNotice("Service added successfully.");
 
@@ -839,7 +811,9 @@ async function addService(event) {
 
 
 async function editService(serviceId) {
-    const service = servicesCache.find(item => item.id === serviceId);
+    const service = servicesCache.find(
+        item => item.id === serviceId
+    );
 
     if (!service) {
         showNotice("Service not found.", "error");
@@ -877,10 +851,7 @@ async function editService(serviceId) {
     try {
         const { error } = await supabase
             .from("services")
-            .update({
-                name,
-                price
-            })
+            .update({ name, price })
             .eq("id", serviceId);
 
         if (error) throw error;
@@ -901,7 +872,9 @@ async function editService(serviceId) {
 
 
 async function deleteService(serviceId) {
-    const service = servicesCache.find(item => item.id === serviceId);
+    const service = servicesCache.find(
+        item => item.id === serviceId
+    );
 
     if (!service) {
         showNotice("Service not found.", "error");
@@ -950,7 +923,10 @@ async function loadConversations() {
     const { data, error } = await supabase
         .from("chat_conversations")
         .select("*")
-        .order("last_message_at", { ascending: false, nullsFirst: false });
+        .order("last_message_at", {
+            ascending: false,
+            nullsFirst: false
+        });
 
     if (error) {
         console.error("Conversation error:", error);
@@ -965,7 +941,6 @@ async function loadConversations() {
     await loadConversationCustomers();
 
     renderConversations();
-
     renderStatistics();
 }
 
@@ -1083,17 +1058,28 @@ async function openConversation(conversationId) {
 
     renderConversations();
 
-    $("admin-chat-empty").hidden = true;
-    $("admin-chat-active").hidden = false;
+    if ($("admin-chat-empty")) {
+        $("admin-chat-empty").hidden = true;
+    }
+
+    if ($("admin-chat-active")) {
+        $("admin-chat-active").hidden = false;
+    }
 
     const name = getCustomerName(conversation.customer);
 
-    $("chat-customer-name").textContent = name;
+    if ($("chat-customer-name")) {
+        $("chat-customer-name").textContent = name;
+    }
 
-    $("chat-customer-avatar").textContent = getInitials(name);
+    if ($("chat-customer-avatar")) {
+        $("chat-customer-avatar").textContent = getInitials(name);
+    }
 
-    $("chat-customer-status").textContent =
-        conversation.status || "Conversation";
+    if ($("chat-customer-status")) {
+        $("chat-customer-status").textContent =
+            conversation.status || "Conversation";
+    }
 
     await loadChatMessages(conversationId);
 
@@ -1106,7 +1092,16 @@ async function loadChatMessages(conversationId) {
 
     const { data, error } = await supabase
         .from("chat_messages")
-        .select("id,conversation_id,sender_id,sender_role,content,attachment_url,is_read,created_at")
+        .select(`
+            id,
+            conversation_id,
+            sender_id,
+            sender_role,
+            content,
+            attachment_url,
+            is_read,
+            created_at
+        `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
@@ -1140,10 +1135,7 @@ function renderChatMessages(messages) {
         const senderRole = String(message.sender_role || "")
             .toLowerCase();
 
-        const isAdmin = [
-            "admin",
-            "super_admin"
-        ].includes(senderRole);
+        const isAdmin = senderRole === "admin";
 
         return `
             <div class="chat-message ${isAdmin ? "admin" : "customer"}">
@@ -1176,47 +1168,54 @@ function renderChatMessages(messages) {
 }
 
 
+/* =====================================================
+   9. MARK CUSTOMER MESSAGES AS READ
+===================================================== */
+
 async function markConversationRead(conversationId) {
     try {
-        const { error: messageError } = await supabase
+        /*
+         * Only mark CUSTOMER messages as read.
+         * Database trigger automatically updates
+         * unread_admin_count.
+         */
+
+        const { error } = await supabase
             .from("chat_messages")
             .update({ is_read: true })
             .eq("conversation_id", conversationId)
+            .eq("sender_role", "customer")
             .eq("is_read", false);
 
-        if (messageError) {
-            console.warn("Could not mark messages read:", messageError);
-        }
-
-        const { error: conversationError } = await supabase
-            .from("chat_conversations")
-            .update({ unread_admin_count: 0 })
-            .eq("id", conversationId);
-
-        if (conversationError) {
+        if (error) {
             console.warn(
-                "Could not reset unread count:",
-                conversationError
+                "Could not mark customer messages as read:",
+                error
             );
+
+            return;
         }
 
-        const conversation = conversationsCache.find(
+        /*
+         * Reload conversation data.
+         * Do not manually update unread_admin_count.
+         */
+
+        await loadConversations();
+
+        currentConversation = conversationsCache.find(
             item => item.id === conversationId
-        );
-
-        if (conversation) {
-            conversation.unread_admin_count = 0;
-        }
-
-        renderConversations();
-
-        renderStatistics();
+        ) || currentConversation;
 
     } catch (error) {
-        console.error("Mark read error:", error);
+        console.error("Mark conversation read error:", error);
     }
 }
 
+
+/* =====================================================
+   10. SEND ADMIN CHAT MESSAGE
+===================================================== */
 
 async function sendChatMessage(event) {
     event.preventDefault();
@@ -1249,29 +1248,30 @@ async function sendChatMessage(event) {
             .insert({
                 conversation_id: currentConversation.id,
                 sender_id: currentUser.id,
-                sender_role: currentProfile.role,
+
+                /*
+                 * Database allows only:
+                 * customer OR admin.
+                 *
+                 * Super Admin must also send as admin.
+                 */
+
+                sender_role: "admin",
+
                 content,
                 is_read: false
             });
 
         if (error) throw error;
 
-        const { error: conversationError } = await supabase
-            .from("chat_conversations")
-            .update({
-                last_message: content,
-                last_message_at: new Date().toISOString(),
-                unread_customer_count:
-                    Number(currentConversation.unread_customer_count || 0) + 1
-            })
-            .eq("id", currentConversation.id);
-
-        if (conversationError) {
-            console.warn(
-                "Conversation update error:",
-                conversationError
-            );
-        }
+        /*
+         * Database trigger automatically updates:
+         * last_message
+         * last_message_at
+         * unread_customer_count
+         *
+         * Do not manually update chat_conversations here.
+         */
 
         input.value = "";
 
@@ -1305,7 +1305,7 @@ async function sendChatMessage(event) {
 
 
 /* =====================================================
-   9. BROADCAST NOTIFICATIONS
+   11. BROADCAST NOTIFICATIONS
 ===================================================== */
 
 async function sendBroadcast(event) {
@@ -1343,7 +1343,7 @@ async function sendBroadcast(event) {
         );
 
         if (!recipients.length) {
-            throw new Error("No registered customer profiles found.");
+            throw new Error("No registered profiles found.");
         }
 
         const notificationRows = recipients.map(profile => ({
@@ -1372,7 +1372,7 @@ async function sendBroadcast(event) {
             if (error) throw error;
         }
 
-        $("broadcast-form").reset();
+        $("broadcast-form")?.reset();
 
         showNotice(
             `Broadcast sent successfully to ${recipients.length} accounts.`
@@ -1396,7 +1396,7 @@ async function sendBroadcast(event) {
 
 
 /* =====================================================
-   10. NAVIGATION
+   12. NAVIGATION
 ===================================================== */
 
 function openSection(sectionName) {
@@ -1461,7 +1461,7 @@ function setupNavigation() {
 
 
 /* =====================================================
-   11. MOBILE SIDEBAR
+   13. MOBILE SIDEBAR
 ===================================================== */
 
 function setupSidebar() {
@@ -1498,7 +1498,7 @@ function closeSidebar() {
 
 
 /* =====================================================
-   12. LOGOUT
+   14. LOGOUT
 ===================================================== */
 
 async function logoutAdmin() {
@@ -1529,7 +1529,7 @@ async function logoutAdmin() {
 
 
 /* =====================================================
-   13. REFRESH BUTTONS
+   15. REFRESH BUTTONS
 ===================================================== */
 
 async function refreshApplications() {
@@ -1586,24 +1586,33 @@ async function refreshDashboard() {
 
 
 /* =====================================================
-   14. EVENT LISTENERS
+   16. EVENT LISTENERS
 ===================================================== */
 
 function setupEventListeners() {
 
     // Logout
-    $("nav-logout")?.addEventListener("click", logoutAdmin);
 
-    $("sidebar-logout")?.addEventListener("click", logoutAdmin);
+    $("nav-logout")?.addEventListener(
+        "click",
+        logoutAdmin
+    );
+
+    $("sidebar-logout")?.addEventListener(
+        "click",
+        logoutAdmin
+    );
 
 
     // Chat shortcut
+
     $("topbar-chat")?.addEventListener("click", () => {
         openSection("customer-care");
     });
 
 
-    // Refresh
+    // Refresh buttons
+
     $("overview-refresh")?.addEventListener(
         "click",
         refreshDashboard
@@ -1631,6 +1640,7 @@ function setupEventListeners() {
 
 
     // Add service
+
     $("add-service-form")?.addEventListener(
         "submit",
         addService
@@ -1638,6 +1648,7 @@ function setupEventListeners() {
 
 
     // Broadcast
+
     $("broadcast-form")?.addEventListener(
         "submit",
         sendBroadcast
@@ -1645,13 +1656,15 @@ function setupEventListeners() {
 
 
     // Chat
+
     $("admin-chat-form")?.addEventListener(
         "submit",
         sendChatMessage
     );
 
 
-    // Dynamic application status changes
+    // Application status changes
+
     document.addEventListener("change", event => {
         const select = event.target.closest(
             "[data-app-status]"
@@ -1666,7 +1679,8 @@ function setupEventListeners() {
     });
 
 
-    // Dynamic service buttons
+    // Service and conversation buttons
+
     document.addEventListener("click", event => {
 
         const editButton = event.target.closest(
@@ -1698,15 +1712,16 @@ function setupEventListeners() {
         }
 
     });
-
 }
 
 
 /* =====================================================
-   15. REALTIME
+   17. REALTIME
 ===================================================== */
 
 function setupRealtime() {
+
+    // Applications
 
     const applicationsChannel = supabase
         .channel("admin-applications-live")
@@ -1726,6 +1741,8 @@ function setupRealtime() {
     realtimeChannels.push(applicationsChannel);
 
 
+    // Services
+
     const servicesChannel = supabase
         .channel("admin-services-live")
         .on(
@@ -1744,6 +1761,8 @@ function setupRealtime() {
     realtimeChannels.push(servicesChannel);
 
 
+    // Conversations
+
     const conversationsChannel = supabase
         .channel("admin-conversations-live")
         .on(
@@ -1761,6 +1780,8 @@ function setupRealtime() {
 
     realtimeChannels.push(conversationsChannel);
 
+
+    // Chat messages
 
     const messagesChannel = supabase
         .channel("admin-messages-live")
@@ -1787,16 +1808,23 @@ function setupRealtime() {
         .subscribe();
 
     realtimeChannels.push(messagesChannel);
-
 }
 
+
+/* =====================================================
+   18. REMOVE REALTIME SUBSCRIPTIONS
+===================================================== */
 
 async function removeRealtimeSubscriptions() {
     for (const channel of realtimeChannels) {
         try {
             await supabase.removeChannel(channel);
+
         } catch (error) {
-            console.warn("Realtime cleanup error:", error);
+            console.warn(
+                "Realtime cleanup error:",
+                error
+            );
         }
     }
 
@@ -1805,41 +1833,64 @@ async function removeRealtimeSubscriptions() {
 
 
 /* =====================================================
-   16. AUTH STATE LISTENER
+   19. AUTH STATE LISTENER
 ===================================================== */
 
 supabase.auth.onAuthStateChange((event, session) => {
 
     if (event === "SIGNED_OUT") {
-        window.location.replace("index.html");
+        currentUser = null;
+        currentProfile = null;
+
+        removeRealtimeSubscriptions();
     }
 
 });
 
 
 /* =====================================================
-   17. PUBLIC ADMIN API
+   20. PUBLIC ADMIN API
 ===================================================== */
 
 window.EISAdmin = {
 
-    refresh: refreshDashboard,
+    refreshDashboard,
 
-    loadApplications,
+    refreshApplications,
 
-    loadServices,
+    refreshServices,
 
-    loadConversations,
+    refreshConversations,
 
     openSection,
 
-    logout: logoutAdmin
+    logout: logoutAdmin,
+
+    getCurrentUser() {
+        return currentUser;
+    },
+
+    getCurrentProfile() {
+        return currentProfile;
+    },
+
+    getApplications() {
+        return [...applicationsCache];
+    },
+
+    getServices() {
+        return [...servicesCache];
+    },
+
+    getConversations() {
+        return [...conversationsCache];
+    }
 
 };
 
 
 /* =====================================================
-   18. START ADMIN DASHBOARD
+   21. START ADMIN DASHBOARD
 ===================================================== */
 
 initializeAdmin();
