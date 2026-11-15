@@ -1,7 +1,7 @@
 /* =====================================================
    EIS DIGITAL SERVICES
    FILE: js/dashboard.js
-   CUSTOMER DASHBOARD VERSION 16
+   CUSTOMER DASHBOARD VERSION 17
 ===================================================== */
 
 import { supabase } from "./supabase.js";
@@ -355,7 +355,7 @@ async function handleDemoPayment() {
 
         showMessage(
             "Demo payment completed. You can now complete the application form.",
-            "ok"
+            "info"
         );
 
         if (form) {
@@ -772,6 +772,54 @@ function renderNotifications() {
 
 
 /* =====================================================
+   MARK NOTIFICATIONS AS READ
+===================================================== */
+
+async function markNotificationsAsRead() {
+
+    if (!currentUser) return;
+
+    const unreadIds = notificationsCache
+        .filter(notification => !notification.is_read)
+        .map(notification => notification.id);
+
+    if (!unreadIds.length) return;
+
+    try {
+
+        const { error } = await supabase
+            .from("notifications")
+            .update({ is_read: true })
+            .eq("user_id", currentUser.id)
+            .in("id", unreadIds)
+            .eq("is_read", false);
+
+        if (error) throw error;
+
+        notificationsCache = notificationsCache.map(notification => ({
+            ...notification,
+            is_read: true
+        }));
+
+        const count = $("notification-count");
+
+        if (count) {
+            count.textContent = "";
+            count.style.display = "none";
+        }
+
+        renderNotifications();
+
+    } catch (error) {
+
+        console.error("Mark notifications as read error:", error);
+
+    }
+
+}
+
+
+/* =====================================================
    NOTIFICATION DROPDOWN
 ===================================================== */
 
@@ -782,7 +830,7 @@ function setupNotificationDropdown() {
 
     if (!button || !dropdown) return;
 
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
 
         const isOpen =
             dropdown.classList.toggle("open");
@@ -791,6 +839,10 @@ function setupNotificationDropdown() {
             "aria-expanded",
             String(isOpen)
         );
+
+        if (isOpen) {
+            await markNotificationsAsRead();
+        }
 
     });
 
