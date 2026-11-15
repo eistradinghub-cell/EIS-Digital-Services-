@@ -1,343 +1,561 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1f4fe0">
-    <meta name="description" content="Browse products on EIS Digital Services Marketplace.">
+    <meta name="theme-color" content="#173aaf">
+    <meta name="description" content="Explore products and order directly from EIS Digital Services on WhatsApp."><title>Marketplace | EIS Digital Services</title>
 
-    <title>Marketplace | EIS Digital Services</title>
+<link rel="stylesheet" href="css/styles.css?v=28">
 
-    <link rel="stylesheet" href="css/styles.css?v=27">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+      rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
-          rel="stylesheet">
+<style>
+    * {
+        box-sizing: border-box;
+    }
 
-    <style>
-        .marketplace-page {
-            background: #f5f7fc;
-            min-height: 100vh;
-        }
+    .marketplace-page {
+        background: #f4f6fb;
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
+    }
 
+    .marketplace-main {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+        padding: 32px 20px 60px;
+    }
+
+    .marketplace-heading {
+        background: linear-gradient(135deg, #142f91, #3970f5);
+        color: #fff;
+        padding: 38px 35px;
+        border-radius: 20px;
+        margin-bottom: 28px;
+        box-shadow: 0 12px 30px rgba(31, 79, 224, .13);
+    }
+
+    .marketplace-heading h1 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0 0 10px;
+    }
+
+    .marketplace-heading p {
+        color: rgba(255,255,255,.92);
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 0;
+        max-width: 600px;
+    }
+
+    .marketplace-tools {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .marketplace-tools input {
+        flex: 1;
+        min-width: 0;
+        padding: 14px 16px;
+        border: 1px solid #dce3ef;
+        border-radius: 10px;
+        background: #fff;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .marketplace-tools input:focus {
+        border-color: #3970f5;
+        box-shadow: 0 0 0 3px rgba(57,112,245,.1);
+    }
+
+    .marketplace-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 17px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid #dce3ef;
+        color: #1f4fe0;
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .marketplace-products {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+        gap: 22px;
+        align-items: stretch;
+    }
+
+    .marketplace-card {
+        background: #fff;
+        border: 1px solid #e7ebf3;
+        border-radius: 17px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(20,35,70,.045);
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .marketplace-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(20,35,70,.09);
+    }
+
+    .marketplace-gallery {
+        position: relative;
+        width: 100%;
+        background: #edf1f8;
+        overflow: hidden;
+    }
+
+    .marketplace-main-image {
+        width: 100%;
+        height: 245px;
+        display: block;
+        object-fit: cover;
+        cursor: zoom-in;
+        transition: opacity .25s ease, transform .3s ease;
+    }
+
+    .marketplace-main-image:hover {
+        transform: scale(1.025);
+    }
+
+    .marketplace-zoom-hint {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        padding: 6px 10px;
+        border-radius: 20px;
+        background: rgba(0,0,0,.58);
+        color: #fff;
+        font-size: 10px;
+        pointer-events: none;
+    }
+
+    .marketplace-image-count {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 6px 10px;
+        border-radius: 20px;
+        background: rgba(0,0,0,.65);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .marketplace-slide-button {
+        position: absolute;
+        top: 45%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(0,0,0,.58);
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .marketplace-slide-button.slide-prev {
+        left: 10px;
+    }
+
+    .marketplace-slide-button.slide-next {
+        right: 10px;
+    }
+
+    .marketplace-slider-dots {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .marketplace-slider-dots button {
+        width: 8px;
+        height: 8px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: #c5ccda;
+        cursor: pointer;
+    }
+
+    .marketplace-slider-dots button.active {
+        background: #1f4fe0;
+        transform: scale(1.2);
+    }
+
+    .marketplace-card-content {
+        padding: 19px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .marketplace-product-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.45;
+        color: #17233d;
+        margin: 0 0 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .marketplace-price {
+        color: #1f4fe0;
+        font-size: 21px;
+        font-weight: 800;
+        line-height: 1.4;
+        margin-bottom: 12px;
+    }
+
+    .marketplace-description {
+        color: #66738a;
+        font-size: 13px;
+        line-height: 1.85;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: normal;
+        margin: 0 0 20px;
+        text-align: left;
+    }
+
+    .marketplace-order {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 47px;
+        padding: 12px 15px;
+        border: 0;
+        border-radius: 10px;
+        background: #20a957;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        text-align: center;
+        margin-top: auto;
+        transition: background .2s ease, transform .2s ease;
+    }
+
+    .marketplace-order:hover {
+        background: #168443;
+        transform: translateY(-1px);
+    }
+
+    .whatsapp-arrow {
+        font-size: 18px;
+    }
+
+    .marketplace-date {
+        display: block;
+        margin-top: 13px;
+        color: #9aa4b5;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .marketplace-empty {
+        grid-column: 1 / -1;
+        background: #fff;
+        padding: 45px 20px;
+        text-align: center;
+        border-radius: 14px;
+        color: #68758a;
+    }
+
+    .marketplace-loading {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 35px;
+        color: #68758a;
+    }
+
+    .marketplace-error {
+        grid-column: 1 / -1;
+        padding: 20px;
+        background: #fff0f0;
+        color: #b42318;
+        border-radius: 12px;
+    }
+
+    /* FULL SCREEN IMAGE VIEWER */
+
+    .marketplace-lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 55px 65px;
+        background: rgba(0,0,0,.96);
+    }
+
+    .marketplace-lightbox.active {
+        display: flex;
+    }
+
+    .lightbox-image {
+        display: block;
+        max-width: 100%;
+        max-height: 88vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 5px;
+    }
+
+    .lightbox-close,
+    .lightbox-prev,
+    .lightbox-next {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,.15);
+        color: #fff;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .lightbox-close {
+        top: 18px;
+        right: 20px;
+        width: 44px;
+        height: 44px;
+        font-size: 30px;
+    }
+
+    .lightbox-prev,
+    .lightbox-next {
+        top: 50%;
+        width: 43px;
+        height: 43px;
+        font-size: 30px;
+    }
+
+    .lightbox-prev {
+        left: 15px;
+    }
+
+    .lightbox-next {
+        right: 15px;
+    }
+
+    .lightbox-counter {
+        position: absolute;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        font-size: 13px;
+        background: rgba(255,255,255,.15);
+        padding: 7px 13px;
+        border-radius: 20px;
+    }
+
+    body.lightbox-active {
+        overflow: hidden;
+    }
+
+    @media(max-width: 700px) {
         .marketplace-main {
-            max-width: 1180px;
-            margin: auto;
-            padding: 35px 20px 60px;
+            padding: 20px 13px 40px;
         }
 
         .marketplace-heading {
-            background: linear-gradient(135deg, #173aaf, #3970f5);
-            color: #fff;
-            padding: 35px;
-            border-radius: 18px;
-            margin-bottom: 28px;
+            padding: 27px 21px;
+            border-radius: 15px;
         }
 
         .marketplace-heading h1 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 30px;
-            margin-bottom: 10px;
+            font-size: 24px;
         }
 
         .marketplace-heading p {
-            color: rgba(255,255,255,.9);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .marketplace-tools {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .marketplace-tools input {
-            flex: 1;
-            min-width: 0;
-            background: #fff;
+            flex-direction: column;
         }
 
         .marketplace-back {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 17px;
-            border-radius: 9px;
-            background: #fff;
-            border: 1px solid #dce3ef;
-            color: #1f4fe0;
-            font-weight: 700;
-            text-decoration: none;
-            white-space: nowrap;
+            min-height: 44px;
         }
 
         .marketplace-products {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
-            gap: 20px;
-        }
-
-        .marketplace-card {
-            background: #fff;
-            border: 1px solid #e5eaf2;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(20,35,70,.05);
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .marketplace-gallery {
-            position: relative;
-            background: #edf1f8;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
         }
 
         .marketplace-main-image {
-            width: 100%;
-            height: 230px;
-            display: block;
-            object-fit: cover;
-            cursor: zoom-in;
-        }
-
-        .marketplace-thumbnails {
-            display: flex;
-            gap: 7px;
-            padding: 9px;
-            overflow-x: auto;
-        }
-
-        .marketplace-thumbnail {
-            width: 55px;
-            height: 48px;
-            flex-shrink: 0;
-            object-fit: cover;
-            border: 2px solid transparent;
-            border-radius: 7px;
-            cursor: pointer;
-        }
-
-        .marketplace-thumbnail.active {
-            border-color: #1f4fe0;
-        }
-
-        .marketplace-image-count {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: rgba(0,0,0,.65);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 700;
+            height: 155px;
         }
 
         .marketplace-card-content {
-            padding: 17px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
+            padding: 12px;
         }
 
-        .marketplace-card-content h3 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 17px;
-            margin-bottom: 8px;
-            overflow-wrap: anywhere;
+        .marketplace-product-title {
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         .marketplace-price {
-            color: #1f4fe0;
-            font-size: 21px;
-            font-weight: 800;
-            margin-bottom: 10px;
+            font-size: 16px;
+            margin-bottom: 9px;
         }
 
         .marketplace-description {
-            color: #68758a;
-            font-size: 13px;
-            line-height: 1.7;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
+            font-size: 12px;
+            line-height: 1.8;
             margin-bottom: 15px;
         }
 
-        .marketplace-download {
-            display: block;
-            width: 100%;
-            text-align: center;
-            padding: 12px;
-            border: 0;
-            border-radius: 9px;
-            background: #1f4fe0;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 700;
-            text-decoration: none;
-            margin-top: auto;
-            cursor: pointer;
-        }
-
-        .marketplace-download:hover {
-            background: #153bb5;
+        .marketplace-order {
+            min-height: 43px;
+            padding: 10px 5px;
+            font-size: 11px;
+            gap: 5px;
         }
 
         .marketplace-date {
-            display: block;
-            margin-top: 12px;
-            color: #9aa4b5;
-            font-size: 11px;
+            font-size: 10px;
         }
 
-        .marketplace-empty {
-            grid-column: 1 / -1;
-            background: #fff;
-            padding: 45px 20px;
-            text-align: center;
-            border-radius: 14px;
-            color: #68758a;
+        .marketplace-slide-button {
+            width: 29px;
+            height: 29px;
+            font-size: 20px;
         }
 
-        .marketplace-loading {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 35px;
-            color: #68758a;
+        .marketplace-zoom-hint {
+            font-size: 9px;
+            padding: 5px 7px;
         }
 
-        .marketplace-error {
-            grid-column: 1 / -1;
-            padding: 20px;
-            background: #fff0f0;
-            color: #b42318;
-            border-radius: 12px;
+        .marketplace-lightbox {
+            padding: 50px 35px;
         }
 
-        @media(max-width:600px) {
-            .marketplace-main {
-                padding: 20px 13px 40px;
-            }
-
-            .marketplace-heading {
-                padding: 25px 20px;
-            }
-
-            .marketplace-heading h1 {
-                font-size: 24px;
-            }
-
-            .marketplace-tools {
-                flex-direction: column;
-            }
-
-            .marketplace-products {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 12px;
-            }
-
-            .marketplace-main-image {
-                height: 145px;
-            }
-
-            .marketplace-card-content {
-                padding: 12px;
-            }
-
-            .marketplace-card-content h3 {
-                font-size: 14px;
-            }
-
-            .marketplace-price {
-                font-size: 17px;
-            }
-
-            .marketplace-description {
-                font-size: 12px;
-            }
-
-            .marketplace-download {
-                padding: 10px 5px;
-                font-size: 12px;
-            }
+        .lightbox-image {
+            max-height: 82vh;
         }
-    </style>
-</head>
 
-<body class="marketplace-page">
+        .lightbox-prev {
+            left: 5px;
+        }
 
-<header class="site-header">
-    <div class="nav-row">
+        .lightbox-next {
+            right: 5px;
+        }
+    }
 
-        <a class="brand" href="dashboard.html">
-            <svg class="brand-mark" viewBox="0 0 48 48">
-                <rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
-                <path d="M14 32 L24 14 L34 32"
-                      stroke="#fff"
-                      stroke-width="3.4"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-                <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
-            </svg>
+    @media(max-width: 360px) {
+        .marketplace-products {
+            grid-template-columns: 1fr;
+        }
 
-            <span class="brand-text">
-                <b>EIS</b>
-                <span>Digital Services</span>
-            </span>
-        </a>
+        .marketplace-main-image {
+            height: 220px;
+        }
+    }
+</style>
 
-        <nav class="nav-links">
-            <a href="dashboard.html" class="btn">Dashboard</a>
-            <a href="marketplace.html" class="btn active">Marketplace</a>
-        </nav>
+</head><body class="marketplace-page"><header class="site-header">
+    <div class="nav-row">    <a class="brand" href="dashboard.html">
+        <svg class="brand-mark" viewBox="0 0 48 48">
+            <rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
+            <path d="M14 32 L24 14 L34 32"
+                  stroke="#fff"
+                  stroke-width="3.4"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+            <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
+        </svg>
 
-    </div>
-</header>
+        <span class="brand-text">
+            <b>EIS</b>
+            <span>Digital Services</span>
+        </span>
+    </a>
 
-<main class="marketplace-main">
+    <nav class="nav-links">
+        <a href="dashboard.html" class="btn">Dashboard</a>
+        <a href="marketplace.html" class="btn active">Marketplace</a>
+    </nav>
 
-    <section class="marketplace-heading">
-        <h1>EIS Marketplace</h1>
-        <p>Explore available products and download product images.</p>
-    </section>
+</div>
 
-    <div class="marketplace-tools">
+</header><main class="marketplace-main"><section class="marketplace-heading">
+    <h1>EIS Marketplace</h1>
+    <p>
+        Explore our available products, view product images,
+        and contact us directly on WhatsApp to place your order.
+    </p>
+</section>
 
-        <input
-            type="search"
-            id="marketplace-search"
-            placeholder="Search products..."
-            aria-label="Search products"
-        >
+<div class="marketplace-tools">
 
-        <a href="dashboard.html" class="marketplace-back">
-            ← Dashboard
-        </a>
-
-    </div>
-
-    <section
-        id="marketplace-products"
-        class="marketplace-products"
-        aria-live="polite"
+    <input
+        type="search"
+        id="marketplace-search"
+        placeholder="Search products..."
+        aria-label="Search products"
     >
-        <div class="marketplace-loading">
-            Loading products...
-        </div>
-    </section>
 
-</main>
+    <a href="dashboard.html" class="marketplace-back">
+        ← Dashboard
+    </a>
 
-<footer class="site-footer">
+</div>
+
+<section
+    id="marketplace-products"
+    class="marketplace-products"
+    aria-live="polite"
+>
+    <div class="marketplace-loading">
+        Loading products...
+    </div>
+</section>
+
+</main><footer class="site-footer">
     <div class="wrap">
         <p>
             © 2026 EIS Digital Services. All rights reserved.
         </p>
     </div>
-</footer>
-
-<script type="module" src="js/marketplace.js?v=1"></script>
-
-</body>
+</footer><script type="module" src="js/marketplace.js?v=2"></script></body>
 </html>
