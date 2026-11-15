@@ -1,854 +1,684 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#101c36">
-
-    <meta name="description"
-        content="EIS Digital Services Administration Dashboard">
-
+    <meta name="description" content="EIS Digital Services Administration Dashboard">
     <title>Admin Dashboard | EIS Digital Services</title>
+    <link rel="stylesheet" href="css/styles.css?v=26">
+    <link rel="stylesheet" href="css/admin.css?v=26">
 
-    <link rel="stylesheet" href="css/styles.css?v=25">
-    <link rel="stylesheet" href="css/admin.css?v=25">
+    <style>
+        .marketplace-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            padding: 24px;
+        }
+
+        .marketplace-form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .marketplace-form-grid label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #26344d;
+        }
+
+        .marketplace-form-grid input,
+        .marketplace-form-grid textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #dce2ec;
+            border-radius: 10px;
+            font: inherit;
+            background: #fff;
+        }
+
+        .marketplace-form-grid textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .marketplace-form-grid input:focus,
+        .marketplace-form-grid textarea:focus {
+            outline: none;
+            border-color: #315fe8;
+            box-shadow: 0 0 0 3px rgba(49,95,232,.1);
+        }
+
+        .marketplace-image-preview {
+            display: none;
+            width: 150px;
+            height: 120px;
+            margin-top: 12px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e1e6ef;
+        }
+
+        .marketplace-form-actions {
+            padding: 0 24px 24px;
+        }
+
+        .marketplace-form-message {
+            margin: 0 24px 18px;
+            padding: 12px 15px;
+            border-radius: 9px;
+            display: none;
+        }
+
+        .marketplace-form-message.success {
+            display: block;
+            background: #e8f8ef;
+            color: #167342;
+        }
+
+        .marketplace-form-message.error {
+            display: block;
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .marketplace-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+            padding: 22px;
+        }
+
+        .marketplace-admin-card {
+            border: 1px solid #e5e9f0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .marketplace-admin-card img {
+            width: 100%;
+            height: 175px;
+            object-fit: cover;
+            display: block;
+            background: #f2f4f8;
+        }
+
+        .marketplace-admin-card-content {
+            padding: 15px;
+        }
+
+        .marketplace-admin-card h4 {
+            margin: 0 0 8px;
+            color: #17243c;
+            font-size: 16px;
+        }
+
+        .marketplace-admin-price {
+            color: #2455d6;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 8px 0;
+        }
+
+        .marketplace-admin-description {
+            color: #687386;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .marketplace-admin-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .marketplace-admin-actions button {
+            flex: 1;
+            padding: 9px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .marketplace-edit-button {
+            background: #eaf0ff;
+            color: #2455d6;
+        }
+
+        .marketplace-delete-button {
+            background: #fff0f0;
+            color: #c62828;
+        }
+
+        .marketplace-empty {
+            padding: 35px 20px;
+            text-align: center;
+            color: #758096;
+            grid-column: 1 / -1;
+        }
+
+        .marketplace-status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #e8f8ef;
+            color: #167342;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 650px) {
+            .marketplace-form-grid {
+                grid-template-columns: 1fr;
+                padding: 17px;
+                gap: 16px;
+            }
+
+            .marketplace-form-grid .full-width {
+                grid-column: auto;
+            }
+
+            .marketplace-form-actions {
+                padding: 0 17px 20px;
+            }
+
+            .marketplace-form-message {
+                margin-left: 17px;
+                margin-right: 17px;
+            }
+
+            .marketplace-products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+                gap: 12px;
+                padding: 14px;
+            }
+
+            .marketplace-admin-card img {
+                height: 130px;
+            }
+
+            .marketplace-admin-card-content {
+                padding: 11px;
+            }
+        }
+    </style>
 </head>
 
 <body class="admin-page">
 
-    <div class="admin-overlay" id="admin-overlay"></div>
+<div class="admin-overlay" id="admin-overlay"></div>
 
-    <aside class="admin-sidebar" id="admin-sidebar">
+<aside class="admin-sidebar" id="admin-sidebar">
 
-        <div class="admin-sidebar-brand">
+    <div class="admin-sidebar-brand">
+        <svg class="admin-brand-logo" viewBox="0 0 48 48" role="img" aria-label="EIS Digital Services logo">
+            <rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
+            <path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
+        </svg>
 
-            <svg class="admin-brand-logo"
-                 viewBox="0 0 48 48"
-                 role="img"
-                 aria-label="EIS Digital Services logo">
-
-                <rect x="2" y="2" width="44" height="44"
-                      rx="12" fill="#1f4fe0"/>
-
-                <path d="M14 32 L24 14 L34 32"
-                      stroke="#fff"
-                      stroke-width="3.4"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-
-                <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
-
-            </svg>
-
-            <div class="admin-brand-text">
-                <h2>EIS Digital Services</h2>
-                <span>ADMINISTRATION</span>
-            </div>
-
-            <button
-                type="button"
-                class="admin-sidebar-close"
-                id="close-sidebar"
-                aria-label="Close sidebar">
-                &times;
-            </button>
-
+        <div class="admin-brand-text">
+            <h2>EIS Digital Services</h2>
+            <span>ADMINISTRATION</span>
         </div>
 
-
-        <div class="admin-sidebar-content">
-
-            <div class="sidebar-section-title">
-                MAIN MENU
-            </div>
-
-            <nav class="admin-sidebar-nav">
-
-                <button type="button"
-                    class="sidebar-link active"
-                    data-section="overview">
-                    <span class="sidebar-icon">▦</span>
-                    <span>Overview</span>
-                </button>
-
-                <button type="button"
-                    class="sidebar-link"
-                    data-section="marketplace">
-                    <span class="sidebar-icon">▣</span>
-                    <span>Post to Marketplace</span>
-                </button>
-
-                <button type="button"
-                    class="sidebar-link"
-                    data-section="applications">
-                    <span class="sidebar-icon">▤</span>
-                    <span>Applications</span>
-                    <span class="sidebar-badge" id="applications-badge">0</span>
-                </button>
-
-                <button type="button"
-                    class="sidebar-link"
-                    data-section="customer-care">
-                    <span class="sidebar-icon">☏</span>
-                    <span>Customer Care</span>
-                    <span class="sidebar-badge" id="chat-badge">0</span>
-                </button>
-
-                <button type="button"
-                    class="sidebar-link"
-                    data-section="prices">
-                    <span class="sidebar-icon">₦</span>
-                    <span>Prices Management</span>
-                </button>
-
-            </nav>
-
-
-            <div class="sidebar-section-title">
-                COMMUNICATION
-            </div>
-
-            <nav class="admin-sidebar-nav">
-
-                <button type="button"
-                    class="sidebar-link"
-                    data-section="broadcast">
-                    <span class="sidebar-icon">✉</span>
-                    <span>Broadcast Message</span>
-                </button>
-
-                <button type="button"
-                    class="sidebar-link"
-                    data-section="site-settings">
-                    <span class="sidebar-icon">⚙</span>
-                    <span>Site Settings</span>
-                </button>
-
-            </nav>
-
-        </div>
-
-
-        <div class="admin-sidebar-footer">
-
-            <div class="admin-profile-mini">
-
-                <div class="admin-avatar" id="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-                    <strong id="sidebar-admin-name">Administrator</strong>
-                    <span id="sidebar-admin-role">Admin</span>
-                </div>
-
-            </div>
-
-            <button
-                type="button"
-                class="sidebar-logout"
-                id="sidebar-logout">
-
-                <span>↪</span>
-                Log Out
-
-            </button>
-
-        </div>
-
-    </aside>
-
-
-    <div class="admin-main-wrapper">
-
-        <header class="admin-topbar">
-
-            <div class="admin-topbar-left">
-
-                <button
-                    type="button"
-                    class="admin-menu-toggle"
-                    id="menu-toggle"
-                    aria-label="Open navigation menu">
-                    ☰
-                </button>
-
-                <div class="admin-breadcrumb">
-                    <span>Admin</span>
-                    <span class="breadcrumb-divider">/</span>
-                    <strong id="breadcrumb-current">Overview</strong>
-                </div>
-
-            </div>
-
-
-            <div class="admin-topbar-right">
-
-                <a href="index.html" class="topbar-link">
-                    Website
-                </a>
-
-                <a href="dashboard.html" class="topbar-link">
-                    Dashboard
-                </a>
-
-                <button
-                    type="button"
-                    class="topbar-chat-button"
-                    id="topbar-chat">
-                    ☏
-                    <span>Customer Care</span>
-                </button>
-
-                <button
-                    type="button"
-                    class="topbar-logout"
-                    id="nav-logout">
-                    Log Out
-                </button>
-
-            </div>
-
-        </header>
-
-
-        <main class="admin-content">
-
-            <div
-                class="admin-notice"
-                id="admin-message"
-                role="status"
-                aria-live="polite"
-                hidden>
-            </div>
-
-
-            <!-- OVERVIEW -->
-
-            <section
-                class="admin-section active"
-                id="section-overview">
-
-                <div class="admin-page-heading">
-
-                    <div>
-                        <span class="admin-eyebrow">
-                            ADMINISTRATION
-                        </span>
-
-                        <h1>Dashboard Overview</h1>
-
-                        <p>
-                            Welcome back. Here's what's happening
-                            with EIS Digital Services.
-                        </p>
-                    </div>
-
-                    <div class="admin-heading-actions">
-
-                        <span class="admin-date" id="admin-date"></span>
-
-                        <button
-                            type="button"
-                            class="admin-primary-button"
-                            id="overview-refresh">
-                            ↻ Refresh Data
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div class="admin-stats-grid">
-
-                    <article class="admin-stat-card">
-                        <div class="stat-card-top">
-                            <span>Total Applications</span>
-                            <div class="stat-icon blue">▤</div>
-                        </div>
-                        <h2 id="stat-total">0</h2>
-                        <p>All submitted applications</p>
-                    </article>
-
-
-                    <article class="admin-stat-card">
-                        <div class="stat-card-top">
-                            <span>In Review</span>
-                            <div class="stat-icon orange">◷</div>
-                        </div>
-                        <h2 id="stat-review">0</h2>
-                        <p>Applications being processed</p>
-                    </article>
-
-
-                    <article class="admin-stat-card">
-                        <div class="stat-card-top">
-                            <span>Completed</span>
-                            <div class="stat-icon green">✓</div>
-                        </div>
-                        <h2 id="stat-completed">0</h2>
-                        <p>Successfully completed</p>
-                    </article>
-
-
-                    <article class="admin-stat-card">
-                        <div class="stat-card-top">
-                            <span>Marketplace Services</span>
-                            <div class="stat-icon purple">▣</div>
-                        </div>
-                        <h2 id="stat-products">0</h2>
-                        <p>Available services</p>
-                    </article>
-
-                </div>
-
-
-                <div class="admin-overview-grid">
-
-                    <div class="admin-panel">
-
-                        <div class="admin-panel-header">
-                            <div>
-                                <h3>Recent Applications</h3>
-                                <p>Latest customer applications</p>
-                            </div>
-
-                            <button
-                                type="button"
-                                class="admin-text-button"
-                                data-open-section="applications">
-                                View All →
-                            </button>
-                        </div>
-
-                        <div
-                            class="admin-apps-list"
-                            id="admin-apps-list">
-                            <div class="admin-loading">
-                                Loading applications...
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                    <div class="admin-panel">
-
-                        <div class="admin-panel-header">
-                            <div>
-                                <h3>Marketplace Services</h3>
-                                <p>Services currently available</p>
-                            </div>
-
-                            <button
-                                type="button"
-                                class="admin-text-button"
-                                data-open-section="prices">
-                                Manage →
-                            </button>
-                        </div>
-
-                        <div
-                            class="admin-services-list"
-                            id="admin-services-list">
-                            <div class="admin-loading">
-                                Loading services...
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- MARKETPLACE -->
-
-            <section
-                class="admin-section"
-                id="section-marketplace">
-
-                <div class="admin-page-heading">
-                    <div>
-                        <span class="admin-eyebrow">MARKETPLACE</span>
-                        <h1>Marketplace Management</h1>
-                        <p>
-                            Manage the services displayed on your marketplace.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="admin-panel">
-
-                    <div class="admin-panel-header">
-                        <div>
-                            <h3>Marketplace Services</h3>
-                            <p>
-                                Services are managed through your
-                                existing services database.
-                            </p>
-                        </div>
-
-                        <button
-                            type="button"
-                            class="admin-primary-button"
-                            id="marketplace-refresh">
-                            ↻ Refresh
-                        </button>
-                    </div>
-
-                    <div
-                        id="marketplace-services-list"
-                        class="admin-table-container">
-                        <div class="admin-loading">
-                            Loading marketplace services...
-                        </div>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- APPLICATIONS -->
-
-            <section
-                class="admin-section"
-                id="section-applications">
-
-                <div class="admin-page-heading">
-                    <div>
-                        <span class="admin-eyebrow">CUSTOMER RECORDS</span>
-                        <h1>Applications Management</h1>
-                        <p>
-                            Review applications and update their status.
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        class="admin-primary-button"
-                        id="refresh-applications">
-                        ↻ Refresh Applications
-                    </button>
-                </div>
-
-                <div class="admin-panel">
-
-                    <div class="admin-panel-header">
-                        <div>
-                            <h3>All Applications</h3>
-                            <p>Customer application records</p>
-                        </div>
-
-                        <span
-                            class="admin-result-count"
-                            id="applications-count">
-                            0 Applications
-                        </span>
-                    </div>
-
-                    <div
-                        class="admin-apps-list"
-                        id="applications-full-list">
-                        <div class="admin-loading">
-                            Loading applications...
-                        </div>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- CUSTOMER CARE -->
-
-            <section
-                class="admin-section"
-                id="section-customer-care">
-
-                <div class="admin-page-heading">
-                    <div>
-                        <span class="admin-eyebrow">SUPPORT CENTER</span>
-                        <h1>Customer Care</h1>
-                        <p>
-                            Manage customer conversations and respond
-                            to support messages.
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        class="admin-primary-button"
-                        id="refresh-conversations">
-                        ↻ Refresh Chats
-                    </button>
-                </div>
-
-
-                <div class="admin-chat-layout">
-
-                    <div class="admin-panel admin-chat-list-panel">
-
-                        <div class="admin-panel-header">
-                            <div>
-                                <h3>Conversations</h3>
-                                <p>Customer support inbox</p>
-                            </div>
-                        </div>
-
-                        <div
-                            id="admin-conversations-list"
-                            class="admin-conversations-list">
-                            <div class="admin-loading">
-                                Loading conversations...
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                    <div class="admin-panel admin-chat-window">
-
-                        <div
-                            class="admin-chat-empty"
-                            id="admin-chat-empty">
-
-                            <div class="chat-empty-icon">☏</div>
-
-                            <h3>Select a Conversation</h3>
-
-                            <p>
-                                Select a customer conversation
-                                to view and respond to messages.
-                            </p>
-
-                        </div>
-
-
-                        <div
-                            class="admin-chat-active"
-                            id="admin-chat-active"
-                            hidden>
-
-                            <div class="admin-chat-header">
-
-                                <div
-                                    class="chat-customer-avatar"
-                                    id="chat-customer-avatar">
-                                    C
-                                </div>
-
-                                <div class="chat-customer-details">
-
-                                    <h3 id="chat-customer-name">
-                                        Customer
-                                    </h3>
-
-                                    <span
-                                        class="chat-customer-email"
-                                        id="chat-customer-email">
-                                        Email not available
-                                    </span>
-
-                                    <span id="chat-customer-status">
-                                        Conversation
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div
-                                class="admin-chat-messages"
-                                id="admin-chat-messages">
-                            </div>
-
-
-                            <form
-                                id="admin-chat-form"
-                                class="admin-chat-form">
-
-                                <textarea
-                                    id="admin-chat-input"
-                                    rows="2"
-                                    placeholder="Type your reply..."
-                                    required></textarea>
-
-                                <button
-                                    type="submit"
-                                    id="admin-chat-send">
-                                    Send
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- PRICES -->
-
-            <section
-                class="admin-section"
-                id="section-prices">
-
-                <div class="admin-page-heading">
-                    <div>
-                        <span class="admin-eyebrow">SERVICE MANAGEMENT</span>
-                        <h1>Prices Management</h1>
-                        <p>
-                            Add services, update prices and manage
-                            your service catalogue.
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        class="admin-primary-button"
-                        id="refresh-services">
-                        ↻ Refresh Services
-                    </button>
-                </div>
-
-
-                <div class="admin-panel">
-
-                    <div class="admin-panel-header">
-                        <div>
-                            <h3>Add New Service</h3>
-                            <p>Create a new service in your catalogue.</p>
-                        </div>
-                    </div>
-
-                    <form id="add-service-form" class="admin-form">
-
-                        <div class="admin-form-group">
-                            <label for="service-name">Service Name</label>
-
-                            <input
-                                type="text"
-                                id="service-name"
-                                name="name"
-                                placeholder="Enter service name"
-                                required>
-                        </div>
-
-                        <div class="admin-form-group">
-                            <label for="service-price">Price (₦)</label>
-
-                            <input
-                                type="number"
-                                id="service-price"
-                                name="price"
-                                min="0"
-                                step="0.01"
-                                placeholder="Enter service price"
-                                required>
-                        </div>
-
-                        <button
-                            type="submit"
-                            class="admin-primary-button"
-                            id="add-service-button">
-                            + Add Service
-                        </button>
-
-                    </form>
-
-                </div>
-
-
-                <div class="admin-panel">
-
-                    <div class="admin-panel-header">
-                        <div>
-                            <h3>Existing Services</h3>
-                            <p>Update or remove existing services.</p>
-                        </div>
-                    </div>
-
-                    <div
-                        class="admin-services-list"
-                        id="prices-services-list">
-                        <div class="admin-loading">
-                            Loading services...
-                        </div>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- BROADCAST -->
-
-            <section
-                class="admin-section"
-                id="section-broadcast">
-
-                <div class="admin-page-heading">
-                    <div>
-                        <span class="admin-eyebrow">COMMUNICATION</span>
-                        <h1>Broadcast Message</h1>
-                        <p>
-                            Send notifications to customers.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="admin-panel admin-broadcast-panel">
-
-                    <div class="admin-panel-header">
-                        <div>
-                            <h3>Create Notification</h3>
-                            <p>
-                                Send a message to all registered customers.
-                            </p>
-                        </div>
-                    </div>
-
-                    <form
-                        id="broadcast-form"
-                        class="admin-form admin-broadcast-form">
-
-                        <div class="admin-form-group">
-                            <label for="broadcast-title">
-                                Notification Title
-                            </label>
-
-                            <input
-                                type="text"
-                                id="broadcast-title"
-                                maxlength="150"
-                                placeholder="Enter notification title"
-                                required>
-                        </div>
-
-                        <div class="admin-form-group">
-                            <label for="broadcast-message">
-                                Message
-                            </label>
-
-                            <textarea
-                                id="broadcast-message"
-                                rows="6"
-                                maxlength="3000"
-                                placeholder="Write your message..."
-                                required></textarea>
-                        </div>
-
-                        <div class="admin-broadcast-note">
-                            This notification will be sent to all
-                            customers with registered profiles.
-                        </div>
-
-                        <button
-                            type="submit"
-                            class="admin-primary-button"
-                            id="broadcast-send">
-                            Send Broadcast
-                        </button>
-
-                    </form>
-
-                </div>
-
-            </section>
-
-
-            <!-- SITE SETTINGS -->
-
-            <section
-                class="admin-section"
-                id="section-site-settings">
-
-                <div class="admin-page-heading">
-                    <div>
-                        <span class="admin-eyebrow">CONFIGURATION</span>
-                        <h1>Site Settings</h1>
-                        <p>
-                            Website administration information.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="admin-panel">
-
-                    <div class="admin-panel-header">
-                        <div>
-                            <h3>Administration Information</h3>
-                            <p>Current administrator account details.</p>
-                        </div>
-                    </div>
-
-                    <div class="admin-settings-grid">
-
-                        <div class="admin-setting-item">
-                            <span>Administrator Name</span>
-                            <strong id="settings-admin-name">Loading...</strong>
-                        </div>
-
-                        <div class="admin-setting-item">
-                            <span>Administrator Email</span>
-                            <strong id="settings-admin-email">Loading...</strong>
-                        </div>
-
-                        <div class="admin-setting-item">
-                            <span>Account Role</span>
-                            <strong id="settings-admin-role">Loading...</strong>
-                        </div>
-
-                        <div class="admin-setting-item">
-                            <span>Platform</span>
-                            <strong>EIS Digital Services</strong>
-                        </div>
-
-                    </div>
-
-                    <div class="admin-settings-notice">
-                        <strong>Settings storage not configured</strong>
-
-                        <p>
-                            Your current Supabase database does not
-                            contain a settings table. Website-wide
-                            configuration editing will require a
-                            dedicated settings database structure.
-                        </p>
-                    </div>
-
-                </div>
-
-            </section>
-
-        </main>
-
-
-        <footer class="admin-footer">
-
-            <p>
-                © <span id="admin-year"></span>
-                EIS Digital Services. All rights reserved.
-            </p>
-
-            <span>Administration Dashboard</span>
-
-        </footer>
-
+        <button type="button" class="admin-sidebar-close" id="close-sidebar" aria-label="Close sidebar">&times;</button>
     </div>
 
+    <div class="admin-sidebar-content">
+        <div class="sidebar-section-title">MAIN MENU</div>
 
-    <script type="module" src="js/admin.js?v=25"></script>
+        <nav class="admin-sidebar-nav">
+            <button type="button" class="sidebar-link active" data-section="overview">
+                <span class="sidebar-icon">▦</span><span>Overview</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="marketplace">
+                <span class="sidebar-icon">▣</span><span>Post to Marketplace</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="applications">
+                <span class="sidebar-icon">▤</span><span>Applications</span>
+                <span class="sidebar-badge" id="applications-badge">0</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="customer-care">
+                <span class="sidebar-icon">☏</span><span>Customer Care</span>
+                <span class="sidebar-badge" id="chat-badge">0</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="prices">
+                <span class="sidebar-icon">₦</span><span>Prices Management</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-section-title">COMMUNICATION</div>
+
+        <nav class="admin-sidebar-nav">
+            <button type="button" class="sidebar-link" data-section="broadcast">
+                <span class="sidebar-icon">✉</span><span>Broadcast Message</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="site-settings">
+                <span class="sidebar-icon">⚙</span><span>Site Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <div class="admin-sidebar-footer">
+        <div class="admin-profile-mini">
+            <div class="admin-avatar" id="admin-avatar">A</div>
+            <div class="admin-profile-info">
+                <strong id="sidebar-admin-name">Administrator</strong>
+                <span id="sidebar-admin-role">Admin</span>
+            </div>
+        </div>
+
+        <button type="button" class="sidebar-logout" id="sidebar-logout">
+            <span>↪</span> Log Out
+        </button>
+    </div>
+</aside>
+
+<div class="admin-main-wrapper">
+
+<header class="admin-topbar">
+    <div class="admin-topbar-left">
+        <button type="button" class="admin-menu-toggle" id="menu-toggle" aria-label="Open navigation menu">☰</button>
+
+        <div class="admin-breadcrumb">
+            <span>Admin</span>
+            <span class="breadcrumb-divider">/</span>
+            <strong id="breadcrumb-current">Overview</strong>
+        </div>
+    </div>
+
+    <div class="admin-topbar-right">
+        <a href="index.html" class="topbar-link">Website</a>
+        <a href="dashboard.html" class="topbar-link">Dashboard</a>
+
+        <button type="button" class="topbar-chat-button" id="topbar-chat">
+            ☏ <span>Customer Care</span>
+        </button>
+
+        <button type="button" class="topbar-logout" id="nav-logout">Log Out</button>
+    </div>
+</header>
+
+<main class="admin-content">
+
+<div class="admin-notice" id="admin-message" role="status" aria-live="polite" hidden></div>
+
+<!-- OVERVIEW -->
+<section class="admin-section active" id="section-overview">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">ADMINISTRATION</span>
+            <h1>Dashboard Overview</h1>
+            <p>Welcome back. Here's what's happening with EIS Digital Services.</p>
+        </div>
+
+        <div class="admin-heading-actions">
+            <span class="admin-date" id="admin-date"></span>
+            <button type="button" class="admin-primary-button" id="overview-refresh">↻ Refresh Data</button>
+        </div>
+    </div>
+
+    <div class="admin-stats-grid">
+        <article class="admin-stat-card">
+            <div class="stat-card-top"><span>Total Applications</span><div class="stat-icon blue">▤</div></div>
+            <h2 id="stat-total">0</h2>
+            <p>All submitted applications</p>
+        </article>
+
+        <article class="admin-stat-card">
+            <div class="stat-card-top"><span>In Review</span><div class="stat-icon orange">◷</div></div>
+            <h2 id="stat-review">0</h2>
+            <p>Applications being processed</p>
+        </article>
+
+        <article class="admin-stat-card">
+            <div class="stat-card-top"><span>Completed</span><div class="stat-icon green">✓</div></div>
+            <h2 id="stat-completed">0</h2>
+            <p>Successfully completed</p>
+        </article>
+
+        <article class="admin-stat-card">
+            <div class="stat-card-top"><span>Marketplace Products</span><div class="stat-icon purple">▣</div></div>
+            <h2 id="stat-products">0</h2>
+            <p>Available products</p>
+        </article>
+    </div>
+
+    <div class="admin-overview-grid">
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <div><h3>Recent Applications</h3><p>Latest customer applications</p></div>
+                <button type="button" class="admin-text-button" data-open-section="applications">View All →</button>
+            </div>
+
+            <div class="admin-apps-list" id="admin-apps-list">
+                <div class="admin-loading">Loading applications...</div>
+            </div>
+        </div>
+
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <div><h3>Marketplace Services</h3><p>Services currently available</p></div>
+                <button type="button" class="admin-text-button" data-open-section="prices">Manage →</button>
+            </div>
+
+            <div class="admin-services-list" id="admin-services-list">
+                <div class="admin-loading">Loading services...</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MARKETPLACE -->
+<section class="admin-section" id="section-marketplace">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">EIS MARKETPLACE</span>
+            <h1>Post a Product</h1>
+            <p>Add products for customers to view on the Marketplace page.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3 id="marketplace-form-heading">Product Information</h3>
+                <p>Fill in the product details and publish it.</p>
+            </div>
+        </div>
+
+        <form id="marketplace-product-form" enctype="multipart/form-data">
+
+            <input type="hidden" id="marketplace-product-id">
+
+            <div class="marketplace-form-grid">
+
+                <div>
+                    <label for="product-title">Product Title *</label>
+                    <input type="text" id="product-title" maxlength="150" placeholder="Enter product name" required>
+                </div>
+
+                <div>
+                    <label for="product-price">Price (₦) *</label>
+                    <input type="number" id="product-price" min="0" step="0.01" placeholder="Enter price" required>
+                </div>
+
+                <div class="full-width">
+                    <label for="product-image">Product Image *</label>
+                    <input type="file" id="product-image" accept="image/jpeg,image/png,image/webp">
+                    <small>Accepted formats: JPG, PNG and WEBP. Maximum size: 5MB.</small>
+                    <img id="marketplace-image-preview" class="marketplace-image-preview" alt="Product image preview">
+                </div>
+
+                <div class="full-width">
+                    <label for="product-description">Product Description *</label>
+                    <textarea id="product-description" maxlength="3000" placeholder="Describe this product..." required></textarea>
+                </div>
+
+            </div>
+
+            <div class="marketplace-form-message" id="marketplace-form-message" role="status" aria-live="polite"></div>
+
+            <div class="marketplace-form-actions">
+                <button type="submit" class="admin-primary-button" id="product-submit">
+                    + Post Product
+                </button>
+
+                <button type="button" class="admin-text-button" id="marketplace-cancel-edit" hidden>
+                    Cancel Editing
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="admin-panel" style="margin-top:25px;">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Marketplace Products</h3>
+                <p>View, edit or delete products you have posted.</p>
+            </div>
+
+            <button type="button" class="admin-primary-button" id="marketplace-refresh">↻ Refresh</button>
+        </div>
+
+        <div id="marketplace-products-list" class="marketplace-products-grid">
+            <div class="marketplace-empty">Marketplace products will appear here.</div>
+        </div>
+    </div>
+
+</section>
+
+<!-- APPLICATIONS -->
+<section class="admin-section" id="section-applications">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">CUSTOMER RECORDS</span>
+            <h1>Applications Management</h1>
+            <p>Review applications and update their status.</p>
+        </div>
+
+        <button type="button" class="admin-primary-button" id="refresh-applications">↻ Refresh Applications</button>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3>All Applications</h3><p>Customer application records</p></div>
+            <span class="admin-result-count" id="applications-count">0 Applications</span>
+        </div>
+
+        <div class="admin-apps-list" id="applications-full-list">
+            <div class="admin-loading">Loading applications...</div>
+        </div>
+    </div>
+</section>
+
+<!-- CUSTOMER CARE -->
+<section class="admin-section" id="section-customer-care">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">SUPPORT CENTER</span>
+            <h1>Customer Care</h1>
+            <p>Manage customer conversations and respond to support messages.</p>
+        </div>
+
+        <button type="button" class="admin-primary-button" id="refresh-conversations">↻ Refresh Chats</button>
+    </div>
+
+    <div class="admin-chat-layout">
+
+        <div class="admin-panel admin-chat-list-panel">
+            <div class="admin-panel-header">
+                <div><h3>Conversations</h3><p>Customer support inbox</p></div>
+            </div>
+
+            <div id="admin-conversations-list" class="admin-conversations-list">
+                <div class="admin-loading">Loading conversations...</div>
+            </div>
+        </div>
+
+        <div class="admin-panel admin-chat-window">
+
+            <div class="admin-chat-empty" id="admin-chat-empty">
+                <div class="chat-empty-icon">☏</div>
+                <h3>Select a Conversation</h3>
+                <p>Select a customer conversation to view and respond to messages.</p>
+            </div>
+
+            <div class="admin-chat-active" id="admin-chat-active" hidden>
+
+                <div class="admin-chat-header">
+                    <div class="chat-customer-avatar" id="chat-customer-avatar">C</div>
+
+                    <div class="chat-customer-details">
+                        <h3 id="chat-customer-name">Customer</h3>
+                        <span class="chat-customer-email" id="chat-customer-email">Email not available</span>
+                        <span id="chat-customer-status">Conversation</span>
+                    </div>
+                </div>
+
+                <div class="admin-chat-messages" id="admin-chat-messages"></div>
+
+                <form id="admin-chat-form" class="admin-chat-form">
+                    <textarea id="admin-chat-input" rows="2" placeholder="Type your reply..." required></textarea>
+                    <button type="submit" id="admin-chat-send">Send</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICES -->
+<section class="admin-section" id="section-prices">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">SERVICE MANAGEMENT</span>
+            <h1>Prices Management</h1>
+            <p>Add services, update prices and manage your service catalogue.</p>
+        </div>
+
+        <button type="button" class="admin-primary-button" id="refresh-services">↻ Refresh Services</button>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3>Add New Service</h3><p>Create a new service in your catalogue.</p></div>
+        </div>
+
+        <form id="add-service-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="service-name">Service Name</label>
+                <input type="text" id="service-name" name="name" placeholder="Enter service name" required>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="service-price">Price (₦)</label>
+                <input type="number" id="service-price" name="price" min="0" step="0.01" placeholder="Enter service price" required>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="add-service-button">+ Add Service</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3>Existing Services</h3><p>Update or remove existing services.</p></div>
+        </div>
+
+        <div class="admin-services-list" id="prices-services-list">
+            <div class="admin-loading">Loading services...</div>
+        </div>
+    </div>
+</section>
+
+<!-- BROADCAST -->
+<section class="admin-section" id="section-broadcast">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">COMMUNICATION</span>
+            <h1>Broadcast Message</h1>
+            <p>Send notifications to customers.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel admin-broadcast-panel">
+        <div class="admin-panel-header">
+            <div><h3>Create Notification</h3><p>Send a message to all registered customers.</p></div>
+        </div>
+
+        <form id="broadcast-form" class="admin-form admin-broadcast-form">
+            <div class="admin-form-group">
+                <label for="broadcast-title">Notification Title</label>
+                <input type="text" id="broadcast-title" maxlength="150" placeholder="Enter notification title" required>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="broadcast-message">Message</label>
+                <textarea id="broadcast-message" rows="6" maxlength="3000" placeholder="Write your message..." required></textarea>
+            </div>
+
+            <div class="admin-broadcast-note">
+                This notification will be sent to all customers with registered profiles.
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="broadcast-send">Send Broadcast</button>
+        </form>
+    </div>
+</section>
+
+<!-- SITE SETTINGS -->
+<section class="admin-section" id="section-site-settings">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">CONFIGURATION</span>
+            <h1>Site Settings</h1>
+            <p>Website administration information.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3>Administration Information</h3><p>Current administrator account details.</p></div>
+        </div>
+
+        <div class="admin-settings-grid">
+            <div class="admin-setting-item">
+                <span>Administrator Name</span>
+                <strong id="settings-admin-name">Loading...</strong>
+            </div>
+
+            <div class="admin-setting-item">
+                <span>Administrator Email</span>
+                <strong id="settings-admin-email">Loading...</strong>
+            </div>
+
+            <div class="admin-setting-item">
+                <span>Account Role</span>
+                <strong id="settings-admin-role">Loading...</strong>
+            </div>
+
+            <div class="admin-setting-item">
+                <span>Platform</span>
+                <strong>EIS Digital Services</strong>
+            </div>
+        </div>
+
+        <div class="admin-settings-notice">
+            <strong>Administration Information</strong>
+            <p>Manage your EIS Digital Services administration dashboard from this page.</p>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer class="admin-footer">
+    <p>© <span id="admin-year"></span> EIS Digital Services. All rights reserved.</p>
+    <span>Administration Dashboard</span>
+</footer>
+
+</div>
+
+<script type="module" src="js/admin.js?v=26"></script>
 
 </body>
-                </html>
+                                                                                                      </html>
