@@ -88,16 +88,9 @@ function generateDemoReference() {
 
 /* =====================================================
    FORM CLEANUP
-   The form now matches the required application fields.
 ===================================================== */
 
 function cleanApplicationForm() {
-    /*
-      The updated form includes the KEGOW, BVN, bank, address
-      and date of birth fields, so no field removal is needed.
-      Only the alternative phone field is set as optional.
-    */
-
     const alternativePhone = $("f-altPhone");
 
     if (alternativePhone) {
@@ -175,7 +168,12 @@ function restoreApplicationDraft() {
 
         if (draft.form_open === true) {
             demoPaymentCompleted = true;
-            showDemoPaymentResult(true, generateDemoReference(), true);
+
+            showDemoPaymentResult(
+                true,
+                generateDemoReference(),
+                true
+            );
 
             if (form) form.style.display = "block";
 
@@ -184,6 +182,7 @@ function restoreApplicationDraft() {
                 "info",
                 "form-msg"
             );
+
         } else {
             demoPaymentCompleted = false;
             renderDemoPaymentScreen();
@@ -286,11 +285,11 @@ function getServiceDescription(serviceName) {
     const name = String(serviceName || "").toLowerCase();
 
     if (name.includes("android") && name.includes("bvn")) {
-        return "Review the service information and contact support for details about the authorized provider and secure verification process.";
+        return "";
     }
 
     if (name.includes("combo") && name.includes("bvn")) {
-        return "Review the service details and contact support for information about the authorized provider.";
+        return "";
     }
 
     return "Review the service information and displayed price. Contact support if you need assistance.";
@@ -330,9 +329,7 @@ async function loadServices() {
             const title = document.createElement("h3");
             title.textContent = service.name || "Service";
 
-            const description = document.createElement("div");
-            description.className = "service-description";
-            description.textContent =
+            const descriptionText =
                 getServiceDescription(service.name);
 
             const price = document.createElement("p");
@@ -348,12 +345,22 @@ async function loadServices() {
                 selectService(service);
             });
 
-            card.append(title, description, price, button);
+            if (descriptionText) {
+                const description = document.createElement("div");
+                description.className = "service-description";
+                description.textContent = descriptionText;
+
+                card.append(title, description, price, button);
+            } else {
+                card.append(title, price, button);
+            }
+
             container.appendChild(card);
         });
 
     } catch (error) {
         console.error("Services loading error:", error);
+
         container.textContent =
             "Unable to load services. Please try again.";
     }
@@ -418,7 +425,7 @@ function renderDemoPaymentScreen() {
                 SELECTED SERVICE
             </p>
 
-            <h4 style="margin:0 0 12px;color:#1246a0;font-size:17px;">
+            <h4 style="margin:0 0 12px;color:#1769d2;font-size:17px;">
                 ${escapeHTML(selectedService.name || "Service")}
             </h4>
 
@@ -426,7 +433,7 @@ function renderDemoPaymentScreen() {
                 DEMO AMOUNT
             </p>
 
-            <strong style="display:block;margin-top:5px;color:#1246a0;font-size:23px;">
+            <strong style="display:block;margin-top:5px;color:#1769d2;font-size:23px;">
                 ${formatCurrency(selectedService.price)}
             </strong>
         </div>
@@ -592,7 +599,7 @@ function showDemoPaymentResult(success, reference, restoring) {
                 </p>
 
                 <button id="demo-try-again" type="button"
-                    style="width:100%;padding:12px;margin-top:10px;border:0;border-radius:7px;background:#1456b8;color:white;font-weight:700;">
+                    style="width:100%;padding:12px;margin-top:10px;border:0;border-radius:7px;background:#1769d2;color:white;font-weight:700;">
                     Try Again
                 </button>
             </div>
