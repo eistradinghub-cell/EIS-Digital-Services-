@@ -55,6 +55,7 @@ function formatDateTime(date) {
 function generateDemoReference() {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const values = new Uint8Array(9);
+
     crypto.getRandomValues(values);
 
     let result = "";
@@ -67,16 +68,19 @@ function generateDemoReference() {
 }
 
 function getDraftKey() {
-    return currentUser ? `${DRAFT_PREFIX}${currentUser.id}` : null;
+    return currentUser
+        ? `${DRAFT_PREFIX}${currentUser.id}`
+        : null;
 }
 
 function saveApplicationDraft() {
     const key = getDraftKey();
+
     if (!key || !selectedService) return;
 
     try {
         localStorage.setItem(key, JSON.stringify({
-            version: 5,
+            version: 6,
             service_id: selectedService.id,
             form_open: demoPaymentCompleted
         }));
@@ -87,6 +91,7 @@ function saveApplicationDraft() {
 
 function clearApplicationDraft() {
     const key = getDraftKey();
+
     if (!key) return;
 
     try {
@@ -98,8 +103,10 @@ function clearApplicationDraft() {
 
 async function checkUserSession() {
     try {
-        const { data: { user }, error } =
-            await supabase.auth.getUser();
+        const {
+            data: { user },
+            error
+        } = await supabase.auth.getUser();
 
         if (error) throw error;
 
@@ -113,6 +120,7 @@ async function checkUserSession() {
 
     } catch (error) {
         console.error("Authentication error:", error);
+
         window.location.replace("index.html");
         return false;
     }
@@ -124,7 +132,9 @@ async function loadUserProfile() {
     const welcome = $("welcome");
     const adminButton = $("nav-admin");
 
-    if (adminButton) adminButton.style.display = "none";
+    if (adminButton) {
+        adminButton.style.display = "none";
+    }
 
     try {
         const { data, error } = await supabase
@@ -181,6 +191,7 @@ function getServiceDescription() {
 
 async function loadServices() {
     const container = $("services-container");
+
     if (!container) return;
 
     container.textContent = "Loading services...";
@@ -194,6 +205,7 @@ async function loadServices() {
         if (error) throw error;
 
         servicesCache = data || [];
+
         container.replaceChildren();
 
         if (!servicesCache.length) {
@@ -224,12 +236,19 @@ async function loadServices() {
                 selectService(service);
             });
 
-            card.append(title, description, price, button);
+            card.append(
+                title,
+                description,
+                price,
+                button
+            );
+
             container.appendChild(card);
         });
 
     } catch (error) {
         console.error("Services loading error:", error);
+
         container.textContent =
             "Unable to load services. Please try again.";
     }
@@ -249,7 +268,9 @@ function selectService(service) {
     selectedService = service;
     demoPaymentCompleted = false;
 
-    if ($("app-form")) $("app-form").style.display = "none";
+    if ($("app-form")) {
+        $("app-form").style.display = "none";
+    }
 
     saveApplicationDraft();
     renderDemoPaymentScreen();
@@ -262,6 +283,7 @@ function selectService(service) {
 
 function renderDemoPaymentScreen() {
     const section = $("pay-section");
+
     if (!section || !selectedService) return;
 
     section.style.display = "block";
@@ -328,17 +350,32 @@ function renderDemoPaymentScreen() {
     `;
 
     $("btn-pay")?.addEventListener("click", () => {
-        $("demo-payment-panel").style.display = "block";
-        $("btn-pay").disabled = true;
-        $("btn-pay").textContent = "Demo Payment Options Opened";
+        const panel = $("demo-payment-panel");
+
+        if (panel) {
+            panel.style.display = "block";
+        }
+
+        const button = $("btn-pay");
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Demo Payment Options Opened";
+        }
     });
 
     $("demo-success")?.addEventListener("click", () => {
-        showDemoPaymentResult(true, generateDemoReference());
+        showDemoPaymentResult(
+            true,
+            generateDemoReference()
+        );
     });
 
     $("demo-failure")?.addEventListener("click", () => {
-        showDemoPaymentResult(false, generateDemoReference());
+        showDemoPaymentResult(
+            false,
+            generateDemoReference()
+        );
     });
 }
 
@@ -353,7 +390,14 @@ function showDemoPaymentResult(success, reference) {
         saveApplicationDraft();
 
         result.innerHTML = `
-            <div style="margin-top:16px;padding:17px;border:1px solid #b8e1c8;border-radius:9px;background:#effaf3;color:#17683a;">
+            <div style="
+                margin-top:16px;
+                padding:17px;
+                border:1px solid #b8e1c8;
+                border-radius:9px;
+                background:#effaf3;
+                color:#17683a;
+            ">
                 <h3 style="margin:0 0 10px;color:#17683a;">
                     ✓ Demo Payment Successful
                 </h3>
@@ -367,7 +411,7 @@ function showDemoPaymentResult(success, reference) {
                 </p>
 
                 <strong style="font-size:19px;letter-spacing:1px;">
-                    ${reference}
+                    ${escapeHTML(reference)}
                 </strong>
 
                 <p style="font-size:12px;margin-top:12px;">
@@ -386,6 +430,7 @@ function showDemoPaymentResult(success, reference) {
 
         if (form) {
             form.style.display = "block";
+
             form.scrollIntoView({
                 behavior: "smooth",
                 block: "start"
@@ -403,7 +448,14 @@ function showDemoPaymentResult(success, reference) {
         clearApplicationDraft();
 
         result.innerHTML = `
-            <div style="margin-top:16px;padding:17px;border:1px solid #f0c5c5;border-radius:9px;background:#fff3f3;color:#a52d2d;">
+            <div style="
+                margin-top:16px;
+                padding:17px;
+                border:1px solid #f0c5c5;
+                border-radius:9px;
+                background:#fff3f3;
+                color:#a52d2d;
+            ">
                 <h3 style="margin:0 0 10px;color:#a52d2d;">
                     ✕ Demo Payment Failed
                 </h3>
@@ -417,17 +469,28 @@ function showDemoPaymentResult(success, reference) {
                 </p>
 
                 <strong style="font-size:19px;letter-spacing:1px;">
-                    ${reference}
+                    ${escapeHTML(reference)}
                 </strong>
 
                 <button id="demo-try-again" type="button"
-                    style="width:100%;padding:12px;margin-top:10px;border:0;border-radius:7px;background:#1769d2;color:white;font-weight:700;">
+                    style="
+                        width:100%;
+                        padding:12px;
+                        margin-top:10px;
+                        border:0;
+                        border-radius:7px;
+                        background:#1769d2;
+                        color:white;
+                        font-weight:700;
+                    ">
                     Try Again
                 </button>
             </div>
         `;
 
-        if (form) form.style.display = "none";
+        if (form) {
+            form.style.display = "none";
+        }
 
         $("demo-try-again")?.addEventListener("click", () => {
             renderDemoPaymentScreen();
@@ -435,25 +498,17 @@ function showDemoPaymentResult(success, reference) {
     }
 }
 
+/*
+ * SAFE APPLICATION DATA
+ * Only basic contact details are collected.
+ * Sensitive identity and financial information is not collected.
+ */
 function getApplicationFormData() {
     return {
-        kegow_account: $("f-kegow")?.value.trim() || "",
-        agent_location_state: $("f-agentState")?.value || "",
-        bvn: $("f-bvn")?.value.trim() || "",
-        bank_name: $("f-bankName")?.value.trim() || "",
-        account_number: $("f-accountNo")?.value.trim() || "",
-        account_name: $("f-accountName")?.value.trim() || "",
         first_name: $("f-firstName")?.value.trim() || "",
-        middle_name: $("f-middleName")?.value.trim() || "",
         last_name: $("f-lastName")?.value.trim() || "",
         email: $("f-email")?.value.trim() || "",
-        phone: $("f-phone")?.value.trim() || "",
-        alternative_phone: $("f-altPhone")?.value.trim() || "",
-        home_address: $("f-homeAddress")?.value.trim() || "",
-        state_of_residence: $("f-stateRes")?.value || "",
-        date_of_birth: $("f-dob")?.value || "",
-        local_government: $("f-lga")?.value.trim() || "",
-        geopolitical_zone: $("f-zone")?.value || ""
+        phone: $("f-phone")?.value.trim() || ""
     };
 }
 
@@ -461,7 +516,9 @@ function createStatusBadge(status) {
     const badge = document.createElement("span");
     const value = String(status || "In review").trim();
 
-    badge.className = `status-badge ${value.toLowerCase().replace(/\s+/g, "_")}`;
+    badge.className =
+        `status-badge ${value.toLowerCase().replace(/\s+/g, "_")}`;
+
     badge.textContent = value;
 
     return badge;
@@ -469,6 +526,7 @@ function createStatusBadge(status) {
 
 async function loadApplications() {
     const container = $("apps-list");
+
     if (!currentUser || !container) return;
 
     container.replaceChildren();
@@ -485,11 +543,14 @@ async function loadApplications() {
         if (!data?.length) {
             const row = document.createElement("tr");
             const cell = document.createElement("td");
+
             cell.colSpan = 5;
             cell.textContent = "No applications yet.";
             cell.style.textAlign = "center";
+
             row.appendChild(cell);
             container.appendChild(row);
+
             return;
         }
 
@@ -497,25 +558,38 @@ async function loadApplications() {
             const row = document.createElement("tr");
 
             const name = document.createElement("td");
+
             name.textContent =
                 currentProfile?.full_name ||
                 currentUser.email ||
                 "Customer";
 
             const reference = document.createElement("td");
+
             reference.textContent =
                 String(application.id).slice(0, 8).toUpperCase();
 
             const service = document.createElement("td");
-            service.textContent = application.service_name || "Service";
+            service.textContent =
+                application.service_name || "Service";
 
             const submitted = document.createElement("td");
-            submitted.textContent = formatDate(application.created_at);
+            submitted.textContent =
+                formatDate(application.created_at);
 
             const status = document.createElement("td");
-            status.appendChild(createStatusBadge(application.status));
+            status.appendChild(
+                createStatusBadge(application.status)
+            );
 
-            row.append(name, reference, service, submitted, status);
+            row.append(
+                name,
+                reference,
+                service,
+                submitted,
+                status
+            );
+
             container.appendChild(row);
         });
 
@@ -524,9 +598,11 @@ async function loadApplications() {
 
         const row = document.createElement("tr");
         const cell = document.createElement("td");
+
         cell.colSpan = 5;
         cell.textContent = "Unable to load applications.";
         cell.style.textAlign = "center";
+
         row.appendChild(cell);
         container.appendChild(row);
     }
@@ -538,7 +614,9 @@ async function loadNotifications() {
     const list = $("notifications-list");
     const count = $("notification-count");
 
-    if (list) list.textContent = "Loading notifications...";
+    if (list) {
+        list.textContent = "Loading notifications...";
+    }
 
     try {
         const { data, error } = await supabase
@@ -557,27 +635,36 @@ async function loadNotifications() {
         ).length;
 
         if (count) {
-            count.textContent = unread > 99 ? "99+" : String(unread);
-            count.style.display = unread > 0 ? "flex" : "none";
+            count.textContent =
+                unread > 99 ? "99+" : String(unread);
+
+            count.style.display =
+                unread > 0 ? "flex" : "none";
         }
 
         renderNotifications();
 
     } catch (error) {
         console.error("Notifications loading error:", error);
-        if (list) list.textContent = "Unable to load notifications.";
+
+        if (list) {
+            list.textContent = "Unable to load notifications.";
+        }
     }
 }
 
 function renderNotifications() {
     const list = $("notifications-list");
+
     if (!list) return;
 
     list.replaceChildren();
 
     if (!notificationsCache.length) {
         const empty = document.createElement("p");
+
         empty.textContent = "You have no notifications.";
+
         list.appendChild(empty);
         return;
     }
@@ -587,13 +674,16 @@ function renderNotifications() {
         item.className = "notification-item";
 
         const title = document.createElement("strong");
-        title.textContent = notification.title || "Notification";
+        title.textContent =
+            notification.title || "Notification";
 
         const message = document.createElement("p");
-        message.textContent = notification.message || "";
+        message.textContent =
+            notification.message || "";
 
         const time = document.createElement("time");
-        time.textContent = formatDateTime(notification.created_at);
+        time.textContent =
+            formatDateTime(notification.created_at);
 
         item.append(title, message, time);
         list.appendChild(item);
@@ -631,7 +721,10 @@ async function markNotificationsAsRead() {
         renderNotifications();
 
     } catch (error) {
-        console.error("Mark notifications as read error:", error);
+        console.error(
+            "Mark notifications as read error:",
+            error
+        );
     }
 }
 
@@ -645,9 +738,15 @@ function setupNotificationDropdown() {
 
     button.addEventListener("click", async () => {
         const isOpen = dropdown.classList.toggle("open");
-        button.setAttribute("aria-expanded", String(isOpen));
 
-        if (isOpen) await markNotificationsAsRead();
+        button.setAttribute(
+            "aria-expanded",
+            String(isOpen)
+        );
+
+        if (isOpen) {
+            await markNotificationsAsRead();
+        }
     });
 
     document.addEventListener("click", event => {
@@ -656,7 +755,11 @@ function setupNotificationDropdown() {
             !dropdown.contains(event.target)
         ) {
             dropdown.classList.remove("open");
-            button.setAttribute("aria-expanded", "false");
+
+            button.setAttribute(
+                "aria-expanded",
+                "false"
+            );
         }
     });
 }
@@ -667,53 +770,70 @@ async function submitApplication(event) {
     const form = $("app-form");
 
     if (!currentUser || !selectedService) {
-        showMessage("Please select a service first.", "err", "form-msg");
+        showMessage(
+            "Please select a service first.",
+            "err",
+            "form-msg"
+        );
         return;
     }
 
     if (!demoPaymentCompleted) {
-        showMessage("Please complete the demo step first.", "err", "form-msg");
+        showMessage(
+            "Please complete the demo step first.",
+            "err",
+            "form-msg"
+        );
         return;
     }
 
     const formData = getApplicationFormData();
 
     if (
-        !formData.kegow_account ||
-        !formData.agent_location_state ||
-        !formData.bvn ||
-        !formData.bank_name ||
-        !formData.account_number ||
-        !formData.account_name ||
         !formData.first_name ||
         !formData.last_name ||
-        !formData.email ||
-        !formData.phone ||
-        !formData.home_address ||
-        !formData.state_of_residence ||
-        !formData.date_of_birth ||
-        !formData.local_government ||
-        !formData.geopolitical_zone
+        !formData.email
     ) {
-        showMessage("Please complete all required fields.", "err", "form-msg");
+        showMessage(
+            "Please enter your first name, last name and email address.",
+            "err",
+            "form-msg"
+        );
         return;
     }
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailPattern.test(formData.email)) {
-        showMessage("Please enter a valid email address.", "err", "form-msg");
+        showMessage(
+            "Please enter a valid email address.",
+            "err",
+            "form-msg"
+        );
         return;
     }
 
-    const phoneDigits = formData.phone.replace(/\D/g, "");
+    if (formData.phone) {
+        const phoneDigits =
+            formData.phone.replace(/\D/g, "");
 
-    if (phoneDigits.length < 7 || phoneDigits.length > 15) {
-        showMessage("Please enter a valid phone number.", "err", "form-msg");
-        return;
+        if (
+            phoneDigits.length < 7 ||
+            phoneDigits.length > 15
+        ) {
+            showMessage(
+                "Please enter a valid phone number.",
+                "err",
+                "form-msg"
+            );
+            return;
+        }
     }
 
-    const button = form?.querySelector('button[type="submit"]');
+    const button = form?.querySelector(
+        'button[type="submit"]'
+    );
 
     if (button) {
         button.disabled = true;
@@ -747,12 +867,17 @@ async function submitApplication(event) {
         selectedService = null;
         demoPaymentCompleted = false;
 
-        if ($("pay-section")) $("pay-section").style.display = "none";
+        if ($("pay-section")) {
+            $("pay-section").style.display = "none";
+        }
 
         await loadApplications();
 
     } catch (error) {
-        console.error("Application submission error:", error);
+        console.error(
+            "Application submission error:",
+            error
+        );
 
         showMessage(
             error.message || "Submission failed. Please try again.",
@@ -770,28 +895,33 @@ async function submitApplication(event) {
 
 async function logoutUser() {
     try {
-        const { error } = await supabase.auth.signOut();
+        const { error } =
+            await supabase.auth.signOut();
+
         if (error) throw error;
 
         window.location.replace("index.html");
 
     } catch (error) {
         console.error("Logout error:", error);
+
         alert("Unable to log out. Please try again.");
     }
 }
 
 function restoreApplicationDraft() {
     const key = getDraftKey();
+
     if (!key) return;
 
     try {
         const stored = localStorage.getItem(key);
+
         if (!stored) return;
 
         const draft = JSON.parse(stored);
 
-        if (!draft || draft.version !== 5) {
+        if (!draft || draft.version !== 6) {
             clearApplicationDraft();
             return;
         }
@@ -809,6 +939,7 @@ function restoreApplicationDraft() {
 
         if (draft.form_open === true) {
             renderDemoPaymentScreen();
+
             demoPaymentCompleted = true;
 
             showDemoPaymentResult(
@@ -821,13 +952,19 @@ function restoreApplicationDraft() {
         }
 
     } catch (error) {
-        console.error("Draft restoration error:", error);
+        console.error(
+            "Draft restoration error:",
+            error
+        );
+
         clearApplicationDraft();
     }
 }
 
 async function initializeDashboard() {
-    const authenticated = await checkUserSession();
+    const authenticated =
+        await checkUserSession();
+
     if (!authenticated) return;
 
     setupNotificationDropdown();
@@ -835,11 +972,18 @@ async function initializeDashboard() {
     const form = $("app-form");
 
     if (form) {
-        form.addEventListener("submit", submitApplication);
+        form.addEventListener(
+            "submit",
+            submitApplication
+        );
+
         form.style.display = "none";
     }
 
-    $("nav-logout")?.addEventListener("click", logoutUser);
+    $("nav-logout")?.addEventListener(
+        "click",
+        logoutUser
+    );
 
     if ($("pay-section")) {
         $("pay-section").style.display = "none";
