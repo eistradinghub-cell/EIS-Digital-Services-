@@ -1,7 +1,7 @@
 /* =====================================================
    EIS DIGITAL SERVICES
    FILE: js/dashboard.js
-   CUSTOMER DASHBOARD VERSION 17
+   CUSTOMER DASHBOARD VERSION 18
 ===================================================== */
 
 import { supabase } from "./supabase.js";
@@ -18,7 +18,11 @@ let applicationsCache = [];
 let notificationsCache = [];
 let demoPaymentCompleted = false;
 
+let draftSaveTimer = null;
+
 const $ = (id) => document.getElementById(id);
+
+const DRAFT_PREFIX = "eis_application_draft_";
 
 
 /* =====================================================
@@ -87,6 +91,242 @@ function formatDateTime(date) {
     return value.toLocaleString("en-NG", {
         dateStyle: "medium",
         timeStyle: "short"
+    });
+
+}
+
+
+/* =====================================================
+   APPLICATION DRAFT STORAGE
+   All non-file form fields are saved as a draft.
+===================================================== */
+
+function getDraftKey() {
+
+    if (!currentUser) return null;
+
+    return `${DRAFT_PREFIX}${currentUser.id}`;
+
+}
+
+
+function getApplicationFormData() {
+
+    return {
+        kegow_account: $("f-kegow")?.value.trim() || "",
+        agent_location_state: $("f-agentState")?.value || "",
+        bvn: $("f-bvn")?.value.trim() || "",
+        bank_name: $("f-bankName")?.value.trim() || "",
+        account_number: $("f-accountNo")?.value.trim() || "",
+        account_name: $("f-accountName")?.value.trim() || "",
+        first_name: $("f-firstName")?.value.trim() || "",
+        middle_name: $("f-middleName")?.value.trim() || "",
+        last_name: $("f-lastName")?.value.trim() || "",
+        email: $("f-email")?.value.trim() || "",
+        phone: $("f-phone")?.value.trim() || "",
+        alternative_phone: $("f-altPhone")?.value.trim() || "",
+        home_address: $("f-homeAddress")?.value.trim() || "",
+        state_of_residence: $("f-stateRes")?.value || "",
+        date_of_birth: $("f-dob")?.value || "",
+        local_government: $("f-lga")?.value.trim() || "",
+        geopolitical_zone: $("f-zone")?.value || ""
+    };
+
+}
+
+
+function saveApplicationDraft() {
+
+    const key = getDraftKey();
+
+    if (!key) return;
+
+    if (!selectedService) return;
+
+    try {
+
+        const draft = {
+            version: 1,
+            service_id: selectedService.id,
+            form_data: getApplicationFormData(),
+            form_open: Boolean(demoPaymentCompleted),
+            saved_at: new Date().toISOString()
+        };
+
+        localStorage.setItem(
+            key,
+            JSON.stringify(draft)
+        );
+
+    } catch (error) {
+
+        console.error("Draft saving error:", error);
+
+    }
+
+}
+
+
+function scheduleDraftSave() {
+
+    clearTimeout(draftSaveTimer);
+
+    draftSaveTimer = setTimeout(() => {
+        saveApplicationDraft();
+    }, 300);
+
+}
+
+
+function clearApplicationDraft() {
+
+    const key = getDraftKey();
+
+    if (!key) return;
+
+    try {
+
+        localStorage.removeItem(key);
+
+    } catch (error) {
+
+        console.error("Draft clearing error:", error);
+
+    }
+
+}
+
+
+function restoreApplicationDraft() {
+
+    const key = getDraftKey();
+
+    if (!key) return;
+
+    let draft;
+
+    try {
+
+        const stored = localStorage.getItem(key);
+
+        if (!stored) return;
+
+        draft = JSON.parse(stored);
+
+    } catch (error) {
+
+        console.error("Draft reading error:", error);
+
+        return;
+    }
+
+    if (!draft || draft.version !== 1) return;
+
+    const service = servicesCache.find(item =>
+        String(item.id) === String(draft.service_id)
+    );
+
+    if (!service) {
+
+        showMessage(
+            "Your saved application was found, but its service is no longer available. Please select the service again.",
+            "info"
+        );
+
+        return;
+    }
+
+    selectedService = service;
+
+    const data = draft.form_data || {};
+
+    const fields = {
+        "f-kegow": data.kegow_account,
+        "f-agentState": data.agent_location_state,
+        "f-bvn": data.bvn,
+        "f-bankName": data.bank_name,
+        "f-accountNo": data.account_number,
+        "f-accountName": data.account_name,
+        "f-firstName": data.first_name,
+        "f-middleName": data.middle_name,
+        "f-lastName": data.last_name,
+        "f-email": data.email,
+        "f-phone": data.phone,
+        "f-altPhone": data.alternative_phone,
+        "f-homeAddress": data.home_address,
+        "f-stateRes": data.state_of_residence,
+        "f-dob": data.date_of_birth,
+        "f-lga": data.local_government,
+        "f-zone": data.geopolitical_zone
+    };
+
+    Object.entries(fields).forEach(([id, value]) => {
+
+        const field = $(id);
+
+        if (field && value !== undefined && value !== null) {
+            field.value = value;
+        }
+
+    });
+
+    if (draft.form_open === true) {
+
+        demoPaymentCompleted = true;
+
+        const paySection = $("pay-section");
+        const form = $("app-form");
+        const button = $("btn-pay");
+
+        if (paySection) {
+            paySection.style.display = "block";
+        }
+
+        if (form) {
+            form.style.display = "block";
+        }
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Demo Payment Completed";
+        }
+
+        showMessage(
+            "Your saved application has been restored. Continue where you stopped.",
+            "info",
+            "form-msg"
+        );
+
+    } else {
+
+        showMessage(
+            `Your saved application for ${service.name} has been restored. Continue with the payment demonstration.`,
+            "info"
+        );
+
+        const paySection = $("pay-section");
+
+        if (paySection) {
+            paySection.style.display = "block";
+        }
+
+    }
+
+}
+
+
+function setupDraftAutoSave() {
+
+    const form = $("app-form");
+
+    if (!form) return;
+
+    form.addEventListener("input", scheduleDraftSave);
+
+    form.addEventListener("change", scheduleDraftSave);
+
+    window.addEventListener("beforeunload", () => {
+        saveApplicationDraft();
     });
 
 }
@@ -276,6 +516,8 @@ function selectService(service) {
 
     if (!service) return;
 
+    const previousServiceId = selectedService?.id;
+
     selectedService = service;
     demoPaymentCompleted = false;
 
@@ -298,6 +540,19 @@ function selectService(service) {
         payButton.textContent = "Pay Now";
 
     }
+
+    if (
+        previousServiceId &&
+        String(previousServiceId) !== String(service.id)
+    ) {
+        clearApplicationDraft();
+
+        if (form) {
+            form.reset();
+        }
+    }
+
+    saveApplicationDraft();
 
     showMessage(
         `Selected: ${service.name}. Amount: ${formatCurrency(service.price)}`,
@@ -348,10 +603,13 @@ async function handleDemoPayment() {
           DEMO PAYMENT ONLY.
 
           This does not charge money.
-          It is not a verified payment.
+          This is not a verified payment.
+          Do not use this flag as proof of a real payment.
         */
 
         demoPaymentCompleted = true;
+
+        saveApplicationDraft();
 
         showMessage(
             "Demo payment completed. You can now complete the application form.",
@@ -406,38 +664,6 @@ function prepareApplicationForm() {
 
     if (!form) return;
 
-    /*
-       These fields remain hidden during testing.
-       Do not collect sensitive bank or BVN information.
-    */
-
-    const sensitiveFields = [
-        "f-kegow",
-        "f-bvn",
-        "f-bankName",
-        "f-accountNo",
-        "f-accountName",
-        "f-address",
-        "f-dob"
-    ];
-
-    sensitiveFields.forEach(id => {
-
-        const field = $(id);
-
-        if (!field) return;
-
-        field.required = false;
-
-        const wrapper = field.closest(".form-grid > div");
-
-        if (wrapper) {
-            wrapper.style.display = "none";
-        }
-
-    });
-
-
     const states = [
         "Abia",
         "Adamawa",
@@ -488,6 +714,8 @@ function prepareApplicationForm() {
 
         if (!select) return;
 
+        const previousValue = select.value;
+
         select.replaceChildren();
 
         const placeholder = document.createElement("option");
@@ -507,6 +735,10 @@ function prepareApplicationForm() {
             select.appendChild(option);
 
         });
+
+        if (states.includes(previousValue)) {
+            select.value = previousValue;
+        }
 
     });
 
@@ -911,21 +1143,25 @@ async function submitApplication(event) {
         return;
     }
 
-    const firstName = $("f-firstName")?.value.trim();
-    const lastName = $("f-lastName")?.value.trim();
-    const email = $("f-email")?.value.trim();
-    const phone = $("f-phone")?.value.trim();
-
-    const agentState = $("f-agentState")?.value;
-    const stateResidence = $("f-stateRes")?.value;
+    const formData = getApplicationFormData();
 
     if (
-        !firstName ||
-        !lastName ||
-        !email ||
-        !phone ||
-        !agentState ||
-        !stateResidence
+        !formData.kegow_account ||
+        !formData.agent_location_state ||
+        !formData.bvn ||
+        !formData.bank_name ||
+        !formData.account_number ||
+        !formData.account_name ||
+        !formData.first_name ||
+        !formData.last_name ||
+        !formData.email ||
+        !formData.phone ||
+        !formData.alternative_phone ||
+        !formData.home_address ||
+        !formData.state_of_residence ||
+        !formData.date_of_birth ||
+        !formData.local_government ||
+        !formData.geopolitical_zone
     ) {
 
         showMessage(
@@ -952,12 +1188,23 @@ async function submitApplication(event) {
 
         const safeFormData = {
 
-            first_name: firstName,
-            last_name: lastName,
-            email: email,
-            phone: phone,
-            agent_state: agentState,
-            state_of_residence: stateResidence
+            kegow_account: formData.kegow_account,
+            agent_location_state: formData.agent_location_state,
+            bvn: formData.bvn,
+            bank_name: formData.bank_name,
+            account_number: formData.account_number,
+            account_name: formData.account_name,
+            first_name: formData.first_name,
+            middle_name: formData.middle_name,
+            last_name: formData.last_name,
+            email: formData.email,
+            phone: formData.phone,
+            alternative_phone: formData.alternative_phone,
+            home_address: formData.home_address,
+            state_of_residence: formData.state_of_residence,
+            date_of_birth: formData.date_of_birth,
+            local_government: formData.local_government,
+            geopolitical_zone: formData.geopolitical_zone
 
         };
 
@@ -975,8 +1222,15 @@ async function submitApplication(event) {
 
         if (error) throw error;
 
+        /*
+          Clear the saved draft only after Supabase
+          confirms that the application was inserted.
+        */
+
+        clearApplicationDraft();
+
         showMessage(
-            "Application submitted successfully!",
+            "Application submitted successfully! Your application has been received.",
             "ok",
             "form-msg"
         );
@@ -994,6 +1248,13 @@ async function submitApplication(event) {
             paySection.style.display = "none";
         }
 
+        const payButton = $("btn-pay");
+
+        if (payButton) {
+            payButton.disabled = false;
+            payButton.textContent = "Pay Now";
+        }
+
         await loadApplications();
 
     } catch (error) {
@@ -1003,8 +1264,19 @@ async function submitApplication(event) {
             error
         );
 
+        /*
+          Keep the form open and preserve its draft
+          whenever submission fails.
+        */
+
+        saveApplicationDraft();
+
+        if (form) {
+            form.style.display = "block";
+        }
+
         showMessage(
-            error.message || "Application submission failed.",
+            error.message || "Application submission failed. Your saved information is still available. Please try again.",
             "err",
             "form-msg"
         );
@@ -1030,6 +1302,8 @@ async function submitApplication(event) {
 async function logoutUser() {
 
     try {
+
+        saveApplicationDraft();
 
         const { error } =
             await supabase.auth.signOut();
@@ -1063,6 +1337,7 @@ async function initializeDashboard() {
 
     setupNotificationDropdown();
 
+    setupDraftAutoSave();
 
     const form = $("app-form");
 
@@ -1075,7 +1350,6 @@ async function initializeDashboard() {
 
     }
 
-
     const logout = $("nav-logout");
 
     if (logout) {
@@ -1086,7 +1360,6 @@ async function initializeDashboard() {
         );
 
     }
-
 
     const payButton = $("btn-pay");
 
@@ -1099,7 +1372,6 @@ async function initializeDashboard() {
 
     }
 
-
     const paySection = $("pay-section");
 
     if (paySection) {
@@ -1109,7 +1381,6 @@ async function initializeDashboard() {
     if (form) {
         form.style.display = "none";
     }
-
 
     await loadUserProfile();
 
@@ -1122,6 +1393,13 @@ async function initializeDashboard() {
         loadNotifications()
 
     ]);
+
+    /*
+      Restore the saved form after services have loaded,
+      so the saved service can be matched correctly.
+    */
+
+    restoreApplicationDraft();
 
 }
 
@@ -1167,6 +1445,10 @@ window.EISDashboard = {
     logoutUser,
 
     handleDemoPayment,
+
+    saveApplicationDraft,
+
+    clearApplicationDraft,
 
     formatCurrency,
 
