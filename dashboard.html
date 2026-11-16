@@ -1,385 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ffffff">
     <meta name="description" content="EIS Digital Services Customer Dashboard">
-
     <title>Dashboard | EIS Digital Services</title>
 
-    <link rel="stylesheet" href="css/styles.css?v=15">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
-          rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=16">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        .dashboard-page {
-            background: #f5f7fc;
-            min-height: 100vh;
-        }
-
-        .dashboard-page .dashboard-main {
-            max-width: 1180px;
-            margin: auto;
-            padding: 30px 20px;
-        }
-
-        .dashboard-page .dashboard-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .dashboard-page .dashboard-intro {
-            margin-bottom: 25px;
-            padding: 25px;
-        }
-
-        .dashboard-page .dashboard-intro h1 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 27px;
-            margin: 0;
-        }
-
-        .dashboard-page .dashboard-intro p {
-            color: var(--mu);
-            margin-top: 9px;
-        }
-
-        .dashboard-page .dashboard-card {
-            margin-bottom: 25px;
-            padding: 24px;
-        }
-
-        .dashboard-page .section-heading {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 19px;
-            margin-bottom: 8px;
-        }
-
-        .dashboard-page .section-description {
-            color: var(--mu);
-            font-size: 13px;
-            margin-bottom: 18px;
-        }
-
-        .dashboard-page .svcs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 17px;
-            margin-top: 20px;
-        }
-
-        .dashboard-page .service-card {
-            padding: 21px;
-            border: 1px solid var(--ln);
-            border-radius: 14px;
-            background: #fff;
-            transition: .2s ease;
-        }
-
-        .dashboard-page .service-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 9px 25px rgba(20, 45, 90, .08);
-        }
-
-        .dashboard-page .service-card h3 {
-            font-size: 15px;
-            margin-bottom: 12px;
-        }
-
-        .dashboard-page .service-card p {
-            color: var(--blue);
-            font-size: 17px;
-            font-weight: 800;
-            margin-bottom: 18px;
-        }
-
-        .dashboard-page .service-card button {
-            width: 100%;
-        }
-
-        .dashboard-page .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            margin-top: 18px;
-        }
-
-        .dashboard-page .applications-table {
-            width: 100%;
-            min-width: 650px;
-            border-collapse: collapse;
-        }
-
-        .dashboard-page .applications-table th {
-            padding: 14px 12px;
-            background: #f5f7fc;
-            color: #65728a;
-            text-align: left;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .dashboard-page .applications-table td {
-            padding: 15px 12px;
-            border-bottom: 1px solid #edf0f5;
-            font-size: 13px;
-        }
-
-        .dashboard-page .status-badge {
-            display: inline-block;
-            padding: 6px 11px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 700;
-            background: #fff5e6;
-            color: #b87916;
-            white-space: nowrap;
-        }
-
-        .dashboard-page .status-badge.completed,
-        .dashboard-page .status-badge.approved,
-        .dashboard-page .status-badge.resolved {
-            background: #e8f8ef;
-            color: #16804f;
-        }
-
-        .dashboard-page .status-badge.rejected,
-        .dashboard-page .status-badge.cancelled {
-            background: #fff0f0;
-            color: #cf3939;
-        }
-
-        .dashboard-page .status-badge.processing,
-        .dashboard-page .status-badge.in_review {
-            background: #edf3ff;
-            color: #2864e8;
-        }
-
-        .dashboard-page #pay-section {
-            margin-top: 22px;
-            padding: 20px;
-            border: 1px solid var(--ln);
-            border-radius: 12px;
-            background: #f8faff;
-        }
-
-        .dashboard-page .demo {
-            padding: 13px;
-            margin: 15px 0;
-            border-radius: 9px;
-            background: #fff7df;
-            color: #805b00;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .dashboard-page #app-form {
-            margin-top: 25px;
-        }
-
-        .dashboard-page .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .dashboard-page .form-grid > div {
-            min-width: 0;
-        }
-
-        .dashboard-page .form-grid .full {
-            grid-column: 1 / -1;
-        }
-
-        .dashboard-page .form-grid input,
-        .dashboard-page .form-grid select,
-        .dashboard-page .form-grid textarea {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .dashboard-page .msg {
-            margin-top: 12px;
-            display: none;
-        }
-
-        .dashboard-page .msg.ok {
-            color: #15803d;
-        }
-
-        .dashboard-page .msg.err {
-            color: #dc2626;
-        }
-
-        .dashboard-page .msg.info {
-            color: #1d4ed8;
-        }
-
-        /* NOTIFICATIONS */
-
-        .dashboard-page .notification-area {
-            position: relative;
-        }
-
-        .dashboard-page .notification-button {
-            width: 43px;
-            height: 43px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--ln);
-            border-radius: 12px;
-            background: #fff;
-            color: var(--blue);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .dashboard-page .notification-count {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            min-width: 18px;
-            height: 18px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: #e53935;
-            color: #fff;
-            font-size: 10px;
-            font-weight: 800;
-        }
-
-        .dashboard-page .notification-dropdown {
-            position: absolute;
-            top: 53px;
-            right: 0;
-            width: min(330px, 88vw);
-            max-height: 380px;
-            overflow-y: auto;
-            padding: 15px;
-            border: 1px solid var(--ln);
-            border-radius: 13px;
-            background: #fff;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, .12);
-            z-index: 1000;
-            display: none;
-        }
-
-        .dashboard-page .notification-dropdown.open {
-            display: block;
-        }
-
-        .dashboard-page .notification-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #edf0f5;
-        }
-
-        .dashboard-page .notification-item:last-child {
-            border-bottom: 0;
-        }
-
-        .dashboard-page .notification-item strong {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-
-        .dashboard-page .notification-item p {
-            font-size: 12px;
-            color: var(--mu);
-            line-height: 1.5;
-        }
-
-        .dashboard-page .notification-item time {
-            display: block;
-            margin-top: 6px;
-            color: #9aa4b5;
-            font-size: 10px;
-        }
-
-        /* CUSTOMER CARE */
-
-        .dashboard-page .customer-care-banner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 27px;
-            margin-bottom: 25px;
-            border-radius: 15px;
-            background: #1f4fe0;
-            color: #fff;
-        }
-
-        .dashboard-page .customer-care-banner h2 {
-            color: #fff;
-            margin-bottom: 8px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .dashboard-page .customer-care-banner p {
-            color: rgba(255,255,255,.88);
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .dashboard-page .customer-care-banner a {
-            flex-shrink: 0;
-            padding: 12px 19px;
-            border-radius: 9px;
-            background: #fff;
-            color: #1f4fe0;
-            font-weight: 800;
-            text-decoration: none;
-        }
-
-        @media(max-width: 650px) {
-            .dashboard-page .dashboard-main {
-                padding: 20px 13px;
-            }
-
-            .dashboard-page .dashboard-intro {
-                padding: 19px;
-            }
-
-            .dashboard-page .dashboard-intro h1 {
-                font-size: 23px;
-            }
-
-            .dashboard-page .dashboard-card {
-                padding: 18px;
-            }
-
-            .dashboard-page .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .dashboard-page .form-grid .full {
-                grid-column: auto;
-            }
-
-            .dashboard-page .customer-care-banner {
-                align-items: flex-start;
-                flex-direction: column;
-                padding: 22px;
-            }
-
-            .dashboard-page .customer-care-banner a {
-                width: 100%;
-                box-sizing: border-box;
-                text-align: center;
-            }
-
-            .dashboard-page .nav-links {
-                flex-wrap: wrap;
-            }
+        .dashboard-page{background:#f5f7fc;min-height:100vh}
+        .dashboard-page .dashboard-main{max-width:1180px;margin:auto;padding:30px 20px}
+        .dashboard-page .dashboard-intro{margin-bottom:25px;padding:25px}
+        .dashboard-page .dashboard-intro h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:27px;margin:0}
+        .dashboard-page .dashboard-intro p{color:var(--mu);margin-top:9px}
+        .dashboard-page .dashboard-card{margin-bottom:25px;padding:24px}
+        .dashboard-page .section-heading{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;margin-bottom:8px}
+        .dashboard-page .section-description{color:var(--mu);font-size:13px;margin-bottom:18px;line-height:1.6}
+        .dashboard-page .svcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:17px;margin-top:20px}
+        .dashboard-page .service-card{padding:21px;border:1px solid var(--ln);border-radius:14px;background:#fff;transition:.2s ease}
+        .dashboard-page .service-card:hover{transform:translateY(-3px);box-shadow:0 9px 25px rgba(20,45,90,.08)}
+        .dashboard-page .service-card h3{font-size:15px;margin-bottom:12px}
+        .dashboard-page .service-card p{color:var(--blue);font-size:17px;font-weight:800;margin-bottom:18px}
+        .dashboard-page .service-card button{width:100%}
+        .dashboard-page .table-wrapper{width:100%;overflow-x:auto;margin-top:18px}
+        .dashboard-page .applications-table{width:100%;min-width:650px;border-collapse:collapse}
+        .dashboard-page .applications-table th{padding:14px 12px;background:#f5f7fc;color:#65728a;text-align:left;font-size:12px;white-space:nowrap}
+        .dashboard-page .applications-table td{padding:15px 12px;border-bottom:1px solid #edf0f5;font-size:13px}
+        .dashboard-page .status-badge{display:inline-block;padding:6px 11px;border-radius:30px;font-size:11px;font-weight:700;background:#fff5e6;color:#b87916;white-space:nowrap}
+        .dashboard-page .status-badge.completed,.dashboard-page .status-badge.approved,.dashboard-page .status-badge.resolved{background:#e8f8ef;color:#16804f}
+        .dashboard-page .status-badge.rejected,.dashboard-page .status-badge.cancelled{background:#fff0f0;color:#cf3939}
+        .dashboard-page .status-badge.processing,.dashboard-page .status-badge.in_review{background:#edf3ff;color:#2864e8}
+        .dashboard-page #pay-section{margin-top:22px;padding:20px;border:1px solid var(--ln);border-radius:12px;background:#f8faff}
+        .dashboard-page .demo{padding:13px;margin:15px 0;border-radius:9px;background:#fff7df;color:#805b00;font-size:13px;line-height:1.6}
+        .dashboard-page #app-form{margin-top:25px}
+        .dashboard-page .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+        .dashboard-page .form-grid>div{min-width:0}
+        .dashboard-page .form-grid .full{grid-column:1/-1}
+        .dashboard-page .form-grid input,.dashboard-page .form-grid select,.dashboard-page .form-grid textarea{width:100%;box-sizing:border-box}
+        .dashboard-page .form-grid label{display:block;margin-bottom:7px;font-size:13px;font-weight:600}
+        .dashboard-page .privacy-note{padding:14px;margin:15px 0 20px;border-radius:10px;background:#edf5ff;color:#244c83;font-size:13px;line-height:1.7}
+        .dashboard-page .msg{margin-top:12px;display:none}
+        .dashboard-page .msg.ok{color:#15803d}
+        .dashboard-page .msg.err{color:#dc2626}
+        .dashboard-page .msg.info{color:#1d4ed8}
+        .dashboard-page .notification-area{position:relative}
+        .dashboard-page .notification-button{width:43px;height:43px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ln);border-radius:12px;background:#fff;color:var(--blue);cursor:pointer;position:relative}
+        .dashboard-page .notification-count{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;display:none;align-items:center;justify-content:center;border-radius:50%;background:#e53935;color:#fff;font-size:10px;font-weight:800}
+        .dashboard-page .notification-dropdown{position:absolute;top:53px;right:0;width:min(330px,88vw);max-height:380px;overflow-y:auto;padding:15px;border:1px solid var(--ln);border-radius:13px;background:#fff;box-shadow:0 12px 35px rgba(0,0,0,.12);z-index:1000;display:none}
+        .dashboard-page .notification-dropdown.open{display:block}
+        .dashboard-page .notification-item{padding:12px 0;border-bottom:1px solid #edf0f5}
+        .dashboard-page .notification-item:last-child{border-bottom:0}
+        .dashboard-page .notification-item strong{display:block;font-size:13px;margin-bottom:5px}
+        .dashboard-page .notification-item p{font-size:12px;color:var(--mu);line-height:1.5}
+        .dashboard-page .notification-item time{display:block;margin-top:6px;color:#9aa4b5;font-size:10px}
+        .dashboard-page .customer-care-banner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:27px;margin-bottom:25px;border-radius:15px;background:#1f4fe0;color:#fff}
+        .dashboard-page .customer-care-banner h2{color:#fff;margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif}
+        .dashboard-page .customer-care-banner p{color:rgba(255,255,255,.88);font-size:13px;line-height:1.6}
+        .dashboard-page .customer-care-banner a{flex-shrink:0;padding:12px 19px;border-radius:9px;background:#fff;color:#1f4fe0;font-weight:800;text-decoration:none}
+        @media(max-width:650px){
+            .dashboard-page .dashboard-main{padding:20px 13px}
+            .dashboard-page .dashboard-intro{padding:19px}
+            .dashboard-page .dashboard-intro h1{font-size:23px}
+            .dashboard-page .dashboard-card{padding:18px}
+            .dashboard-page .form-grid{grid-template-columns:1fr}
+            .dashboard-page .form-grid .full{grid-column:auto}
+            .dashboard-page .customer-care-banner{align-items:flex-start;flex-direction:column;padding:22px}
+            .dashboard-page .customer-care-banner a{width:100%;box-sizing:border-box;text-align:center}
+            .dashboard-page .nav-links{flex-wrap:wrap}
         }
     </style>
 </head>
@@ -388,19 +78,12 @@
 
 <header class="site-header">
     <div class="nav-row">
-
         <a class="brand" href="dashboard.html">
             <svg class="brand-mark" viewBox="0 0 48 48">
                 <rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
-                <path d="M14 32 L24 14 L34 32"
-                      stroke="#fff"
-                      stroke-width="3.4"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
+                <path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
             </svg>
-
             <span class="brand-text">
                 <b>EIS</b>
                 <span>Digital Services</span>
@@ -408,249 +91,176 @@
         </a>
 
         <div class="nav-right">
-
             <nav class="nav-links">
                 <a href="dashboard.html" class="btn active">Dashboard</a>
                 <a href="marketplace.html" class="btn">Marketplace</a>
-
-                <a href="admin.html"
-                   id="nav-admin"
-                   class="btn"
-                   style="display:none;">
-                    Admin
-                </a>
-
-                <button id="nav-logout"
-                        type="button"
-                        class="btn"
-                        style="color:var(--bad);border-color:var(--bad);">
-                    Log out
-                </button>
+                <a href="admin.html" id="nav-admin" class="btn" style="display:none;">Admin</a>
+                <button id="nav-logout" type="button" class="btn" style="color:var(--bad);border-color:var(--bad);">Log out</button>
             </nav>
 
             <div class="notification-area">
-
-                <button type="button"
-                        class="notification-button"
-                        id="notification-button"
-                        aria-label="Notifications"
-                        aria-expanded="false">
-
-                    <!-- MESSAGE ICON FOR NOTIFICATIONS -->
-
-                    <svg width="22" height="22"
-                         viewBox="0 0 24 24"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="2"
-                         stroke-linecap="round"
-                         stroke-linejoin="round">
-
-                        <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
-                                 8.5 8.5 0 0 1-7.6 4.7
-                                 8.4 8.4 0 0 1-3.8-.9
-                                 L3 21l1.9-5.7
-                                 a8.4 8.4 0 0 1-.9-3.8
-                                 8.5 8.5 0 0 1 4.7-7.6
-                                 8.4 8.4 0 0 1 3.8-.9h.5
-                                 a8.5 8.5 0 0 1 8 8v.5z"/>
-
-                        <path d="M8 12h.01"/>
-                        <path d="M12 12h.01"/>
-                        <path d="M16 12h.01"/>
-
+                <button type="button" class="notification-button" id="notification-button" aria-label="Notifications" aria-expanded="false">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>
+                        <path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/>
                     </svg>
-
-                    <span id="notification-count"
-                          class="notification-count">
-                        0
-                    </span>
+                    <span id="notification-count" class="notification-count">0</span>
                 </button>
 
-                <div id="notification-dropdown"
-                     class="notification-dropdown">
-
-                    <h3 style="font-size:15px;margin-bottom:8px;">
-                        Notifications
-                    </h3>
-
-                    <div id="notifications-list">
-                        Loading notifications...
-                    </div>
-
+                <div id="notification-dropdown" class="notification-dropdown">
+                    <h3 style="font-size:15px;margin-bottom:8px;">Notifications</h3>
+                    <div id="notifications-list">Loading notifications...</div>
                 </div>
-
             </div>
-
         </div>
     </div>
 </header>
-
 
 <main class="dashboard-main">
 
     <section class="card dashboard-intro">
         <h1>Dashboard</h1>
-
-        <p id="welcome">
-            Loading profile...
-        </p>
+        <p id="welcome">Loading profile...</p>
     </section>
 
-
-    <!-- SERVICES -->
-
     <section class="card dashboard-card">
-
-        <h2 class="section-heading">
-            Choose a Service
-        </h2>
-
-        <p class="section-description">
-            Select the service you want to apply for.
-        </p>
+        <h2 class="section-heading">Choose a Service</h2>
+        <p class="section-description">Select the service you want to apply for.</p>
 
         <div id="services-container" class="svcs">
             <p>Loading services...</p>
         </div>
 
         <div id="pay-section" style="display:none;">
-
             <h3>Payment</h3>
-
             <div class="demo">
                 <strong>DEMO PAYMENT ONLY.</strong>
                 No real money is charged. This is for testing the application workflow.
             </div>
-
-            <button id="btn-pay"
-                    type="button"
-                    class="btn btn-primary"
-                    style="width:100%;">
-                Pay Now
-            </button>
-
+            <button id="btn-pay" type="button" class="btn btn-primary" style="width:100%;">Pay Now</button>
         </div>
 
         <p id="pay-msg" class="msg"></p>
-
     </section>
 
-
-    <!-- APPLICATION FORM -->
-
-    <form class="card dashboard-card"
-          id="app-form"
-          style="display:none;">
-
-        <h2 class="section-heading">
-            Application Form
-        </h2>
-
-        <p class="section-description">
-            Complete the required fields below.
-        </p>
+    <form class="card dashboard-card" id="app-form" style="display:none;">
+        <h2 class="section-heading">Application Form</h2>
+        <p class="section-description">Complete the required information below.</p>
 
         <div class="form-grid">
 
             <div>
-                <label for="f-kegow">KEGOW account number</label>
-                <input type="text" id="f-kegow">
+                <label for="f-kegow">KEGOW ACC NUMBER *</label>
+                <input type="text" id="f-kegow" name="kegowAccount" required>
             </div>
 
             <div>
-                <label for="f-agentState">Agent location state</label>
-                <select id="f-agentState" required>
+                <label for="f-agentState">AGENT LOCATION STATE *</label>
+                <select id="f-agentState" name="agentLocationState" required>
                     <option value="">Select State</option>
                 </select>
             </div>
 
             <div>
-                <label for="f-bvn">BVN number</label>
-                <input type="text" id="f-bvn">
+                <label for="f-bvn">BVN NO *</label>
+                <input type="text" id="f-bvn" name="bvn" inputmode="numeric" maxlength="11" required>
             </div>
 
             <div>
-                <label for="f-bankName">Bank name</label>
-                <input type="text" id="f-bankName">
+                <label for="f-bankName">BANK NAME *</label>
+                <input type="text" id="f-bankName" name="bankName" required>
             </div>
 
             <div>
-                <label for="f-accountNo">Account number</label>
-                <input type="text" id="f-accountNo">
+                <label for="f-accountNo">ACCOUNT NO *</label>
+                <input type="text" id="f-accountNo" name="accountNumber" inputmode="numeric" maxlength="10" required>
             </div>
 
             <div>
-                <label for="f-accountName">Account name</label>
-                <input type="text" id="f-accountName">
+                <label for="f-accountName">ACCOUNT NAME *</label>
+                <input type="text" id="f-accountName" name="accountName" required>
             </div>
 
             <div>
-                <label for="f-firstName">First name</label>
-                <input type="text" id="f-firstName" required>
+                <label for="f-firstName">AGENT FIRST NAME *</label>
+                <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" required>
             </div>
 
             <div>
-                <label for="f-lastName">Last name</label>
-                <input type="text" id="f-lastName" required>
+                <label for="f-middleName">MIDDLE NAME</label>
+                <input type="text" id="f-middleName" name="middleName" autocomplete="additional-name">
             </div>
 
             <div>
-                <label for="f-email">Email address</label>
-                <input type="email" id="f-email" required>
+                <label for="f-lastName">LAST NAME *</label>
+                <input type="text" id="f-lastName" name="lastName" autocomplete="family-name" required>
             </div>
 
             <div>
-                <label for="f-phone">Phone number</label>
-                <input type="tel" id="f-phone" required>
+                <label for="f-email">EMAIL *</label>
+                <input type="email" id="f-email" name="email" autocomplete="email" required>
+            </div>
+
+            <div>
+                <label for="f-phone">PHONE NO. *</label>
+                <input type="tel" id="f-phone" name="phone" autocomplete="tel" required>
+            </div>
+
+            <div>
+                <label for="f-altPhone">ALTERNATIVE PHONE NO. *</label>
+                <input type="tel" id="f-altPhone" name="alternativePhone" autocomplete="tel" required>
             </div>
 
             <div class="full">
-                <label for="f-address">Home address</label>
-                <textarea id="f-address" rows="3"></textarea>
+                <label for="f-homeAddress">HOME ADDRESS *</label>
+                <textarea id="f-homeAddress" name="homeAddress" rows="2" required></textarea>
             </div>
 
             <div>
-                <label for="f-stateRes">State of residence</label>
-                <select id="f-stateRes" required>
+                <label for="f-stateRes">STATE OF RESIDENCE *</label>
+                <select id="f-stateRes" name="stateResidence" required>
                     <option value="">Select State</option>
                 </select>
             </div>
 
             <div>
-                <label for="f-dob">Date of birth</label>
-                <input type="date" id="f-dob">
+                <label for="f-dob">DATE OF BIRTH *</label>
+                <input type="date" id="f-dob" name="dateOfBirth" required>
+            </div>
+
+            <div>
+                <label for="f-lga">LOCAL GOVT *</label>
+                <input type="text" id="f-lga" name="localGovernment" required>
+            </div>
+
+            <div>
+                <label for="f-zone">GEO POLITICAL ZONE *</label>
+                <select id="f-zone" name="geopoliticalZone" required>
+                    <option value="">Select Zone</option>
+                    <option value="North Central">North Central</option>
+                    <option value="North East">North East</option>
+                    <option value="North West">North West</option>
+                    <option value="South East">South East</option>
+                    <option value="South South">South South</option>
+                    <option value="South West">South West</option>
+                </select>
             </div>
 
         </div>
 
-        <button class="btn btn-primary"
-                type="submit"
-                style="width:100%;margin-top:20px;">
+        <button class="btn btn-primary" type="submit" style="width:100%;margin-top:20px;">
             Submit application
         </button>
 
         <p id="form-msg" class="msg"></p>
-
     </form>
 
-
-    <!-- APPLICATIONS -->
-
     <section class="card dashboard-card">
-
-        <h2 class="section-heading">
-            My Applications
-        </h2>
-
-        <p class="section-description">
-            View the status and submission date of your applications.
-        </p>
+        <h2 class="section-heading">My Applications</h2>
+        <p class="section-description">View the status and submission date of your applications.</p>
 
         <div class="table-wrapper">
-
             <table class="applications-table">
-
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -660,57 +270,32 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-
                 <tbody id="apps-list">
-
                     <tr>
-                        <td colspan="5" style="text-align:center;">
-                            Loading applications...
-                        </td>
+                        <td colspan="5" style="text-align:center;">Loading applications...</td>
                     </tr>
-
                 </tbody>
-
             </table>
-
         </div>
-
     </section>
 
-
-    <!-- CUSTOMER CARE -->
-
     <section class="customer-care-banner">
-
         <div>
             <h2>Need Help?</h2>
-
-            <p>
-                Our Customer Care team is ready to assist you.
-                Contact us if you need help with your application.
-            </p>
+            <p>Our Customer Care team is ready to assist you. Contact us if you need help with your application.</p>
         </div>
-
-        <a href="support.html">
-            Open Chat
-        </a>
-
+        <a href="support.html">Open Chat</a>
     </section>
 
 </main>
 
-
 <footer class="site-footer">
     <div class="wrap">
-        <p>
-            &copy; 2026 EIS Digital Services.
-            All rights reserved.
-        </p>
+        <p>&copy; 2026 EIS Digital Services. All rights reserved.</p>
     </div>
 </footer>
 
-
-<script type="module" src="js/dashboard.js?v=15"></script>
+<script type="module" src="js/dashboard.js?v=16"></script>
 
 </body>
 </html>
