@@ -7,7 +7,8 @@
 <meta name="description" content="Explore products and order directly from EIS Digital Services.">
 <title>Marketplace | EIS Digital Services</title>
 
-<link rel="stylesheet" href="css/styles.css?v=28">
+<link rel="stylesheet" href="css/styles.css?v=29">
+<link rel="stylesheet" href="css/shared-navigation.css?v=1">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -19,8 +20,6 @@
     background:#edf4ff;
     font-family:'Inter',sans-serif;
 }
-
-/* STICKY GLASS HEADER */
 
 .marketplace-page .site-header{
     position:sticky;
@@ -73,8 +72,6 @@
     color:#52709c;
     font-size:12px;
 }
-
-/* NOTIFICATIONS */
 
 .marketplace-page .notification-area{
     position:relative;
@@ -175,8 +172,6 @@
     font-size:10px;
 }
 
-/* CONSTANT NAVIGATION */
-
 .marketplace-page .nav-links{
     grid-column:1/-1;
     width:100%;
@@ -230,8 +225,6 @@
     opacity:.65;
     cursor:wait;
 }
-
-/* MARKETPLACE CONTENT */
 
 .marketplace-main{
     width:100%;
@@ -510,8 +503,6 @@
     border-radius:12px;
 }
 
-/* IMAGE VIEWER */
-
 .marketplace-lightbox{
     position:fixed;
     inset:0;
@@ -582,8 +573,6 @@
 }
 
 body.lightbox-active{overflow:hidden}
-
-/* ANDROID / MOBILE */
 
 @media(max-width:700px){
 
@@ -766,7 +755,7 @@ body.lightbox-active{overflow:hidden}
 
         <nav class="nav-links">
             <a href="dashboard.html" class="btn">Dashboard</a>
-            <a href="marketplace.html" class="btn active">Marketplace</a>
+            <a href="marketplace.html" class="btn active" aria-current="page">Marketplace</a>
             <a href="admin.html" id="nav-admin" class="btn" hidden>Admin</a>
             <button type="button" id="nav-logout" class="btn">Log out</button>
         </nav>
@@ -840,8 +829,6 @@ function formatNotificationDate(value) {
     });
 }
 
-/* CHECK USER AND ADMIN ACCESS */
-
 async function initializeHeader() {
     try {
         const {
@@ -876,8 +863,6 @@ async function initializeHeader() {
         console.error("Header initialization error:", error);
     }
 }
-
-/* LOAD NOTIFICATIONS */
 
 async function loadNotifications(userId) {
     const list = $("notifications-list");
@@ -914,8 +899,6 @@ async function loadNotifications(userId) {
     }
 }
 
-/* DISPLAY NOTIFICATIONS */
-
 function renderNotifications() {
     const list = $("notifications-list");
 
@@ -948,8 +931,6 @@ function renderNotifications() {
     });
 }
 
-/* MARK NOTIFICATIONS AS READ */
-
 async function markNotificationsAsRead() {
     const unreadIds = notificationsCache
         .filter(item => !item.is_read)
@@ -961,6 +942,7 @@ async function markNotificationsAsRead() {
         const { error } = await supabase
             .from("notifications")
             .update({ is_read: true })
+            .eq("is_read", false)
             .in("id", unreadIds);
 
         if (error) throw error;
@@ -976,8 +958,6 @@ async function markNotificationsAsRead() {
         console.error("Mark notifications as read error:", error);
     }
 }
-
-/* NOTIFICATION BUTTON */
 
 const notificationButton = $("notification-button");
 const notificationDropdown = $("notification-dropdown");
@@ -1008,8 +988,6 @@ document.addEventListener("click", event => {
     }
 });
 
-/* LOG OUT */
-
 const logoutButton = $("nav-logout");
 
 logoutButton?.addEventListener("click", async () => {
@@ -1036,4 +1014,4 @@ initializeHeader();
 </script>
 
 </body>
-</html>
+    </html>
