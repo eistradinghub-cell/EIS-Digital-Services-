@@ -968,7 +968,7 @@ async function submitApplication(event) {
                 user_id: currentUser.id,
                 service_name: selectedService.name,
                 amount: Number(selectedService.price) || 0,
-                status: "pending",
+                status: "In review",
                 form_data: safeFormData
 
             }]);
