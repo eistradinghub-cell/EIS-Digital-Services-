@@ -1,0 +1,227 @@
+ /* =====================================================
+   EIS TRADING HUB
+   SHARED NAVIGATION
+   Consistent Dashboard, Marketplace and Admin Header
+===================================================== */
+
+@view-transition {
+    navigation: auto;
+}
+
+.site-header,
+.global-admin-header {
+    view-transition-name: eis-site-header;
+}
+
+::view-transition-old(eis-site-header),
+::view-transition-new(eis-site-header) {
+    animation-duration: 180ms;
+}
+
+/* HEADER */
+
+.dashboard-page .site-header,
+.marketplace-page .site-header,
+.global-admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 3000 !important;
+    width: 100%;
+    background: rgba(255,255,255,.96) !important;
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid #d8e6fa !important;
+    box-shadow: 0 4px 18px rgba(24,65,125,.07) !important;
+}
+
+/* HEADER LAYOUT */
+
+.dashboard-page .nav-row,
+.marketplace-page .nav-row,
+.global-admin-header-inner {
+    width: 100%;
+    max-width: 1200px;
+    min-height: 0;
+    margin: 0 auto;
+    padding: 10px 20px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    align-items: center !important;
+    gap: 10px 14px !important;
+}
+
+/* BRAND */
+
+.dashboard-page .brand,
+.marketplace-page .brand,
+.global-admin-brand {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+}
+
+/* NOTIFICATIONS */
+
+.dashboard-page .notification-area,
+.marketplace-page .notification-area,
+.global-admin-notice-area {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    margin: 0 !important;
+}
+
+/* DASHBOARD NAV WRAPPER */
+
+.dashboard-page .nav-right {
+    display: contents !important;
+}
+
+/* NAVIGATION ROW */
+
+.dashboard-page .nav-links,
+.marketplace-page .nav-links,
+.global-admin-nav {
+    grid-column: 1 / -1 !important;
+    grid-row: 2;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 8px !important;
+    margin: 0 !important;
+}
+
+/* NAVIGATION BUTTONS */
+
+.dashboard-page .nav-links .btn,
+.marketplace-page .nav-links .btn,
+.global-admin-nav a,
+.global-admin-nav button {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 9px 10px !important;
+    border: 1px solid #d2def0 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #17365f !important;
+    font: 700 14px/1.2 Arial,Helvetica,sans-serif !important;
+    text-decoration: none !important;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(20,55,100,.04);
+    cursor: pointer;
+}
+
+/* ACTIVE PAGE */
+
+.dashboard-page .nav-links .btn.active,
+.marketplace-page .nav-links .btn.active,
+.global-admin-nav a.active {
+    background: #2459df !important;
+    border-color: #2459df !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(36,89,223,.18) !important;
+}
+
+/* LOGOUT */
+
+.dashboard-page .nav-links #nav-logout,
+.marketplace-page .nav-links #nav-logout,
+.global-admin-nav #admin-top-logout {
+    grid-column: 1 / -1 !important;
+    background: #ffffff !important;
+    color: #17365f !important;
+}
+
+/* HIDE ADMIN FROM CUSTOMERS */
+
+.dashboard-page #nav-admin[hidden],
+.marketplace-page #nav-admin[hidden] {
+    display: none !important;
+}
+
+/* ADMIN NAVIGATION */
+
+.global-admin-nav {
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+}
+
+/* NOTIFICATION BUTTONS */
+
+.dashboard-page .notification-button,
+.marketplace-page .notification-button,
+.global-admin-notice-button {
+    width: 42px !important;
+    height: 42px !important;
+}
+
+/* ANDROID / MOBILE */
+
+@media (max-width: 700px) {
+
+    .dashboard-page .nav-row,
+    .marketplace-page .nav-row,
+    .global-admin-header-inner {
+        padding: 9px 12px !important;
+        gap: 8px 10px !important;
+    }
+
+    .dashboard-page .nav-links,
+    .marketplace-page .nav-links,
+    .global-admin-nav {
+        grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+        gap: 7px !important;
+    }
+
+    .dashboard-page .nav-links #nav-logout,
+    .marketplace-page .nav-links #nav-logout,
+    .global-admin-nav #admin-top-logout {
+        grid-column: 1 / -1 !important;
+    }
+
+    .dashboard-page .nav-links .btn,
+    .marketplace-page .nav-links .btn,
+    .global-admin-nav a,
+    .global-admin-nav button {
+        min-height: 42px !important;
+        padding: 8px 5px !important;
+        border-radius: 9px !important;
+        font-size: 13px !important;
+    }
+
+    .dashboard-page .notification-button,
+    .marketplace-page .notification-button,
+    .global-admin-notice-button {
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+/* SMALL ANDROID SCREENS */
+
+@media (max-width: 370px) {
+
+    .dashboard-page .nav-row,
+    .marketplace-page .nav-row,
+    .global-admin-header-inner {
+        padding-left: 9px !important;
+        padding-right: 9px !important;
+    }
+
+    .dashboard-page .nav-links,
+    .marketplace-page .nav-links,
+    .global-admin-nav {
+        gap: 5px !important;
+    }
+
+    .dashboard-page .nav-links .btn,
+    .marketplace-page .nav-links .btn,
+    .global-admin-nav a,
+    .global-admin-nav button {
+        font-size: 12px !important;
+    }
+      }
