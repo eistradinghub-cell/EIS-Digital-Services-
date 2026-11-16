@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#075bff">
-<meta name="description" content="Explore products and order directly from EIS Digital Services on WhatsApp.">
+<meta name="description" content="Explore products and order directly from EIS Digital Services.">
 <title>Marketplace | EIS Digital Services</title>
 
 <link rel="stylesheet" href="css/styles.css?v=28">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -21,41 +20,42 @@
     font-family:'Inter',sans-serif;
 }
 
-/* TRANSPARENT HEADER */
+/* STICKY GLASS HEADER */
 
 .marketplace-page .site-header{
     position:sticky;
     top:0;
     z-index:1000;
-    background:rgba(255,255,255,.76);
-    -webkit-backdrop-filter:blur(14px);
-    backdrop-filter:blur(14px);
+    background:rgba(255,255,255,.78);
+    -webkit-backdrop-filter:blur(15px);
+    backdrop-filter:blur(15px);
     border-bottom:1px solid rgba(190,207,230,.72);
     box-shadow:0 5px 20px rgba(20,55,105,.07);
 }
 
 .marketplace-page .nav-row{
+    width:100%;
     max-width:1200px;
-    min-height:68px;
     margin:auto;
     padding:12px 20px;
-    display:flex;
-    flex-wrap:wrap;
+    display:grid;
+    grid-template-columns:1fr auto;
     align-items:center;
-    gap:12px 18px;
+    gap:12px;
 }
 
 .marketplace-page .brand{
     display:flex;
     align-items:center;
     gap:10px;
-    flex-shrink:0;
+    min-width:0;
     text-decoration:none;
 }
 
 .marketplace-page .brand-mark{
     width:42px;
     height:42px;
+    flex-shrink:0;
 }
 
 .marketplace-page .brand-text{
@@ -74,29 +74,136 @@
     font-size:12px;
 }
 
-/* THREE MATCHING NAVIGATION BUTTONS */
+/* NOTIFICATIONS */
 
-.marketplace-page .nav-links{
-    width:100%;
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:12px;
-    margin-top:4px;
+.marketplace-page .notification-area{
+    position:relative;
+    justify-self:end;
 }
 
-.marketplace-page .nav-links .btn{
+.marketplace-page .notification-button{
+    position:relative;
+    width:48px;
+    height:48px;
     display:flex;
     align-items:center;
     justify-content:center;
+    border:2px solid #dce5f1;
+    border-radius:50%;
+    background:rgba(255,255,255,.85);
+    color:#244fe0;
+    cursor:pointer;
+}
+
+.marketplace-page .notification-button svg{
+    width:23px;
+    height:23px;
+}
+
+.marketplace-page .notification-count{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    min-width:19px;
+    height:19px;
+    padding:0 4px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    border:2px solid #fff;
+    border-radius:20px;
+    background:#e33145;
+    color:#fff;
+    font-size:10px;
+    font-weight:800;
+}
+
+.marketplace-page .notification-dropdown{
+    position:absolute;
+    top:58px;
+    right:0;
+    z-index:1100;
+    width:min(350px,88vw);
+    max-height:390px;
+    overflow-y:auto;
+    padding:16px;
+    display:none;
+    border:1px solid #e0e9f7;
+    border-radius:13px;
+    background:#fff;
+    box-shadow:0 12px 30px rgba(23,65,130,.16);
+}
+
+.marketplace-page .notification-dropdown.open{
+    display:block;
+}
+
+.marketplace-page .notification-dropdown h3{
+    margin:0 0 12px;
+    color:#244fe0;
+    font-size:16px;
+}
+
+.marketplace-page .notification-item{
+    padding:12px 0;
+    border-bottom:1px solid #edf1f8;
+}
+
+.marketplace-page .notification-item:last-child{
+    border-bottom:0;
+}
+
+.marketplace-page .notification-item strong{
+    display:block;
+    margin-bottom:5px;
+    color:#244fe0;
+    font-size:13px;
+}
+
+.marketplace-page .notification-item p{
+    margin:0;
+    color:#536b8d;
+    font-size:12px;
+    line-height:1.6;
+    overflow-wrap:anywhere;
+}
+
+.marketplace-page .notification-item time{
+    display:block;
+    margin-top:6px;
+    color:#8495ad;
+    font-size:10px;
+}
+
+/* CONSTANT NAVIGATION */
+
+.marketplace-page .nav-links{
+    grid-column:1/-1;
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:3px;
+}
+
+.marketplace-page .nav-links:has(#nav-admin:not([hidden])){
+    grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.marketplace-page .nav-links .btn{
     width:100%;
     min-width:0;
-    min-height:68px;
-    padding:14px 10px;
+    min-height:58px;
+    padding:12px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     border:2px solid #cbd3df;
-    border-radius:17px;
-    background:rgba(255,255,255,.88);
+    border-radius:15px;
+    background:rgba(255,255,255,.9);
     color:#10233f;
-    font-size:clamp(15px,2.1vw,22px);
+    font-family:inherit;
+    font-size:clamp(13px,2vw,20px);
     font-weight:700;
     line-height:1.2;
     text-align:center;
@@ -110,11 +217,18 @@
     background:#244fe0;
     border-color:#244fe0;
     color:#fff;
-    box-shadow:0 7px 17px rgba(36,79,224,.2);
+    box-shadow:0 6px 15px rgba(36,79,224,.18);
 }
 
 .marketplace-page .nav-links #nav-logout{
+    grid-column:1/-1;
     color:#10233f;
+    background:rgba(255,255,255,.9);
+}
+
+.marketplace-page .nav-links .btn:disabled{
+    opacity:.65;
+    cursor:wait;
 }
 
 /* MARKETPLACE CONTENT */
@@ -396,7 +510,7 @@
     border-radius:12px;
 }
 
-/* FULL SCREEN IMAGE VIEWER */
+/* IMAGE VIEWER */
 
 .marketplace-lightbox{
     position:fixed;
@@ -469,13 +583,13 @@
 
 body.lightbox-active{overflow:hidden}
 
-/* MOBILE */
+/* ANDROID / MOBILE */
 
 @media(max-width:700px){
 
     .marketplace-page .nav-row{
-        gap:9px;
-        padding:12px 13px;
+        padding:9px 13px;
+        gap:8px 10px;
     }
 
     .marketplace-page .brand-mark{
@@ -487,16 +601,25 @@ body.lightbox-active{overflow:hidden}
         font-size:19px;
     }
 
+    .marketplace-page .brand-text span{
+        font-size:11px;
+    }
+
+    .marketplace-page .notification-button{
+        width:43px;
+        height:43px;
+    }
+
     .marketplace-page .nav-links{
         gap:8px;
-        margin-top:3px;
+        margin-top:2px;
     }
 
     .marketplace-page .nav-links .btn{
-        min-height:58px;
-        padding:12px 5px;
-        border-radius:14px;
-        font-size:clamp(13px,3.6vw,17px);
+        min-height:54px;
+        padding:9px 5px;
+        border-radius:13px;
+        font-size:clamp(12px,3.5vw,16px);
     }
 
     .marketplace-main{
@@ -512,7 +635,6 @@ body.lightbox-active{overflow:hidden}
     .marketplace-heading p{font-size:13px}
 
     .marketplace-tools{flex-direction:column}
-
     .marketplace-back{min-height:44px}
 
     .marketplace-products{
@@ -521,7 +643,6 @@ body.lightbox-active{overflow:hidden}
     }
 
     .marketplace-main-image{height:155px}
-
     .marketplace-card-content{padding:12px}
 
     .marketplace-product-title{
@@ -568,11 +689,14 @@ body.lightbox-active{overflow:hidden}
 
 @media(max-width:370px){
 
-    .marketplace-page .nav-links{gap:6px}
+    .marketplace-page .nav-links{
+        gap:6px;
+    }
 
     .marketplace-page .nav-links .btn{
-        font-size:12px;
-        min-height:54px;
+        font-size:11px;
+        min-height:51px;
+        padding:8px 3px;
     }
 
     .marketplace-products{grid-template-columns:1fr}
@@ -604,9 +728,46 @@ body.lightbox-active{overflow:hidden}
             </span>
         </a>
 
+        <div class="notification-area">
+            <button
+                type="button"
+                class="notification-button"
+                id="notification-button"
+                aria-label="Notifications"
+                aria-expanded="false">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     aria-hidden="true">
+                    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
+                    8.5 8.5 0 0 1-7.6 4.7
+                    8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
+                    a8.4 8.4 0 0 1-.9-3.8
+                    8.5 8.5 0 0 1 4.7-7.6
+                    8.4 8.4 0 0 1 3.8-.9h.5
+                    a8.5 8.5 0 0 1 8 8v.5z"/>
+                    <path d="M8 12h.01"/>
+                    <path d="M12 12h.01"/>
+                    <path d="M16 12h.01"/>
+                </svg>
+
+                <span id="notification-count" class="notification-count">0</span>
+            </button>
+
+            <div id="notification-dropdown" class="notification-dropdown">
+                <h3>Notifications</h3>
+                <div id="notifications-list">Loading notifications...</div>
+            </div>
+        </div>
+
         <nav class="nav-links">
             <a href="dashboard.html" class="btn">Dashboard</a>
             <a href="marketplace.html" class="btn active">Marketplace</a>
+            <a href="admin.html" id="nav-admin" class="btn" hidden>Admin</a>
             <button type="button" id="nav-logout" class="btn">Log out</button>
         </nav>
 
@@ -641,11 +802,12 @@ body.lightbox-active{overflow:hidden}
     <section
         id="marketplace-products"
         class="marketplace-products"
-        aria-live="polite"
-    >
+        aria-live="polite">
+
         <div class="marketplace-loading">
             Loading products...
         </div>
+
     </section>
 
 </main>
@@ -661,28 +823,216 @@ body.lightbox-active{overflow:hidden}
 <script type="module">
 import { supabase } from "./js/supabase.js";
 
-const logoutButton = document.getElementById("nav-logout");
+const $ = id => document.getElementById(id);
 
-if (logoutButton) {
-    logoutButton.addEventListener("click", async () => {
-        logoutButton.disabled = true;
-        logoutButton.textContent = "Logging out...";
+let notificationsCache = [];
 
-        try {
-            const { error } = await supabase.auth.signOut();
+function formatNotificationDate(value) {
+    if (!value) return "";
 
-            if (error) throw error;
+    const date = new Date(value);
 
-            window.location.replace("index.html");
+    if (Number.isNaN(date.getTime())) return "";
 
-        } catch (error) {
-            console.error("Logout error:", error);
-            alert("Unable to log out. Please try again.");
-            logoutButton.disabled = false;
-            logoutButton.textContent = "Log out";
-        }
+    return date.toLocaleString("en-NG", {
+        dateStyle: "medium",
+        timeStyle: "short"
     });
 }
+
+/* CHECK USER AND ADMIN ACCESS */
+
+async function initializeHeader() {
+    try {
+        const {
+            data: { user },
+            error: authError
+        } = await supabase.auth.getUser();
+
+        if (authError) throw authError;
+
+        if (!user) {
+            window.location.replace("index.html");
+            return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .maybeSingle();
+
+        if (profileError) throw profileError;
+
+        const role = String(profile?.role || "").toLowerCase();
+
+        if (["admin", "super_admin"].includes(role)) {
+            $("nav-admin").hidden = false;
+        }
+
+        await loadNotifications(user.id);
+
+    } catch (error) {
+        console.error("Header initialization error:", error);
+    }
+}
+
+/* LOAD NOTIFICATIONS */
+
+async function loadNotifications(userId) {
+    const list = $("notifications-list");
+    const count = $("notification-count");
+
+    if (!list || !count) return;
+
+    list.textContent = "Loading notifications...";
+
+    try {
+        const { data, error } = await supabase
+            .from("notifications")
+            .select("*")
+            .eq("user_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(30);
+
+        if (error) throw error;
+
+        notificationsCache = data || [];
+
+        const unread = notificationsCache.filter(
+            item => !item.is_read
+        ).length;
+
+        count.textContent = unread > 99 ? "99+" : String(unread);
+        count.style.display = unread > 0 ? "flex" : "none";
+
+        renderNotifications();
+
+    } catch (error) {
+        console.error("Notification loading error:", error);
+        list.textContent = "Unable to load notifications.";
+    }
+}
+
+/* DISPLAY NOTIFICATIONS */
+
+function renderNotifications() {
+    const list = $("notifications-list");
+
+    if (!list) return;
+
+    list.replaceChildren();
+
+    if (!notificationsCache.length) {
+        list.textContent = "You have no notifications.";
+        return;
+    }
+
+    notificationsCache.forEach(notification => {
+        const item = document.createElement("div");
+        item.className = "notification-item";
+
+        const title = document.createElement("strong");
+        title.textContent = notification.title || "Notification";
+
+        const message = document.createElement("p");
+        message.textContent = notification.message || "";
+
+        const time = document.createElement("time");
+        time.textContent = formatNotificationDate(
+            notification.created_at
+        );
+
+        item.append(title, message, time);
+        list.appendChild(item);
+    });
+}
+
+/* MARK NOTIFICATIONS AS READ */
+
+async function markNotificationsAsRead() {
+    const unreadIds = notificationsCache
+        .filter(item => !item.is_read)
+        .map(item => item.id);
+
+    if (!unreadIds.length) return;
+
+    try {
+        const { error } = await supabase
+            .from("notifications")
+            .update({ is_read: true })
+            .in("id", unreadIds);
+
+        if (error) throw error;
+
+        notificationsCache = notificationsCache.map(item => ({
+            ...item,
+            is_read: true
+        }));
+
+        $("notification-count").style.display = "none";
+
+    } catch (error) {
+        console.error("Mark notifications as read error:", error);
+    }
+}
+
+/* NOTIFICATION BUTTON */
+
+const notificationButton = $("notification-button");
+const notificationDropdown = $("notification-dropdown");
+
+notificationButton?.addEventListener("click", async event => {
+    event.stopPropagation();
+
+    const isOpen = notificationDropdown.classList.toggle("open");
+
+    notificationButton.setAttribute(
+        "aria-expanded",
+        String(isOpen)
+    );
+
+    if (isOpen) {
+        await markNotificationsAsRead();
+    }
+});
+
+document.addEventListener("click", event => {
+    if (
+        notificationDropdown &&
+        !notificationDropdown.contains(event.target) &&
+        !notificationButton.contains(event.target)
+    ) {
+        notificationDropdown.classList.remove("open");
+        notificationButton?.setAttribute("aria-expanded", "false");
+    }
+});
+
+/* LOG OUT */
+
+const logoutButton = $("nav-logout");
+
+logoutButton?.addEventListener("click", async () => {
+    logoutButton.disabled = true;
+    logoutButton.textContent = "Logging out...";
+
+    try {
+        const { error } = await supabase.auth.signOut();
+
+        if (error) throw error;
+
+        window.location.replace("index.html");
+
+    } catch (error) {
+        console.error("Logout error:", error);
+        alert("Unable to log out. Please try again.");
+
+        logoutButton.disabled = false;
+        logoutButton.textContent = "Log out";
+    }
+});
+
+initializeHeader();
 </script>
 
 </body>
