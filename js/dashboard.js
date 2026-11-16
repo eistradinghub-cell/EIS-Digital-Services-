@@ -1,7 +1,7 @@
 /* =====================================================
    EIS DIGITAL SERVICES
    FILE: js/dashboard.js
-   CUSTOMER DASHBOARD VERSION 18
+   CUSTOMER DASHBOARD VERSION 19
 ===================================================== */
 
 import { supabase } from "./supabase.js";
@@ -17,8 +17,6 @@ let servicesCache = [];
 let applicationsCache = [];
 let notificationsCache = [];
 let demoPaymentCompleted = false;
-
-let draftSaveTimer = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -97,8 +95,9 @@ function formatDateTime(date) {
 
 
 /* =====================================================
-   APPLICATION DRAFT STORAGE
-   All non-file form fields are saved as a draft.
+   SAFE APPLICATION DRAFT
+   Only the selected service is remembered.
+   Personal contact details are not stored in the browser.
 ===================================================== */
 
 function getDraftKey() {
@@ -110,45 +109,17 @@ function getDraftKey() {
 }
 
 
-function getApplicationFormData() {
-
-    return {
-        kegow_account: $("f-kegow")?.value.trim() || "",
-        agent_location_state: $("f-agentState")?.value || "",
-        bvn: $("f-bvn")?.value.trim() || "",
-        bank_name: $("f-bankName")?.value.trim() || "",
-        account_number: $("f-accountNo")?.value.trim() || "",
-        account_name: $("f-accountName")?.value.trim() || "",
-        first_name: $("f-firstName")?.value.trim() || "",
-        middle_name: $("f-middleName")?.value.trim() || "",
-        last_name: $("f-lastName")?.value.trim() || "",
-        email: $("f-email")?.value.trim() || "",
-        phone: $("f-phone")?.value.trim() || "",
-        alternative_phone: $("f-altPhone")?.value.trim() || "",
-        home_address: $("f-homeAddress")?.value.trim() || "",
-        state_of_residence: $("f-stateRes")?.value || "",
-        date_of_birth: $("f-dob")?.value || "",
-        local_government: $("f-lga")?.value.trim() || "",
-        geopolitical_zone: $("f-zone")?.value || ""
-    };
-
-}
-
-
 function saveApplicationDraft() {
 
     const key = getDraftKey();
 
-    if (!key) return;
-
-    if (!selectedService) return;
+    if (!key || !selectedService) return;
 
     try {
 
         const draft = {
-            version: 1,
+            version: 2,
             service_id: selectedService.id,
-            form_data: getApplicationFormData(),
             form_open: Boolean(demoPaymentCompleted),
             saved_at: new Date().toISOString()
         };
@@ -163,17 +134,6 @@ function saveApplicationDraft() {
         console.error("Draft saving error:", error);
 
     }
-
-}
-
-
-function scheduleDraftSave() {
-
-    clearTimeout(draftSaveTimer);
-
-    draftSaveTimer = setTimeout(() => {
-        saveApplicationDraft();
-    }, 300);
 
 }
 
@@ -220,7 +180,12 @@ function restoreApplicationDraft() {
         return;
     }
 
-    if (!draft || draft.version !== 1) return;
+    if (!draft || draft.version !== 2) {
+
+        clearApplicationDraft();
+
+        return;
+    }
 
     const service = servicesCache.find(item =>
         String(item.id) === String(draft.service_id)
@@ -228,59 +193,24 @@ function restoreApplicationDraft() {
 
     if (!service) {
 
-        showMessage(
-            "Your saved application was found, but its service is no longer available. Please select the service again.",
-            "info"
-        );
+        clearApplicationDraft();
 
         return;
     }
 
     selectedService = service;
 
-    const data = draft.form_data || {};
+    const paySection = $("pay-section");
+    const form = $("app-form");
+    const button = $("btn-pay");
 
-    const fields = {
-        "f-kegow": data.kegow_account,
-        "f-agentState": data.agent_location_state,
-        "f-bvn": data.bvn,
-        "f-bankName": data.bank_name,
-        "f-accountNo": data.account_number,
-        "f-accountName": data.account_name,
-        "f-firstName": data.first_name,
-        "f-middleName": data.middle_name,
-        "f-lastName": data.last_name,
-        "f-email": data.email,
-        "f-phone": data.phone,
-        "f-altPhone": data.alternative_phone,
-        "f-homeAddress": data.home_address,
-        "f-stateRes": data.state_of_residence,
-        "f-dob": data.date_of_birth,
-        "f-lga": data.local_government,
-        "f-zone": data.geopolitical_zone
-    };
-
-    Object.entries(fields).forEach(([id, value]) => {
-
-        const field = $(id);
-
-        if (field && value !== undefined && value !== null) {
-            field.value = value;
-        }
-
-    });
+    if (paySection) {
+        paySection.style.display = "block";
+    }
 
     if (draft.form_open === true) {
 
         demoPaymentCompleted = true;
-
-        const paySection = $("pay-section");
-        const form = $("app-form");
-        const button = $("btn-pay");
-
-        if (paySection) {
-            paySection.style.display = "block";
-        }
 
         if (form) {
             form.style.display = "block";
@@ -292,42 +222,25 @@ function restoreApplicationDraft() {
         }
 
         showMessage(
-            "Your saved application has been restored. Continue where you stopped.",
+            "Your selected service has been restored. Please enter your contact details again.",
             "info",
             "form-msg"
         );
 
     } else {
 
+        demoPaymentCompleted = false;
+
+        if (form) {
+            form.style.display = "none";
+        }
+
         showMessage(
-            `Your saved application for ${service.name} has been restored. Continue with the payment demonstration.`,
+            `Your selected service, ${service.name}, has been restored.`,
             "info"
         );
 
-        const paySection = $("pay-section");
-
-        if (paySection) {
-            paySection.style.display = "block";
-        }
-
     }
-
-}
-
-
-function setupDraftAutoSave() {
-
-    const form = $("app-form");
-
-    if (!form) return;
-
-    form.addEventListener("input", scheduleDraftSave);
-
-    form.addEventListener("change", scheduleDraftSave);
-
-    window.addEventListener("beforeunload", () => {
-        saveApplicationDraft();
-    });
 
 }
 
@@ -386,7 +299,7 @@ async function loadUserProfile() {
     }
 
     if (welcome) {
-        welcome.textContent = `Welcome, ${currentUser.email}`;
+        welcome.textContent = "Welcome back, Customer";
     }
 
     try {
@@ -400,15 +313,35 @@ async function loadUserProfile() {
         if (error) throw error;
 
         if (!data) {
-            console.error("Profile not found.");
+
+            const fallbackName =
+                currentUser.user_metadata?.full_name ||
+                currentUser.email ||
+                "Customer";
+
+            if (welcome) {
+                welcome.textContent = `Welcome back, ${fallbackName}`;
+            }
+
             return;
         }
 
         currentProfile = data;
 
+        const fullName =
+            String(data.full_name || "").trim();
+
+        const firstName =
+            fullName
+                ? fullName.split(/\s+/)[0]
+                : (
+                    currentUser.user_metadata?.full_name ||
+                    currentUser.email ||
+                    "Customer"
+                );
+
         if (welcome) {
-            welcome.textContent =
-                `Welcome, ${data.full_name || currentUser.email}`;
+            welcome.textContent = `Welcome back, ${firstName}`;
         }
 
         const role = String(data.role || "")
@@ -426,11 +359,36 @@ async function loadUserProfile() {
 
         console.error("Profile loading error:", error);
 
-        showMessage(
-            error.message || "Unable to load profile.",
-            "err"
-        );
+        if (welcome) {
+            welcome.textContent = "Welcome back, Customer";
+        }
+
     }
+
+}
+
+
+/* =====================================================
+   SERVICE DESCRIPTIONS
+===================================================== */
+
+function getServiceDescription(serviceName) {
+
+    const name = String(serviceName || "").toLowerCase();
+
+    if (name.includes("android") && name.includes("bvn")) {
+
+        return "View service information and contact our support team to learn about the authorized provider and its secure verification process.";
+
+    }
+
+    if (name.includes("combo") && name.includes("bvn")) {
+
+        return "Review the service details and contact support for information about the authorized provider and secure verification process.";
+
+    }
+
+    return "Explore this service, review the displayed price and contact our support team if you need more information.";
 
 }
 
@@ -472,25 +430,54 @@ async function loadServices() {
 
         servicesCache.forEach(service => {
 
-            const card = document.createElement("div");
+            const card = document.createElement("article");
+
             card.className = "service-card";
 
+            const icon = document.createElement("div");
+
+            icon.className = "service-icon";
+            icon.textContent = "✦";
+            icon.setAttribute("aria-hidden", "true");
+
+            const label = document.createElement("span");
+
+            label.className = "service-label";
+            label.textContent = "AVAILABLE SERVICE";
+
             const title = document.createElement("h3");
+
             title.textContent = service.name || "Service";
 
+            const description = document.createElement("p");
+
+            description.className = "service-description";
+            description.textContent =
+                getServiceDescription(service.name);
+
             const price = document.createElement("p");
+
+            price.className = "service-price";
             price.textContent = formatCurrency(service.price);
 
             const button = document.createElement("button");
+
             button.type = "button";
             button.className = "btn btn-primary";
-            button.textContent = "Select Service";
+            button.textContent = "View Service";
 
             button.addEventListener("click", () => {
                 selectService(service);
             });
 
-            card.append(title, price, button);
+            card.append(
+                icon,
+                label,
+                title,
+                description,
+                price,
+                button
+            );
 
             container.appendChild(card);
 
@@ -518,11 +505,27 @@ function selectService(service) {
 
     const previousServiceId = selectedService?.id;
 
+    if (
+        previousServiceId &&
+        String(previousServiceId) !== String(service.id)
+    ) {
+
+        clearApplicationDraft();
+
+        const form = $("app-form");
+
+        if (form) {
+            form.reset();
+        }
+
+    }
+
     selectedService = service;
     demoPaymentCompleted = false;
 
     const paySection = $("pay-section");
     const form = $("app-form");
+    const payButton = $("btn-pay");
 
     if (paySection) {
         paySection.style.display = "block";
@@ -532,24 +535,11 @@ function selectService(service) {
         form.style.display = "none";
     }
 
-    const payButton = $("btn-pay");
-
     if (payButton) {
 
         payButton.disabled = false;
         payButton.textContent = "Pay Now";
 
-    }
-
-    if (
-        previousServiceId &&
-        String(previousServiceId) !== String(service.id)
-    ) {
-        clearApplicationDraft();
-
-        if (form) {
-            form.reset();
-        }
     }
 
     saveApplicationDraft();
@@ -573,6 +563,7 @@ function selectService(service) {
 
 /* =====================================================
    DEMO PAYMENT
+   This is a demonstration only, not a real payment.
 ===================================================== */
 
 async function handleDemoPayment() {
@@ -599,20 +590,12 @@ async function handleDemoPayment() {
 
     try {
 
-        /*
-          DEMO PAYMENT ONLY.
-
-          This does not charge money.
-          This is not a verified payment.
-          Do not use this flag as proof of a real payment.
-        */
-
         demoPaymentCompleted = true;
 
         saveApplicationDraft();
 
         showMessage(
-            "Demo payment completed. You can now complete the application form.",
+            "Demo step completed. This is not a real payment. You can now enter your contact details.",
             "info"
         );
 
@@ -628,7 +611,7 @@ async function handleDemoPayment() {
         }
 
         if (button) {
-            button.textContent = "Demo Payment Completed";
+            button.textContent = "Demo Step Completed";
         }
 
     } catch (error) {
@@ -638,7 +621,7 @@ async function handleDemoPayment() {
         demoPaymentCompleted = false;
 
         showMessage(
-            "Payment process failed.",
+            "Unable to continue. Please try again.",
             "err"
         );
 
@@ -746,6 +729,53 @@ function prepareApplicationForm() {
 
 
 /* =====================================================
+   APPLICATION FORM DATA
+===================================================== */
+
+function getApplicationFormData() {
+
+    return {
+
+        kegow_account: $("f-kegow")?.value.trim() || "",
+
+        agent_location_state: $("f-agentState")?.value || "",
+
+        bvn: $("f-bvn")?.value.trim() || "",
+
+        bank_name: $("f-bankName")?.value.trim() || "",
+
+        account_number: $("f-accountNo")?.value.trim() || "",
+
+        account_name: $("f-accountName")?.value.trim() || "",
+
+        first_name: $("f-firstName")?.value.trim() || "",
+
+        middle_name: $("f-middleName")?.value.trim() || "",
+
+        last_name: $("f-lastName")?.value.trim() || "",
+
+        email: $("f-email")?.value.trim() || "",
+
+        phone: $("f-phone")?.value.trim() || "",
+
+        alternative_phone: $("f-altPhone")?.value.trim() || "",
+
+        home_address: $("f-homeAddress")?.value.trim() || "",
+
+        state_of_residence: $("f-stateRes")?.value || "",
+
+        date_of_birth: $("f-dob")?.value || "",
+
+        local_government: $("f-lga")?.value.trim() || "",
+
+        geopolitical_zone: $("f-zone")?.value || ""
+
+    };
+
+}
+
+
+/* =====================================================
    APPLICATION STATUS BADGE
 ===================================================== */
 
@@ -753,14 +783,14 @@ function createStatusBadge(status) {
 
     const badge = document.createElement("span");
 
-    const normalized = String(status || "pending")
+    const normalized = String(status || "In review")
         .trim()
         .toLowerCase()
         .replace(/\s+/g, "_");
 
     badge.className = `status-badge ${normalized}`;
 
-    badge.textContent = String(status || "Pending")
+    badge.textContent = String(status || "In review")
         .replace(/_/g, " ")
         .replace(/\b\w/g, letter => letter.toUpperCase());
 
@@ -823,31 +853,26 @@ async function loadApplications() {
                 currentUser.email ||
                 "Customer";
 
-
             const reference = document.createElement("td");
 
             reference.textContent =
                 String(application.id).slice(0, 8).toUpperCase();
-
 
             const service = document.createElement("td");
 
             service.textContent =
                 application.service_name || "Service";
 
-
             const submitted = document.createElement("td");
 
             submitted.textContent =
                 formatDate(application.created_at);
-
 
             const status = document.createElement("td");
 
             status.appendChild(
                 createStatusBadge(application.status)
             );
-
 
             row.append(
                 name,
@@ -918,7 +943,8 @@ async function loadNotifications() {
 
         if (count) {
 
-            count.textContent = unread > 99 ? "99+" : String(unread);
+            count.textContent =
+                unread > 99 ? "99+" : String(unread);
 
             count.style.display =
                 unread > 0 ? "flex" : "none";
@@ -981,18 +1007,15 @@ function renderNotifications() {
         title.textContent =
             notification.title || "Notification";
 
-
         const message = document.createElement("p");
 
         message.textContent =
             notification.message || "";
 
-
         const time = document.createElement("time");
 
         time.textContent =
             formatDateTime(notification.created_at);
-
 
         item.append(title, message, time);
 
@@ -1062,6 +1085,8 @@ function setupNotificationDropdown() {
 
     if (!button || !dropdown) return;
 
+    button.setAttribute("aria-expanded", "false");
+
     button.addEventListener("click", async () => {
 
         const isOpen =
@@ -1077,7 +1102,6 @@ function setupNotificationDropdown() {
         }
 
     });
-
 
     document.addEventListener("click", event => {
 
@@ -1135,7 +1159,7 @@ async function submitApplication(event) {
     if (!demoPaymentCompleted) {
 
         showMessage(
-            "Please complete the payment step first.",
+            "Please complete the next step first.",
             "err",
             "form-msg"
         );
@@ -1173,7 +1197,35 @@ async function submitApplication(event) {
         return;
     }
 
-    const button = form.querySelector(
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(formData.email)) {
+
+        showMessage(
+            "Please enter a valid email address.",
+            "err",
+            "form-msg"
+        );
+
+        return;
+    }
+
+    const phoneDigits =
+        formData.phone.replace(/\D/g, "");
+
+    if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+
+        showMessage(
+            "Please enter a valid phone number.",
+            "err",
+            "form-msg"
+        );
+
+        return;
+    }
+
+    const button = form?.querySelector(
         'button[type="submit"]'
     );
 
@@ -1189,21 +1241,37 @@ async function submitApplication(event) {
         const safeFormData = {
 
             kegow_account: formData.kegow_account,
+
             agent_location_state: formData.agent_location_state,
+
             bvn: formData.bvn,
+
             bank_name: formData.bank_name,
+
             account_number: formData.account_number,
+
             account_name: formData.account_name,
+
             first_name: formData.first_name,
+
             middle_name: formData.middle_name,
+
             last_name: formData.last_name,
+
             email: formData.email,
+
             phone: formData.phone,
+
             alternative_phone: formData.alternative_phone,
+
             home_address: formData.home_address,
+
             state_of_residence: formData.state_of_residence,
+
             date_of_birth: formData.date_of_birth,
+
             local_government: formData.local_government,
+
             geopolitical_zone: formData.geopolitical_zone
 
         };
@@ -1213,24 +1281,23 @@ async function submitApplication(event) {
             .insert([{
 
                 user_id: currentUser.id,
+
                 service_name: selectedService.name,
+
                 amount: Number(selectedService.price) || 0,
+
                 status: "In review",
+
                 form_data: safeFormData
 
             }]);
 
         if (error) throw error;
 
-        /*
-          Clear the saved draft only after Supabase
-          confirms that the application was inserted.
-        */
-
         clearApplicationDraft();
 
         showMessage(
-            "Application submitted successfully! Your application has been received.",
+            "Your application has been submitted successfully.",
             "ok",
             "form-msg"
         );
@@ -1251,8 +1318,10 @@ async function submitApplication(event) {
         const payButton = $("btn-pay");
 
         if (payButton) {
+
             payButton.disabled = false;
             payButton.textContent = "Pay Now";
+
         }
 
         await loadApplications();
@@ -1264,19 +1333,9 @@ async function submitApplication(event) {
             error
         );
 
-        /*
-          Keep the form open and preserve its draft
-          whenever submission fails.
-        */
-
-        saveApplicationDraft();
-
-        if (form) {
-            form.style.display = "block";
-        }
-
         showMessage(
-            error.message || "Application submission failed. Your saved information is still available. Please try again.",
+            error.message ||
+            "Submission failed. Please try again.",
             "err",
             "form-msg"
         );
@@ -1302,8 +1361,6 @@ async function submitApplication(event) {
 async function logoutUser() {
 
     try {
-
-        saveApplicationDraft();
 
         const { error } =
             await supabase.auth.signOut();
@@ -1336,8 +1393,6 @@ async function initializeDashboard() {
     prepareApplicationForm();
 
     setupNotificationDropdown();
-
-    setupDraftAutoSave();
 
     const form = $("app-form");
 
@@ -1393,11 +1448,6 @@ async function initializeDashboard() {
         loadNotifications()
 
     ]);
-
-    /*
-      Restore the saved form after services have loaded,
-      so the saved service can be matched correctly.
-    */
 
     restoreApplicationDraft();
 
