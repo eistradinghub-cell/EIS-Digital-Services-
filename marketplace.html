@@ -13,677 +13,108 @@
 
 <style>
 *{box-sizing:border-box}
-
-.marketplace-page{
-    margin:0;
-    min-height:100vh;
-    background:#edf4ff;
-    font-family:'Inter',sans-serif;
-}
-
-.marketplace-page .site-header{
-    position:sticky;
-    top:0;
-    z-index:1000;
-    background:rgba(255,255,255,.78);
-    -webkit-backdrop-filter:blur(15px);
-    backdrop-filter:blur(15px);
-    border-bottom:1px solid rgba(190,207,230,.72);
-    box-shadow:0 5px 20px rgba(20,55,105,.07);
-}
-
-.marketplace-page .nav-row{
-    width:100%;
-    max-width:1200px;
-    margin:auto;
-    padding:12px 20px;
-    display:grid;
-    grid-template-columns:1fr auto;
-    align-items:center;
-    gap:12px;
-}
-
-.marketplace-page .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    min-width:0;
-    text-decoration:none;
-}
-
-.marketplace-page .brand-mark{
-    width:42px;
-    height:42px;
-    flex-shrink:0;
-}
-
-.marketplace-page .brand-text{
-    display:flex;
-    flex-direction:column;
-}
-
-.marketplace-page .brand-text b{
-    color:#075bff;
-    font-size:21px;
-    line-height:1.2;
-}
-
-.marketplace-page .brand-text span{
-    color:#52709c;
-    font-size:12px;
-}
-
-.marketplace-page .notification-area{
-    position:relative;
-    justify-self:end;
-}
-
-.marketplace-page .notification-button{
-    position:relative;
-    width:48px;
-    height:48px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid #dce5f1;
-    border-radius:50%;
-    background:rgba(255,255,255,.85);
-    color:#244fe0;
-    cursor:pointer;
-}
-
-.marketplace-page .notification-button svg{
-    width:23px;
-    height:23px;
-}
-
-.marketplace-page .notification-count{
-    position:absolute;
-    top:-5px;
-    right:-5px;
-    min-width:19px;
-    height:19px;
-    padding:0 4px;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    border:2px solid #fff;
-    border-radius:20px;
-    background:#e33145;
-    color:#fff;
-    font-size:10px;
-    font-weight:800;
-}
-
-.marketplace-page .notification-dropdown{
-    position:absolute;
-    top:58px;
-    right:0;
-    z-index:1100;
-    width:min(350px,88vw);
-    max-height:390px;
-    overflow-y:auto;
-    padding:16px;
-    display:none;
-    border:1px solid #e0e9f7;
-    border-radius:13px;
-    background:#fff;
-    box-shadow:0 12px 30px rgba(23,65,130,.16);
-}
-
-.marketplace-page .notification-dropdown.open{
-    display:block;
-}
-
-.marketplace-page .notification-dropdown h3{
-    margin:0 0 12px;
-    color:#244fe0;
-    font-size:16px;
-}
-
-.marketplace-page .notification-item{
-    padding:12px 0;
-    border-bottom:1px solid #edf1f8;
-}
-
-.marketplace-page .notification-item:last-child{
-    border-bottom:0;
-}
-
-.marketplace-page .notification-item strong{
-    display:block;
-    margin-bottom:5px;
-    color:#244fe0;
-    font-size:13px;
-}
-
-.marketplace-page .notification-item p{
-    margin:0;
-    color:#536b8d;
-    font-size:12px;
-    line-height:1.6;
-    overflow-wrap:anywhere;
-}
-
-.marketplace-page .notification-item time{
-    display:block;
-    margin-top:6px;
-    color:#8495ad;
-    font-size:10px;
-}
-
-.marketplace-page .nav-links{
-    grid-column:1/-1;
-    width:100%;
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px;
-    margin-top:3px;
-}
-
-.marketplace-page .nav-links .btn{
-    width:100%;
-    min-width:0;
-    min-height:58px;
-    padding:12px 8px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:2px solid #cbd3df;
-    border-radius:15px;
-    background:rgba(255,255,255,.9);
-    color:#10233f;
-    font-family:inherit;
-    font-size:clamp(13px,2vw,20px);
-    font-weight:700;
-    line-height:1.2;
-    text-align:center;
-    text-decoration:none;
-    white-space:nowrap;
-    box-shadow:0 2px 5px rgba(25,50,85,.04);
-    cursor:pointer;
-}
-
-.marketplace-page .nav-links .btn.active{
-    background:#244fe0;
-    border-color:#244fe0;
-    color:#fff;
-    box-shadow:0 6px 15px rgba(36,79,224,.18);
-}
-
-.marketplace-page .nav-links #nav-logout{
-    grid-column:1/-1;
-    color:#10233f;
-    background:rgba(255,255,255,.9);
-}
-
-.marketplace-page .nav-links .btn:disabled{
-    opacity:.65;
-    cursor:wait;
-}
-
-.marketplace-main{
-    width:100%;
-    max-width:1200px;
-    margin:auto;
-    padding:32px 20px 60px;
-}
-
-.marketplace-heading{
-    background:linear-gradient(135deg,#0647d9,#287bff);
-    color:#fff;
-    padding:38px 35px;
-    border-radius:17px;
-    margin-bottom:28px;
-    box-shadow:0 12px 30px rgba(31,79,224,.13);
-}
-
-.marketplace-heading h1{
-    font-family:'Plus Jakarta Sans',sans-serif;
-    font-size:30px;
-    font-weight:800;
-    margin:0 0 10px;
-}
-
-.marketplace-heading p{
-    color:rgba(255,255,255,.92);
-    font-size:14px;
-    line-height:1.8;
-    margin:0;
-    max-width:600px;
-}
-
-.marketplace-tools{
-    display:flex;
-    gap:12px;
-    margin-bottom:25px;
-}
-
-.marketplace-tools input{
-    flex:1;
-    min-width:0;
-    padding:14px 16px;
-    border:1px solid #cbd9ef;
-    border-radius:10px;
-    background:#fff;
-    font-family:inherit;
-    font-size:14px;
-    outline:none;
-}
-
-.marketplace-tools input:focus{
-    border-color:#287bff;
-    box-shadow:0 0 0 3px rgba(40,123,255,.1);
-}
-
-.marketplace-back{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding:12px 17px;
-    border-radius:10px;
-    background:#fff;
-    border:1px solid #cbd9ef;
-    color:#075bff;
-    font-weight:700;
-    font-size:13px;
-    text-decoration:none;
-    white-space:nowrap;
-}
-
-.marketplace-products{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(245px,1fr));
-    gap:22px;
-    align-items:stretch;
-}
-
-.marketplace-card{
-    background:#fff;
-    border:1px solid #dce7f8;
-    border-radius:15px;
-    overflow:hidden;
-    box-shadow:0 5px 20px rgba(20,35,70,.045);
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-    transition:transform .2s ease,box-shadow .2s ease;
-}
-
-.marketplace-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 12px 28px rgba(20,35,70,.09);
-}
-
-.marketplace-gallery{
-    position:relative;
-    width:100%;
-    background:#edf1f8;
-    overflow:hidden;
-}
-
-.marketplace-main-image{
-    width:100%;
-    height:245px;
-    display:block;
-    object-fit:cover;
-    cursor:zoom-in;
-    transition:opacity .25s ease,transform .3s ease;
-}
-
-.marketplace-main-image:hover{
-    transform:scale(1.025);
-}
-
-.marketplace-zoom-hint{
-    position:absolute;
-    left:10px;
-    bottom:10px;
-    padding:6px 10px;
-    border-radius:20px;
-    background:rgba(0,0,0,.58);
-    color:#fff;
-    font-size:10px;
-    pointer-events:none;
-}
-
-.marketplace-image-count{
-    position:absolute;
-    top:12px;
-    right:12px;
-    padding:6px 10px;
-    border-radius:20px;
-    background:rgba(0,0,0,.65);
-    color:#fff;
-    font-size:11px;
-    font-weight:700;
-}
-
-.marketplace-slide-button{
-    position:absolute;
-    top:45%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:36px;
-    height:36px;
-    border:0;
-    border-radius:50%;
-    background:rgba(0,0,0,.58);
-    color:#fff;
-    font-size:24px;
-    cursor:pointer;
-    z-index:2;
-}
-
+.marketplace-page{margin:0;min-height:100vh;background:#edf4ff;font-family:'Inter',sans-serif}
+.marketplace-page .site-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.78);backdrop-filter:blur(15px);border-bottom:1px solid rgba(190,207,230,.72);box-shadow:0 5px 20px rgba(20,55,105,.07)}
+.marketplace-page .nav-row{width:100%;max-width:1200px;margin:auto;padding:12px 20px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+.marketplace-page .brand{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none}
+.marketplace-page .brand-mark{width:42px;height:42px;flex-shrink:0}
+.marketplace-page .brand-text{display:flex;flex-direction:column}
+.marketplace-page .brand-text b{color:#075bff;font-size:21px;line-height:1.2}
+.marketplace-page .brand-text span{color:#52709c;font-size:12px}
+.marketplace-page .notification-area{position:relative;justify-self:end}
+.marketplace-page .notification-button{position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center;border:2px solid #dce5f1;border-radius:50%;background:rgba(255,255,255,.85);color:#244fe0;cursor:pointer}
+.marketplace-page .notification-button svg{width:23px;height:23px}
+.marketplace-page .notification-count{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 4px;display:none;align-items:center;justify-content:center;border:2px solid #fff;border-radius:20px;background:#e33145;color:#fff;font-size:10px;font-weight:800}
+.marketplace-page .notification-dropdown{position:absolute;top:58px;right:0;z-index:1100;width:min(350px,88vw);max-height:390px;overflow-y:auto;padding:16px;display:none;border:1px solid #e0e9f7;border-radius:13px;background:#fff;box-shadow:0 12px 30px rgba(23,65,130,.16)}
+.marketplace-page .notification-dropdown.open{display:block}
+.marketplace-page .notification-dropdown h3{margin:0 0 12px;color:#244fe0;font-size:16px}
+.marketplace-page .notification-item{padding:12px 0;border-bottom:1px solid #edf1f8}
+.marketplace-page .notification-item:last-child{border-bottom:0}
+.marketplace-page .notification-item strong{display:block;margin-bottom:5px;color:#244fe0;font-size:13px}
+.marketplace-page .notification-item p{margin:0;color:#536b8d;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.marketplace-page .notification-item time{display:block;margin-top:6px;color:#8495ad;font-size:10px}
+.marketplace-page .nav-links{grid-column:1/-1;width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:3px}
+.marketplace-page .nav-links .btn{width:100%;min-width:0;min-height:58px;padding:12px 8px;display:flex;align-items:center;justify-content:center;border:2px solid #cbd3df;border-radius:15px;background:rgba(255,255,255,.9);color:#10233f;font-family:inherit;font-size:clamp(13px,2vw,20px);font-weight:700;line-height:1.2;text-align:center;text-decoration:none;white-space:nowrap;box-shadow:0 2px 5px rgba(25,50,85,.04);cursor:pointer}
+.marketplace-page .nav-links .btn.active{background:#244fe0;border-color:#244fe0;color:#fff;box-shadow:0 6px 15px rgba(36,79,224,.18)}
+.marketplace-page .nav-links #nav-logout{grid-column:1/-1;color:#10233f;background:rgba(255,255,255,.9)}
+.marketplace-page .nav-links .btn:disabled{opacity:.65;cursor:wait}
+.marketplace-main{width:100%;max-width:1200px;margin:auto;padding:32px 20px 60px}
+.marketplace-heading{background:linear-gradient(135deg,#0647d9,#287bff);color:#fff;padding:38px 35px;border-radius:17px;margin-bottom:28px;box-shadow:0 12px 30px rgba(31,79,224,.13)}
+.marketplace-heading h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:30px;font-weight:800;margin:0 0 10px}
+.marketplace-heading p{color:rgba(255,255,255,.92);font-size:14px;line-height:1.8;margin:0;max-width:600px}
+.marketplace-tools{display:flex;gap:12px;margin-bottom:25px}
+.marketplace-tools input{flex:1;min-width:0;padding:14px 16px;border:1px solid #cbd9ef;border-radius:10px;background:#fff;font-family:inherit;font-size:14px;outline:none}
+.marketplace-tools input:focus{border-color:#287bff;box-shadow:0 0 0 3px rgba(40,123,255,.1)}
+.marketplace-back{display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border-radius:10px;background:#fff;border:1px solid #cbd9ef;color:#075bff;font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap}
+.marketplace-products{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:22px;align-items:stretch}
+.marketplace-card{background:#fff;border:1px solid #dce7f8;border-radius:15px;overflow:hidden;box-shadow:0 5px 20px rgba(20,35,70,.045);display:flex;flex-direction:column;min-width:0;transition:transform .2s ease,box-shadow .2s ease}
+.marketplace-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(20,35,70,.09)}
+.marketplace-gallery{position:relative;width:100%;background:#edf1f8;overflow:hidden}
+.marketplace-main-image{width:100%;height:245px;display:block;object-fit:cover;cursor:zoom-in;transition:opacity .25s ease,transform .3s ease}
+.marketplace-main-image:hover{transform:scale(1.025)}
+.marketplace-zoom-hint{position:absolute;left:10px;bottom:10px;padding:6px 10px;border-radius:20px;background:rgba(0,0,0,.58);color:#fff;font-size:10px;pointer-events:none}
+.marketplace-image-count{position:absolute;top:12px;right:12px;padding:6px 10px;border-radius:20px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700}
+.marketplace-slide-button{position:absolute;top:45%;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:50%;background:rgba(0,0,0,.58);color:#fff;font-size:24px;cursor:pointer;z-index:2}
 .marketplace-slide-button.slide-prev{left:10px}
 .marketplace-slide-button.slide-next{right:10px}
-
-.marketplace-slider-dots{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:7px;
-    padding:10px;
-    background:#fff;
-}
-
-.marketplace-slider-dots button{
-    width:8px;
-    height:8px;
-    padding:0;
-    border:0;
-    border-radius:50%;
-    background:#c5ccda;
-    cursor:pointer;
-}
-
-.marketplace-slider-dots button.active{
-    background:#075bff;
-    transform:scale(1.2);
-}
-
-.marketplace-card-content{
-    padding:19px;
-    display:flex;
-    flex-direction:column;
-    flex:1;
-    min-width:0;
-}
-
-.marketplace-product-title{
-    font-family:'Plus Jakarta Sans',sans-serif;
-    font-size:17px;
-    font-weight:800;
-    line-height:1.45;
-    color:#17233d;
-    margin:0 0 10px;
-    overflow-wrap:anywhere;
-}
-
-.marketplace-price{
-    color:#075bff;
-    font-size:21px;
-    font-weight:800;
-    line-height:1.4;
-    margin-bottom:12px;
-}
-
-.marketplace-description{
-    color:#66738a;
-    font-size:13px;
-    line-height:1.85;
-    white-space:pre-wrap;
-    overflow-wrap:anywhere;
-    word-break:normal;
-    margin:0 0 20px;
-    text-align:left;
-}
-
-.marketplace-order{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    width:100%;
-    min-height:47px;
-    padding:12px 15px;
-    border:0;
-    border-radius:10px;
-    background:#20a957;
-    color:#fff;
-    font-size:13px;
-    font-weight:800;
-    text-decoration:none;
-    text-align:center;
-    margin-top:auto;
-    transition:background .2s ease,transform .2s ease;
-}
-
-.marketplace-order:hover{
-    background:#168443;
-    transform:translateY(-1px);
-}
-
+.marketplace-slider-dots{display:flex;justify-content:center;align-items:center;gap:7px;padding:10px;background:#fff}
+.marketplace-slider-dots button{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:#c5ccda;cursor:pointer}
+.marketplace-slider-dots button.active{background:#075bff;transform:scale(1.2)}
+.marketplace-card-content{padding:19px;display:flex;flex-direction:column;flex:1;min-width:0}
+.marketplace-product-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;line-height:1.45;color:#17233d;margin:0 0 10px;overflow-wrap:anywhere}
+.marketplace-price{color:#075bff;font-size:21px;font-weight:800;line-height:1.4;margin-bottom:12px}
+.marketplace-description{color:#66738a;font-size:13px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;margin:0 0 20px;text-align:left}
+.marketplace-order{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:47px;padding:12px 15px;border:0;border-radius:10px;background:#20a957;color:#fff;font-size:13px;font-weight:800;text-decoration:none;text-align:center;margin-top:auto;transition:background .2s ease,transform .2s ease}
+.marketplace-order:hover{background:#168443;transform:translateY(-1px)}
 .whatsapp-arrow{font-size:18px}
-
-.marketplace-date{
-    display:block;
-    margin-top:13px;
-    color:#9aa4b5;
-    font-size:11px;
-    line-height:1.5;
-}
-
-.marketplace-empty{
-    grid-column:1/-1;
-    background:#fff;
-    padding:45px 20px;
-    text-align:center;
-    border-radius:14px;
-    color:#68758a;
-}
-
-.marketplace-loading{
-    grid-column:1/-1;
-    text-align:center;
-    padding:35px;
-    color:#68758a;
-}
-
-.marketplace-error{
-    grid-column:1/-1;
-    padding:20px;
-    background:#fff0f0;
-    color:#b42318;
-    border-radius:12px;
-}
-
-.marketplace-lightbox{
-    position:fixed;
-    inset:0;
-    z-index:99999;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:55px 65px;
-    background:rgba(0,0,0,.96);
-}
-
+.marketplace-date{display:block;margin-top:13px;color:#9aa4b5;font-size:11px;line-height:1.5}
+.marketplace-empty{grid-column:1/-1;background:#fff;padding:45px 20px;text-align:center;border-radius:14px;color:#68758a}
+.marketplace-loading{grid-column:1/-1;text-align:center;padding:35px;color:#68758a}
+.marketplace-error{grid-column:1/-1;padding:20px;background:#fff0f0;color:#b42318;border-radius:12px}
+.marketplace-lightbox{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:55px 65px;background:rgba(0,0,0,.96)}
 .marketplace-lightbox.active{display:flex}
-
-.lightbox-image{
-    display:block;
-    max-width:100%;
-    max-height:88vh;
-    width:auto;
-    height:auto;
-    object-fit:contain;
-    border-radius:5px;
-}
-
-.lightbox-close,
-.lightbox-prev,
-.lightbox-next{
-    position:absolute;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:0;
-    border-radius:50%;
-    background:rgba(255,255,255,.15);
-    color:#fff;
-    cursor:pointer;
-    z-index:2;
-}
-
-.lightbox-close{
-    top:18px;
-    right:20px;
-    width:44px;
-    height:44px;
-    font-size:30px;
-}
-
-.lightbox-prev,
-.lightbox-next{
-    top:50%;
-    width:43px;
-    height:43px;
-    font-size:30px;
-}
-
+.lightbox-image{display:block;max-width:100%;max-height:88vh;width:auto;height:auto;object-fit:contain;border-radius:5px}
+.lightbox-close,.lightbox-prev,.lightbox-next{position:absolute;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;z-index:2}
+.lightbox-close{top:18px;right:20px;width:44px;height:44px;font-size:30px}
+.lightbox-prev,.lightbox-next{top:50%;width:43px;height:43px;font-size:30px}
 .lightbox-prev{left:15px}
 .lightbox-next{right:15px}
-
-.lightbox-counter{
-    position:absolute;
-    bottom:18px;
-    left:50%;
-    transform:translateX(-50%);
-    color:#fff;
-    font-size:13px;
-    background:rgba(255,255,255,.15);
-    padding:7px 13px;
-    border-radius:20px;
-}
-
+.lightbox-counter{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;background:rgba(255,255,255,.15);padding:7px 13px;border-radius:20px}
 body.lightbox-active{overflow:hidden}
-
 @media(max-width:700px){
-    .marketplace-page .nav-row{
-        padding:9px 13px;
-        gap:8px 10px;
-    }
-
-    .marketplace-page .brand-mark{
-        width:38px;
-        height:38px;
-    }
-
-    .marketplace-page .brand-text b{
-        font-size:19px;
-    }
-
-    .marketplace-page .brand-text span{
-        font-size:11px;
-    }
-
-    .marketplace-page .notification-button{
-        width:43px;
-        height:43px;
-    }
-
-    .marketplace-page .nav-links{
-        gap:8px;
-        margin-top:2px;
-    }
-
-    .marketplace-page .nav-links .btn{
-        min-height:54px;
-        padding:9px 5px;
-        border-radius:13px;
-        font-size:clamp(12px,3.5vw,16px);
-    }
-
-    .marketplace-main{
-        padding:20px 13px 40px;
-    }
-
-    .marketplace-heading{
-        padding:27px 21px;
-        border-radius:15px;
-    }
-
-    .marketplace-heading h1{font-size:24px}
-    .marketplace-heading p{font-size:13px}
-
-    .marketplace-tools{flex-direction:column}
-    .marketplace-back{min-height:44px}
-
-    .marketplace-products{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:12px;
-    }
-
-    .marketplace-main-image{height:155px}
-    .marketplace-card-content{padding:12px}
-
-    .marketplace-product-title{
-        font-size:14px;
-        line-height:1.5;
-    }
-
-    .marketplace-price{
-        font-size:16px;
-        margin-bottom:9px;
-    }
-
-    .marketplace-description{
-        font-size:12px;
-        line-height:1.8;
-        margin-bottom:15px;
-    }
-
-    .marketplace-order{
-        min-height:43px;
-        padding:10px 5px;
-        font-size:11px;
-        gap:5px;
-    }
-
-    .marketplace-date{font-size:10px}
-
-    .marketplace-slide-button{
-        width:29px;
-        height:29px;
-        font-size:20px;
-    }
-
-    .marketplace-zoom-hint{
-        font-size:9px;
-        padding:5px 7px;
-    }
-
-    .marketplace-lightbox{padding:50px 35px}
-    .lightbox-image{max-height:82vh}
-    .lightbox-prev{left:5px}
-    .lightbox-next{right:5px}
+.marketplace-page .nav-row{padding:9px 13px;gap:8px 10px}
+.marketplace-page .brand-mark{width:38px;height:38px}
+.marketplace-page .brand-text b{font-size:19px}
+.marketplace-page .brand-text span{font-size:11px}
+.marketplace-page .notification-button{width:43px;height:43px}
+.marketplace-page .nav-links{gap:8px;margin-top:2px}
+.marketplace-page .nav-links .btn{min-height:54px;padding:9px 5px;border-radius:13px;font-size:clamp(12px,3.5vw,16px)}
+.marketplace-main{padding:20px 13px 40px}
+.marketplace-heading{padding:27px 21px;border-radius:15px}
+.marketplace-heading h1{font-size:24px}
+.marketplace-heading p{font-size:13px}
+.marketplace-tools{flex-direction:column}
+.marketplace-back{min-height:44px}
+.marketplace-products{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.marketplace-main-image{height:155px}
+.marketplace-card-content{padding:12px}
+.marketplace-product-title{font-size:14px;line-height:1.5}
+.marketplace-price{font-size:16px;margin-bottom:9px}
+.marketplace-description{font-size:12px;line-height:1.8;margin-bottom:15px}
+.marketplace-order{min-height:43px;padding:10px 5px;font-size:11px;gap:5px}
+.marketplace-date{font-size:10px}
+.marketplace-slide-button{width:29px;height:29px;font-size:20px}
+.marketplace-zoom-hint{font-size:9px;padding:5px 7px}
+.marketplace-lightbox{padding:50px 35px}
+.lightbox-image{max-height:82vh}
+.lightbox-prev{left:5px}
+.lightbox-next{right:5px}
 }
-
 @media(max-width:370px){
-    .marketplace-page .nav-links{
-        gap:6px;
-    }
-
-    .marketplace-page .nav-links .btn{
-        font-size:11px;
-        min-height:51px;
-        padding:8px 3px;
-    }
-
-    .marketplace-products{grid-template-columns:1fr}
-    .marketplace-main-image{height:220px}
+.marketplace-page .nav-links{gap:6px}
+.marketplace-page .nav-links .btn{font-size:11px;min-height:51px;padding:8px 3px}
+.marketplace-products{grid-template-columns:1fr}
+.marketplace-main-image{height:220px}
 }
 </style>
 </head>
@@ -691,304 +122,178 @@ body.lightbox-active{overflow:hidden}
 <body class="marketplace-page">
 
 <header class="site-header">
-    <div class="nav-row">
+<div class="nav-row">
 
-        <a class="brand" href="dashboard.html">
-            <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
-                <rect x="2" y="2" width="44" height="44" rx="9" fill="#075bff"/>
-                <path d="M14 32 L24 14 L34 32"
-                      stroke="#fff"
-                      stroke-width="3.4"
-                      fill="none"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-                <circle cx="24" cy="26" r="2.6" fill="#d8eaff"/>
-            </svg>
+<a class="brand" href="dashboard.html">
+<svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+<rect x="2" y="2" width="44" height="44" rx="9" fill="#075bff"/>
+<path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="24" cy="26" r="2.6" fill="#d8eaff"/>
+</svg>
+<span class="brand-text"><b>EIS</b><span>Digital Services</span></span>
+</a>
 
-            <span class="brand-text">
-                <b>EIS</b>
-                <span>Digital Services</span>
-            </span>
-        </a>
+<div class="notification-area">
+<button type="button" class="notification-button" id="notification-button" aria-label="Notifications" aria-expanded="false">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>
+<path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/>
+</svg>
+<span id="notification-count" class="notification-count">0</span>
+</button>
+<div id="notification-dropdown" class="notification-dropdown">
+<h3>Notifications</h3>
+<div id="notifications-list">Loading notifications...</div>
+</div>
+</div>
 
-        <div class="notification-area">
-            <button
-                type="button"
-                class="notification-button"
-                id="notification-button"
-                aria-label="Notifications"
-                aria-expanded="false">
+<nav class="nav-links" aria-label="Main navigation">
+<a href="dashboard.html" class="btn">Dashboard</a>
+<a href="marketplace.html" class="btn active" aria-current="page">Marketplace</a>
+<a href="admin.html" id="nav-admin" class="btn" hidden aria-label="Admin Panel">Admin Panel</a>
+<button type="button" id="nav-logout" class="btn">Log out</button>
+</nav>
 
-                <svg viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="2"
-                     stroke-linecap="round"
-                     stroke-linejoin="round"
-                     aria-hidden="true">
-                    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8
-                    8.5 8.5 0 0 1-7.6 4.7
-                    8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7
-                    a8.4 8.4 0 0 1-.9-3.8
-                    8.5 8.5 0 0 1 4.7-7.6
-                    8.4 8.4 0 0 1 3.8-.9h.5
-                    a8.5 8.5 0 0 1 8 8v.5z"/>
-                    <path d="M8 12h.01"/>
-                    <path d="M12 12h.01"/>
-                    <path d="M16 12h.01"/>
-                </svg>
-
-                <span id="notification-count" class="notification-count">0</span>
-            </button>
-
-            <div id="notification-dropdown" class="notification-dropdown">
-                <h3>Notifications</h3>
-                <div id="notifications-list">Loading notifications...</div>
-            </div>
-        </div>
-
-        <nav class="nav-links" aria-label="Main navigation">
-            <a href="dashboard.html" class="btn">Dashboard</a>
-            <a href="marketplace.html" class="btn active" aria-current="page">Marketplace</a>
-            <button type="button" id="nav-logout" class="btn">Log out</button>
-        </nav>
-
-    </div>
+</div>
 </header>
 
 <main class="marketplace-main">
+<section class="marketplace-heading">
+<h1>EIS Marketplace</h1>
+<p>Explore our available products, view product images, and contact us directly on WhatsApp to place your order.</p>
+</section>
 
-    <section class="marketplace-heading">
-        <h1>EIS Marketplace</h1>
-        <p>
-            Explore our available products, view product images,
-            and contact us directly on WhatsApp to place your order.
-        </p>
-    </section>
+<div class="marketplace-tools">
+<input type="search" id="marketplace-search" placeholder="Search products..." aria-label="Search products">
+<a href="dashboard.html" class="marketplace-back">← Dashboard</a>
+</div>
 
-    <div class="marketplace-tools">
-        <input
-            type="search"
-            id="marketplace-search"
-            placeholder="Search products..."
-            aria-label="Search products"
-        >
-
-        <a href="dashboard.html" class="marketplace-back">
-            ← Dashboard
-        </a>
-    </div>
-
-    <section
-        id="marketplace-products"
-        class="marketplace-products"
-        aria-live="polite">
-
-        <div class="marketplace-loading">
-            Loading products...
-        </div>
-
-    </section>
-
+<section id="marketplace-products" class="marketplace-products" aria-live="polite">
+<div class="marketplace-loading">Loading products...</div>
+</section>
 </main>
 
 <footer class="site-footer">
-    <div class="wrap">
-        <p>© 2026 EIS Digital Services. All rights reserved.</p>
-    </div>
+<div class="wrap"><p>© 2026 EIS Digital Services. All rights reserved.</p></div>
 </footer>
 
 <script type="module">
 import { supabase } from "./js/supabase.js";
 
 const $ = id => document.getElementById(id);
-
 let notificationsCache = [];
 
 function formatNotificationDate(value) {
-    if (!value) return "";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return "";
-
-    return date.toLocaleString("en-NG", {
-        dateStyle: "medium",
-        timeStyle: "short"
-    });
+if (!value) return "";
+const date = new Date(value);
+if (Number.isNaN(date.getTime())) return "";
+return date.toLocaleString("en-NG", {dateStyle:"medium",timeStyle:"short"});
 }
 
 async function initializeHeader() {
-    try {
-        const {
-            data: { user },
-            error: authError
-        } = await supabase.auth.getUser();
-
-        if (authError) throw authError;
-
-        if (!user) {
-            window.location.replace("index.html");
-            return;
-        }
-
-        await loadNotifications(user.id);
-
-    } catch (error) {
-        console.error("Header initialization error:", error);
-    }
+try {
+const {data:{user},error:authError} = await supabase.auth.getUser();
+if (authError) throw authError;
+if (!user) {
+window.location.replace("index.html");
+return;
+}
+await loadNotifications(user.id);
+} catch (error) {
+console.error("Header initialization error:",error);
+}
 }
 
 async function loadNotifications(userId) {
-    const list = $("notifications-list");
-    const count = $("notification-count");
-
-    if (!list || !count) return;
-
-    list.textContent = "Loading notifications...";
-
-    try {
-        const { data, error } = await supabase
-            .from("notifications")
-            .select("*")
-            .eq("user_id", userId)
-            .order("created_at", { ascending: false })
-            .limit(30);
-
-        if (error) throw error;
-
-        notificationsCache = data || [];
-
-        const unread = notificationsCache.filter(
-            item => !item.is_read
-        ).length;
-
-        count.textContent = unread > 99 ? "99+" : String(unread);
-        count.style.display = unread > 0 ? "flex" : "none";
-
-        renderNotifications();
-
-    } catch (error) {
-        console.error("Notification loading error:", error);
-        list.textContent = "Unable to load notifications.";
-    }
+const list = $("notifications-list");
+const count = $("notification-count");
+if (!list || !count) return;
+list.textContent = "Loading notifications...";
+try {
+const {data,error} = await supabase.from("notifications").select("*").eq("user_id",userId).order("created_at",{ascending:false}).limit(30);
+if (error) throw error;
+notificationsCache = data || [];
+const unread = notificationsCache.filter(item => !item.is_read).length;
+count.textContent = unread > 99 ? "99+" : String(unread);
+count.style.display = unread > 0 ? "flex" : "none";
+renderNotifications();
+} catch (error) {
+console.error("Notification loading error:",error);
+list.textContent = "Unable to load notifications.";
+}
 }
 
 function renderNotifications() {
-    const list = $("notifications-list");
-
-    if (!list) return;
-
-    list.replaceChildren();
-
-    if (!notificationsCache.length) {
-        list.textContent = "You have no notifications.";
-        return;
-    }
-
-    notificationsCache.forEach(notification => {
-        const item = document.createElement("div");
-        item.className = "notification-item";
-
-        const title = document.createElement("strong");
-        title.textContent = notification.title || "Notification";
-
-        const message = document.createElement("p");
-        message.textContent = notification.message || "";
-
-        const time = document.createElement("time");
-        time.textContent = formatNotificationDate(
-            notification.created_at
-        );
-
-        item.append(title, message, time);
-        list.appendChild(item);
-    });
+const list = $("notifications-list");
+if (!list) return;
+list.replaceChildren();
+if (!notificationsCache.length) {
+list.textContent = "You have no notifications.";
+return;
+}
+notificationsCache.forEach(notification => {
+const item = document.createElement("div");
+item.className = "notification-item";
+const title = document.createElement("strong");
+title.textContent = notification.title || "Notification";
+const message = document.createElement("p");
+message.textContent = notification.message || "";
+const time = document.createElement("time");
+time.textContent = formatNotificationDate(notification.created_at);
+item.append(title,message,time);
+list.appendChild(item);
+});
 }
 
 async function markNotificationsAsRead() {
-    const unreadIds = notificationsCache
-        .filter(item => !item.is_read)
-        .map(item => item.id);
-
-    if (!unreadIds.length) return;
-
-    try {
-        const { error } = await supabase
-            .from("notifications")
-            .update({ is_read: true })
-            .eq("is_read", false)
-            .in("id", unreadIds);
-
-        if (error) throw error;
-
-        notificationsCache = notificationsCache.map(item => ({
-            ...item,
-            is_read: true
-        }));
-
-        $("notification-count").style.display = "none";
-
-    } catch (error) {
-        console.error("Mark notifications as read error:", error);
-    }
+const unreadIds = notificationsCache.filter(item => !item.is_read).map(item => item.id);
+if (!unreadIds.length) return;
+try {
+const {error} = await supabase.from("notifications").update({is_read:true}).eq("is_read",false).in("id",unreadIds);
+if (error) throw error;
+notificationsCache = notificationsCache.map(item => ({...item,is_read:true}));
+$("notification-count").style.display = "none";
+} catch (error) {
+console.error("Mark notifications as read error:",error);
+}
 }
 
 const notificationButton = $("notification-button");
 const notificationDropdown = $("notification-dropdown");
 
-notificationButton?.addEventListener("click", async event => {
-    event.stopPropagation();
-
-    const isOpen = notificationDropdown.classList.toggle("open");
-
-    notificationButton.setAttribute(
-        "aria-expanded",
-        String(isOpen)
-    );
-
-    if (isOpen) {
-        await markNotificationsAsRead();
-    }
+notificationButton?.addEventListener("click",async event => {
+event.stopPropagation();
+const isOpen = notificationDropdown.classList.toggle("open");
+notificationButton.setAttribute("aria-expanded",String(isOpen));
+if (isOpen) await markNotificationsAsRead();
 });
 
-document.addEventListener("click", event => {
-    if (
-        notificationDropdown &&
-        !notificationDropdown.contains(event.target) &&
-        !notificationButton.contains(event.target)
-    ) {
-        notificationDropdown.classList.remove("open");
-        notificationButton?.setAttribute("aria-expanded", "false");
-    }
+document.addEventListener("click",event => {
+if (notificationDropdown && !notificationDropdown.contains(event.target) && !notificationButton.contains(event.target)) {
+notificationDropdown.classList.remove("open");
+notificationButton?.setAttribute("aria-expanded","false");
+}
 });
 
 const logoutButton = $("nav-logout");
-
-logoutButton?.addEventListener("click", async () => {
-    logoutButton.disabled = true;
-    logoutButton.textContent = "Logging out...";
-
-    try {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) throw error;
-
-        window.location.replace("index.html");
-
-    } catch (error) {
-        console.error("Logout error:", error);
-        alert("Unable to log out. Please try again.");
-
-        logoutButton.disabled = false;
-        logoutButton.textContent = "Log out";
-    }
+logoutButton?.addEventListener("click",async () => {
+logoutButton.disabled = true;
+logoutButton.textContent = "Logging out...";
+try {
+const {error} = await supabase.auth.signOut();
+if (error) throw error;
+window.location.replace("index.html");
+} catch (error) {
+console.error("Logout error:",error);
+alert("Unable to log out. Please try again.");
+logoutButton.disabled = false;
+logoutButton.textContent = "Log out";
+}
 });
 
 initializeHeader();
 </script>
 
 <script type="module" src="js/marketplace.js?v=4"></script>
-
 </body>
 </html>
