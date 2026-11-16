@@ -1127,10 +1127,8 @@ $("refresh-services")?.addEventListener(
 "click",
 refreshServices
 );
-$("marketplace-refresh")?.addEventListener(
-"click",
-refreshServices
-);
+// Marketplace product refresh is handled by js/marketplace-admin.js.
+
 $("refresh-conversations")?.addEventListener(
 "click",
 refreshConversations
