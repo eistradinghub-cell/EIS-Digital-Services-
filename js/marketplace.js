@@ -12,6 +12,45 @@ let lightboxImages = [];
 let lightboxIndex = 0;
 let lightboxOpen = false;
 
+/* ADMIN NAVIGATION: SHOW ONLY TO VERIFIED ADMIN USERS */
+async function initializeAdminNavigation() {
+    const adminButton = document.getElementById("nav-admin");
+
+    if (!adminButton) return;
+
+    adminButton.hidden = true;
+    adminButton.classList.remove("is-admin-nav");
+
+    try {
+        const {
+            data: { user },
+            error: authError
+        } = await supabase.auth.getUser();
+
+        if (authError) throw authError;
+        if (!user) return;
+
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        const role = String(data?.role || "").trim().toLowerCase();
+
+        if (["admin", "super_admin"].includes(role)) {
+            adminButton.hidden = false;
+            adminButton.classList.add("is-admin-nav");
+        }
+    } catch (error) {
+        console.error("Admin navigation check failed:", error);
+        adminButton.hidden = true;
+        adminButton.classList.remove("is-admin-nav");
+    }
+}
+
 function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>"']/g, (char) => ({
         "&": "&amp;",
@@ -621,5 +660,6 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
+initializeAdminNavigation();
 setupProductEvents();
 loadProducts();
