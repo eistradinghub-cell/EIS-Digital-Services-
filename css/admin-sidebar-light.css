@@ -1,0 +1,66 @@
+/* EIS ADMIN SIDEBAR — LIGHT BLUE THEME */
+
+.admin-page {
+    --admin-navy: #e7f1ff;
+    --admin-navy-light: #d7e8ff;
+    --admin-blue: #145ce6;
+}
+
+/* Sidebar background */
+.admin-page .admin-sidebar {
+    background: #e7f1ff !important;
+    color: #17345f !important;
+    border-right: 1px solid #c5dcff;
+}
+
+/* Sidebar brand */
+.admin-page .admin-brand-text h2 {
+    color: #123d7a !important;
+}
+
+.admin-page .admin-brand-text span {
+    color: #55749e !important;
+}
+
+/* Sidebar section labels */
+.admin-page .sidebar-section-title {
+    color: #6481a8 !important;
+}
+
+/* Sidebar menu links */
+.admin-page .sidebar-link {
+    color: #34577f !important;
+    background: transparent;
+}
+
+/* Hover */
+.admin-page .sidebar-link:hover {
+    color: #104bbd !important;
+    background: #d5e6ff !important;
+}
+
+/* Active menu */
+.admin-page .sidebar-link.active {
+    color: #ffffff !important;
+    background: #2163e8 !important;
+    box-shadow: 0 5px 13px rgba(33, 99, 232, .18);
+}
+
+/* Sidebar icons */
+.admin-page .sidebar-link svg,
+.admin-page .sidebar-link i {
+    color: inherit !important;
+}
+
+/* Sidebar footer */
+.admin-page .admin-sidebar-footer {
+    border-top: 1px solid #c5dcff !important;
+    color: #55749e !important;
+}
+
+/* Mobile sidebar */
+@media (max-width: 768px) {
+    .admin-page .admin-sidebar {
+        background: #e7f1ff !important;
+    }
+}
