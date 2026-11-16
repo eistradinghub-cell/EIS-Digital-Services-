@@ -8,7 +8,7 @@
 <title>Marketplace | EIS Digital Services</title>
 
 <link rel="stylesheet" href="css/styles.css?v=29">
-<link rel="stylesheet" href="css/shared-navigation.css?v=1">
+<link rel="stylesheet" href="css/shared-navigation.css?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -179,10 +179,6 @@
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;
     margin-top:3px;
-}
-
-.marketplace-page .nav-links:has(#nav-admin:not([hidden])){
-    grid-template-columns:repeat(3,minmax(0,1fr));
 }
 
 .marketplace-page .nav-links .btn{
@@ -575,7 +571,6 @@
 body.lightbox-active{overflow:hidden}
 
 @media(max-width:700px){
-
     .marketplace-page .nav-row{
         padding:9px 13px;
         gap:8px 10px;
@@ -677,7 +672,6 @@ body.lightbox-active{overflow:hidden}
 }
 
 @media(max-width:370px){
-
     .marketplace-page .nav-links{
         gap:6px;
     }
@@ -753,10 +747,9 @@ body.lightbox-active{overflow:hidden}
             </div>
         </div>
 
-        <nav class="nav-links">
+        <nav class="nav-links" aria-label="Main navigation">
             <a href="dashboard.html" class="btn">Dashboard</a>
             <a href="marketplace.html" class="btn active" aria-current="page">Marketplace</a>
-            <a href="admin.html" id="nav-admin" class="btn" hidden>Admin</a>
             <button type="button" id="nav-logout" class="btn">Log out</button>
         </nav>
 
@@ -774,7 +767,6 @@ body.lightbox-active{overflow:hidden}
     </section>
 
     <div class="marketplace-tools">
-
         <input
             type="search"
             id="marketplace-search"
@@ -785,7 +777,6 @@ body.lightbox-active{overflow:hidden}
         <a href="dashboard.html" class="marketplace-back">
             ← Dashboard
         </a>
-
     </div>
 
     <section
@@ -806,8 +797,6 @@ body.lightbox-active{overflow:hidden}
         <p>© 2026 EIS Digital Services. All rights reserved.</p>
     </div>
 </footer>
-
-<script src="js/spa-navigation.js?v=1"></script>
 
 <script type="module">
 import { supabase } from "./js/supabase.js";
@@ -841,20 +830,6 @@ async function initializeHeader() {
         if (!user) {
             window.location.replace("index.html");
             return;
-        }
-
-        const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .maybeSingle();
-
-        if (profileError) throw profileError;
-
-        const role = String(profile?.role || "").toLowerCase();
-
-        if (["admin", "super_admin"].includes(role)) {
-            $("nav-admin").hidden = false;
         }
 
         await loadNotifications(user.id);
@@ -1013,5 +988,7 @@ logoutButton?.addEventListener("click", async () => {
 initializeHeader();
 </script>
 
+<script type="module" src="js/marketplace.js?v=4"></script>
+
 </body>
-    </html>
+</html>
