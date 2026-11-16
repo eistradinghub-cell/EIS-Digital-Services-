@@ -8,7 +8,7 @@
     <title>Admin Dashboard | EIS Digital Services</title>
     <link rel="stylesheet" href="css/styles.css?v=27">
     <link rel="stylesheet" href="css/admin.css?v=27">
-    <link rel="stylesheet" href="css/shared-navigation.css?v=1">
+    <link rel="stylesheet" href="css/shared-navigation.css?v=2">
     <link rel="stylesheet" href="css/admin-sidebar-light.css?v=1">
 
     <style>
@@ -845,10 +845,10 @@
 </div>
 
 <!-- Main administration functionality -->
-<script type="module" src="js/admin.js?v=2"></script>
+<script type="module" src="js/admin.js?v=3"></script>
 
 <!-- Marketplace product management -->
-<script type="module" src="js/marketplace-admin.js?v=2"></script>
+<script type="module" src="js/marketplace-admin.js?v=3"></script>
 
 <script type="module">
 import { supabase } from "./js/supabase.js";
@@ -863,113 +863,4 @@ let cached = [];
 async function loadAdminNotifications() {
     try {
         const {
-            data: { user },
-            error: authError
-        } = await supabase.auth.getUser();
-
-        if (authError) throw authError;
-        if (!user) return;
-
-        const { data, error } = await supabase
-            .from("notifications")
-            .select("id,title,message,is_read,created_at")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false })
-            .limit(30);
-
-        if (error) throw error;
-
-        cached = data || [];
-
-        const unread = cached.filter(item => !item.is_read).length;
-
-        count.textContent = unread > 99 ? "99+" : String(unread);
-        count.style.display = unread ? "grid" : "none";
-
-        list.replaceChildren();
-
-        if (!cached.length) {
-            list.textContent = "You have no notifications.";
-            return;
-        }
-
-        cached.forEach(notification => {
-            const item = document.createElement("div");
-            item.className = "global-admin-notice-item";
-
-            const title = document.createElement("strong");
-            title.textContent = notification.title || "Notification";
-
-            const message = document.createElement("p");
-            message.textContent = notification.message || "";
-
-            const time = document.createElement("time");
-
-            if (notification.created_at) {
-                const date = new Date(notification.created_at);
-                time.textContent = Number.isNaN(date.getTime())
-                    ? ""
-                    : date.toLocaleString("en-NG", {
-                        dateStyle: "medium",
-                        timeStyle: "short"
-                    });
-            }
-
-            item.append(title, message, time);
-            list.append(item);
-        });
-
-    } catch (error) {
-        console.error("Admin notifications:", error);
-        list.textContent = "Unable to load notifications.";
-    }
-}
-
-button?.addEventListener("click", async event => {
-    event.stopPropagation();
-
-    const open = dropdown.classList.toggle("open");
-    button.setAttribute("aria-expanded", String(open));
-
-    if (open) {
-        const unreadIds = cached
-            .filter(item => !item.is_read)
-            .map(item => item.id);
-
-        if (unreadIds.length) {
-            const { error } = await supabase
-                .from("notifications")
-                .update({ is_read: true })
-                .in("id", unreadIds);
-
-            if (!error) {
-                cached = cached.map(item => ({
-                    ...item,
-                    is_read: true
-                }));
-                count.style.display = "none";
-            }
-        }
-    }
-});
-
-document.addEventListener("click", event => {
-    if (
-        dropdown &&
-        !dropdown.contains(event.target) &&
-        !button.contains(event.target)
-    ) {
-        dropdown.classList.remove("open");
-        button.setAttribute("aria-expanded", "false");
-    }
-});
-
-document.getElementById("admin-top-logout")?.addEventListener("click", () => {
-    document.getElementById("nav-logout")?.click();
-});
-
-loadAdminNotifications();
-</script>
-
-</body>
-                </html>
+            data: { user
