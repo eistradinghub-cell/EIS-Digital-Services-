@@ -208,7 +208,7 @@ function renderImagePreview(files = [], existingImages = []) {
 
     if (items.length) {
         const note = document.createElement("div");
-        note.textContent = `${items.length} of 4 images selected`;
+        note.textContent = `${Math.min(items.length, 4)} of 4 images selected`;
         note.style.gridColumn = "1 / -1";
         note.style.fontSize = "12px";
         note.style.color = "#526078";
@@ -707,4 +707,4 @@ if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initializeMarketplaceAdmin);
 } else {
     initializeMarketplaceAdmin();
-                    }
+                  }
