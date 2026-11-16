@@ -407,9 +407,10 @@ async function saveProduct(event) {
         );
 
     } finally {
+        const isStillEditing = Boolean($("marketplace-product-id")?.value);
         setButtonLoading(
             false,
-            productId ? "Update Product" : "Post Product"
+            isStillEditing ? "Update Product" : "Post Product"
         );
     }
 }
@@ -499,31 +500,31 @@ async function loadProducts() {
         `;
     }
 
-    const { data, error } = await supabase
-        .from("marketplace_products")
-        .select("*")
-        .order("created_at", { ascending: false });
+    try {
+        const { data, error } = await supabase
+            .from("marketplace_products")
+            .select("*")
+            .order("created_at", { ascending: false });
 
-    if (error) {
+        if (error) throw error;
+
+        products = data || [];
+        renderProducts();
+
+        if ($("stat-products")) {
+            $("stat-products").textContent =
+                products.length.toLocaleString();
+        }
+    } catch (error) {
         console.error("Marketplace loading error:", error);
 
         if (container) {
             container.innerHTML = `
                 <div class="admin-error">
-                    ${escapeHTML(error.message)}
+                    ${escapeHTML(error.message || "Please try again.")}
                 </div>
             `;
         }
-
-        return;
-    }
-
-    products = data || [];
-    renderProducts();
-
-    if ($("stat-products")) {
-        $("stat-products").textContent =
-            products.length.toLocaleString();
     }
 }
 
@@ -707,4 +708,4 @@ if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initializeMarketplaceAdmin);
 } else {
     initializeMarketplaceAdmin();
-                  }
+    }
