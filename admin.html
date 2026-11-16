@@ -6,8 +6,10 @@
     <meta name="theme-color" content="#075bff">
     <meta name="description" content="EIS Digital Services Administration Dashboard">
     <title>Admin Dashboard | EIS Digital Services</title>
-    <link rel="stylesheet" href="css/styles.css?v=26">
-    <link rel="stylesheet" href="css/admin.css?v=26">
+    <link rel="stylesheet" href="css/styles.css?v=27">
+    <link rel="stylesheet" href="css/admin.css?v=27">
+    <link rel="stylesheet" href="css/shared-navigation.css?v=1">
+    <link rel="stylesheet" href="css/admin-sidebar-light.css?v=1">
 
     <style>
         .marketplace-form-grid {
@@ -17,9 +19,7 @@
             padding: 24px;
         }
 
-        .marketplace-form-grid .full-width {
-            grid-column: 1 / -1;
-        }
+        .marketplace-form-grid .full-width { grid-column: 1 / -1; }
 
         .marketplace-form-grid label {
             display: block;
@@ -61,9 +61,7 @@
             border: 1px solid #e1e6ef;
         }
 
-        .marketplace-form-actions {
-            padding: 0 24px 24px;
-        }
+        .marketplace-form-actions { padding: 0 24px 24px; }
 
         .marketplace-form-message {
             margin: 0 24px 18px;
@@ -106,9 +104,7 @@
             background: #f2f4f8;
         }
 
-        .marketplace-admin-card-content {
-            padding: 15px;
-        }
+        .marketplace-admin-card-content { padding: 15px; }
 
         .marketplace-admin-card h4 {
             margin: 0 0 8px;
@@ -171,8 +167,6 @@
             font-size: 11px;
             font-weight: 700;
         }
-
-        /* SHARED STICKY HEADER */
 
         .global-admin-header {
             position: sticky;
@@ -262,9 +256,7 @@
             display: none;
         }
 
-        .global-admin-notice-dropdown.open {
-            display: block;
-        }
+        .global-admin-notice-dropdown.open { display: block; }
 
         .global-admin-notice-dropdown h3 {
             margin: 0 0 10px;
@@ -277,9 +269,7 @@
             border-bottom: 1px solid #edf1f8;
         }
 
-        .global-admin-notice-item:last-child {
-            border-bottom: 0;
-        }
+        .global-admin-notice-item:last-child { border-bottom: 0; }
 
         .global-admin-notice-item strong {
             display: block;
@@ -302,8 +292,6 @@
             color: #8495ad;
             font-size: 10px;
         }
-
-        /* CONSTANT NAVIGATION BUTTONS */
 
         .global-admin-nav {
             grid-column: 1 / -1;
@@ -338,9 +326,7 @@
             box-shadow: 0 6px 15px rgba(36,79,224,.18);
         }
 
-        .global-admin-nav #admin-top-logout {
-            grid-column: 1 / -1;
-        }
+        .global-admin-nav #admin-top-logout { grid-column: 1 / -1; }
 
         @media (max-width: 700px) {
             .marketplace-form-grid {
@@ -349,13 +335,8 @@
                 gap: 16px;
             }
 
-            .marketplace-form-grid .full-width {
-                grid-column: auto;
-            }
-
-            .marketplace-form-actions {
-                padding: 0 17px 20px;
-            }
+            .marketplace-form-grid .full-width { grid-column: auto; }
+            .marketplace-form-actions { padding: 0 17px 20px; }
 
             .marketplace-form-message {
                 margin-left: 17px;
@@ -368,22 +349,15 @@
                 padding: 14px;
             }
 
-            .marketplace-admin-card img {
-                height: 130px;
-            }
-
-            .marketplace-admin-card-content {
-                padding: 11px;
-            }
+            .marketplace-admin-card img { height: 130px; }
+            .marketplace-admin-card-content { padding: 11px; }
 
             .global-admin-header-inner {
                 padding: 8px 13px;
                 gap: 7px 10px;
             }
 
-            .global-admin-nav {
-                gap: 7px;
-            }
+            .global-admin-nav { gap: 7px; }
 
             .global-admin-nav a,
             .global-admin-nav button {
@@ -395,9 +369,7 @@
         }
 
         @media (max-width: 370px) {
-            .global-admin-nav {
-                gap: 5px;
-            }
+            .global-admin-nav { gap: 5px; }
 
             .global-admin-nav a,
             .global-admin-nav button {
@@ -420,12 +392,9 @@
         </a>
 
         <div class="global-admin-notice-area">
-            <button
-                type="button"
-                id="global-admin-notice-button"
+            <button type="button" id="global-admin-notice-button"
                 class="global-admin-notice-button"
-                aria-label="Notifications"
-                aria-expanded="false">
+                aria-label="Notifications" aria-expanded="false">
                 ♧
                 <span id="global-admin-notice-count" class="global-admin-notice-count">0</span>
             </button>
@@ -466,19 +435,15 @@
     </div>
 
     <div class="admin-sidebar-content">
-
         <div class="sidebar-section-title">MAIN MENU</div>
 
         <nav class="admin-sidebar-nav">
-
             <button type="button" class="sidebar-link active" data-section="overview">
-                <span class="sidebar-icon">▦</span>
-                <span>Overview</span>
+                <span class="sidebar-icon">▦</span><span>Overview</span>
             </button>
 
             <button type="button" class="sidebar-link" data-section="marketplace">
-                <span class="sidebar-icon">▣</span>
-                <span>Post to Marketplace</span>
+                <span class="sidebar-icon">▣</span><span>Post to Marketplace</span>
             </button>
 
             <button type="button" class="sidebar-link" data-section="applications">
@@ -494,34 +459,26 @@
             </button>
 
             <button type="button" class="sidebar-link" data-section="prices">
-                <span class="sidebar-icon">₦</span>
-                <span>Prices Management</span>
+                <span class="sidebar-icon">₦</span><span>Prices Management</span>
             </button>
-
         </nav>
 
         <div class="sidebar-section-title">COMMUNICATION</div>
 
         <nav class="admin-sidebar-nav">
-
             <button type="button" class="sidebar-link" data-section="broadcast">
-                <span class="sidebar-icon">✉</span>
-                <span>Broadcast Message</span>
+                <span class="sidebar-icon">✉</span><span>Broadcast Message</span>
             </button>
 
             <button type="button" class="sidebar-link" data-section="site-settings">
-                <span class="sidebar-icon">⚙</span>
-                <span>Site Settings</span>
+                <span class="sidebar-icon">⚙</span><span>Site Settings</span>
             </button>
-
         </nav>
     </div>
 
     <div class="admin-sidebar-footer">
-
         <div class="admin-profile-mini">
             <div class="admin-avatar" id="admin-avatar">A</div>
-
             <div class="admin-profile-info">
                 <strong id="sidebar-admin-name">Administrator</strong>
                 <span id="sidebar-admin-role">Admin</span>
@@ -531,17 +488,14 @@
         <button type="button" class="sidebar-logout" id="sidebar-logout">
             <span>↪</span> Log Out
         </button>
-
     </div>
 </aside>
 
 <div class="admin-main-wrapper">
 
 <header class="admin-topbar">
-
     <div class="admin-topbar-left">
         <button type="button" class="admin-menu-toggle" id="menu-toggle" aria-label="Open navigation menu">☰</button>
-
         <div class="admin-breadcrumb">
             <span>Admin</span>
             <span class="breadcrumb-divider">/</span>
@@ -552,21 +506,16 @@
     <div class="admin-topbar-right">
         <a href="index.html" class="topbar-link">Website</a>
         <a href="dashboard.html" class="topbar-link">Dashboard</a>
-
         <button type="button" class="topbar-chat-button" id="topbar-chat">
             ☏ <span>Customer Care</span>
         </button>
-
         <button type="button" class="topbar-logout" id="nav-logout">Log Out</button>
     </div>
-
 </header>
 
 <main class="admin-content">
 
 <div class="admin-notice" id="admin-message" role="status" aria-live="polite" hidden></div>
-
-<!-- OVERVIEW -->
 
 <section class="admin-section active" id="section-overview">
 
@@ -584,11 +533,9 @@
     </div>
 
     <div class="admin-stats-grid">
-
         <article class="admin-stat-card">
             <div class="stat-card-top">
-                <span>Total Applications</span>
-                <div class="stat-icon blue">▤</div>
+                <span>Total Applications</span><div class="stat-icon blue">▤</div>
             </div>
             <h2 id="stat-total">0</h2>
             <p>All submitted applications</p>
@@ -596,8 +543,7 @@
 
         <article class="admin-stat-card">
             <div class="stat-card-top">
-                <span>In Review</span>
-                <div class="stat-icon orange">◷</div>
+                <span>In Review</span><div class="stat-icon orange">◷</div>
             </div>
             <h2 id="stat-review">0</h2>
             <p>Applications being processed</p>
@@ -605,8 +551,7 @@
 
         <article class="admin-stat-card">
             <div class="stat-card-top">
-                <span>Completed</span>
-                <div class="stat-icon green">✓</div>
+                <span>Completed</span><div class="stat-icon green">✓</div>
             </div>
             <h2 id="stat-completed">0</h2>
             <p>Successfully completed</p>
@@ -614,26 +559,19 @@
 
         <article class="admin-stat-card">
             <div class="stat-card-top">
-                <span>Marketplace Products</span>
-                <div class="stat-icon purple">▣</div>
+                <span>Marketplace Products</span><div class="stat-icon purple">▣</div>
             </div>
             <h2 id="stat-products">0</h2>
             <p>Available products</p>
         </article>
-
     </div>
 
     <div class="admin-overview-grid">
-
         <div class="admin-panel">
             <div class="admin-panel-header">
-                <div>
-                    <h3>Recent Applications</h3>
-                    <p>Latest customer applications</p>
-                </div>
+                <div><h3>Recent Applications</h3><p>Latest customer applications</p></div>
                 <button type="button" class="admin-text-button" data-open-section="applications">View All →</button>
             </div>
-
             <div class="admin-apps-list" id="admin-apps-list">
                 <div class="admin-loading">Loading applications...</div>
             </div>
@@ -641,22 +579,15 @@
 
         <div class="admin-panel">
             <div class="admin-panel-header">
-                <div>
-                    <h3>Marketplace Services</h3>
-                    <p>Services currently available</p>
-                </div>
+                <div><h3>Marketplace Services</h3><p>Services currently available</p></div>
                 <button type="button" class="admin-text-button" data-open-section="prices">Manage →</button>
             </div>
-
             <div class="admin-services-list" id="admin-services-list">
                 <div class="admin-loading">Loading services...</div>
             </div>
         </div>
-
     </div>
 </section>
-
-<!-- MARKETPLACE -->
 
 <section class="admin-section" id="section-marketplace">
 
@@ -669,20 +600,14 @@
     </div>
 
     <div class="admin-panel">
-
         <div class="admin-panel-header">
-            <div>
-                <h3 id="marketplace-form-heading">Product Information</h3>
-                <p>Fill in the product details and publish it.</p>
-            </div>
+            <div><h3 id="marketplace-form-heading">Product Information</h3><p>Fill in the product details and publish it.</p></div>
         </div>
 
         <form id="marketplace-product-form" enctype="multipart/form-data">
-
             <input type="hidden" id="marketplace-product-id">
 
             <div class="marketplace-form-grid">
-
                 <div>
                     <label for="product-title">Product Title *</label>
                     <input type="text" id="product-title" maxlength="150" placeholder="Enter product name" required>
@@ -704,107 +629,71 @@
                     <label for="product-description">Product Description *</label>
                     <textarea id="product-description" maxlength="3000" placeholder="Describe this product..." required></textarea>
                 </div>
-
             </div>
 
             <div class="marketplace-form-message" id="marketplace-form-message" role="status" aria-live="polite"></div>
 
             <div class="marketplace-form-actions">
-                <button type="submit" class="admin-primary-button" id="product-submit">
-                    + Post Product
-                </button>
-
-                <button type="button" class="admin-text-button" id="marketplace-cancel-edit" hidden>
-                    Cancel Editing
-                </button>
+                <button type="submit" class="admin-primary-button" id="product-submit">+ Post Product</button>
+                <button type="button" class="admin-text-button" id="marketplace-cancel-edit" hidden>Cancel Editing</button>
             </div>
-
         </form>
     </div>
 
     <div class="admin-panel" style="margin-top:25px;">
-
         <div class="admin-panel-header">
-            <div>
-                <h3>Marketplace Products</h3>
-                <p>View, edit or delete products you have posted.</p>
-            </div>
-
+            <div><h3>Marketplace Products</h3><p>View, edit or delete products you have posted.</p></div>
             <button type="button" class="admin-primary-button" id="marketplace-refresh">↻ Refresh</button>
         </div>
 
         <div id="marketplace-products-list" class="marketplace-products-grid">
             <div class="marketplace-empty">Marketplace products will appear here.</div>
         </div>
-
     </div>
 </section>
 
-<!-- APPLICATIONS -->
-
 <section class="admin-section" id="section-applications">
-
     <div class="admin-page-heading">
         <div>
             <span class="admin-eyebrow">CUSTOMER RECORDS</span>
             <h1>Applications Management</h1>
             <p>Review applications and update their status.</p>
         </div>
-
         <button type="button" class="admin-primary-button" id="refresh-applications">↻ Refresh Applications</button>
     </div>
 
     <div class="admin-panel">
-
         <div class="admin-panel-header">
-            <div>
-                <h3>All Applications</h3>
-                <p>Customer application records</p>
-            </div>
-
+            <div><h3>All Applications</h3><p>Customer application records</p></div>
             <span class="admin-result-count" id="applications-count">0 Applications</span>
         </div>
-
         <div class="admin-apps-list" id="applications-full-list">
             <div class="admin-loading">Loading applications...</div>
         </div>
-
     </div>
 </section>
 
-<!-- CUSTOMER CARE -->
-
 <section class="admin-section" id="section-customer-care">
-
     <div class="admin-page-heading">
         <div>
             <span class="admin-eyebrow">SUPPORT CENTER</span>
             <h1>Customer Care</h1>
             <p>Manage customer conversations and respond to support messages.</p>
         </div>
-
         <button type="button" class="admin-primary-button" id="refresh-conversations">↻ Refresh Chats</button>
     </div>
 
     <div class="admin-chat-layout">
-
         <div class="admin-panel admin-chat-list-panel">
-
             <div class="admin-panel-header">
-                <div>
-                    <h3>Conversations</h3>
-                    <p>Customer support inbox</p>
-                </div>
+                <div><h3>Conversations</h3><p>Customer support inbox</p></div>
             </div>
-
             <div id="admin-conversations-list" class="admin-conversations-list">
                 <div class="admin-loading">Loading conversations...</div>
             </div>
-
         </div>
 
         <div class="admin-panel admin-chat-window">
-
             <div class="admin-chat-empty" id="admin-chat-empty">
                 <div class="chat-empty-icon">☏</div>
                 <h3>Select a Conversation</h3>
@@ -812,10 +701,8 @@
             </div>
 
             <div class="admin-chat-active" id="admin-chat-active" hidden>
-
                 <div class="admin-chat-header">
                     <div class="chat-customer-avatar" id="chat-customer-avatar">C</div>
-
                     <div class="chat-customer-details">
                         <h3 id="chat-customer-name">Customer</h3>
                         <span class="chat-customer-email" id="chat-customer-email">Email not available</span>
@@ -829,37 +716,27 @@
                     <textarea id="admin-chat-input" rows="2" placeholder="Type your reply..." required></textarea>
                     <button type="submit" id="admin-chat-send">Send</button>
                 </form>
-
             </div>
         </div>
     </div>
 </section>
 
-<!-- PRICES -->
-
 <section class="admin-section" id="section-prices">
-
     <div class="admin-page-heading">
         <div>
             <span class="admin-eyebrow">SERVICE MANAGEMENT</span>
             <h1>Prices Management</h1>
             <p>Add services, update prices and manage your service catalogue.</p>
         </div>
-
         <button type="button" class="admin-primary-button" id="refresh-services">↻ Refresh Services</button>
     </div>
 
     <div class="admin-panel">
-
         <div class="admin-panel-header">
-            <div>
-                <h3>Add New Service</h3>
-                <p>Create a new service in your catalogue.</p>
-            </div>
+            <div><h3>Add New Service</h3><p>Create a new service in your catalogue.</p></div>
         </div>
 
         <form id="add-service-form" class="admin-form">
-
             <div class="admin-form-group">
                 <label for="service-name">Service Name</label>
                 <input type="text" id="service-name" name="name" placeholder="Enter service name" required>
@@ -871,30 +748,20 @@
             </div>
 
             <button type="submit" class="admin-primary-button" id="add-service-button">+ Add Service</button>
-
         </form>
     </div>
 
     <div class="admin-panel">
-
         <div class="admin-panel-header">
-            <div>
-                <h3>Existing Services</h3>
-                <p>Update or remove existing services.</p>
-            </div>
+            <div><h3>Existing Services</h3><p>Update or remove existing services.</p></div>
         </div>
-
         <div class="admin-services-list" id="prices-services-list">
             <div class="admin-loading">Loading services...</div>
         </div>
-
     </div>
 </section>
 
-<!-- BROADCAST -->
-
 <section class="admin-section" id="section-broadcast">
-
     <div class="admin-page-heading">
         <div>
             <span class="admin-eyebrow">COMMUNICATION</span>
@@ -904,16 +771,11 @@
     </div>
 
     <div class="admin-panel admin-broadcast-panel">
-
         <div class="admin-panel-header">
-            <div>
-                <h3>Create Notification</h3>
-                <p>Send a message to all registered customers.</p>
-            </div>
+            <div><h3>Create Notification</h3><p>Send a message to all registered customers.</p></div>
         </div>
 
         <form id="broadcast-form" class="admin-form admin-broadcast-form">
-
             <div class="admin-form-group">
                 <label for="broadcast-title">Notification Title</label>
                 <input type="text" id="broadcast-title" maxlength="150" placeholder="Enter notification title" required>
@@ -929,15 +791,11 @@
             </div>
 
             <button type="submit" class="admin-primary-button" id="broadcast-send">Send Broadcast</button>
-
         </form>
     </div>
 </section>
 
-<!-- SITE SETTINGS -->
-
 <section class="admin-section" id="section-site-settings">
-
     <div class="admin-page-heading">
         <div>
             <span class="admin-eyebrow">CONFIGURATION</span>
@@ -947,43 +805,33 @@
     </div>
 
     <div class="admin-panel">
-
         <div class="admin-panel-header">
-            <div>
-                <h3>Administration Information</h3>
-                <p>Current administrator account details.</p>
-            </div>
+            <div><h3>Administration Information</h3><p>Current administrator account details.</p></div>
         </div>
 
         <div class="admin-settings-grid">
-
             <div class="admin-setting-item">
                 <span>Administrator Name</span>
                 <strong id="settings-admin-name">Loading...</strong>
             </div>
-
             <div class="admin-setting-item">
                 <span>Administrator Email</span>
                 <strong id="settings-admin-email">Loading...</strong>
             </div>
-
             <div class="admin-setting-item">
                 <span>Account Role</span>
                 <strong id="settings-admin-role">Loading...</strong>
             </div>
-
             <div class="admin-setting-item">
                 <span>Platform</span>
                 <strong>EIS Digital Services</strong>
             </div>
-
         </div>
 
         <div class="admin-settings-notice">
             <strong>Administration Information</strong>
             <p>Manage your EIS Digital Services administration dashboard from this page.</p>
         </div>
-
     </div>
 </section>
 
@@ -1056,7 +904,6 @@ async function loadAdminNotifications() {
 
             if (notification.created_at) {
                 const date = new Date(notification.created_at);
-
                 time.textContent = Number.isNaN(date.getTime())
                     ? ""
                     : date.toLocaleString("en-NG", {
@@ -1079,7 +926,6 @@ button?.addEventListener("click", async event => {
     event.stopPropagation();
 
     const open = dropdown.classList.toggle("open");
-
     button.setAttribute("aria-expanded", String(open));
 
     if (open) {
@@ -1098,7 +944,6 @@ button?.addEventListener("click", async event => {
                     ...item,
                     is_read: true
                 }));
-
                 count.style.display = "none";
             }
         }
@@ -1124,4 +969,4 @@ loadAdminNotifications();
 </script>
 
 </body>
-    </html>
+                    </html>
