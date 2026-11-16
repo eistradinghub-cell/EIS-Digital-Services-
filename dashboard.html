@@ -85,7 +85,7 @@ body.dashboard-page{
     order:3;
     width:100%;
     display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-columns:repeat(4,minmax(0,1fr));
     gap:12px;
     margin-top:4px;
 }
@@ -97,18 +97,18 @@ body.dashboard-page{
     justify-content:center;
     width:100%;
     min-width:0;
-    min-height:68px;
-    padding:14px 10px;
+    min-height:60px;
+    padding:12px 8px;
     border:2px solid #cbd3df;
-    border-radius:17px;
+    border-radius:15px;
     background:rgba(255,255,255,.88);
     color:#10233f;
-    font-size:clamp(15px,2.1vw,22px);
+    font-size:clamp(13px,1.8vw,19px);
     font-weight:700;
     line-height:1.2;
     text-align:center;
     text-decoration:none;
-    white-space:nowrap;
+    white-space:normal;
     box-shadow:0 2px 5px rgba(25,50,85,.04);
     cursor:pointer;
 }
@@ -567,16 +567,17 @@ body.dashboard-page{
     }
 
     .dashboard-page .nav-links{
+        grid-template-columns:repeat(2,minmax(0,1fr));
         gap:8px;
         margin-top:3px;
     }
 
     .dashboard-page .nav-links .btn,
     .dashboard-page .nav-links #nav-logout{
-        min-height:58px;
-        padding:12px 5px;
-        border-radius:14px;
-        font-size:clamp(13px,3.6vw,17px);
+        min-height:52px;
+        padding:10px 7px;
+        border-radius:12px;
+        font-size:14px;
     }
 
     .dashboard-page .dashboard-main{
@@ -649,7 +650,8 @@ body.dashboard-page{
     .dashboard-page .nav-links .btn,
     .dashboard-page .nav-links #nav-logout{
         font-size:12px;
-        min-height:54px;
+        min-height:48px;
+        padding:8px 5px;
     }
 
     .dashboard-page .brand-text b{
@@ -680,9 +682,27 @@ body.dashboard-page{
         <div class="nav-right">
 
             <nav class="nav-links" aria-label="Main navigation">
-                <a href="dashboard.html" class="btn active" aria-current="page">Dashboard</a>
-                <a href="marketplace.html" class="btn">Marketplace</a>
-                <button id="nav-logout" type="button" class="btn">Log out</button>
+                <a href="dashboard.html" class="btn active" aria-current="page">
+                    Dashboard
+                </a>
+
+                <a href="marketplace.html" class="btn">
+                    Marketplace
+                </a>
+
+                <a
+                    href="admin.html"
+                    id="nav-admin"
+                    class="btn"
+                    style="display:none;"
+                    aria-label="Admin Panel"
+                >
+                    Admin Panel
+                </a>
+
+                <button id="nav-logout" type="button" class="btn">
+                    Log out
+                </button>
             </nav>
 
             <div class="notification-area">
@@ -813,7 +833,7 @@ body.dashboard-page{
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=28"></script>
+<script type="module" src="js/dashboard.js?v=29"></script>
 
 </body>
-            </html>
+                                                                                                      </html>
