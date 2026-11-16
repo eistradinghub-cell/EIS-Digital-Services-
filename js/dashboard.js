@@ -126,14 +126,20 @@ async function checkUserSession() {
     }
 }
 
+/* =========================================
+   USER PROFILE AND ADMIN NAVIGATION
+========================================= */
+
 async function loadUserProfile() {
     if (!currentUser) return;
 
     const welcome = $("welcome");
     const adminButton = $("nav-admin");
 
+    // Hide Admin Panel until the user's role is verified.
     if (adminButton) {
-        adminButton.style.display = "none";
+        adminButton.hidden = true;
+        adminButton.classList.remove("is-admin-nav");
     }
 
     try {
@@ -157,13 +163,17 @@ async function loadUserProfile() {
             welcome.textContent = `Welcome back, ${firstName}`;
         }
 
-        const role = String(data?.role || "").toLowerCase();
+        const role = String(data?.role || "")
+            .trim()
+            .toLowerCase();
 
+        // Only verified administrators can see this button.
         if (
             ["admin", "super_admin"].includes(role) &&
             adminButton
         ) {
-            adminButton.style.display = "inline-flex";
+            adminButton.hidden = false;
+            adminButton.classList.add("is-admin-nav");
         }
 
     } catch (error) {
@@ -171,6 +181,11 @@ async function loadUserProfile() {
 
         if (welcome) {
             welcome.textContent = "Welcome back, Customer";
+        }
+
+        if (adminButton) {
+            adminButton.hidden = true;
+            adminButton.classList.remove("is-admin-nav");
         }
     }
 }
