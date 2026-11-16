@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+here<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -753,50 +753,13 @@ body.dashboard-page{
     <form class="card dashboard-card" id="app-form" style="display:none;">
 
         <h2 class="section-heading">Application Form</h2>
-        <p class="section-description">Complete the required information below.</p>
+        <p class="section-description">Complete the required contact information below.</p>
 
         <div class="form-grid">
 
             <div>
-                <label for="f-kegow">KEGOW ACC NUMBER *</label>
-                <input type="text" id="f-kegow" name="kegowAccount" required>
-            </div>
-
-            <div>
-                <label for="f-agentState">AGENT LOCATION STATE *</label>
-                <select id="f-agentState" name="agentLocationState" required>
-                    <option value="">Select State</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="f-bvn">BVN NO *</label>
-                <input type="text" id="f-bvn" name="bvn" inputmode="numeric" maxlength="11" required>
-            </div>
-
-            <div>
-                <label for="f-bankName">BANK NAME *</label>
-                <input type="text" id="f-bankName" name="bankName" required>
-            </div>
-
-            <div>
-                <label for="f-accountNo">ACCOUNT NO *</label>
-                <input type="text" id="f-accountNo" name="accountNumber" inputmode="numeric" maxlength="10" required>
-            </div>
-
-            <div>
-                <label for="f-accountName">ACCOUNT NAME *</label>
-                <input type="text" id="f-accountName" name="accountName" required>
-            </div>
-
-            <div>
-                <label for="f-firstName">AGENT FIRST NAME *</label>
+                <label for="f-firstName">FIRST NAME *</label>
                 <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" required>
-            </div>
-
-            <div>
-                <label for="f-middleName">MIDDLE NAME</label>
-                <input type="text" id="f-middleName" name="middleName" autocomplete="additional-name">
             </div>
 
             <div>
@@ -810,56 +773,16 @@ body.dashboard-page{
             </div>
 
             <div>
-                <label for="f-phone">PHONE NO. *</label>
-                <input type="tel" id="f-phone" name="phone" autocomplete="tel" required>
-            </div>
-
-            <div>
-                <label for="f-altPhone">ALTERNATIVE PHONE NO. *</label>
-                <input type="tel" id="f-altPhone" name="alternativePhone" autocomplete="tel" required>
-            </div>
-
-            <div class="full">
-                <label for="f-homeAddress">HOME ADDRESS *</label>
-                <textarea id="f-homeAddress" name="homeAddress" rows="2" required></textarea>
-            </div>
-
-            <div>
-                <label for="f-stateRes">STATE OF RESIDENCE *</label>
-                <select id="f-stateRes" name="stateResidence" required>
-                    <option value="">Select State</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="f-dob">DATE OF BIRTH *</label>
-                <input type="date" id="f-dob" name="dateOfBirth" required>
-            </div>
-
-            <div>
-                <label for="f-lga">LOCAL GOVT *</label>
-                <input type="text" id="f-lga" name="localGovernment" required>
-            </div>
-
-            <div>
-                <label for="f-zone">GEO POLITICAL ZONE *</label>
-                <select id="f-zone" name="geopoliticalZone" required>
-                    <option value="">Select Zone</option>
-                    <option value="North Central">North Central</option>
-                    <option value="North East">North East</option>
-                    <option value="North West">North West</option>
-                    <option value="South East">South East</option>
-                    <option value="South South">South South</option>
-                    <option value="South West">South West</option>
-                </select>
+                <label for="f-phone">PHONE NUMBER (OPTIONAL)</label>
+                <input type="tel" id="f-phone" name="phone" autocomplete="tel">
             </div>
 
         </div>
 
         <div class="privacy-note">
             <strong>Privacy notice:</strong>
-            This form is for basic contact and application information only.
-            Never enter BVN, bank account numbers, passwords or other sensitive identity details here.
+            This form only requests basic contact information needed to process your application.
+            Do not enter BVN, bank account numbers, passwords, home address or other sensitive identity details.
         </div>
 
         <button class="btn btn-primary" type="submit" style="width:100%;padding:12px;margin-top:5px;">
@@ -918,7 +841,7 @@ body.dashboard-page{
     </div>
 </footer>
 
-<script src="js/spa-navigation.js?v=1"></script>
+<script type="module" src="js/dashboard.js?v=28"></script>
 
 </body>
-</html>
+ </html>
