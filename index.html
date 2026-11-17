@@ -36,6 +36,55 @@
             margin-bottom: 6px;
         }
 
+        /* PASSWORD FIELD DESIGN */
+
+        .eis-password-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 14px;
+        }
+
+        .auth-card .eis-password-field input {
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            padding-right: 76px;
+        }
+
+        .eis-password-toggle {
+            position: absolute;
+            right: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 7px;
+            padding: 7px 10px;
+            background: #edf3fb;
+            color: #142d4e;
+            font: 600 12px/1.2 Arial, sans-serif;
+            cursor: pointer;
+        }
+
+        .eis-password-toggle:hover {
+            background: #dfeafa;
+        }
+
+        .password-match-message {
+            min-height: 18px;
+            margin: -7px 0 12px;
+            font-size: 12px;
+        }
+
+        .password-match-message.match {
+            color: #168477;
+        }
+
+        .password-match-message.no-match {
+            color: #b42318;
+        }
+
         button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -734,500 +783,4 @@
                         <h3>Account Management</h3>
 
                         <p>
-                            Keep your profile details and application activity in one place,
-                            ready whenever you need to return to the platform.
-                        </p>
-
-                    </article>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ABOUT EIS -->
-
-        <section class="home-section home-about" aria-labelledby="home-about-title">
-
-            <div class="home-container home-about-grid">
-
-                <div class="home-copy">
-
-                    <span class="home-kicker">
-                        A more organised way to get started
-                    </span>
-
-                    <h2 id="home-about-title">
-                        Know what to do next, without the guesswork.
-                    </h2>
-
-                    <p>
-                        Online applications can be confusing when instructions,
-                        messages and updates are scattered. EIS brings the main steps
-                        together in a straightforward account area, so you can find
-                        the information you need and return to your request when it suits you.
-                    </p>
-
-                    <p style="margin-top:13px;">
-                        We aim to keep service descriptions practical and easy to understand.
-                        Before submitting a request, take a moment to read the details shown for that service.
-                    </p>
-
-                </div>
-
-
-                <div class="home-about-panel">
-
-                    <h3>What you can expect on the platform</h3>
-
-                    <ul class="home-points">
-
-                        <li>
-                            <span class="home-point-check">✓</span>
-                            <span>Service information presented before you begin an application.</span>
-                        </li>
-
-                        <li>
-                            <span class="home-point-check">✓</span>
-                            <span>A personal dashboard for your account and submitted requests.</span>
-                        </li>
-
-                        <li>
-                            <span class="home-point-check">✓</span>
-                            <span>A place to check updates and messages linked to your account.</span>
-                        </li>
-
-                        <li>
-                            <span class="home-point-check">✓</span>
-                            <span>Customer support access when you need help understanding the next step.</span>
-                        </li>
-
-                    </ul>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- HOW IT WORKS -->
-
-        <section class="home-section home-process" aria-labelledby="home-process-title">
-
-            <div class="home-container">
-
-                <div class="home-section-heading">
-
-                    <span class="home-kicker">Getting started</span>
-
-                    <h2 id="home-process-title">
-                        Four simple steps
-                    </h2>
-
-                    <p>
-                        You can take your time. Create an account first,
-                        then choose what you need from the services available.
-                    </p>
-
-                </div>
-
-
-                <div class="home-steps">
-
-                    <article class="home-step">
-
-                        <h3>Create your account</h3>
-
-                        <p>
-                            Register with your name, email address and phone number
-                            to set up your personal account.
-                        </p>
-
-                    </article>
-
-
-                    <article class="home-step">
-
-                        <h3>Review the services</h3>
-
-                        <p>
-                            Read the available service information and check
-                            the details before choosing what to do.
-                        </p>
-
-                    </article>
-
-
-                    <article class="home-step">
-
-                        <h3>Submit your request</h3>
-
-                        <p>
-                            Follow the instructions shown for the service
-                            and provide the information requested.
-                        </p>
-
-                    </article>
-
-
-                    <article class="home-step">
-
-                        <h3>Check your dashboard</h3>
-
-                        <p>
-                            Sign in again whenever you need to review your
-                            application activity or contact support.
-                        </p>
-
-                    </article>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- GET STARTED -->
-
-        <section class="home-help" aria-labelledby="home-help-title">
-
-            <div class="home-help-inner">
-
-                <div class="home-help-copy">
-
-                    <span>Ready when you are</span>
-
-                    <h2 id="home-help-title">
-                        Start with an account. Take it one step at a time.
-                    </h2>
-
-                    <p>
-                        Create your EIS account to view the services available
-                        and manage your requests from one place.
-                    </p>
-
-                </div>
-
-                <button type="button" class="btn" data-home-open="signup">
-                    Create an account
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- FREQUENTLY ASKED QUESTIONS -->
-
-        <section class="home-section home-faq" aria-labelledby="home-faq-title">
-
-            <div class="home-container">
-
-                <div class="home-section-heading">
-
-                    <span class="home-kicker">A few useful answers</span>
-
-                    <h2 id="home-faq-title">
-                        Before you get started
-                    </h2>
-
-                    <p>
-                        Some quick information to help you use the platform with confidence.
-                    </p>
-
-                </div>
-
-
-                <div class="home-faq-list">
-
-                    <details>
-
-                        <summary>
-                            Do I need an account to use the platform?
-                        </summary>
-
-                        <p>
-                            You can look through this page without signing in.
-                            To submit and manage requests, create an account and use your dashboard.
-                        </p>
-
-                    </details>
-
-
-                    <details>
-
-                        <summary>
-                            Where can I check an application after submitting it?
-                        </summary>
-
-                        <p>
-                            Sign in and open your dashboard.
-                            Application information and any available updates are shown there.
-                        </p>
-
-                    </details>
-
-
-                    <details>
-
-                        <summary>
-                            What should I do if I need help?
-                        </summary>
-
-                        <p>
-                            Sign in to your account and open the Customer Care area
-                            to send a message about your question or request.
-                        </p>
-
-                    </details>
-
-
-                    <details>
-
-                        <summary>
-                            Can I review service information before applying?
-                        </summary>
-
-                        <p>
-                            Yes. Read the service description and any displayed
-                            requirements before submitting your information.
-                        </p>
-
-                    </details>
-
-
-                    <details>
-
-                        <summary>
-                            How do I find items listed for sale?
-                        </summary>
-
-                        <p>
-                            Open the Marketplace from the website navigation
-                            to view the items currently listed and their displayed details.
-                        </p>
-
-                    </details>
-
-                </div>
-
-
-                <p class="home-disclaimer">
-                    Please use the platform only for the services and purposes
-                    described on the relevant service page. Requirements,
-                    processing steps and availability may vary. Do not share
-                    passwords, one-time codes or sensitive account credentials with anyone.
-                </p>
-
-            </div>
-
-        </section>
-
-    </section>
-
-
-    <!-- LOGIN -->
-
-    <section class="view wrap"
-             id="view-login"
-             style="display:none;padding-top:20px;">
-
-        <form class="card auth-card" id="form-login">
-
-            <h2>Welcome Back</h2>
-
-            <p style="color:var(--mu);margin-top:5px;">
-                Log in to access your account.
-            </p>
-
-            <label for="login-email">Email Address</label>
-
-            <input
-                type="email"
-                id="login-email"
-                name="email"
-                placeholder="Enter your email"
-                autocomplete="email"
-                required
-            >
-
-            <label for="login-password">Password</label>
-
-            <input
-                type="password"
-                id="login-password"
-                name="password"
-                placeholder="Enter your password"
-                autocomplete="current-password"
-                required
-            >
-
-            <button type="submit"
-                    class="btn btn-primary btn-block">
-                Log In
-            </button>
-
-            <p class="msg err"
-               id="login-error"
-               role="alert"
-               aria-live="polite"></p>
-
-            <p style="text-align:center;margin-top:10px;font-size:14px;">
-
-                New here?
-
-                <a href="#"
-                   id="link-to-signup"
-                   style="color:var(--blue);text-decoration:none;">
-                    Create account
-                </a>
-
-            </p>
-
-        </form>
-
-    </section>
-
-
-    <!-- SIGN UP -->
-
-    <section class="view wrap"
-             id="view-signup"
-             style="display:none;padding-top:20px;">
-
-        <form class="card auth-card" id="form-signup">
-
-            <h2>Create Account</h2>
-
-            <p style="color:var(--mu);margin-top:5px;">
-                Join EIS Digital Services today.
-            </p>
-
-            <label for="signup-name">Full Name</label>
-
-            <input
-                type="text"
-                id="signup-name"
-                name="full_name"
-                placeholder="Enter your full name"
-                autocomplete="name"
-                required
-            >
-
-            <label for="signup-email">Email Address</label>
-
-            <input
-                type="email"
-                id="signup-email"
-                name="email"
-                placeholder="Enter your email"
-                autocomplete="email"
-                required
-            >
-
-            <label for="signup-phone">Phone Number</label>
-
-            <input
-                type="tel"
-                id="signup-phone"
-                name="phone"
-                placeholder="Enter your phone number"
-                autocomplete="tel"
-                required
-            >
-
-            <label for="signup-password">Password</label>
-
-            <input
-                type="password"
-                id="signup-password"
-                name="password"
-                placeholder="Minimum 8 characters"
-                autocomplete="new-password"
-                minlength="8"
-                required
-            >
-
-            <button type="submit"
-                    class="btn btn-primary btn-block">
-                Create Account
-            </button>
-
-            <p class="msg err"
-               id="signup-error"
-               role="alert"
-               aria-live="polite"></p>
-
-            <p class="msg ok"
-               id="signup-success"
-               role="status"
-               aria-live="polite"></p>
-
-            <p style="text-align:center;margin-top:10px;font-size:14px;">
-
-                Already have an account?
-
-                <a href="#"
-                   id="link-to-login"
-                   style="color:var(--blue);text-decoration:none;">
-                    Log in
-                </a>
-
-            </p>
-
-        </form>
-
-    </section>
-
-</main>
-
-
-<footer class="footer">
-
-    <p>
-        &copy; 2026 EIS Trading Hub. All rights reserved.
-    </p>
-
-</footer>
-
-
-<script>
-    window.addEventListener('error', function(event) {
-
-        console.error('Website error:', event.message);
-
-        const box = document.getElementById('auth-load-error');
-
-        if (box) {
-            box.style.display = 'block';
-            box.textContent =
-                'A website script failed to load. Please check the browser console.';
-        }
-
-    });
-</script>
-
-
-<script>
-    // Connect the additional homepage button to the existing signup flow.
-
-    document.querySelectorAll('[data-home-open="signup"]').forEach(button => {
-
-        button.addEventListener('click', () => {
-
-            document.getElementById('btn-show-signup')?.click();
-
-        });
-
-    });
-</script>
-
-
-<script type="module" src="./js/auth.js?v=16"></script>
-
-</body>
-                </html>
+                            
