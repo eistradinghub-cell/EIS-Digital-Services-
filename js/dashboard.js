@@ -2,6 +2,7 @@ import { supabase } from "./supabase.js";
 
 let currentUser = null;
 let currentProfile = null;
+let currentCustomerName = "";
 let selectedService = null;
 let servicesCache = [];
 let notificationsCache = [];
@@ -174,7 +175,7 @@ function cleanCustomerName(value) {
 
     if (!name) return "";
 
-    // An email address must never be shown as a customer's name.
+    // Never display an email address as a customer's name.
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name)) {
         return "";
     }
@@ -187,77 +188,123 @@ function cleanCustomerName(value) {
         "unknown",
         "guest",
         "null",
-        "undefined"
+        "undefined",
+        "there"
     ]);
 
     return placeholders.has(name.toLowerCase()) ? "" : name;
 }
 
 function joinCustomerName(firstName, lastName) {
-    return [
-        cleanCustomerName(firstName),
-        cleanCustomerName(lastName)
-    ].filter(Boolean).join(" ").trim();
+    const first = cleanCustomerName(firstName);
+    const last = cleanCustomerName(lastName);
+
+    // A full name needs both parts; otherwise check full_name/name fields.
+    if (!first || !last) return "";
+
+    return `${first} ${last}`.replace(/\s+/g, " ").trim();
 }
 
-function getCustomerDisplayName(profile, user) {
+function normalizeCustomerFormData(value) {
+    if (!value) return {};
+
+    if (typeof value === "string") {
+        try {
+            const parsed = JSON.parse(value);
+            return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+                ? parsed
+                : {};
+        } catch {
+            return {};
+        }
+    }
+
+    return typeof value === "object" && !Array.isArray(value)
+        ? value
+        : {};
+}
+
+function getCustomerDisplayName(profile, user, applicationFormData = null) {
     const metadata = user?.user_metadata || {};
+    const application = normalizeCustomerFormData(applicationFormData);
     const identityData = (user?.identities || [])
         .map(identity => identity?.identity_data || {});
 
-    // First name + last name are the preferred source.
-    const firstAndLastNameCandidates = [
-        joinCustomerName(metadata.first_name, metadata.last_name),
-        joinCustomerName(metadata.firstName, metadata.lastName),
-        joinCustomerName(profile?.first_name, profile?.last_name),
-        joinCustomerName(profile?.firstName, profile?.lastName),
-        joinCustomerName(profile?.given_name, profile?.family_name)
+    // Check structured first/last-name fields from every available source.
+    const nameSources = [
+        profile || {},
+        metadata,
+        application,
+        ...identityData
     ];
 
-    for (const identity of identityData) {
-        firstAndLastNameCandidates.push(
-            joinCustomerName(identity.first_name, identity.last_name),
-            joinCustomerName(identity.firstName, identity.lastName),
-            joinCustomerName(identity.given_name, identity.family_name)
+    for (const source of nameSources) {
+        const name = joinCustomerName(
+            source.first_name ?? source.firstName ?? source.given_name ?? source.givenName,
+            source.last_name ?? source.lastName ?? source.family_name ?? source.familyName ?? source.surname
+        );
+
+        if (name) return name;
+    }
+
+    // Then check common full-name fields, including legacy account formats.
+    const fullNameKeys = [
+        "full_name",
+        "fullName",
+        "fullname",
+        "display_name",
+        "displayName",
+        "customer_name",
+        "customerName",
+        "customer_full_name",
+        "customerFullName",
+        "name"
+    ];
+
+    for (const source of nameSources) {
+        for (const key of fullNameKeys) {
+            const name = cleanCustomerName(source?.[key]);
+            if (name) return name;
+        }
+    }
+
+    // Do not substitute an email address or its username for a real name.
+    return "";
+}
+
+async function loadLatestApplicationFormData() {
+    if (!currentUser) return null;
+
+    try {
+        // Older customer accounts may have their name saved in an application
+        // form even when their profile/auth metadata does not contain it.
+        const { data, error } = await supabase
+            .from("applications")
+            .select("form_data")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+        if (error) throw error;
+
+        for (const application of data || []) {
+            const formData = normalizeCustomerFormData(
+                application?.form_data
+            );
+
+            if (getCustomerDisplayName(null, null, formData)) {
+                return formData;
+            }
+        }
+
+    } catch (error) {
+        console.warn(
+            "Could not retrieve the customer's name from previous applications:",
+            error
         );
     }
 
-    for (const candidate of firstAndLastNameCandidates) {
-        const validName = cleanCustomerName(candidate);
-        if (validName) return validName;
-    }
-
-    // Use full_name only when separate first/last names are unavailable.
-    const fullNameCandidates = [
-        metadata.full_name,
-        metadata.fullName,
-        metadata.display_name,
-        metadata.displayName,
-        metadata.name,
-        profile?.full_name,
-        profile?.fullName,
-        profile?.display_name,
-        profile?.displayName,
-        profile?.name
-    ];
-
-    for (const identity of identityData) {
-        fullNameCandidates.push(
-            identity.full_name,
-            identity.fullName,
-            identity.display_name,
-            identity.displayName,
-            identity.name
-        );
-    }
-
-    for (const candidate of fullNameCandidates) {
-        const validName = cleanCustomerName(candidate);
-        if (validName) return validName;
-    }
-
-    // Do not use the email or its username as a substitute.
-    return "there";
+    return null;
 }
 
 async function loadUserProfile() {
@@ -267,6 +314,7 @@ async function loadUserProfile() {
 
     const welcome = $("welcome");
     const adminButton = $("nav-admin");
+    let verifiedRole = "";
 
     // Hide Admin Panel until the user's role is verified.
     if (adminButton) {
@@ -275,8 +323,7 @@ async function loadUserProfile() {
     }
 
     try {
-        // Read all profile columns to support full_name, display_name,
-        // and accounts that store first_name/last_name separately.
+        // Read the complete profile so legacy and newer name columns are supported.
         const { data, error } = await supabase
             .from("profiles")
             .select("*")
@@ -286,46 +333,48 @@ async function loadUserProfile() {
         if (error) throw error;
 
         currentProfile = data || null;
-
-        const displayName = getCustomerDisplayName(
-            currentProfile,
-            currentUser
-        );
-
-        if (welcome) {
-            welcome.textContent = "Welcome back, " + displayName;
-        }
-
-        const role = String(data?.role || "")
+        verifiedRole = String(data?.role || "")
             .trim()
             .toLowerCase();
 
-        // Only verified administrators can see this button.
-        if (
-            ["admin", "super_admin"].includes(role) &&
-            adminButton
-        ) {
-            adminButton.hidden = false;
-            adminButton.classList.add("is-admin-nav");
-        }
-
     } catch (error) {
         console.error("Profile loading error:", error);
+        currentProfile = null;
+    }
 
-        // Keep the registration name visible even if the profiles query fails.
-        const displayName = getCustomerDisplayName(
-            null,
-            currentUser
+    let displayName = getCustomerDisplayName(
+        currentProfile,
+        currentUser
+    );
+
+    // For older accounts, recover the full name from a saved application
+    // when the profile and Supabase Auth metadata do not contain it.
+    if (!displayName) {
+        const applicationFormData =
+            await loadLatestApplicationFormData();
+
+        displayName = getCustomerDisplayName(
+            currentProfile,
+            currentUser,
+            applicationFormData
         );
+    }
 
-        if (welcome) {
-            welcome.textContent = "Welcome back, " + displayName;
-        }
+    currentCustomerName = displayName;
 
-        if (adminButton) {
-            adminButton.hidden = true;
-            adminButton.classList.remove("is-admin-nav");
-        }
+    if (welcome) {
+        welcome.textContent = displayName
+            ? `Welcome back, ${displayName}`
+            : "Welcome back";
+    }
+
+    // Only verified administrators can see this button.
+    if (
+        ["admin", "super_admin"].includes(verifiedRole) &&
+        adminButton
+    ) {
+        adminButton.hidden = false;
+        adminButton.classList.add("is-admin-nav");
     }
 }
 
@@ -714,7 +763,9 @@ async function loadApplications() {
             const name = document.createElement("td");
 
             name.textContent =
-                getCustomerDisplayName(currentProfile, currentUser);
+                currentCustomerName ||
+                getCustomerDisplayName(currentProfile, currentUser) ||
+                "Customer";
 
             const reference = document.createElement("td");
 
