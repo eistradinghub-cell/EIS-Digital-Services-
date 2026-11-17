@@ -128,7 +128,7 @@ async function checkUserSession() {
 
 /* =========================================
    CUSTOMER WELCOME CARD DESIGN
-   Clean white surface with a subtle blue tint.
+   Soft blue-white gradient.
 ========================================= */
 
 function applyDashboardWelcomeStyle() {
@@ -141,13 +141,13 @@ function applyDashboardWelcomeStyle() {
     style.textContent = `
         .dashboard-page .dashboard-intro {
             background: linear-gradient(
-                135deg,
-                #ffffff 0%,
-                #fbfdff 58%,
-                #edf4ff 100%
+                118deg,
+                #e8f1ff 0%,
+                #f1f6ff 48%,
+                #dceaff 100%
             ) !important;
-            border: 1px solid #dce8f8 !important;
-            box-shadow: 0 8px 24px rgba(34, 83, 145, 0.08) !important;
+            border: 1px solid #c9dcfa !important;
+            box-shadow: 0 8px 24px rgba(34, 83, 145, 0.10) !important;
         }
 
         .dashboard-page .dashboard-intro h1 {
@@ -167,8 +167,97 @@ function applyDashboardWelcomeStyle() {
    USER PROFILE AND ADMIN NAVIGATION
 ========================================= */
 
+function cleanCustomerName(value) {
+    if (typeof value !== "string") return "";
+
+    const name = value
+        .replace(/\s+/g, " ")
+        .trim();
+
+    if (!name) return "";
+
+    const placeholderNames = new Set([
+        "customer",
+        "user",
+        "admin",
+        "administrator",
+        "unknown",
+        "guest",
+        "null",
+        "undefined"
+    ]);
+
+    if (placeholderNames.has(name.toLowerCase())) {
+        return "";
+    }
+
+    return name;
+}
+
+function joinCustomerName(first, last) {
+    return [
+        cleanCustomerName(first),
+        cleanCustomerName(last)
+    ].filter(Boolean).join(" ").trim();
+}
+
+function getCustomerDisplayName(profile, user) {
+    const metadata = user?.user_metadata || {};
+
+    const identityData = (user?.identities || [])
+        .map(identity => identity?.identity_data || {});
+
+    const metadataCandidates = [
+        metadata.full_name,
+        metadata.fullName,
+        metadata.display_name,
+        metadata.displayName,
+        metadata.name,
+        joinCustomerName(metadata.first_name, metadata.last_name),
+        joinCustomerName(metadata.firstName, metadata.lastName)
+    ];
+
+    for (const identity of identityData) {
+        metadataCandidates.push(
+            identity.full_name,
+            identity.fullName,
+            identity.display_name,
+            identity.name,
+            joinCustomerName(identity.first_name, identity.last_name),
+            joinCustomerName(identity.given_name, identity.family_name)
+        );
+    }
+
+    const profileCandidates = [
+        profile?.full_name,
+        profile?.fullName,
+        profile?.display_name,
+        profile?.displayName,
+        profile?.name,
+        joinCustomerName(profile?.first_name, profile?.last_name),
+        joinCustomerName(profile?.firstName, profile?.lastName),
+        joinCustomerName(profile?.given_name, profile?.family_name)
+    ];
+
+    // Prefer the name entered during registration.
+    // A generic "Customer" profile value must not override it.
+    for (const candidate of [...metadataCandidates, ...profileCandidates]) {
+        const validName = cleanCustomerName(candidate);
+        if (validName) return validName;
+    }
+
+    const emailName = cleanCustomerName(
+        user?.email?.split("@")[0]
+            ?.replace(/[._-]+/g, " ")
+            .replace(/\b\w/g, character => character.toUpperCase())
+    );
+
+    return emailName || "there";
+}
+
 async function loadUserProfile() {
     applyDashboardWelcomeStyle();
+
     if (!currentUser) return;
 
     const welcome = $("welcome");
@@ -181,9 +270,11 @@ async function loadUserProfile() {
     }
 
     try {
+        // Read all profile columns to support full_name, display_name,
+        // and accounts that store first_name/last_name separately.
         const { data, error } = await supabase
             .from("profiles")
-            .select("id,full_name,email,phone,role")
+            .select("*")
             .eq("id", currentUser.id)
             .maybeSingle();
 
@@ -191,22 +282,13 @@ async function loadUserProfile() {
 
         currentProfile = data || null;
 
-        const profileName = String(data?.full_name || "").trim();
-        const metadataName = String(
-            currentUser.user_metadata?.full_name ||
-            currentUser.user_metadata?.name ||
-            ""
-        ).trim();
-
-        // Use the complete name saved when the customer registered.
-        const displayName =
-            profileName ||
-            metadataName ||
-            currentUser.email?.split("@")[0] ||
-            "Customer";
+        const displayName = getCustomerDisplayName(
+            currentProfile,
+            currentUser
+        );
 
         if (welcome) {
-            welcome.textContent = `Welcome back, ${displayName}`;
+            welcome.textContent = "Welcome back, " + displayName;
         }
 
         const role = String(data?.role || "")
@@ -225,15 +307,14 @@ async function loadUserProfile() {
     } catch (error) {
         console.error("Profile loading error:", error);
 
-        if (welcome) {
-            const fallbackName = String(
-                currentUser?.user_metadata?.full_name ||
-                currentUser?.user_metadata?.name ||
-                currentUser?.email?.split("@")[0] ||
-                "Customer"
-            ).trim();
+        // Keep the registration name visible even if the profiles query fails.
+        const displayName = getCustomerDisplayName(
+            null,
+            currentUser
+        );
 
-            welcome.textContent = `Welcome back, ${fallbackName}`;
+        if (welcome) {
+            welcome.textContent = "Welcome back, " + displayName;
         }
 
         if (adminButton) {
