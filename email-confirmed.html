@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#142D4E">
+
+    <title>Email Verification | EIS Digital Services</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F4F7F8;
+            font-family: Arial, sans-serif;
+            color: #142D4E;
+        }
+
+        .verification-card {
+            width: 100%;
+            max-width: 460px;
+            padding: 42px 30px;
+            background: #fff;
+            border: 1px solid #E2EAF1;
+            border-radius: 22px;
+            text-align: center;
+            box-shadow: 0 18px 55px rgba(20,45,78,.09);
+        }
+
+        .brand {
+            margin-bottom: 30px;
+            color: #168477;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .status-icon {
+            width: 76px;
+            height: 76px;
+            margin: 0 auto 22px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #E8F6F1;
+            color: #168477;
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        h1 {
+            margin: 0 0 13px;
+            font-size: 27px;
+            line-height: 1.3;
+        }
+
+        .description {
+            margin: 0;
+            color: #64748B;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .status-message {
+            margin-top: 22px;
+            padding: 14px;
+            border-radius: 11px;
+            background: #F0F5FA;
+            color: #526174;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .continue-button {
+            width: 100%;
+            min-height: 50px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 11px;
+            background: #142D4E;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .continue-button:hover {
+            background: #168477;
+        }
+
+        .continue-button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .footer {
+            margin-top: 28px;
+            color: #94A3B8;
+            font-size: 11px;
+        }
+
+        .loading {
+            animation: pulse 1.3s infinite;
+        }
+
+        @keyframes pulse {
+            50% {
+                opacity: .45;
+            }
+        }
+
+        @media(max-width:480px) {
+            .verification-card {
+                padding: 34px 22px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="verification-card">
+
+        <div class="brand">
+            EIS DIGITAL SERVICES
+        </div>
+
+        <div class="status-icon" id="status-icon">
+            ✓
+        </div>
+
+        <h1 id="status-title">
+            Verifying Your Email
+        </h1>
+
+        <p class="description" id="status-description">
+            Please wait while we securely confirm your email address.
+        </p>
+
+        <div class="status-message" id="status-message">
+            Checking your verification status...
+        </div>
+
+        <button
+            type="button"
+            class="continue-button"
+            id="continue-button"
+            disabled>
+            Please wait...
+        </button>
+
+        <div class="footer">
+            &copy; 2026 EIS Digital Services. All rights reserved.
+        </div>
+
+    </main>
+
+    <script type="module">
+
+        import { supabase } from './js/supabase.js';
+
+        const icon = document.getElementById('status-icon');
+        const title = document.getElementById('status-title');
+        const description = document.getElementById('status-description');
+        const message = document.getElementById('status-message');
+        const button = document.getElementById('continue-button');
+
+        function showError(text) {
+
+            icon.textContent = '!';
+            icon.style.background = '#FFF1F0';
+            icon.style.color = '#DC3545';
+
+            title.textContent = 'Verification Not Completed';
+
+            description.textContent =
+                'We could not confirm your email address yet.';
+
+            message.textContent = text;
+
+            button.disabled = false;
+            button.textContent = 'Return to Login';
+
+            button.onclick = () => {
+                window.location.replace('./index.html');
+            };
+        }
+
+        async function verifyEmail() {
+
+            try {
+
+                /*
+                 * Supabase detects and processes the
+                 * confirmation callback from the email link.
+                 */
+
+                const { data, error } =
+                    await supabase.auth.getSession();
+
+                if (error) throw error;
+
+                if (!data.session) {
+
+                    showError(
+                        'The verification session was not found. ' +
+                        'Please open the latest verification email and try again.'
+                    );
+
+                    return;
+                }
+
+                const { data: userData, error: userError } =
+                    await supabase.auth.getUser();
+
+                if (userError) throw userError;
+
+                const user = userData.user;
+
+                if (
+                    !user ||
+                    !user.email_confirmed_at
+                ) {
+
+                    showError(
+                        'Your email confirmation could not be verified. ' +
+                        'Please try opening the email link again.'
+                    );
+
+                    return;
+                }
+
+                sessionStorage.removeItem(
+                    'eis-pending-verification-email'
+                );
+
+                icon.textContent = '✓';
+
+                title.textContent =
+                    'Email Verified Successfully!';
+
+                description.textContent =
+                    'Your email address has been confirmed. ' +
+                    'Welcome to EIS Digital Services.';
+
+                message.textContent =
+                    'Your account is now verified. You can safely continue to your dashboard.';
+
+                button.disabled = false;
+
+                button.textContent =
+                    'Continue to Dashboard';
+
+                button.onclick = () => {
+
+                    window.location.replace('./dashboard.html');
+
+                };
+
+            } catch (error) {
+
+                console.error(
+                    'Email confirmation error:',
+                    error
+                );
+
+                showError(
+                    error.message ||
+                    'Something went wrong while verifying your email.'
+                );
+
+            }
+
+        }
+
+        verifyEmail();
+
+    </script>
+
+</body>
+</html>
