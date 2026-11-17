@@ -1,1213 +1,1143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#f5f6f7">
-<meta name="description" content="EIS Digital Services Customer Dashboard">
-<title>Dashboard | EIS Digital Services</title>
-<link rel="stylesheet" href="css/styles.css?v=18">
-<link rel="stylesheet" href="css/shared-navigation.css?v=2">
-
-<style>
-*{box-sizing:border-box}
-
-body.dashboard-page{
-    margin:0;
-    background:#edf4ff;
-    color:#172b4d;
-    font-family:Arial,Helvetica,sans-serif;
-}
-
-.dashboard-page .site-header{
-    position:sticky;
-    top:0;
-    z-index:1000;
-    background:rgba(255,255,255,.76);
-    -webkit-backdrop-filter:blur(14px);
-    backdrop-filter:blur(14px);
-    border-bottom:1px solid rgba(190,207,230,.72);
-    box-shadow:0 5px 20px rgba(20,55,105,.07);
-}
-
-.dashboard-page .nav-row{
-    max-width:1200px;
-    min-height:68px;
-    margin:auto;
-    padding:12px 20px;
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:12px 18px;
-}
-
-.dashboard-page .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-shrink:0;
-    text-decoration:none;
-}
-
-.dashboard-page .brand-mark{
-    width:42px;
-    height:42px;
-}
-
-.dashboard-page .brand-text{
-    display:flex;
-    flex-direction:column;
-}
-
-.dashboard-page .brand-text b{
-    color:#075bff;
-    font-size:21px;
-    line-height:1.2;
-}
-
-.dashboard-page .brand-text span{
-    color:#52709c;
-    font-size:12px;
-}
-
-.dashboard-page .nav-right{
-    display:contents;
-}
-
-.dashboard-page .notification-area{
-    position:relative;
-    order:0;
-    margin-left:auto;
-    flex-shrink:0;
-}
-
-.dashboard-page .nav-links{
-    order:3;
-    width:100%;
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:12px;
-    margin-top:4px;
-}
-
-.dashboard-page .nav-links .btn,
-.dashboard-page .nav-links #nav-logout{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:100%;
-    min-width:0;
-    min-height:60px;
-    padding:12px 8px;
-    border:2px solid #cbd3df;
-    border-radius:15px;
-    background:rgba(255,255,255,.88);
-    color:#10233f;
-    font-size:clamp(13px,1.8vw,19px);
-    font-weight:700;
-    line-height:1.2;
-    text-align:center;
-    text-decoration:none;
-    white-space:normal;
-    box-shadow:0 2px 5px rgba(25,50,85,.04);
-    cursor:pointer;
-}
-
-.dashboard-page .nav-links .btn.active{
-    background:#244fe0;
-    border-color:#244fe0;
-    color:#fff;
-    box-shadow:0 7px 17px rgba(36,79,224,.2);
-}
-
-.dashboard-page .nav-links #nav-logout{
-    color:#10233f;
-    border-color:#cbd3df;
-    background:rgba(255,255,255,.88);
-}
-
-.dashboard-page .notification-button{
-    position:relative;
-    width:42px;
-    height:42px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px solid #c7dcff;
-    border-radius:8px;
-    background:rgba(255,255,255,.88);
-    color:#075bff;
-    cursor:pointer;
-}
-
-.dashboard-page .notification-count{
-    position:absolute;
-    top:-6px;
-    right:-6px;
-    min-width:18px;
-    height:18px;
-    padding:0 4px;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    border-radius:20px;
-    background:#e33145;
-    color:#fff;
-    border:2px solid #fff;
-    font-size:10px;
-    font-weight:bold;
-}
-
-.dashboard-page .notification-dropdown{
-    position:absolute;
-    top:50px;
-    right:0;
-    z-index:1000;
-    width:min(350px,88vw);
-    max-height:390px;
-    overflow-y:auto;
-    padding:16px;
-    display:none;
-    border:1px solid #c7dcff;
-    border-radius:10px;
-    background:#fff;
-    box-shadow:0 12px 30px rgba(7,91,255,.14);
-}
-
-.dashboard-page .notification-dropdown.open{
-    display:block;
-}
-
-.dashboard-page .notification-item{
-    padding:12px 0;
-    border-bottom:1px solid #edf1f8;
-}
-
-.dashboard-page .notification-item:last-child{
-    border-bottom:0;
-}
-
-.dashboard-page .notification-item strong{
-    display:block;
-    margin-bottom:5px;
-    color:#075bff;
-    font-size:13px;
-}
-
-.dashboard-page .notification-item p{
-    color:#536b8d;
-    font-size:12px;
-    line-height:1.6;
-    overflow-wrap:anywhere;
-}
-
-.dashboard-page .notification-item time{
-    display:block;
-    margin-top:6px;
-    color:#8495ad;
-    font-size:10px;
-}
-
-.dashboard-page .dashboard-main{
-    max-width:1200px;
-    margin:auto;
-    padding:28px 20px;
-}
-
-.dashboard-page .dashboard-intro{
-    margin-bottom:22px;
-    padding:27px;
-    background:linear-gradient(115deg,#0647d9,#287bff);
-    border-radius:13px;
-    box-shadow:0 7px 22px rgba(7,91,255,.16);
-}
-
-.dashboard-page .dashboard-intro h1{
-    margin:0 0 9px;
-    color:#fff;
-    font-size:clamp(23px,4vw,30px);
-    line-height:1.35;
-}
-
-.dashboard-page .dashboard-intro p{
-    max-width:680px;
-    margin:0;
-    color:#e5efff;
-    font-size:14px;
-    line-height:1.7;
-}
-
-.dashboard-page .dashboard-card{
-    margin-bottom:22px;
-    padding:23px;
-    background:#fff;
-    border:1px solid #b9d2ff;
-    border-radius:13px;
-    box-shadow:0 5px 20px rgba(7,91,255,.09);
-}
-
-.dashboard-page .section-heading{
-    margin:0 0 8px;
-    color:#075bff;
-    font-size:20px;
-    font-weight:700;
-}
-
-.dashboard-page .section-description{
-    margin:0 0 18px;
-    color:#627795;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page .svcs{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(195px,1fr));
-    gap:12px;
-    margin-top:15px;
-}
-
-.dashboard-page .service-card{
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-    padding:14px;
-    background:#fff;
-    border:1px solid #c7dcff;
-    border-top:3px solid #1670ff;
-    border-radius:9px;
-    transition:transform .2s,border-color .2s,box-shadow .2s;
-}
-
-.dashboard-page .service-card:hover{
-    transform:translateY(-2px);
-    border-color:#8eb2ed;
-    box-shadow:0 7px 18px rgba(7,91,255,.10);
-}
-
-.dashboard-page .service-card h3{
-    margin:3px 0 9px;
-    color:#153f83;
-    font-size:15px;
-    line-height:1.45;
-    overflow-wrap:anywhere;
-}
-
-.dashboard-page .service-card p{
-    margin:0 0 10px;
-    color:#075bff;
-    font-size:16px;
-    font-weight:700;
-}
-
-.dashboard-page .service-card .service-description{
-    margin-bottom:13px;
-    color:#627795;
-    font-size:12px;
-    line-height:1.6;
-}
-
-.dashboard-page .service-card button{
-    width:100%;
-    margin-top:auto;
-    padding:10px 12px;
-    border:1px solid #075bff;
-    border-radius:7px;
-    background:#075bff;
-    color:#fff;
-    font-weight:600;
-    cursor:pointer;
-}
-
-.dashboard-page .service-card button:hover{
-    background:#0647d9;
-}
-
-.dashboard-page .btn-primary{
-    border:1px solid #075bff;
-    border-radius:7px;
-    background:#075bff;
-    color:#fff;
-    cursor:pointer;
-}
-
-.dashboard-page .btn-primary:hover{
-    background:#0647d9;
-}
-
-.dashboard-page #pay-section{
-    margin-top:22px;
-    padding:20px;
-    border:1px solid #b9d2ff;
-    border-radius:10px;
-    background:#edf4ff;
-}
-
-.dashboard-page #pay-section h3{
-    margin:0 0 10px;
-    color:#075bff;
-    font-size:18px;
-}
-
-.dashboard-page .demo{
-    padding:13px;
-    margin:14px 0;
-    border:1px solid #e9d79e;
-    border-radius:7px;
-    background:#fffaf0;
-    color:#765d24;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page #btn-pay{
-    width:100%;
-    min-height:45px;
-    padding:12px;
-    font-weight:700;
-}
-
-.dashboard-page #app-form{
-    margin-top:22px;
-}
-
-.dashboard-page .form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:16px;
-}
-
-.dashboard-page .form-grid>div{
-    min-width:0;
-}
-
-.dashboard-page .form-grid .full{
-    grid-column:1/-1;
-}
-
-.dashboard-page .form-grid label{
-    display:block;
-    margin-bottom:7px;
-    color:#294b7d;
-    font-size:13px;
-    font-weight:600;
-}
-
-.dashboard-page .form-grid input,
-.dashboard-page .form-grid select,
-.dashboard-page .form-grid textarea{
-    width:100%;
-    min-height:43px;
-    padding:10px 11px;
-    border:1px solid #ccd9ed;
-    border-radius:7px;
-    background:#fff;
-    color:#172b4d;
-    font:inherit;
-    font-size:14px;
-}
-
-.dashboard-page .form-grid input:focus,
-.dashboard-page .form-grid select:focus,
-.dashboard-page .form-grid textarea:focus{
-    outline:2px solid #d5e4ff;
-    border-color:#1670ff;
-}
-
-.dashboard-page .privacy-note{
-    margin:18px 0;
-    padding:14px;
-    border:1px solid #b9d2ff;
-    border-radius:7px;
-    background:#edf4ff;
-    color:#345b91;
-    font-size:12px;
-    line-height:1.8;
-}
-
-.dashboard-page .msg{
-    display:none;
-    margin-top:13px;
-    font-size:13px;
-}
-
-.dashboard-page .msg.ok{
-    color:#247448;
-}
-
-.dashboard-page .msg.err{
-    color:#b83232;
-}
-
-.dashboard-page .msg.info{
-    color:#075bff;
-}
-
-.dashboard-page .table-wrapper{
-    width:100%;
-    overflow-x:auto;
-    margin-top:18px;
-    border:1px solid #c7dcff;
-    border-radius:8px;
-}
-
-.dashboard-page .applications-table{
-    width:100%;
-    min-width:650px;
-    border-collapse:collapse;
-}
-
-.dashboard-page .applications-table th{
-    padding:13px 12px;
-    background:#e7f0ff;
-    color:#075bff;
-    text-align:left;
-    font-size:12px;
-    font-weight:700;
-    white-space:nowrap;
-}
-
-.dashboard-page .applications-table td{
-    padding:14px 12px;
-    border-bottom:1px solid #edf1f8;
-    color:#425979;
-    font-size:13px;
-}
-
-.dashboard-page .status-badge{
-    display:inline-block;
-    padding:5px 9px;
-    border-radius:20px;
-    background:#fff4df;
-    color:#946817;
-    font-size:11px;
-    font-weight:700;
-    white-space:nowrap;
-}
-
-.dashboard-page .status-badge.completed,
-.dashboard-page .status-badge.approved,
-.dashboard-page .status-badge.resolved{
-    background:#e9f5ed;
-    color:#287044;
-}
-
-.dashboard-page .status-badge.rejected,
-.dashboard-page .status-badge.cancelled{
-    background:#faeeee;
-    color:#a83232;
-}
-
-.dashboard-page .status-badge.processing,
-.dashboard-page .status-badge.in_review{
-    background:#eaf2ff;
-    color:#2458a5;
-}
-
-.dashboard-page .customer-care-banner{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:20px;
-    margin-bottom:22px;
-    padding:25px;
-    background:linear-gradient(120deg,#0647d9,#1670ff);
-    border:1px solid #075bff;
-    border-radius:13px;
-    box-shadow:0 7px 22px rgba(7,91,255,.18);
-}
-
-.dashboard-page .customer-care-banner h2{
-    margin:0 0 8px;
-    color:#fff;
-    font-size:21px;
-}
-
-.dashboard-page .customer-care-banner p{
-    margin:0;
-    color:#eaf2ff;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page .customer-care-banner a{
-    flex-shrink:0;
-    padding:11px 20px;
-    border:1px solid #fff;
-    border-radius:8px;
-    background:#fff;
-    color:#075bff;
-    font-size:13px;
-    font-weight:700;
-    text-decoration:none;
-}
-
-.dashboard-page .site-footer{
-    padding:22px 15px;
-    border-top:1px solid #c7dcff;
-    background:#fff;
-    color:#7185a3;
-    text-align:center;
-    font-size:12px;
-}
-
-@media(max-width:700px){
-    .dashboard-page .nav-row{
-        gap:9px;
-        padding:12px 13px;
-    }
-
-    .dashboard-page .brand-mark{
-        width:38px;
-        height:38px;
-    }
-
-    .dashboard-page .brand-text b{
-        font-size:19px;
-    }
-
-    .dashboard-page .nav-links{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:8px;
-        margin-top:3px;
-    }
-
-    .dashboard-page .nav-links .btn,
-    .dashboard-page .nav-links #nav-logout{
-        min-height:52px;
-        padding:10px 7px;
-        border-radius:12px;
-        font-size:14px;
-    }
-
-    .dashboard-page .dashboard-main{
-        padding:18px 12px;
-    }
-
-    .dashboard-page .dashboard-intro{
-        padding:21px 17px;
-    }
-
-    .dashboard-page .dashboard-card{
-        padding:18px 14px;
-    }
-
-    .dashboard-page .svcs{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:10px;
-    }
-
-    .dashboard-page .service-card{
-        padding:12px;
-    }
-
-    .dashboard-page .service-card h3{
-        font-size:14px;
-    }
-
-    .dashboard-page .service-card p{
-        font-size:15px;
-    }
-
-    .dashboard-page .service-card .service-description{
-        font-size:11px;
-    }
-
-    .dashboard-page .service-card button{
-        padding:9px 5px;
-        font-size:12px;
-    }
-
-    .dashboard-page .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .dashboard-page .form-grid .full{
-        grid-column:auto;
-    }
-
-    .dashboard-page .customer-care-banner{
-        align-items:flex-start;
-        flex-direction:column;
-        padding:19px;
-    }
-
-    .dashboard-page .customer-care-banner a{
-        width:100%;
-        text-align:center;
-    }
-}
-
-@media(max-width:370px){
-    .dashboard-page .svcs{
-        grid-template-columns:1fr;
-    }
-
-    .dashboard-page .nav-links{
-        gap:6px;
-    }
-
-    .dashboard-page .nav-links .btn,
-    .dashboard-page .nav-links #nav-logout{
-        font-size:12px;
-        min-height:48px;
-        padding:8px 5px;
-    }
-
-    .dashboard-page .brand-text b{
-        font-size:17px;
-    }
-}
-</style>
-
-<style id="eis-dashboard-professional-theme">
-:root{
-    --eis-page:#f5f6f7;
-    --eis-surface:#ffffff;
-    --eis-surface-soft:#f8f9fa;
-    --eis-text:#202a35;
-    --eis-muted:#697582;
-    --eis-border:#e3e7eb;
-    --eis-accent:#287b70;
-    --eis-accent-dark:#20665d;
-    --eis-accent-soft:#edf6f4;
-    --eis-success:#28784f;
-    --eis-warning:#9a7025;
-}
-body.dashboard-page{
-    background:var(--eis-page)!important;
-    color:var(--eis-text)!important;
-    font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important;
-}
-.dashboard-page .site-header{
-    background:rgba(255,255,255,.96)!important;
-    border-bottom:1px solid var(--eis-border)!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    -webkit-backdrop-filter:none!important;
-    backdrop-filter:none!important;
-}
-.dashboard-page .brand-text b{color:var(--eis-text)!important}
-.dashboard-page .brand-text span{color:var(--eis-muted)!important}
-.dashboard-page .notification-button{
-    color:var(--eis-text)!important;
-    border-color:var(--eis-border)!important;
-    background:#fff!important;
-}
-.dashboard-page .nav-links .btn,
-.dashboard-page .nav-links #nav-logout{
-    color:#46515d!important;
-    border:1px solid transparent!important;
-    background:transparent!important;
-    box-shadow:none!important;
-    border-radius:8px!important;
-    transition:background .18s ease,color .18s ease,border-color .18s ease!important;
-}
-.dashboard-page .nav-links .btn:hover,
-.dashboard-page .nav-links #nav-logout:hover{
-    background:#f1f3f4!important;
-    color:var(--eis-text)!important;
-}
-.dashboard-page .nav-links .btn.active{
-    color:var(--eis-accent-dark)!important;
-    background:var(--eis-accent-soft)!important;
-    border-color:#d9ebe7!important;
-    box-shadow:none!important;
-}
-.dashboard-page .dashboard-main{
-    max-width:1180px!important;
-    padding:30px 24px!important;
-}
-.dashboard-page .dashboard-intro{
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-left:4px solid var(--eis-accent)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    padding:25px 27px!important;
-}
-.dashboard-page .dashboard-intro h1{
-    color:var(--eis-text)!important;
-    font-size:clamp(23px,3vw,29px)!important;
-    letter-spacing:-.55px!important;
-}
-.dashboard-page .dashboard-intro p{
-    color:var(--eis-muted)!important;
-    font-size:14px!important;
-}
-.dashboard-page .dashboard-card{
-    background:var(--eis-surface)!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    padding:24px!important;
-    margin-bottom:22px!important;
-}
-.dashboard-page .section-heading{
-    color:var(--eis-text)!important;
-    font-size:19px!important;
-    letter-spacing:-.2px!important;
-}
-.dashboard-page .section-description{
-    color:var(--eis-muted)!important;
-    line-height:1.65!important;
-}
-.dashboard-page .svcs{
-    grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;
-    gap:16px!important;
-}
-.dashboard-page .service-card{
-    padding:19px!important;
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:9px!important;
-    box-shadow:none!important;
-    transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
-}
-.dashboard-page .service-card:hover{
-    transform:translateY(-2px)!important;
-    border-color:#b9d5cf!important;
-    box-shadow:0 5px 16px rgba(35,75,68,.07)!important;
-}
-.dashboard-page .service-card h3{
-    color:#273541!important;
-    font-size:16px!important;
-    font-weight:650!important;
-    line-height:1.45!important;
-}
-.dashboard-page .service-card .service-description{
-    color:var(--eis-muted)!important;
-    font-size:13px!important;
-    line-height:1.65!important;
-}
-.dashboard-page .service-card p{
-    color:#273541!important;
-    font-size:18px!important;
-    font-weight:700!important;
-    letter-spacing:-.2px!important;
-}
-.dashboard-page .service-card button,
-.dashboard-page .btn-primary{
-    background:var(--eis-accent)!important;
-    border:1px solid var(--eis-accent)!important;
-    border-radius:7px!important;
-    color:#fff!important;
-    font-weight:650!important;
-    box-shadow:none!important;
-    transition:background .18s ease,border-color .18s ease,transform .18s ease!important;
-}
-.dashboard-page .service-card button:hover,
-.dashboard-page .btn-primary:hover{
-    background:var(--eis-accent-dark)!important;
-    border-color:var(--eis-accent-dark)!important;
-}
-.dashboard-page .service-card button:focus-visible,
-.dashboard-page .btn-primary:focus-visible,
-.dashboard-page .nav-links a:focus-visible,
-.dashboard-page .nav-links button:focus-visible{
-    outline:3px solid rgba(40,123,112,.25)!important;
-    outline-offset:2px!important;
-}
-.dashboard-page #pay-section{
-    margin-top:20px!important;
-    padding:22px!important;
-    background:var(--eis-surface-soft)!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:9px!important;
-}
-.dashboard-page #pay-section h3{
-    color:var(--eis-text)!important;
-    font-size:19px!important;
-    margin-bottom:15px!important;
-}
-.dashboard-page #pay-section>div:not(.demo){
-    border-color:var(--eis-border)!important;
-    border-radius:8px!important;
-    box-shadow:none!important;
-}
-.dashboard-page #pay-section>div:not(.demo) h4{
-    color:var(--eis-text)!important;
-}
-.dashboard-page #pay-section>div:not(.demo) strong{
-    color:var(--eis-accent-dark)!important;
-}
-.dashboard-page .demo{
-    background:#fbf8f0!important;
-    border:1px solid #eee4ca!important;
-    border-radius:8px!important;
-    color:#76643d!important;
-    line-height:1.65!important;
-}
-.dashboard-page #btn-pay{
-    min-height:46px!important;
-    border-radius:7px!important;
-    letter-spacing:.1px!important;
-}
-.dashboard-page .form-grid input,
-.dashboard-page .form-grid select,
-.dashboard-page .form-grid textarea{
-    border-color:#d9dfe4!important;
-    border-radius:7px!important;
-    background:#fff!important;
-}
-.dashboard-page .form-grid input:focus,
-.dashboard-page .form-grid select:focus,
-.dashboard-page .form-grid textarea:focus{
-    border-color:var(--eis-accent)!important;
-    outline:3px solid rgba(40,123,112,.12)!important;
-}
-.dashboard-page .privacy-note{
-    background:#f5f8f7!important;
-    border-color:#e0e9e6!important;
-    border-radius:8px!important;
-    color:#52645f!important;
-}
-.dashboard-page .table-wrapper{
-    border-color:var(--eis-border)!important;
-    border-radius:8px!important;
-}
-.dashboard-page .applications-table th{
-    background:#f5f7f8!important;
-    color:#56616d!important;
-    font-weight:650!important;
-}
-.dashboard-page .applications-table td{
-    color:#4d5965!important;
-}
-.dashboard-page .applications-table tr:last-child td{
-    border-bottom:0!important;
-}
-.dashboard-page .status-badge{
-    border-radius:5px!important;
-    font-weight:650!important;
-}
-.dashboard-page .customer-care-banner{
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-}
-.dashboard-page .customer-care-banner h2{
-    color:var(--eis-text)!important;
-}
-.dashboard-page .customer-care-banner p{
-    color:var(--eis-muted)!important;
-}
-.dashboard-page .customer-care-banner a{
-    background:var(--eis-accent)!important;
-    border:1px solid var(--eis-accent)!important;
-    color:#fff!important;
-    border-radius:7px!important;
-}
-.dashboard-page .customer-care-banner a:hover{
-    background:var(--eis-accent-dark)!important;
-}
-.dashboard-page .site-footer{
-    background:#fff!important;
-    border-top:1px solid var(--eis-border)!important;
-    color:var(--eis-muted)!important;
-}
-@media(max-width:700px){
-    .dashboard-page .dashboard-main{padding:20px 13px!important}
-    .dashboard-page .dashboard-intro{padding:21px 18px!important}
-    .dashboard-page .dashboard-card{padding:18px 15px!important}
-    .dashboard-page #pay-section{padding:17px!important}
-    .dashboard-page .svcs{grid-template-columns:1fr!important}
-    .dashboard-page .service-card{padding:16px!important}
-}
-@media(prefers-reduced-motion:reduce){
-    .dashboard-page *,
-    .dashboard-page *::before,
-    .dashboard-page *::after{
-        scroll-behavior:auto!important;
-        transition:none!important;
-        animation:none!important;
-    }
-}
-</style>
-
-<style id="eis-dashboard-navy-teal">
-:root{--eis-navy:#142D4E;--eis-teal:#168477;--eis-teal-dark:#116B61;--eis-teal-soft:#EAF5F2;--eis-page:#F4F7F8;--eis-border:#E1E8EB;--eis-muted:#687783}
-body.dashboard-page{background:var(--eis-page)!important;color:#253342!important;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important}
-.dashboard-page .site-header{background:rgba(255,255,255,.97)!important;border-bottom:1px solid var(--eis-border)!important;box-shadow:0 2px 10px rgba(20,45,78,.045)!important}
-.dashboard-page .brand-text b,.dashboard-page .section-heading,.dashboard-page .dashboard-intro h1,.dashboard-page #pay-section h3,.dashboard-page .customer-care-banner h2{color:var(--eis-navy)!important}
-.dashboard-page .brand-text span,.dashboard-page .section-description,.dashboard-page .dashboard-intro p,.dashboard-page .customer-care-banner p{color:var(--eis-muted)!important}
-.dashboard-page .nav-links .btn,.dashboard-page .nav-links #nav-logout{color:#526171!important;border-color:transparent!important;background:transparent!important;box-shadow:none!important;border-radius:8px!important}
-.dashboard-page .nav-links .btn:hover,.dashboard-page .nav-links #nav-logout:hover{background:#F1F5F5!important;color:var(--eis-navy)!important}
-.dashboard-page .nav-links .btn.active{background:var(--eis-teal-soft)!important;border-color:#D4EAE4!important;color:var(--eis-teal-dark)!important;box-shadow:none!important}
-.dashboard-page .notification-button{color:var(--eis-navy)!important;border-color:var(--eis-border)!important;background:#fff!important}
-.dashboard-page .notification-dropdown{border-color:var(--eis-border)!important;box-shadow:0 12px 30px rgba(20,45,78,.12)!important}
-.dashboard-page .notification-dropdown h3,.dashboard-page .notification-item strong{color:var(--eis-navy)!important}
-.dashboard-page .dashboard-main{max-width:1180px!important}
-.dashboard-page .dashboard-intro{background:linear-gradient(115deg,#fff,#F7FBFA)!important;border:1px solid var(--eis-border)!important;border-left:4px solid var(--eis-teal)!important;border-radius:11px!important;box-shadow:0 3px 12px rgba(20,45,78,.045)!important}
-.dashboard-page .dashboard-intro h1{font-size:clamp(24px,3.2vw,31px)!important;font-weight:750!important;letter-spacing:-.55px!important}
-.dashboard-page .dashboard-card{background:#fff!important;border:1px solid var(--eis-border)!important;border-radius:11px!important;box-shadow:0 3px 13px rgba(20,45,78,.045)!important}
-.dashboard-page .svcs{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;gap:16px!important}
-.dashboard-page .service-card{background:#fff!important;border:1px solid var(--eis-border)!important;border-top:3px solid var(--eis-teal)!important;border-radius:10px!important;box-shadow:0 2px 8px rgba(20,45,78,.025)!important;padding:18px!important}
-.dashboard-page .service-card:hover{border-color:#C9DFDA!important;box-shadow:0 8px 22px rgba(20,45,78,.075)!important;transform:translateY(-2px)!important}
-.dashboard-page .service-card h3{color:var(--eis-navy)!important;font-size:16px!important}
-.dashboard-page .service-card p{color:var(--eis-navy)!important;font-size:18px!important}
-.dashboard-page .service-card .service-description{color:var(--eis-muted)!important;font-size:13px!important}
-.dashboard-page .service-card button,.dashboard-page .btn-primary,.dashboard-page #btn-pay{background:var(--eis-teal)!important;border-color:var(--eis-teal)!important;color:#fff!important;border-radius:7px!important;box-shadow:none!important;font-weight:650!important}
-.dashboard-page .service-card button:hover,.dashboard-page .btn-primary:hover,.dashboard-page #btn-pay:hover{background:var(--eis-teal-dark)!important;border-color:var(--eis-teal-dark)!important}
-.dashboard-page #pay-section{background:#F7F9FA!important;border:1px solid var(--eis-border)!important;border-radius:10px!important}
-.dashboard-page #pay-section>div:not(.demo){border-color:var(--eis-border)!important;box-shadow:none!important}
-.dashboard-page #pay-section>div:not(.demo) h4{color:var(--eis-navy)!important}
-.dashboard-page #pay-section>div:not(.demo) strong{color:var(--eis-teal-dark)!important}
-.dashboard-page .demo{background:#FBF8F0!important;border-color:#EEE3C8!important;color:#75633E!important}
-.dashboard-page .form-grid label{color:var(--eis-navy)!important}
-.dashboard-page .form-grid input,.dashboard-page .form-grid select,.dashboard-page .form-grid textarea{border-color:#D8E0E4!important;border-radius:7px!important}
-.dashboard-page .form-grid input:focus,.dashboard-page .form-grid select:focus,.dashboard-page .form-grid textarea:focus{border-color:var(--eis-teal)!important;outline:3px solid rgba(22,132,119,.13)!important}
-.dashboard-page .privacy-note{background:#F2F7F6!important;border-color:#DDEAE6!important;color:#526761!important}
-.dashboard-page .msg.info{color:var(--eis-teal-dark)!important}
-.dashboard-page .table-wrapper{border-color:var(--eis-border)!important}
-.dashboard-page .applications-table th{background:#F3F6F7!important;color:var(--eis-navy)!important}
-.dashboard-page .applications-table td{border-bottom-color:#EDF0F2!important;color:#53616D!important}
-.dashboard-page .status-badge.processing,.dashboard-page .status-badge.in_review{background:var(--eis-teal-soft)!important;color:var(--eis-teal-dark)!important}
-.dashboard-page .customer-care-banner{background:#fff!important;border:1px solid var(--eis-border)!important;border-left:4px solid var(--eis-teal)!important;border-radius:11px!important;box-shadow:0 3px 13px rgba(20,45,78,.045)!important}
-.dashboard-page .customer-care-banner a{background:var(--eis-teal)!important;border-color:var(--eis-teal)!important;color:#fff!important;border-radius:7px!important}
-.dashboard-page .customer-care-banner a:hover{background:var(--eis-teal-dark)!important}
-.dashboard-page .site-footer{background:#fff!important;border-top:1px solid var(--eis-border)!important;color:var(--eis-muted)!important}
-.dashboard-page button:focus-visible,.dashboard-page a:focus-visible{outline:3px solid rgba(22,132,119,.25)!important;outline-offset:3px!important}
-@media(max-width:700px){.dashboard-page .dashboard-main{padding:20px 13px!important}.dashboard-page .dashboard-intro{padding:21px 18px!important}.dashboard-page .dashboard-card{padding:18px 15px!important}.dashboard-page .svcs{grid-template-columns:1fr!important}.dashboard-page .service-card{padding:16px!important}}
-@media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *:before,.dashboard-page *:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-</style>
-
-<style id="eis-dashboard-reference-welcome">
-/* Compact reference welcome panel */
-.dashboard-page main.dashboard-main > .dashboard-intro{
- display:flex!important;
- flex-direction:column!important;
- justify-content:center!important;
- min-height:190px!important;
- margin:0 0 22px!important;
- padding:30px 42px!important;
- background:#fff!important;
- border:1px solid #e0e7e9!important;
- border-left:5px solid #168477!important;
- border-radius:24px!important;
- box-shadow:0 2px 9px rgba(20,45,78,.045)!important;
-}
-.dashboard-page main.dashboard-main > .dashboard-intro h1{
- max-width:1050px!important;
- margin:0 0 18px!important;
- color:#142D4E!important;
- font-size:clamp(30px,3.7vw,44px)!important;
- font-weight:750!important;
- line-height:1.15!important;
- letter-spacing:-1.1px!important;
-}
-.dashboard-page main.dashboard-main > .dashboard-intro p{
- max-width:1160px!important;
- margin:0!important;
- color:#78838d!important;
- font-size:clamp(16px,1.5vw,20px)!important;
- font-weight:400!important;
- line-height:1.55!important;
-}
-@media(max-width:700px){
- .dashboard-page main.dashboard-main > .dashboard-intro{
-  min-height:0!important;
-  padding:15px 14px!important;
-  border-left-width:3px!important;
-  border-radius:13px!important;
-  margin-bottom:16px!important;
- }
- .dashboard-page main.dashboard-main > .dashboard-intro h1{
-  margin:0 0 8px!important;
-  font-size:clamp(23px,5.8vw,27px)!important;
-  line-height:1.16!important;
-  letter-spacing:-.45px!important;
- }
- .dashboard-page main.dashboard-main > .dashboard-intro p{
-  font-size:clamp(13px,3.5vw,15px)!important;
-  line-height:1.4!important;
- }
-}
-@media(max-width:380px){
- .dashboard-page main.dashboard-main > .dashboard-intro{
-  padding:13px 12px!important;
-  border-radius:11px!important;
- }
- .dashboard-page main.dashboard-main > .dashboard-intro h1{font-size:23px!important;}
- .dashboard-page main.dashboard-main > .dashboard-intro p{font-size:13px!important;}
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#075bff">
+    <meta name="description" content="EIS Digital Services Administration Dashboard">
+    <title>Admin Dashboard | EIS Digital Services</title>
+    <link rel="stylesheet" href="css/styles.css?v=27">
+    <link rel="stylesheet" href="css/admin.css?v=27">
+    <link rel="stylesheet" href="css/shared-navigation.css?v=2">
+    <link rel="stylesheet" href="css/admin-sidebar-light.css?v=2">
+
+    <style>
+        .marketplace-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            padding: 24px;
+        }
+
+        .marketplace-form-grid .full-width { grid-column: 1 / -1; }
+
+        .marketplace-form-grid label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #26344d;
+        }
+
+        .marketplace-form-grid input,
+        .marketplace-form-grid textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #dce2ec;
+            border-radius: 10px;
+            font: inherit;
+            background: #fff;
+        }
+
+        .marketplace-form-grid textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .marketplace-form-grid input:focus,
+        .marketplace-form-grid textarea:focus {
+            outline: none;
+            border-color: #315fe8;
+            box-shadow: 0 0 0 3px rgba(49,95,232,.1);
+        }
+
+        .marketplace-image-preview {
+            display: none;
+            width: 150px;
+            height: 120px;
+            margin-top: 12px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e1e6ef;
+        }
+
+        .marketplace-form-actions { padding: 0 24px 24px; }
+
+        .marketplace-form-message {
+            margin: 0 24px 18px;
+            padding: 12px 15px;
+            border-radius: 9px;
+            display: none;
+        }
+
+        .marketplace-form-message.success {
+            display: block;
+            background: #e8f8ef;
+            color: #167342;
+        }
+
+        .marketplace-form-message.error {
+            display: block;
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .marketplace-products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+            padding: 22px;
+        }
+
+        .marketplace-admin-card {
+            border: 1px solid #e5e9f0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .marketplace-admin-card img {
+            width: 100%;
+            height: 175px;
+            object-fit: cover;
+            display: block;
+            background: #f2f4f8;
+        }
+
+        .marketplace-admin-card-content { padding: 15px; }
+
+        .marketplace-admin-card h4 {
+            margin: 0 0 8px;
+            color: #17243c;
+            font-size: 16px;
+        }
+
+        .marketplace-admin-price {
+            color: #2455d6;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 8px 0;
+        }
+
+        .marketplace-admin-description {
+            color: #687386;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .marketplace-admin-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .marketplace-admin-actions button {
+            flex: 1;
+            padding: 9px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .marketplace-edit-button {
+            background: #eaf0ff;
+            color: #2455d6;
+        }
+
+        .marketplace-delete-button {
+            background: #fff0f0;
+            color: #c62828;
+        }
+
+        .marketplace-empty {
+            padding: 35px 20px;
+            text-align: center;
+            color: #758096;
+            grid-column: 1 / -1;
+        }
+
+        .marketplace-status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #e8f8ef;
+            color: #167342;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .global-admin-header {
+            position: sticky;
+            top: 0;
+            z-index: 3000;
+            background: rgba(255,255,255,.78);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(190,207,230,.72);
+            box-shadow: 0 5px 20px rgba(20,55,105,.07);
+        }
+
+        .global-admin-header-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: 9px 20px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px 12px;
+            align-items: center;
+        }
+
+        .global-admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #075bff;
+            font-weight: 800;
+            font-size: 19px;
+        }
+
+        .global-admin-brand small {
+            display: block;
+            color: #52709c;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .global-admin-notice-area {
+            position: relative;
+            justify-self: end;
+        }
+
+        .global-admin-notice-button {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border: 1px solid #c7dcff;
+            border-radius: 50%;
+            background: #fff;
+            color: #075bff;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .global-admin-notice-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            background: #e33145;
+            color: #fff;
+            font-size: 10px;
+            display: none;
+            place-items: center;
+        }
+
+        .global-admin-notice-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: min(350px,88vw);
+            max-height: 390px;
+            overflow: auto;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #dce7f8;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(7,50,110,.16);
+            display: none;
+        }
+
+        .global-admin-notice-dropdown.open { display: block; }
+
+        .global-admin-notice-dropdown h3 {
+            margin: 0 0 10px;
+            color: #075bff;
+            font-size: 15px;
+        }
+
+        .global-admin-notice-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #edf1f8;
+        }
+
+        .global-admin-notice-item:last-child { border-bottom: 0; }
+
+        .global-admin-notice-item strong {
+            display: block;
+            color: #174b91;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .global-admin-notice-item p {
+            margin: 0;
+            color: #536b8d;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .global-admin-notice-item time {
+            display: block;
+            margin-top: 5px;
+            color: #8495ad;
+            font-size: 10px;
+        }
+
+        .global-admin-nav {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 9px;
+        }
+
+        .global-admin-nav a,
+        .global-admin-nav button {
+            width: 100%;
+            min-width: 0;
+            min-height: 58px;
+            padding: 11px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #cbd3df;
+            border-radius: 15px;
+            background: rgba(255,255,255,.9);
+            color: #10233f;
+            font: 700 clamp(13px,2vw,18px) Arial,sans-serif;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .global-admin-nav a.active {
+            background: #244fe0;
+            border-color: #244fe0;
+            color: #fff;
+            box-shadow: 0 6px 15px rgba(36,79,224,.18);
+        }
+
+        .global-admin-nav #admin-top-logout { grid-column: 1 / -1; }
+
+        @media (max-width: 700px) {
+            .marketplace-form-grid {
+                grid-template-columns: 1fr;
+                padding: 17px;
+                gap: 16px;
+            }
+
+            .marketplace-form-grid .full-width { grid-column: auto; }
+            .marketplace-form-actions { padding: 0 17px 20px; }
+
+            .marketplace-form-message {
+                margin-left: 17px;
+                margin-right: 17px;
+            }
+
+            .marketplace-products-grid {
+                grid-template-columns: repeat(auto-fill,minmax(145px,1fr));
+                gap: 12px;
+                padding: 14px;
+            }
+
+            .marketplace-admin-card img { height: 130px; }
+            .marketplace-admin-card-content { padding: 11px; }
+
+            .global-admin-header-inner {
+                padding: 8px 13px;
+                gap: 7px 10px;
+            }
+
+            .global-admin-nav { gap: 7px; }
+
+            .global-admin-nav a,
+            .global-admin-nav button {
+                min-height: 54px;
+                padding: 9px 5px;
+                border-radius: 13px;
+                font-size: clamp(12px,3.5vw,16px);
+            }
+        }
+
+        @media (max-width: 370px) {
+            .global-admin-nav { gap: 5px; }
+
+            .global-admin-nav a,
+            .global-admin-nav button {
+                min-height: 51px;
+                padding: 8px 3px;
+                font-size: 11px;
+            }
+        }
+
+        /* Site Settings */
+        .admin-settings-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: min(100%, 320px);
+            min-height: 110px;
+            margin: 12px 0 18px;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #64748b;
+            overflow: hidden;
+        }
+
+        .admin-settings-preview img {
+            display: block;
+            max-width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        #site-home-images-form .admin-settings-preview {
+            width: min(100%, 420px);
+        }
+
+        #site-home-images-form .admin-settings-preview img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+        }
+
+        .admin-form-group small {
+            display: block;
+            margin-top: 7px;
+            color: #718096;
+        }
+
+        .admin-settings-notice {
+            margin-top: 20px;
+            padding: 15px 17px;
+            border-radius: 10px;
+            background: #fff8e7;
+            color: #79551a;
+            line-height: 1.6;
+        }
+
+        .admin-settings-notice p { margin: 5px 0 0; }
+    </style>
 </head>
 
-<body class="dashboard-page">
+<body class="admin-page">
 
-<header class="site-header">
-    <div class="nav-row">
+<header class="global-admin-header">
+    <div class="global-admin-header-inner">
 
-        <a class="brand" href="dashboard.html">
-            <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
-                <rect x="2" y="2" width="44" height="44" rx="9" fill="#075bff"/>
-                <path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="24" cy="26" r="2.6" fill="#d8eaff"/>
-            </svg>
-
-            <span class="brand-text">
-                <b>EIS</b>
-                <span>Digital Services</span>
-            </span>
+        <a class="global-admin-brand" href="dashboard.html">
+            <span aria-hidden="true">EIS</span>
+            <span><small>Digital Services</small></span>
         </a>
 
-        <div class="nav-right">
+        <div class="global-admin-notice-area">
+            <button type="button" id="global-admin-notice-button"
+                class="global-admin-notice-button"
+                aria-label="Notifications" aria-expanded="false">
+                ♧
+                <span id="global-admin-notice-count" class="global-admin-notice-count">0</span>
+            </button>
 
-            <nav class="nav-links" aria-label="Main navigation">
-                <a href="dashboard.html" class="btn active" aria-current="page">
-                    Dashboard
-                </a>
-
-                <a href="marketplace.html" class="btn">
-                    Marketplace
-                </a>
-
-                <a
-                    href="admin.html"
-                    id="nav-admin"
-                    class="btn"
-                    hidden
-                    aria-label="Admin Panel"
-                >
-                    Admin Panel
-                </a>
-
-                <button id="nav-logout" type="button" class="btn">
-                    Log out
-                </button>
-            </nav>
-
-            <div class="notification-area">
-                <button type="button" class="notification-button" id="notification-button" aria-label="Notifications" aria-expanded="false">
-                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>
-                        <path d="M8 12h.01"/>
-                        <path d="M12 12h.01"/>
-                        <path d="M16 12h.01"/>
-                    </svg>
-                    <span id="notification-count" class="notification-count">0</span>
-                </button>
-
-                <div id="notification-dropdown" class="notification-dropdown">
-                    <h3 style="font-size:15px;margin:0 0 8px;color:#075bff;">Notifications</h3>
-                    <div id="notifications-list">Loading notifications...</div>
-                </div>
+            <div id="global-admin-notice-dropdown" class="global-admin-notice-dropdown">
+                <h3>Notifications</h3>
+                <div id="global-admin-notice-list">Loading notifications...</div>
             </div>
         </div>
+
+        <nav class="global-admin-nav" aria-label="Main navigation">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="marketplace.html">Marketplace</a>
+            <a href="admin.html" class="active" aria-current="page">Admin</a>
+            <button type="button" id="admin-top-logout">Log out</button>
+        </nav>
+
     </div>
 </header>
 
-<main class="dashboard-main">
+<div class="admin-overlay" id="admin-overlay"></div>
 
-    <section class="dashboard-intro">
-        <h1>Welcome to EIS Digital Services</h1>
-        <p>Manage your services, follow your applications and stay updated with important notifications from your dashboard.</p>
-    </section>
+<aside class="admin-sidebar" id="admin-sidebar">
 
-    <section class="card dashboard-card">
-        <h2 class="section-heading">Our Services</h2>
-        <p class="section-description">Choose a service to view its details, review the information and continue.</p>
+    <div class="admin-sidebar-brand">
+        <svg class="admin-brand-logo" viewBox="0 0 48 48" role="img" aria-label="EIS Digital Services logo">
+            <rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
+            <path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="24" cy="26" r="2.6" fill="#12b894"/>
+        </svg>
 
-        <div id="services-container" class="svcs">
-            <p>Loading services...</p>
+        <div class="admin-brand-text">
+            <h2>EISAdmin</h2>
         </div>
 
-        <div id="pay-section" style="display:none;">
-            <h3>Continue to Application</h3>
-            <div class="demo">
-                <strong>DEMO MODE:</strong>
-                This is a payment-flow demonstration only. No money will be charged, transferred or received.
-                A demo reference ID is not proof of payment.
+        <button type="button" class="admin-sidebar-close" id="close-sidebar" aria-label="Close sidebar">&times;</button>
+    </div>
+
+    <div class="admin-sidebar-content">
+        <div class="sidebar-section-title">MAIN MENU</div>
+
+        <nav class="admin-sidebar-nav">
+            <button type="button" class="sidebar-link active" data-section="overview">
+                <span class="sidebar-icon">▦</span><span>Overview</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="marketplace">
+                <span class="sidebar-icon">▣</span><span>Post to Marketplace</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="applications">
+                <span class="sidebar-icon">▤</span>
+                <span>Applications</span>
+                <span class="sidebar-badge" id="applications-badge">0</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="customer-care">
+                <span class="sidebar-icon">☏</span>
+                <span>Customer Care</span>
+                <span class="sidebar-badge" id="chat-badge">0</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="prices">
+                <span class="sidebar-icon">₦</span><span>Prices Management</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-section-title">COMMUNICATION</div>
+
+        <nav class="admin-sidebar-nav">
+            <button type="button" class="sidebar-link" data-section="broadcast">
+                <span class="sidebar-icon">✉</span><span>Broadcast Message</span>
+            </button>
+
+            <button type="button" class="sidebar-link" data-section="site-settings">
+                <span class="sidebar-icon">⚙</span><span>Site Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <div class="admin-sidebar-footer">
+        <div class="admin-profile-mini">
+            <div class="admin-avatar" id="admin-avatar">A</div>
+            <div class="admin-profile-info">
+                <strong id="sidebar-admin-name">Administrator</strong>
+                <span id="sidebar-admin-role">Admin</span>
             </div>
-            <button id="btn-pay" type="button" class="btn btn-primary">Continue</button>
         </div>
 
-        <p id="pay-msg" class="msg"></p>
-    </section>
+        <a href="index.html" class="sidebar-logout">
+            <span>←</span> Back to site
+        </a>
+    </div>
+</aside>
 
-    <form class="card dashboard-card" id="app-form" style="display:none;">
-        <h2 class="section-heading">Application Form</h2>
-        <p class="section-description">Complete the required contact information below.</p>
+<div class="admin-main-wrapper">
 
-        <div class="form-grid">
-            <div>
-                <label for="f-firstName">FIRST NAME *</label>
-                <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" required>
-            </div>
-
-            <div>
-                <label for="f-lastName">LAST NAME *</label>
-                <input type="text" id="f-lastName" name="lastName" autocomplete="family-name" required>
-            </div>
-
-            <div>
-                <label for="f-email">EMAIL *</label>
-                <input type="email" id="f-email" name="email" autocomplete="email" required>
-            </div>
-
-            <div>
-                <label for="f-phone">PHONE NUMBER (OPTIONAL)</label>
-                <input type="tel" id="f-phone" name="phone" autocomplete="tel">
-            </div>
+<header class="admin-topbar">
+    <div class="admin-topbar-left">
+        <button type="button" class="admin-menu-toggle" id="menu-toggle" aria-label="Open navigation menu">☰</button>
+        <div class="admin-breadcrumb">
+            <span>Admin</span>
+            <span class="breadcrumb-divider">/</span>
+            <strong id="breadcrumb-current">Overview</strong>
         </div>
+    </div>
 
-        <div class="privacy-note">
-            <strong>Privacy notice:</strong>
-            This form only requests basic contact information needed to process your application.
-            Do not enter BVN, bank account numbers, passwords, home address or other sensitive identity details.
-        </div>
-
-        <button class="btn btn-primary" type="submit" style="width:100%;padding:12px;margin-top:5px;">
-            Submit Application
+    <div class="admin-topbar-right">
+        <a href="index.html" class="topbar-link">Website</a>
+        <a href="dashboard.html" class="topbar-link">Dashboard</a>
+        <button type="button" class="topbar-chat-button" id="topbar-chat">
+            ☏ <span>Customer Care</span>
         </button>
+        <button type="button" class="topbar-logout" id="nav-logout">Log Out</button>
+    </div>
+</header>
 
-        <p id="form-msg" class="msg"></p>
-    </form>
+<main class="admin-content">
 
-    <section class="card dashboard-card">
-        <h2 class="section-heading">My Applications</h2>
-        <p class="section-description">Review your previous applications and their current status.</p>
+<div class="admin-notice" id="admin-message" role="status" aria-live="polite" hidden></div>
 
-        <div class="table-wrapper">
-            <table class="applications-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Reference</th>
-                        <th>Service</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
+<section class="admin-section active" id="section-overview">
 
-                <tbody id="apps-list">
-                    <tr>
-                        <td colspan="5" style="text-align:center;">Loading applications...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="customer-care-banner">
+    <div class="admin-page-heading">
         <div>
-            <h2>Need Help?</h2>
-            <p>Our Customer Care team is ready to assist you. Contact us if you need help with your application.</p>
+            <span class="admin-eyebrow">ADMINISTRATION</span>
+            <h1>Dashboard Overview</h1>
+            <p>Welcome back. Here's what's happening with EIS Digital Services.</p>
         </div>
-        <a href="support.html">Open Chat</a>
-    </section>
+
+        <div class="admin-heading-actions">
+            <span class="admin-date" id="admin-date"></span>
+            <button type="button" class="admin-primary-button" id="overview-refresh">↻ Refresh Data</button>
+        </div>
+    </div>
+
+    <div class="admin-stats-grid">
+        <article class="admin-stat-card">
+            <div class="stat-card-top">
+                <span>Total Applications</span><div class="stat-icon blue">▤</div>
+            </div>
+            <h2 id="stat-total">0</h2>
+            <p>All submitted applications</p>
+        </article>
+
+        <article class="admin-stat-card">
+            <div class="stat-card-top">
+                <span>In Review</span><div class="stat-icon orange">◷</div>
+            </div>
+            <h2 id="stat-review">0</h2>
+            <p>Applications being processed</p>
+        </article>
+
+        <article class="admin-stat-card">
+            <div class="stat-card-top">
+                <span>Completed</span><div class="stat-icon green">✓</div>
+            </div>
+            <h2 id="stat-completed">0</h2>
+            <p>Successfully completed</p>
+        </article>
+
+        <article class="admin-stat-card">
+            <div class="stat-card-top">
+                <span>Marketplace Products</span><div class="stat-icon purple">▣</div>
+            </div>
+            <h2 id="stat-products">0</h2>
+            <p>Available products</p>
+        </article>
+    </div>
+
+    <div class="admin-overview-grid">
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <div><h3>Recent Applications</h3><p>Latest customer applications</p></div>
+                <button type="button" class="admin-text-button" data-open-section="applications">View All →</button>
+            </div>
+            <div class="admin-apps-list" id="admin-apps-list">
+                <div class="admin-loading">Loading applications...</div>
+            </div>
+        </div>
+
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <div><h3>Marketplace Services</h3><p>Services currently available</p></div>
+                <button type="button" class="admin-text-button" data-open-section="prices">Manage →</button>
+            </div>
+            <div class="admin-services-list" id="admin-services-list">
+                <div class="admin-loading">Loading services...</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-section" id="section-marketplace">
+
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">EIS MARKETPLACE</span>
+            <h1>Post a Product</h1>
+            <p>Add products for customers to view on the Marketplace page.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3 id="marketplace-form-heading">Product Information</h3><p>Fill in the product details and publish it.</p></div>
+        </div>
+
+        <form id="marketplace-product-form" enctype="multipart/form-data">
+            <input type="hidden" id="marketplace-product-id">
+
+            <div class="marketplace-form-grid">
+                <div>
+                    <label for="product-title">Product Title *</label>
+                    <input type="text" id="product-title" maxlength="150" placeholder="Enter product name" required>
+                </div>
+
+                <div>
+                    <label for="product-price">Price (₦) *</label>
+                    <input type="number" id="product-price" min="0" step="0.01" placeholder="Enter price" required>
+                </div>
+
+                <div class="full-width">
+                    <label for="product-image">Product Image *</label>
+                    <input type="file" id="product-image" accept="image/jpeg,image/png,image/webp">
+                    <small>Accepted formats: JPG, PNG and WEBP. Maximum size: 5MB.</small>
+                    <img id="marketplace-image-preview" class="marketplace-image-preview" alt="Product image preview">
+                </div>
+
+                <div class="full-width">
+                    <label for="product-description">Product Description *</label>
+                    <textarea id="product-description" maxlength="3000" placeholder="Describe this product..." required></textarea>
+                </div>
+            </div>
+
+            <div class="marketplace-form-message" id="marketplace-form-message" role="status" aria-live="polite"></div>
+
+            <div class="marketplace-form-actions">
+                <button type="submit" class="admin-primary-button" id="product-submit">+ Post Product</button>
+                <button type="button" class="admin-text-button" id="marketplace-cancel-edit" hidden>Cancel Editing</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-panel" style="margin-top:25px;">
+        <div class="admin-panel-header">
+            <div><h3>Marketplace Products</h3><p>View, edit or delete products you have posted.</p></div>
+            <button type="button" class="admin-primary-button" id="marketplace-refresh">↻ Refresh</button>
+        </div>
+
+        <div id="marketplace-products-list" class="marketplace-products-grid">
+            <div class="marketplace-empty">Marketplace products will appear here.</div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-section" id="section-applications">
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">CUSTOMER RECORDS</span>
+            <h1>Applications Management</h1>
+            <p>Review applications and update their status.</p>
+        </div>
+        <button type="button" class="admin-primary-button" id="refresh-applications">↻ Refresh Applications</button>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3>All Applications</h3><p>Customer application records</p></div>
+            <span class="admin-result-count" id="applications-count">0 Applications</span>
+        </div>
+        <div class="admin-apps-list" id="applications-full-list">
+            <div class="admin-loading">Loading applications...</div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-section" id="section-customer-care">
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">SUPPORT CENTER</span>
+            <h1>Customer Care</h1>
+            <p>Manage customer conversations and respond to support messages.</p>
+        </div>
+        <button type="button" class="admin-primary-button" id="refresh-conversations">↻ Refresh Chats</button>
+    </div>
+
+    <div class="admin-chat-layout">
+        <div class="admin-panel admin-chat-list-panel">
+            <div class="admin-panel-header">
+                <div><h3>Conversations</h3><p>Customer support inbox</p></div>
+            </div>
+            <div id="admin-conversations-list" class="admin-conversations-list">
+                <div class="admin-loading">Loading conversations...</div>
+            </div>
+        </div>
+
+        <div class="admin-panel admin-chat-window">
+            <div class="admin-chat-empty" id="admin-chat-empty">
+                <div class="chat-empty-icon">☏</div>
+                <h3>Select a Conversation</h3>
+                <p>Select a customer conversation to view and respond to messages.</p>
+            </div>
+
+            <div class="admin-chat-active" id="admin-chat-active" hidden>
+                <div class="admin-chat-header">
+                    <div class="chat-customer-avatar" id="chat-customer-avatar">C</div>
+                    <div class="chat-customer-details">
+                        <h3 id="chat-customer-name">Customer</h3>
+                        <span class="chat-customer-email" id="chat-customer-email">Email not available</span>
+                        <span id="chat-customer-status">Conversation</span>
+                    </div>
+                </div>
+
+                <div class="admin-chat-messages" id="admin-chat-messages"></div>
+
+                <form id="admin-chat-form" class="admin-chat-form">
+                    <textarea id="admin-chat-input" rows="2" placeholder="Type your reply..." required></textarea>
+                    <button type="submit" id="admin-chat-send">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-section" id="section-prices">
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">SERVICE MANAGEMENT</span>
+            <h1>Prices Management</h1>
+            <p>Add services, update prices and manage your service catalogue.</p>
+        </div>
+        <button type="button" class="admin-primary-button" id="refresh-services">↻ Refresh Services</button>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3>Add New Service</h3><p>Create a new service in your catalogue.</p></div>
+        </div>
+
+        <form id="add-service-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="service-name">Service Name</label>
+                <input type="text" id="service-name" name="name" placeholder="Enter service name" required>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="service-price">Price (₦)</label>
+                <input type="number" id="service-price" name="price" min="0" step="0.01" placeholder="Enter service price" required>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="add-service-button">+ Add Service</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div><h3>Existing Services</h3><p>Update or remove existing services.</p></div>
+        </div>
+        <div class="admin-services-list" id="prices-services-list">
+            <div class="admin-loading">Loading services...</div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-section" id="section-broadcast">
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">COMMUNICATION</span>
+            <h1>Broadcast Message</h1>
+            <p>Send notifications to customers.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel admin-broadcast-panel">
+        <div class="admin-panel-header">
+            <div><h3>Create Notification</h3><p>Send a message to all registered customers.</p></div>
+        </div>
+
+        <form id="broadcast-form" class="admin-form admin-broadcast-form">
+            <div class="admin-form-group">
+                <label for="broadcast-title">Notification Title</label>
+                <input type="text" id="broadcast-title" maxlength="150" placeholder="Enter notification title" required>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="broadcast-message">Message</label>
+                <textarea id="broadcast-message" rows="6" maxlength="3000" placeholder="Write your message..." required></textarea>
+            </div>
+
+            <div class="admin-broadcast-note">
+                This notification will be sent to all customers with registered profiles.
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="broadcast-send">Send Broadcast</button>
+        </form>
+    </div>
+</section>
+
+<!-- SITE SETTINGS -->
+<section class="admin-section" id="section-site-settings">
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow">CONFIGURATION</span>
+            <h1>Site Settings</h1>
+            <p>Manage your website appearance, homepage images and administrator profile.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Website Logo</h3>
+                <p>Upload and change the logo displayed across the website.</p>
+            </div>
+        </div>
+
+        <form id="site-logo-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="site-logo-file">Choose new logo</label>
+                <input type="file" id="site-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                <small>PNG, JPG, WEBP or SVG. Recommended: transparent background.</small>
+            </div>
+
+            <div id="site-logo-preview" class="admin-settings-preview">
+                <span>Current logo preview will appear here.</span>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="site-logo-save">Save Website Logo</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Homepage Images</h3>
+                <p>Change the images used on the homepage.</p>
+            </div>
+        </div>
+
+        <form id="site-home-images-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="site-home-image-one">Homepage Image 1</label>
+                <input type="file" id="site-home-image-one" accept="image/png,image/jpeg,image/webp">
+                <div id="site-home-image-one-preview" class="admin-settings-preview">
+                    <span>Current image preview will appear here.</span>
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="site-home-image-two">Homepage Image 2</label>
+                <input type="file" id="site-home-image-two" accept="image/png,image/jpeg,image/webp">
+                <div id="site-home-image-two-preview" class="admin-settings-preview">
+                    <span>Current image preview will appear here.</span>
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="site-home-image-three">Homepage Image 3</label>
+                <input type="file" id="site-home-image-three" accept="image/png,image/jpeg,image/webp">
+                <div id="site-home-image-three-preview" class="admin-settings-preview">
+                    <span>Current image preview will appear here.</span>
+                </div>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="site-home-images-save">Save Homepage Images</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Admin Profile</h3>
+                <p>Set the administrator name and profile picture shown to customers in Customer Care.</p>
+            </div>
+        </div>
+
+        <form id="site-admin-profile-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="site-admin-display-name">Display Name</label>
+                <input type="text" id="site-admin-display-name" maxlength="80" placeholder="Enter admin display name">
+            </div>
+
+            <div class="admin-form-group">
+                <label for="site-admin-avatar-file">Admin Profile Picture</label>
+                <input type="file" id="site-admin-avatar-file" accept="image/png,image/jpeg,image/webp">
+                <div id="site-admin-avatar-preview" class="admin-settings-preview">
+                    <span>Current profile picture preview will appear here.</span>
+                </div>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="site-admin-profile-save">Save Admin Profile</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Manage Administrators</h3>
+                <p>View administrator accounts and their current access roles.</p>
+            </div>
+        </div>
+
+        <div id="site-admins-list" class="admin-services-list">
+            <div class="admin-loading">Administrator list requires secure permission setup.</div>
+        </div>
+
+        <div class="admin-settings-notice">
+            <strong>Administrator access</strong>
+            <p>Account role changes are not enabled here. They require verified super-admin permissions to protect administrator accounts.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Current Administrator Account</h3>
+                <p>Signed-in administrator information.</p>
+            </div>
+        </div>
+
+        <div class="admin-settings-grid">
+            <div class="admin-setting-item">
+                <span>Administrator Name</span>
+                <strong id="settings-admin-name">Loading...</strong>
+            </div>
+
+            <div class="admin-setting-item">
+                <span>Administrator Email</span>
+                <strong id="settings-admin-email">Loading...</strong>
+            </div>
+
+            <div class="admin-setting-item">
+                <span>Account Role</span>
+                <strong id="settings-admin-role">Loading...</strong>
+            </div>
+
+            <div class="admin-setting-item">
+                <span>Platform</span>
+                <strong>EIS Digital Services</strong>
+            </div>
+        </div>
+    </div>
+</section>
 
 </main>
 
-<footer class="site-footer">
-    <div class="wrap">
-        <p>&copy; 2026 EIS Digital Services. All rights reserved.</p>
-    </div>
+<footer class="admin-footer">
+    <p>© <span id="admin-year"></span> EIS Digital Services. All rights reserved.</p>
+    <span>Administration Dashboard</span>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=31"></script>
+</div>
+
+<!-- Main administration functionality -->
+<script type="module" src="js/admin.js?v=3"></script>
+
+<!-- Marketplace product management -->
+<script type="module" src="js/marketplace-admin.js?v=3"></script>
+
+<script type="module">
+import { supabase } from "./js/supabase.js";
+
+const button = document.getElementById("global-admin-notice-button");
+const dropdown = document.getElementById("global-admin-notice-dropdown");
+const list = document.getElementById("global-admin-notice-list");
+const count = document.getElementById("global-admin-notice-count");
+
+let cached = [];
+
+async function loadAdminNotifications() {
+    try {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+            if (list) list.textContent = "Please sign in to view notifications.";
+            if (count) count.style.display = "none";
+            return;
+        }
+
+        // Only unread notifications should contribute to the badge.
+        const { data, error } = await supabase
+            .from("notifications")
+            .select("*")
+            .eq("is_read", false)
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+        if (error) throw error;
+
+        cached = Array.isArray(data) ? data : [];
+
+        if (count) {
+            count.textContent = String(cached.length);
+            count.style.display = cached.length ? "grid" : "none";
+        }
+
+        if (list) {
+            if (!cached.length) {
+                list.textContent = "No notifications yet.";
+            } else {
+                list.replaceChildren();
+
+                cached.forEach((item) => {
+                    const article = document.createElement("article");
+                    article.className = "global-admin-notice-item";
+
+                    const title = document.createElement("strong");
+                    title.textContent = item.title || item.subject || "Notification";
+
+                    const message = document.createElement("p");
+                    message.textContent = item.message || item.body || item.description || "";
+
+                    article.append(title, message);
+
+                    if (item.created_at) {
+                        const time = document.createElement("time");
+                        const date = new Date(item.created_at);
+                        time.dateTime = item.created_at;
+                        time.textContent = Number.isNaN(date.getTime())
+                            ? ""
+                            : date.toLocaleString();
+                        article.append(time);
+                    }
+
+                    list.append(article);
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Admin notifications could not be loaded:", error);
+
+        if (list) {
+            list.textContent = "Notifications are temporarily unavailable.";
+        }
+
+        if (count) count.style.display = "none";
+    }
+}
+
+async function markAdminNotificationsRead() {
+    const unreadIds = cached
+        .filter((item) => item.is_read === false)
+        .map((item) => item.id)
+        .filter(Boolean);
+
+    if (!unreadIds.length) {
+        if (count) count.style.display = "none";
+        return;
+    }
+
+    const { error } = await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .in("id", unreadIds);
+
+    if (error) {
+        console.error("Could not mark admin notifications as read:", error);
+        return;
+    }
+
+    cached = cached.map((item) => ({ ...item, is_read: true }));
+
+    if (count) {
+        count.textContent = "0";
+        count.style.display = "none";
+    }
+}
+
+if (button && dropdown) {
+    button.addEventListener("click", async () => {
+        const isOpen = dropdown.classList.toggle("open");
+        button.setAttribute("aria-expanded", String(isOpen));
+
+        if (isOpen) {
+            await markAdminNotificationsRead();
+        }
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest(".global-admin-notice-area")) {
+            dropdown.classList.remove("open");
+            button.setAttribute("aria-expanded", "false");
+        }
+    });
+}
+
+loadAdminNotifications();
+</script>
 
 </body>
-                    </html>
+                        </html>
