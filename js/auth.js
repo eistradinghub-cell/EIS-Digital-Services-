@@ -25,6 +25,7 @@ let pendingVerificationEmail =
 ========================================= */
 
 function createVerificationScreen() {
+
     if ($('view-verify')) return;
 
     const style = document.createElement('style');
@@ -257,20 +258,29 @@ function createVerificationScreen() {
 }
 
 /* =========================================
+   CREATE OTP SCREEN BEFORE ITS EVENTS
+========================================= */
+
+createVerificationScreen();
+
+/* =========================================
    PAGE VIEW MANAGEMENT
 ========================================= */
 
 function showView(view) {
+
     [
         viewHome,
         viewLogin,
         viewSignup,
         $('view-verify')
     ].forEach(element => {
+
         if (element) {
             element.style.display =
                 element === view ? 'block' : 'none';
         }
+
     });
 
     window.scrollTo({
@@ -284,6 +294,7 @@ function showView(view) {
 ========================================= */
 
 function updateNavigation(session) {
+
     if (navAuth) {
         navAuth.style.display = session ? 'none' : 'flex';
     }
@@ -298,6 +309,7 @@ function updateNavigation(session) {
 ========================================= */
 
 function goToDashboard() {
+
     if (redirecting) return;
 
     redirecting = true;
@@ -310,6 +322,7 @@ function goToDashboard() {
 ========================================= */
 
 function showMessage(id, message, type = 'err') {
+
     const element = $(id);
 
     if (!element) return;
@@ -319,6 +332,7 @@ function showMessage(id, message, type = 'err') {
 }
 
 function clearMessages() {
+
     [
         'login-error',
         'signup-error',
@@ -326,11 +340,13 @@ function clearMessages() {
         'verify-error',
         'verify-success'
     ].forEach(id => {
+
         const element = $(id);
 
         if (element) {
             element.textContent = '';
         }
+
     });
 }
 
@@ -339,13 +355,17 @@ function clearMessages() {
 ========================================= */
 
 function setLoading(button, loading, text) {
+
     if (!button) return;
 
     if (loading) {
+
         button.dataset.originalText = button.textContent;
         button.textContent = text;
         button.disabled = true;
+
     } else {
+
         button.textContent =
             button.dataset.originalText || text;
 
@@ -423,7 +443,6 @@ function updatePasswordMatch() {
     passwordMatchMessage.className =
         'password-match-message ' +
         (matches ? 'match' : 'no-match');
-
 }
 
 signupPassword?.addEventListener(
@@ -442,8 +461,6 @@ signupConfirmPassword?.addEventListener(
 
 function showVerificationView(email) {
 
-    createVerificationScreen();
-
     const display = $('verify-email-display');
 
     if (display) {
@@ -460,8 +477,6 @@ function showVerificationView(email) {
 ========================================= */
 
 async function initializeAuth() {
-
-    createVerificationScreen();
 
     updateNavigation(null);
 
@@ -518,9 +533,7 @@ async function initializeAuth() {
         updateNavigation(null);
 
         showView(viewHome);
-
     }
-
 }
 
 /* =========================================
@@ -554,9 +567,7 @@ supabase.auth.onAuthStateChange((event, session) => {
         } else {
             showView(viewHome);
         }
-
     }
-
 });
 
 /* =========================================
@@ -568,7 +579,6 @@ $('btn-show-login')?.addEventListener('click', () => {
     clearMessages();
 
     showView(viewLogin);
-
 });
 
 $('btn-show-signup')?.addEventListener('click', () => {
@@ -576,7 +586,6 @@ $('btn-show-signup')?.addEventListener('click', () => {
     clearMessages();
 
     showView(viewSignup);
-
 });
 
 $('cta')?.addEventListener('click', () => {
@@ -584,7 +593,6 @@ $('cta')?.addEventListener('click', () => {
     clearMessages();
 
     showView(viewSignup);
-
 });
 
 $('link-to-signup')?.addEventListener('click', event => {
@@ -594,7 +602,6 @@ $('link-to-signup')?.addEventListener('click', event => {
     clearMessages();
 
     showView(viewSignup);
-
 });
 
 $('link-to-login')?.addEventListener('click', event => {
@@ -602,7 +609,6 @@ $('link-to-login')?.addEventListener('click', event => {
     event.preventDefault();
 
     showView(viewLogin);
-
 });
 
 /* =========================================
@@ -656,7 +662,6 @@ $('form-signup')?.addEventListener('submit', async event => {
         );
 
         return;
-
     }
 
     if (!confirmPassword) {
@@ -667,7 +672,6 @@ $('form-signup')?.addEventListener('submit', async event => {
         );
 
         return;
-
     }
 
     if (password.length < 8) {
@@ -678,7 +682,6 @@ $('form-signup')?.addEventListener('submit', async event => {
         );
 
         return;
-
     }
 
     if (password !== confirmPassword) {
@@ -689,7 +692,6 @@ $('form-signup')?.addEventListener('submit', async event => {
         );
 
         return;
-
     }
 
     setLoading(button, true, 'Creating account...');
@@ -711,9 +713,7 @@ $('form-signup')?.addEventListener('submit', async event => {
                         full_name: `${firstName} ${lastName}`,
                         phone: phone
                     }
-
                 }
-
             });
 
         if (error) throw error;
@@ -723,9 +723,9 @@ $('form-signup')?.addEventListener('submit', async event => {
         }
 
         /*
-         * If Supabase returns a session immediately,
-         * email confirmation may be disabled.
-         * Do not allow this signup to bypass verification.
+         * Confirmation must be enabled in Supabase.
+         * A session returned immediately means signup
+         * may have bypassed the confirmation requirement.
          */
 
         if (data.session) {
@@ -733,9 +733,8 @@ $('form-signup')?.addEventListener('submit', async event => {
             await supabase.auth.signOut();
 
             throw new Error(
-                'Email confirmation is not enabled in Supabase. Please contact the website administrator.'
+                'Email confirmation is not enabled correctly. Please contact the website administrator.'
             );
-
         }
 
         pendingVerificationEmail = email;
@@ -769,9 +768,7 @@ $('form-signup')?.addEventListener('submit', async event => {
     } finally {
 
         setLoading(button, false, 'Create Account');
-
     }
-
 });
 
 /* =========================================
@@ -803,7 +800,6 @@ $('form-verify-email')?.addEventListener('submit', async event => {
         );
 
         return;
-
     }
 
     if (!token || !/^[0-9]{6,8}$/.test(token)) {
@@ -814,7 +810,6 @@ $('form-verify-email')?.addEventListener('submit', async event => {
         );
 
         return;
-
     }
 
     setLoading(button, true, 'Verifying...');
@@ -829,7 +824,6 @@ $('form-verify-email')?.addEventListener('submit', async event => {
                 token: token,
 
                 type: 'email'
-
             });
 
         if (error) throw error;
@@ -842,7 +836,6 @@ $('form-verify-email')?.addEventListener('submit', async event => {
             throw new Error(
                 'Email verification could not be confirmed. Please try again.'
             );
-
         }
 
         sessionStorage.removeItem(
@@ -859,6 +852,8 @@ $('form-verify-email')?.addEventListener('submit', async event => {
 
         if (data.session) {
             goToDashboard();
+        } else {
+            window.location.replace('./dashboard.html');
         }
 
     } catch (error) {
@@ -874,9 +869,7 @@ $('form-verify-email')?.addEventListener('submit', async event => {
     } finally {
 
         setLoading(button, false, 'Verify Email');
-
     }
-
 });
 
 /* =========================================
@@ -902,7 +895,6 @@ $('btn-resend-otp')?.addEventListener('click', async () => {
         );
 
         return;
-
     }
 
     setLoading(button, true, 'Sending...');
@@ -915,7 +907,6 @@ $('btn-resend-otp')?.addEventListener('click', async () => {
                 type: 'signup',
 
                 email: email
-
             });
 
         if (error) throw error;
@@ -928,4 +919,158 @@ $('btn-resend-otp')?.addEventListener('click', async () => {
 
     } catch (error) {
 
-        console.error('Rese
+        console.error('Resend OTP error:', error);
+
+        showMessage(
+            'verify-error',
+            error.message || 'Unable to resend verification code.'
+        );
+
+    } finally {
+
+        setLoading(button, false, 'Resend Code');
+    }
+});
+
+/* =========================================
+   LOGIN
+========================================= */
+
+$('form-login')?.addEventListener('submit', async event => {
+
+    event.preventDefault();
+
+    const button = event.target.querySelector(
+        'button[type="submit"]'
+    );
+
+    clearMessages();
+
+    const email = $('login-email')?.value
+        .trim()
+        .toLowerCase();
+
+    const password = $('login-password')?.value;
+
+    if (!email || !password) {
+
+        showMessage(
+            'login-error',
+            'Enter your email and password.'
+        );
+
+        return;
+    }
+
+    setLoading(button, true, 'Logging in...');
+
+    try {
+
+        const { data, error } =
+            await supabase.auth.signInWithPassword({
+
+                email,
+
+                password
+            });
+
+        if (error) {
+
+            if (error.code === 'email_not_confirmed') {
+
+                pendingVerificationEmail = email;
+
+                sessionStorage.setItem(
+                    'eis-pending-verification-email',
+                    email
+                );
+
+                showVerificationView(email);
+
+                showMessage(
+                    'verify-error',
+                    'Please verify your email before logging in.'
+                );
+
+                return;
+            }
+
+            throw error;
+        }
+
+        if (!data.session || !data.user) {
+
+            throw new Error(
+                'Login session could not be established.'
+            );
+        }
+
+        const isVerified =
+            !!(data.user.email_confirmed_at || data.user.confirmed_at);
+
+        if (!isVerified) {
+
+            await supabase.auth.signOut();
+
+            throw new Error(
+                'Please verify your email before accessing your account.'
+            );
+        }
+
+        sessionStorage.removeItem(
+            'eis-pending-verification-email'
+        );
+
+        pendingVerificationEmail = '';
+
+        goToDashboard();
+
+    } catch (error) {
+
+        console.error('Login error:', error);
+
+        showMessage(
+            'login-error',
+            error.message || 'Login failed.'
+        );
+
+    } finally {
+
+        setLoading(button, false, 'Log In');
+    }
+});
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+$('btn-logout')?.addEventListener('click', async () => {
+
+    const button = $('btn-logout');
+
+    if (button) button.disabled = true;
+
+    try {
+
+        const { error } =
+            await supabase.auth.signOut();
+
+        if (error) throw error;
+
+        window.location.replace('./index.html');
+
+    } catch (error) {
+
+        console.error('Logout error:', error);
+
+        alert('Logout failed: ' + error.message);
+
+        if (button) button.disabled = false;
+    }
+});
+
+/* =========================================
+   START
+========================================= */
+
+initializeAuth(); 
