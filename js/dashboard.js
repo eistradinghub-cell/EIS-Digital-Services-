@@ -170,13 +170,16 @@ function applyDashboardWelcomeStyle() {
 function cleanCustomerName(value) {
     if (typeof value !== "string") return "";
 
-    const name = value
-        .replace(/\s+/g, " ")
-        .trim();
+    const name = value.replace(/\s+/g, " ").trim();
 
     if (!name) return "";
 
-    const placeholderNames = new Set([
+    // An email address must never be shown as a customer's name.
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name)) {
+        return "";
+    }
+
+    const placeholders = new Set([
         "customer",
         "user",
         "admin",
@@ -187,72 +190,74 @@ function cleanCustomerName(value) {
         "undefined"
     ]);
 
-    if (placeholderNames.has(name.toLowerCase())) {
-        return "";
-    }
-
-    return name;
+    return placeholders.has(name.toLowerCase()) ? "" : name;
 }
 
-function joinCustomerName(first, last) {
+function joinCustomerName(firstName, lastName) {
     return [
-        cleanCustomerName(first),
-        cleanCustomerName(last)
+        cleanCustomerName(firstName),
+        cleanCustomerName(lastName)
     ].filter(Boolean).join(" ").trim();
 }
 
 function getCustomerDisplayName(profile, user) {
     const metadata = user?.user_metadata || {};
-
     const identityData = (user?.identities || [])
         .map(identity => identity?.identity_data || {});
 
-    const metadataCandidates = [
-        metadata.full_name,
-        metadata.fullName,
-        metadata.display_name,
-        metadata.displayName,
-        metadata.name,
+    // First name + last name are the preferred source.
+    const firstAndLastNameCandidates = [
         joinCustomerName(metadata.first_name, metadata.last_name),
-        joinCustomerName(metadata.firstName, metadata.lastName)
-    ];
-
-    for (const identity of identityData) {
-        metadataCandidates.push(
-            identity.full_name,
-            identity.fullName,
-            identity.display_name,
-            identity.name,
-            joinCustomerName(identity.first_name, identity.last_name),
-            joinCustomerName(identity.given_name, identity.family_name)
-        );
-    }
-
-    const profileCandidates = [
-        profile?.full_name,
-        profile?.fullName,
-        profile?.display_name,
-        profile?.displayName,
-        profile?.name,
+        joinCustomerName(metadata.firstName, metadata.lastName),
         joinCustomerName(profile?.first_name, profile?.last_name),
         joinCustomerName(profile?.firstName, profile?.lastName),
         joinCustomerName(profile?.given_name, profile?.family_name)
     ];
 
-    // Prefer the name entered during registration.
-    // A generic "Customer" profile value must not override it.
-    for (const candidate of [...metadataCandidates, ...profileCandidates]) {
+    for (const identity of identityData) {
+        firstAndLastNameCandidates.push(
+            joinCustomerName(identity.first_name, identity.last_name),
+            joinCustomerName(identity.firstName, identity.lastName),
+            joinCustomerName(identity.given_name, identity.family_name)
+        );
+    }
+
+    for (const candidate of firstAndLastNameCandidates) {
         const validName = cleanCustomerName(candidate);
         if (validName) return validName;
     }
 
-    const emailName = cleanCustomerName(
-        user?.email?.split("@")[0]
-            ?.replace(/[._-]+/g, " ")
-            .replace(/\b\w/g, character => character.toUpperCase())
-    );
+    // Use full_name only when separate first/last names are unavailable.
+    const fullNameCandidates = [
+        metadata.full_name,
+        metadata.fullName,
+        metadata.display_name,
+        metadata.displayName,
+        metadata.name,
+        profile?.full_name,
+        profile?.fullName,
+        profile?.display_name,
+        profile?.displayName,
+        profile?.name
+    ];
 
-    return emailName || "there";
+    for (const identity of identityData) {
+        fullNameCandidates.push(
+            identity.full_name,
+            identity.fullName,
+            identity.display_name,
+            identity.displayName,
+            identity.name
+        );
+    }
+
+    for (const candidate of fullNameCandidates) {
+        const validName = cleanCustomerName(candidate);
+        if (validName) return validName;
+    }
+
+    // Do not use the email or its username as a substitute.
+    return "there";
 }
 
 async function loadUserProfile() {
@@ -709,9 +714,7 @@ async function loadApplications() {
             const name = document.createElement("td");
 
             name.textContent =
-                currentProfile?.full_name ||
-                currentUser.email ||
-                "Customer";
+                getCustomerDisplayName(currentProfile, currentUser);
 
             const reference = document.createElement("td");
 
