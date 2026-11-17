@@ -378,6 +378,58 @@
                 font-size: 11px;
             }
         }
+
+        /* Site Settings */
+        .admin-settings-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: min(100%, 320px);
+            min-height: 110px;
+            margin: 12px 0 18px;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #64748b;
+            overflow: hidden;
+        }
+
+        .admin-settings-preview img {
+            display: block;
+            max-width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        #site-home-images-form .admin-settings-preview {
+            width: min(100%, 420px);
+        }
+
+        #site-home-images-form .admin-settings-preview img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+        }
+
+        .admin-form-group small {
+            display: block;
+            margin-top: 7px;
+            color: #718096;
+        }
+
+        .admin-settings-notice {
+            margin-top: 20px;
+            padding: 15px 17px;
+            border-radius: 10px;
+            background: #fff8e7;
+            color: #79551a;
+            line-height: 1.6;
+        }
+
+        .admin-settings-notice p { margin: 5px 0 0; }
     </style>
 </head>
 
@@ -794,18 +846,126 @@
     </div>
 </section>
 
+<!-- SITE SETTINGS -->
 <section class="admin-section" id="section-site-settings">
     <div class="admin-page-heading">
         <div>
             <span class="admin-eyebrow">CONFIGURATION</span>
             <h1>Site Settings</h1>
-            <p>Website administration information.</p>
+            <p>Manage your website appearance, homepage images and administrator profile.</p>
         </div>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
-            <div><h3>Administration Information</h3><p>Current administrator account details.</p></div>
+            <div>
+                <h3>Website Logo</h3>
+                <p>Upload and change the logo displayed across the website.</p>
+            </div>
+        </div>
+
+        <form id="site-logo-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="site-logo-file">Choose new logo</label>
+                <input type="file" id="site-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                <small>PNG, JPG, WEBP or SVG. Recommended: transparent background.</small>
+            </div>
+
+            <div id="site-logo-preview" class="admin-settings-preview">
+                <span>Current logo preview will appear here.</span>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="site-logo-save">Save Website Logo</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Homepage Images</h3>
+                <p>Change the images used on the homepage.</p>
+            </div>
+        </div>
+
+        <form id="site-home-images-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="site-home-image-one">Homepage Image 1</label>
+                <input type="file" id="site-home-image-one" accept="image/png,image/jpeg,image/webp">
+                <div id="site-home-image-one-preview" class="admin-settings-preview">
+                    <span>Current image preview will appear here.</span>
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="site-home-image-two">Homepage Image 2</label>
+                <input type="file" id="site-home-image-two" accept="image/png,image/jpeg,image/webp">
+                <div id="site-home-image-two-preview" class="admin-settings-preview">
+                    <span>Current image preview will appear here.</span>
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="site-home-image-three">Homepage Image 3</label>
+                <input type="file" id="site-home-image-three" accept="image/png,image/jpeg,image/webp">
+                <div id="site-home-image-three-preview" class="admin-settings-preview">
+                    <span>Current image preview will appear here.</span>
+                </div>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="site-home-images-save">Save Homepage Images</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Admin Profile</h3>
+                <p>Set the administrator name and profile picture shown to customers in Customer Care.</p>
+            </div>
+        </div>
+
+        <form id="site-admin-profile-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="site-admin-display-name">Display Name</label>
+                <input type="text" id="site-admin-display-name" maxlength="80" placeholder="Enter admin display name">
+            </div>
+
+            <div class="admin-form-group">
+                <label for="site-admin-avatar-file">Admin Profile Picture</label>
+                <input type="file" id="site-admin-avatar-file" accept="image/png,image/jpeg,image/webp">
+                <div id="site-admin-avatar-preview" class="admin-settings-preview">
+                    <span>Current profile picture preview will appear here.</span>
+                </div>
+            </div>
+
+            <button type="submit" class="admin-primary-button" id="site-admin-profile-save">Save Admin Profile</button>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Manage Administrators</h3>
+                <p>View administrator accounts and their current access roles.</p>
+            </div>
+        </div>
+
+        <div id="site-admins-list" class="admin-services-list">
+            <div class="admin-loading">Administrator list requires secure permission setup.</div>
+        </div>
+
+        <div class="admin-settings-notice">
+            <strong>Administrator access</strong>
+            <p>Account role changes are not enabled here. They require verified super-admin permissions to protect administrator accounts.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Current Administrator Account</h3>
+                <p>Signed-in administrator information.</p>
+            </div>
         </div>
 
         <div class="admin-settings-grid">
@@ -813,23 +973,21 @@
                 <span>Administrator Name</span>
                 <strong id="settings-admin-name">Loading...</strong>
             </div>
+
             <div class="admin-setting-item">
                 <span>Administrator Email</span>
                 <strong id="settings-admin-email">Loading...</strong>
             </div>
+
             <div class="admin-setting-item">
                 <span>Account Role</span>
                 <strong id="settings-admin-role">Loading...</strong>
             </div>
+
             <div class="admin-setting-item">
                 <span>Platform</span>
                 <strong>EIS Digital Services</strong>
             </div>
-        </div>
-
-        <div class="admin-settings-notice">
-            <strong>Administration Information</strong>
-            <p>Manage your EIS Digital Services administration dashboard from this page.</p>
         </div>
     </div>
 </section>
@@ -982,4 +1140,4 @@ loadAdminNotifications();
 </script>
 
 </body>
-                    </html>
+                </html>
