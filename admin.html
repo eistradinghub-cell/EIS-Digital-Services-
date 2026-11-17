@@ -871,9 +871,11 @@ async function loadAdminNotifications() {
             return;
         }
 
+        // Only unread notifications should contribute to the badge.
         const { data, error } = await supabase
             .from("notifications")
             .select("*")
+            .eq("is_read", false)
             .order("created_at", { ascending: false })
             .limit(10);
 
@@ -929,10 +931,43 @@ async function loadAdminNotifications() {
     }
 }
 
+async function markAdminNotificationsRead() {
+    const unreadIds = cached
+        .filter((item) => item.is_read === false)
+        .map((item) => item.id)
+        .filter(Boolean);
+
+    if (!unreadIds.length) {
+        if (count) count.style.display = "none";
+        return;
+    }
+
+    const { error } = await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .in("id", unreadIds);
+
+    if (error) {
+        console.error("Could not mark admin notifications as read:", error);
+        return;
+    }
+
+    cached = cached.map((item) => ({ ...item, is_read: true }));
+
+    if (count) {
+        count.textContent = "0";
+        count.style.display = "none";
+    }
+}
+
 if (button && dropdown) {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
         const isOpen = dropdown.classList.toggle("open");
         button.setAttribute("aria-expanded", String(isOpen));
+
+        if (isOpen) {
+            await markAdminNotificationsRead();
+        }
     });
 
     document.addEventListener("click", (event) => {
@@ -947,4 +982,4 @@ loadAdminNotifications();
 </script>
 
 </body>
-                                                   </html>
+    </html>
