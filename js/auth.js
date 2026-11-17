@@ -107,13 +107,100 @@ function setLoading(button, loading, text) {
 }
 
 /* =========================================
+   PASSWORD VISIBILITY
+========================================= */
+
+document.querySelectorAll('[data-password-toggle]').forEach(toggle => {
+
+    toggle.addEventListener('click', () => {
+
+        const input = $(toggle.dataset.passwordToggle);
+
+        if (!input) return;
+
+        const showing = input.type === 'password';
+
+        input.type = showing ? 'text' : 'password';
+
+        toggle.textContent = showing ? 'Hide' : 'Show';
+
+        toggle.setAttribute(
+            'aria-label',
+            showing ? 'Hide password' : 'Show password'
+        );
+
+        toggle.setAttribute(
+            'aria-pressed',
+            String(showing)
+        );
+
+    });
+
+});
+
+
+/* =========================================
+   LIVE PASSWORD CONFIRMATION
+========================================= */
+
+const signupPassword = $('signup-password');
+const signupConfirmPassword = $('signup-confirm-password');
+const passwordMatchMessage = $('signup-password-match');
+
+function updatePasswordMatch() {
+
+    if (
+        !signupPassword ||
+        !signupConfirmPassword ||
+        !passwordMatchMessage
+    ) {
+        return;
+    }
+
+    if (!signupConfirmPassword.value) {
+
+        passwordMatchMessage.textContent = '';
+
+        passwordMatchMessage.className =
+            'password-match-message';
+
+        return;
+    }
+
+    const matches =
+        signupPassword.value === signupConfirmPassword.value;
+
+    passwordMatchMessage.textContent = matches
+        ? 'Passwords match.'
+        : 'Passwords do not match.';
+
+    passwordMatchMessage.className =
+        'password-match-message ' +
+        (matches ? 'match' : 'no-match');
+
+}
+
+signupPassword?.addEventListener(
+    'input',
+    updatePasswordMatch
+);
+
+signupConfirmPassword?.addEventListener(
+    'input',
+    updatePasswordMatch
+);
+
+
+/* =========================================
    INITIALIZE AUTH
 ========================================= */
 
 async function initializeAuth() {
+
     updateNavigation(null);
 
     try {
+
         const { data, error } =
             await supabase.auth.getSession();
 
@@ -131,12 +218,17 @@ async function initializeAuth() {
         showView(viewHome);
 
     } catch (error) {
+
         console.error('Auth initialization error:', error);
 
         updateNavigation(null);
+
         showView(viewHome);
+
     }
+
 }
+
 
 /* =========================================
    AUTH STATE LISTENER
@@ -151,42 +243,68 @@ supabase.auth.onAuthStateChange((event, session) => {
     }
 
     if (event === 'SIGNED_OUT') {
+
         redirecting = false;
+
         showView(viewHome);
+
     }
 
 });
+
 
 /* =========================================
    NAVIGATION BUTTONS
 ========================================= */
 
 $('btn-show-login')?.addEventListener('click', () => {
+
     clearMessages();
+
     showView(viewLogin);
+
 });
+
 
 $('btn-show-signup')?.addEventListener('click', () => {
+
     clearMessages();
+
     showView(viewSignup);
+
 });
+
 
 $('cta')?.addEventListener('click', () => {
+
     clearMessages();
+
     showView(viewSignup);
+
 });
+
 
 $('link-to-signup')?.addEventListener('click', event => {
+
     event.preventDefault();
+
     clearMessages();
+
     showView(viewSignup);
+
 });
 
+
 $('link-to-login')?.addEventListener('click', event => {
+
     event.preventDefault();
+
     clearMessages();
+
     showView(viewLogin);
+
 });
+
 
 /* =========================================
    SIGN UP
@@ -202,54 +320,124 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     clearMessages();
 
-    const name = $('signup-name')?.value.trim().replace(/\s+/g, ' ');
-    const email = $('signup-email')?.value.trim().toLowerCase();
+    const name = $('signup-name')?.value
+        .trim()
+        .replace(/\s+/g, ' ');
+
+    const email = $('signup-email')?.value
+        .trim()
+        .toLowerCase();
+
     const phone = $('signup-phone')?.value.trim();
+
     const password = $('signup-password')?.value;
 
-    const nameParts = name ? name.split(' ').filter(Boolean) : [];
+    const confirmPassword =
+        $('signup-confirm-password')?.value;
+
+    const nameParts = name
+        ? name.split(' ').filter(Boolean)
+        : [];
+
     const firstName = nameParts.shift() || '';
+
     const lastName = nameParts.join(' ');
 
-    if (!firstName || !lastName || !email || !phone || !password) {
+
+    if (
+        !firstName ||
+        !lastName ||
+        !email ||
+        !phone ||
+        !password
+    ) {
+
         showMessage(
             'signup-error',
             'Please enter both your first name and last name, then complete all fields.'
         );
+
         return;
+
     }
 
+
+    if (!confirmPassword) {
+
+        showMessage(
+            'signup-error',
+            'Please confirm your password.'
+        );
+
+        return;
+
+    }
+
+
     if (password.length < 8) {
+
         showMessage(
             'signup-error',
             'Password must contain at least 8 characters.'
         );
+
         return;
+
     }
 
+
+    if (password !== confirmPassword) {
+
+        showMessage(
+            'signup-error',
+            'The passwords do not match. Please check and try again.'
+        );
+
+        return;
+
+    }
+
+
     setLoading(button, true, 'Creating account...');
+
 
     try {
 
         const { data, error } =
             await supabase.auth.signUp({
+
                 email,
+
                 password,
+
                 options: {
+
                     data: {
+
                         first_name: firstName,
+
                         last_name: lastName,
+
                         full_name: `${firstName} ${lastName}`,
+
                         phone: phone
+
                     }
+
                 }
+
             });
+
 
         if (error) throw error;
 
+
         if (!data.user) {
+
             throw new Error('Account creation failed.');
+
         }
+
 
         if (data.session) {
 
@@ -270,7 +458,11 @@ $('form-signup')?.addEventListener('submit', async event => {
             );
 
             event.target.reset();
+
+            updatePasswordMatch();
+
         }
+
 
     } catch (error) {
 
@@ -289,6 +481,7 @@ $('form-signup')?.addEventListener('submit', async event => {
 
 });
 
+
 /* =========================================
    LOGIN
 ========================================= */
@@ -303,36 +496,54 @@ $('form-login')?.addEventListener('submit', async event => {
 
     clearMessages();
 
-    const email = $('login-email')?.value.trim().toLowerCase();
+    const email = $('login-email')?.value
+        .trim()
+        .toLowerCase();
+
     const password = $('login-password')?.value;
 
+
     if (!email || !password) {
+
         showMessage(
             'login-error',
             'Enter your email and password.'
         );
+
         return;
+
     }
 
+
     setLoading(button, true, 'Logging in...');
+
 
     try {
 
         const { data, error } =
             await supabase.auth.signInWithPassword({
+
                 email,
+
                 password
+
             });
+
 
         if (error) throw error;
 
+
         if (!data.session) {
+
             throw new Error(
                 'Login session could not be established.'
             );
+
         }
 
+
         goToDashboard();
+
 
     } catch (error) {
 
@@ -351,6 +562,7 @@ $('form-login')?.addEventListener('submit', async event => {
 
 });
 
+
 /* =========================================
    LOGOUT
 ========================================= */
@@ -361,13 +573,16 @@ $('btn-logout')?.addEventListener('click', async () => {
 
     if (button) button.disabled = true;
 
+
     try {
 
-        const { error } = await supabase.auth.signOut();
+        const { error } =
+            await supabase.auth.signOut();
 
         if (error) throw error;
 
         window.location.replace('./index.html');
+
 
     } catch (error) {
 
@@ -376,9 +591,11 @@ $('btn-logout')?.addEventListener('click', async () => {
         alert('Logout failed: ' + error.message);
 
         if (button) button.disabled = false;
+
     }
 
 });
+
 
 /* =========================================
    START
