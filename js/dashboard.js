@@ -127,10 +127,48 @@ async function checkUserSession() {
 }
 
 /* =========================================
+   CUSTOMER WELCOME CARD DESIGN
+   Clean white surface with a subtle blue tint.
+========================================= */
+
+function applyDashboardWelcomeStyle() {
+    if (document.getElementById("eis-dashboard-welcome-style")) {
+        return;
+    }
+
+    const style = document.createElement("style");
+    style.id = "eis-dashboard-welcome-style";
+    style.textContent = `
+        .dashboard-page .dashboard-intro {
+            background: linear-gradient(
+                135deg,
+                #ffffff 0%,
+                #fbfdff 58%,
+                #edf4ff 100%
+            ) !important;
+            border: 1px solid #dce8f8 !important;
+            box-shadow: 0 8px 24px rgba(34, 83, 145, 0.08) !important;
+        }
+
+        .dashboard-page .dashboard-intro h1 {
+            color: #174b91 !important;
+        }
+
+        .dashboard-page .dashboard-intro p {
+            color: #647c9b !important;
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+
+/* =========================================
    USER PROFILE AND ADMIN NAVIGATION
 ========================================= */
 
 async function loadUserProfile() {
+    applyDashboardWelcomeStyle();
     if (!currentUser) return;
 
     const welcome = $("welcome");
@@ -153,14 +191,22 @@ async function loadUserProfile() {
 
         currentProfile = data || null;
 
-        const fullName = String(data?.full_name || "").trim();
+        const profileName = String(data?.full_name || "").trim();
+        const metadataName = String(
+            currentUser.user_metadata?.full_name ||
+            currentUser.user_metadata?.name ||
+            ""
+        ).trim();
 
-        const firstName = fullName
-            ? fullName.split(/\s+/)[0]
-            : currentUser.email?.split("@")[0] || "Customer";
+        // Use the complete name saved when the customer registered.
+        const displayName =
+            profileName ||
+            metadataName ||
+            currentUser.email?.split("@")[0] ||
+            "Customer";
 
         if (welcome) {
-            welcome.textContent = `Welcome back, ${firstName}`;
+            welcome.textContent = `Welcome back, ${displayName}`;
         }
 
         const role = String(data?.role || "")
@@ -180,7 +226,14 @@ async function loadUserProfile() {
         console.error("Profile loading error:", error);
 
         if (welcome) {
-            welcome.textContent = "Welcome back, Customer";
+            const fallbackName = String(
+                currentUser?.user_metadata?.full_name ||
+                currentUser?.user_metadata?.name ||
+                currentUser?.email?.split("@")[0] ||
+                "Customer"
+            ).trim();
+
+            welcome.textContent = `Welcome back, ${fallbackName}`;
         }
 
         if (adminButton) {
