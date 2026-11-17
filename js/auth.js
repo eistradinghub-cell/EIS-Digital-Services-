@@ -3,7 +3,7 @@ import { supabase } from './supabase.js';
 /* =========================================
    EIS DIGITAL SERVICES
    AUTHENTICATION SYSTEM
-   EMAIL OTP VERIFICATION
+   EMAIL LINK VERIFICATION
 ========================================= */
 
 const $ = (id) => document.getElementById(id);
@@ -15,13 +15,17 @@ const viewSignup = $('view-signup');
 const navAuth = $('nav-auth');
 const navUser = $('nav-user');
 
+const VERIFICATION_PAGE =
+    `${window.location.origin}/email-confirmed.html`;
+
 let redirecting = false;
 
 let pendingVerificationEmail =
     sessionStorage.getItem('eis-pending-verification-email') || '';
 
 /* =========================================
-   CREATE OTP VERIFICATION SCREEN
+   CREATE PROFESSIONAL EMAIL VERIFICATION
+   SCREEN
 ========================================= */
 
 function createVerificationScreen() {
@@ -33,34 +37,34 @@ function createVerificationScreen() {
     style.textContent = `
         .eis-verify-card {
             width: 100%;
-            max-width: 470px;
+            max-width: 480px;
             margin: 35px auto 55px;
-            padding: 34px 30px;
+            padding: 38px 30px;
             background: #ffffff;
-            border: 1px solid #dce7f1;
-            border-radius: 20px;
+            border: 1px solid #e0e9f1;
+            border-radius: 22px;
             box-shadow: 0 16px 45px rgba(20,45,78,.09);
             text-align: center;
         }
 
-        .eis-verify-icon {
-            width: 62px;
-            height: 62px;
-            margin: 0 auto 17px;
-            display: grid;
-            place-items: center;
-            border-radius: 18px;
-            background: #eaf3fb;
-            color: #168477;
-            font-size: 29px;
-        }
-
         .eis-verify-brand {
-            margin: 0 0 8px;
             color: #168477;
             font-size: 11px;
             font-weight: 800;
-            letter-spacing: 1.8px;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+        }
+
+        .eis-verify-icon {
+            width: 76px;
+            height: 76px;
+            margin: 0 auto 22px;
+            display: grid;
+            place-items: center;
+            border-radius: 22px;
+            background: #eaf4f5;
+            color: #168477;
+            font-size: 34px;
         }
 
         .eis-verify-card h2 {
@@ -71,66 +75,37 @@ function createVerificationScreen() {
         }
 
         .eis-verify-description {
-            margin: 9px 0;
+            margin: 10px 0;
             color: #64748b;
             font-size: 14px;
-            line-height: 1.65;
+            line-height: 1.75;
         }
 
         .eis-verify-email {
-            margin: 8px 0 16px;
+            margin: 17px 0;
+            padding: 13px;
+            border: 1px solid #dce8f2;
+            border-radius: 11px;
+            background: #f5f9fc;
             color: #142d4e;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 800;
             overflow-wrap: anywhere;
         }
 
-        #form-verify-email {
-            margin-top: 22px;
-            text-align: left;
-        }
-
-        #form-verify-email label {
-            display: block;
-            margin-bottom: 8px;
-            color: #142d4e;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        #verify-otp {
-            box-sizing: border-box;
-            width: 100%;
-            min-height: 54px;
-            margin-bottom: 16px;
-            padding: 12px 15px;
-            border: 1px solid #cbd8e5;
-            border-radius: 11px;
-            outline: none;
-            background: #f8fbfe;
-            color: #142d4e;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: 7px;
-            text-align: center;
-        }
-
-        #verify-otp:focus {
-            border-color: #168477;
-            box-shadow: 0 0 0 3px rgba(22,132,119,.12);
-        }
-
         .eis-verify-button {
             width: 100%;
-            min-height: 48px;
-            margin-top: 10px;
+            min-height: 49px;
+            margin-top: 13px;
+            padding: 12px 15px;
             border: none;
-            border-radius: 10px;
+            border-radius: 11px;
             background: #142d4e;
             color: #ffffff;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
+            transition: .2s ease;
         }
 
         .eis-verify-button:hover {
@@ -138,25 +113,48 @@ function createVerificationScreen() {
         }
 
         .eis-verify-button:disabled {
-            opacity: .65;
-            cursor: not-allowed;
+            opacity: .6;
+            cursor: wait;
         }
 
-        .eis-verify-resend {
+        .eis-verify-gmail {
             background: #168477;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eis-verify-secondary {
+            background: #edf3f8;
+            color: #142d4e;
+        }
+
+        .eis-verify-secondary:hover {
+            background: #e0eaf2;
         }
 
         .eis-verify-note {
-            margin: 20px 0 0;
-            color: #7b8796;
+            margin-top: 22px;
+            color: #8793a2;
             font-size: 12px;
-            line-height: 1.6;
+            line-height: 1.7;
+        }
+
+        .eis-verify-divider {
+            height: 1px;
+            margin: 23px 0;
+            background: #e8edf2;
         }
 
         @media(max-width:520px) {
             .eis-verify-card {
                 margin: 22px auto 40px;
-                padding: 27px 19px;
+                padding: 29px 19px;
+            }
+
+            .eis-verify-card h2 {
+                font-size: 24px;
             }
         }
     `;
@@ -174,75 +172,69 @@ function createVerificationScreen() {
 
             <div class="eis-verify-icon">✉</div>
 
-            <p class="eis-verify-brand">
+            <div class="eis-verify-brand">
                 EIS DIGITAL SERVICES
-            </p>
+            </div>
 
-            <h2>Verify Your Email</h2>
+            <h2>Check Your Inbox</h2>
 
             <p class="eis-verify-description">
-                We have sent a verification code to:
+                We've sent an email verification link to:
+            </p>
+
+            <div
+                class="eis-verify-email"
+                id="verify-email-display">
+            </div>
+
+            <p class="eis-verify-description">
+                Open your email and click the
+                <strong>Verify Email</strong> button
+                to activate your EIS account.
+            </p>
+
+            <a
+                href="https://mail.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="eis-verify-button eis-verify-gmail">
+                Open Gmail
+            </a>
+
+            <button
+                type="button"
+                class="eis-verify-button"
+                id="btn-resend-verification">
+                Resend Verification Email
+            </button>
+
+            <p
+                id="verify-error"
+                class="msg err"
+                role="alert"
+                aria-live="polite">
             </p>
 
             <p
-                class="eis-verify-email"
-                id="verify-email-display">
+                id="verify-success"
+                class="msg ok"
+                role="status"
+                aria-live="polite">
             </p>
 
-            <p class="eis-verify-description">
-                Enter the code below to confirm your email
-                address and activate your account.
-            </p>
+            <div class="eis-verify-divider"></div>
 
-            <form id="form-verify-email">
-
-                <label for="verify-otp">
-                    Verification Code
-                </label>
-
-                <input
-                    id="verify-otp"
-                    type="text"
-                    inputmode="numeric"
-                    autocomplete="one-time-code"
-                    pattern="[0-9]{6,8}"
-                    maxlength="8"
-                    placeholder="Enter your code"
-                    required
-                >
-
-                <button
-                    type="submit"
-                    class="eis-verify-button">
-                    Verify Email
-                </button>
-
-                <p
-                    class="msg err"
-                    id="verify-error"
-                    role="alert"
-                    aria-live="polite">
-                </p>
-
-                <p
-                    class="msg ok"
-                    id="verify-success"
-                    role="status"
-                    aria-live="polite">
-                </p>
-
-                <button
-                    type="button"
-                    class="eis-verify-button eis-verify-resend"
-                    id="btn-resend-otp">
-                    Resend Code
-                </button>
-
-            </form>
+            <button
+                type="button"
+                class="eis-verify-button eis-verify-secondary"
+                id="btn-change-verification-email">
+                Back to Sign Up
+            </button>
 
             <p class="eis-verify-note">
-                Didn't receive the code?
-                Check your spam folder or request a new code.
+                Didn't receive the email?
+                Check your Spam or Promotions folder.
+                You can also request another verification email.
             </p>
 
         </div>
@@ -256,10 +248,6 @@ function createVerificationScreen() {
         document.body.appendChild(section);
     }
 }
-
-/* =========================================
-   CREATE OTP SCREEN BEFORE ITS EVENTS
-========================================= */
 
 createVerificationScreen();
 
@@ -305,7 +293,7 @@ function updateNavigation(session) {
 }
 
 /* =========================================
-   REDIRECT TO DASHBOARD
+   DASHBOARD REDIRECT
 ========================================= */
 
 function goToDashboard() {
@@ -371,6 +359,26 @@ function setLoading(button, loading, text) {
 
         button.disabled = false;
     }
+}
+
+/* =========================================
+   SHOW EMAIL VERIFICATION SCREEN
+========================================= */
+
+function showVerificationView(email) {
+
+    pendingVerificationEmail =
+        email || pendingVerificationEmail;
+
+    const display = $('verify-email-display');
+
+    if (display) {
+        display.textContent = pendingVerificationEmail;
+    }
+
+    clearMessages();
+
+    showView($('view-verify'));
 }
 
 /* =========================================
@@ -454,23 +462,6 @@ signupConfirmPassword?.addEventListener(
     'input',
     updatePasswordMatch
 );
-
-/* =========================================
-   SHOW VERIFICATION SCREEN
-========================================= */
-
-function showVerificationView(email) {
-
-    const display = $('verify-email-display');
-
-    if (display) {
-        display.textContent = email || pendingVerificationEmail;
-    }
-
-    clearMessages();
-
-    showView($('view-verify'));
-}
 
 /* =========================================
    INITIALIZE AUTH
@@ -608,6 +599,8 @@ $('link-to-login')?.addEventListener('click', event => {
 
     event.preventDefault();
 
+    clearMessages();
+
     showView(viewLogin);
 });
 
@@ -707,6 +700,8 @@ $('form-signup')?.addEventListener('submit', async event => {
 
                 options: {
 
+                    emailRedirectTo: VERIFICATION_PAGE,
+
                     data: {
                         first_name: firstName,
                         last_name: lastName,
@@ -721,12 +716,6 @@ $('form-signup')?.addEventListener('submit', async event => {
         if (!data.user) {
             throw new Error('Account creation failed.');
         }
-
-        /*
-         * Confirmation must be enabled in Supabase.
-         * A session returned immediately means signup
-         * may have bypassed the confirmation requirement.
-         */
 
         if (data.session) {
 
@@ -752,7 +741,7 @@ $('form-signup')?.addEventListener('submit', async event => {
 
         showMessage(
             'verify-success',
-            'Your account has been created. Enter the verification code sent to your email.',
+            'Your account has been created. Please open your email and click the verification link to activate your account.',
             'ok'
         );
 
@@ -772,113 +761,12 @@ $('form-signup')?.addEventListener('submit', async event => {
 });
 
 /* =========================================
-   VERIFY EMAIL OTP
+   RESEND VERIFICATION EMAIL
 ========================================= */
 
-$('form-verify-email')?.addEventListener('submit', async event => {
+$('btn-resend-verification')?.addEventListener('click', async () => {
 
-    event.preventDefault();
-
-    const button = event.target.querySelector(
-        'button[type="submit"]'
-    );
-
-    const email =
-        pendingVerificationEmail ||
-        sessionStorage.getItem('eis-pending-verification-email') ||
-        '';
-
-    const token = $('verify-otp')?.value.trim();
-
-    clearMessages();
-
-    if (!email) {
-
-        showMessage(
-            'verify-error',
-            'Verification email is missing. Please sign up again.'
-        );
-
-        return;
-    }
-
-    if (!token || !/^[0-9]{6,8}$/.test(token)) {
-
-        showMessage(
-            'verify-error',
-            'Enter the verification code from your email.'
-        );
-
-        return;
-    }
-
-    setLoading(button, true, 'Verifying...');
-
-    try {
-
-        const { data, error } =
-            await supabase.auth.verifyOtp({
-
-                email: email,
-
-                token: token,
-
-                type: 'email'
-            });
-
-        if (error) throw error;
-
-        if (!data.user || !(
-            data.user.email_confirmed_at ||
-            data.user.confirmed_at
-        )) {
-
-            throw new Error(
-                'Email verification could not be confirmed. Please try again.'
-            );
-        }
-
-        sessionStorage.removeItem(
-            'eis-pending-verification-email'
-        );
-
-        pendingVerificationEmail = '';
-
-        showMessage(
-            'verify-success',
-            'Email verified successfully. Opening your dashboard...',
-            'ok'
-        );
-
-        if (data.session) {
-            goToDashboard();
-        } else {
-            window.location.replace('./dashboard.html');
-        }
-
-    } catch (error) {
-
-        console.error('Email verification error:', error);
-
-        showMessage(
-            'verify-error',
-            error.message ||
-            'The verification code is invalid or has expired.'
-        );
-
-    } finally {
-
-        setLoading(button, false, 'Verify Email');
-    }
-});
-
-/* =========================================
-   RESEND OTP
-========================================= */
-
-$('btn-resend-otp')?.addEventListener('click', async () => {
-
-    const button = $('btn-resend-otp');
+    const button = $('btn-resend-verification');
 
     const email =
         pendingVerificationEmail ||
@@ -897,7 +785,7 @@ $('btn-resend-otp')?.addEventListener('click', async () => {
         return;
     }
 
-    setLoading(button, true, 'Sending...');
+    setLoading(button, true, 'Sending email...');
 
     try {
 
@@ -906,30 +794,45 @@ $('btn-resend-otp')?.addEventListener('click', async () => {
 
                 type: 'signup',
 
-                email: email
+                email,
+
+                options: {
+                    emailRedirectTo: VERIFICATION_PAGE
+                }
             });
 
         if (error) throw error;
 
         showMessage(
             'verify-success',
-            'A new verification code has been sent. Please check your inbox and spam folder.',
+            'A new verification email has been sent. Please check your inbox and spam folder.',
             'ok'
         );
 
     } catch (error) {
 
-        console.error('Resend OTP error:', error);
+        console.error('Resend verification error:', error);
 
         showMessage(
             'verify-error',
-            error.message || 'Unable to resend verification code.'
+            error.message || 'Unable to resend verification email.'
         );
 
     } finally {
 
-        setLoading(button, false, 'Resend Code');
+        setLoading(button, false, 'Resend Verification Email');
     }
+});
+
+/* =========================================
+   CHANGE EMAIL / BACK TO SIGNUP
+========================================= */
+
+$('btn-change-verification-email')?.addEventListener('click', () => {
+
+    clearMessages();
+
+    showView(viewSignup);
 });
 
 /* =========================================
@@ -1073,4 +976,4 @@ $('btn-logout')?.addEventListener('click', async () => {
    START
 ========================================= */
 
-initializeAuth(); 
+initializeAuth();
