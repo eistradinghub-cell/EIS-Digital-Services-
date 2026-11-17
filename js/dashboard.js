@@ -1,1154 +1,1226 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#f5f6f7">
-<meta name="description" content="EIS Digital Services Customer Dashboard">
-<title>Dashboard | EIS Digital Services</title>
-<link rel="stylesheet" href="css/styles.css?v=18">
-<link rel="stylesheet" href="css/shared-navigation.css?v=2">
+import { supabase } from "./supabase.js";
 
-<style>
-*{box-sizing:border-box}
+let currentUser = null;
+let currentProfile = null;
+let currentCustomerName = "";
+let selectedService = null;
+let servicesCache = [];
+let notificationsCache = [];
+let demoPaymentCompleted = false;
 
-body.dashboard-page{
-    margin:0;
-    background:#edf4ff;
-    color:#172b4d;
-    font-family:Arial,Helvetica,sans-serif;
-}
-
-.dashboard-page .site-header{
-    position:sticky;
-    top:0;
-    z-index:1000;
-    background:rgba(255,255,255,.76);
-    -webkit-backdrop-filter:blur(14px);
-    backdrop-filter:blur(14px);
-    border-bottom:1px solid rgba(190,207,230,.72);
-    box-shadow:0 5px 20px rgba(20,55,105,.07);
-}
-
-.dashboard-page .nav-row{
-    max-width:1200px;
-    min-height:68px;
-    margin:auto;
-    padding:12px 20px;
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:12px 18px;
-}
-
-.dashboard-page .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-shrink:0;
-    text-decoration:none;
-}
-
-.dashboard-page .brand-mark{
-    width:42px;
-    height:42px;
-}
-
-.dashboard-page .brand-text{
-    display:flex;
-    flex-direction:column;
-}
-
-.dashboard-page .brand-text b{
-    color:#075bff;
-    font-size:21px;
-    line-height:1.2;
-}
-
-.dashboard-page .brand-text span{
-    color:#52709c;
-    font-size:12px;
-}
-
-.dashboard-page .nav-right{
-    display:contents;
-}
-
-.dashboard-page .notification-area{
-    position:relative;
-    order:0;
-    margin-left:auto;
-    flex-shrink:0;
-}
-
-.dashboard-page .nav-links{
-    order:3;
-    width:100%;
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:12px;
-    margin-top:4px;
-}
-
-.dashboard-page .nav-links .btn,
-.dashboard-page .nav-links #nav-logout{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:100%;
-    min-width:0;
-    min-height:60px;
-    padding:12px 8px;
-    border:2px solid #cbd3df;
-    border-radius:15px;
-    background:rgba(255,255,255,.88);
-    color:#10233f;
-    font-size:clamp(13px,1.8vw,19px);
-    font-weight:700;
-    line-height:1.2;
-    text-align:center;
-    text-decoration:none;
-    white-space:normal;
-    box-shadow:0 2px 5px rgba(25,50,85,.04);
-    cursor:pointer;
-}
-
-.dashboard-page .nav-links .btn.active{
-    background:#244fe0;
-    border-color:#244fe0;
-    color:#fff;
-    box-shadow:0 7px 17px rgba(36,79,224,.2);
-}
-
-.dashboard-page .nav-links #nav-logout{
-    color:#10233f;
-    border-color:#cbd3df;
-    background:rgba(255,255,255,.88);
-}
-
-.dashboard-page .notification-button{
-    position:relative;
-    width:42px;
-    height:42px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px solid #c7dcff;
-    border-radius:8px;
-    background:rgba(255,255,255,.88);
-    color:#075bff;
-    cursor:pointer;
-}
-
-.dashboard-page .notification-count{
-    position:absolute;
-    top:-6px;
-    right:-6px;
-    min-width:18px;
-    height:18px;
-    padding:0 4px;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    border-radius:20px;
-    background:#e33145;
-    color:#fff;
-    border:2px solid #fff;
-    font-size:10px;
-    font-weight:bold;
-}
-
-.dashboard-page .notification-dropdown{
-    position:absolute;
-    top:50px;
-    right:0;
-    z-index:1000;
-    width:min(350px,88vw);
-    max-height:390px;
-    overflow-y:auto;
-    padding:16px;
-    display:none;
-    border:1px solid #c7dcff;
-    border-radius:10px;
-    background:#fff;
-    box-shadow:0 12px 30px rgba(7,91,255,.14);
-}
-
-.dashboard-page .notification-dropdown.open{
-    display:block;
-}
-
-.dashboard-page .notification-item{
-    padding:12px 0;
-    border-bottom:1px solid #edf1f8;
-}
-
-.dashboard-page .notification-item:last-child{
-    border-bottom:0;
-}
-
-.dashboard-page .notification-item strong{
-    display:block;
-    margin-bottom:5px;
-    color:#075bff;
-    font-size:13px;
-}
-
-.dashboard-page .notification-item p{
-    color:#536b8d;
-    font-size:12px;
-    line-height:1.6;
-    overflow-wrap:anywhere;
-}
-
-.dashboard-page .notification-item time{
-    display:block;
-    margin-top:6px;
-    color:#8495ad;
-    font-size:10px;
-}
-
-.dashboard-page .dashboard-main{
-    max-width:1200px;
-    margin:auto;
-    padding:28px 20px;
-}
-
-.dashboard-page .dashboard-intro{
-    margin-bottom:22px;
-    padding:27px;
-    background:linear-gradient(115deg,#0647d9,#287bff);
-    border-radius:13px;
-    box-shadow:0 7px 22px rgba(7,91,255,.16);
-}
-
-.dashboard-page .dashboard-intro h1{
-    margin:0 0 9px;
-    color:#fff;
-    font-size:clamp(23px,4vw,30px);
-    line-height:1.35;
-}
-
-.dashboard-page .dashboard-intro p{
-    max-width:680px;
-    margin:0;
-    color:#e5efff;
-    font-size:14px;
-    line-height:1.7;
-}
-
-.dashboard-page .dashboard-card{
-    margin-bottom:22px;
-    padding:23px;
-    background:#fff;
-    border:1px solid #b9d2ff;
-    border-radius:13px;
-    box-shadow:0 5px 20px rgba(7,91,255,.09);
-}
-
-.dashboard-page .section-heading{
-    margin:0 0 8px;
-    color:#075bff;
-    font-size:20px;
-    font-weight:700;
-}
-
-.dashboard-page .section-description{
-    margin:0 0 18px;
-    color:#627795;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page .svcs{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(195px,1fr));
-    gap:12px;
-    margin-top:15px;
-}
-
-.dashboard-page .service-card{
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-    padding:14px;
-    background:#fff;
-    border:1px solid #c7dcff;
-    border-top:3px solid #1670ff;
-    border-radius:9px;
-    transition:transform .2s,border-color .2s,box-shadow .2s;
-}
-
-.dashboard-page .service-card:hover{
-    transform:translateY(-2px);
-    border-color:#8eb2ed;
-    box-shadow:0 7px 18px rgba(7,91,255,.10);
-}
-
-.dashboard-page .service-card h3{
-    margin:3px 0 9px;
-    color:#153f83;
-    font-size:15px;
-    line-height:1.45;
-    overflow-wrap:anywhere;
-}
-
-.dashboard-page .service-card p{
-    margin:0 0 10px;
-    color:#075bff;
-    font-size:16px;
-    font-weight:700;
-}
-
-.dashboard-page .service-card .service-description{
-    margin-bottom:13px;
-    color:#627795;
-    font-size:12px;
-    line-height:1.6;
-}
-
-.dashboard-page .service-card button{
-    width:100%;
-    margin-top:auto;
-    padding:10px 12px;
-    border:1px solid #075bff;
-    border-radius:7px;
-    background:#075bff;
-    color:#fff;
-    font-weight:600;
-    cursor:pointer;
-}
-
-.dashboard-page .service-card button:hover{
-    background:#0647d9;
-}
-
-.dashboard-page .btn-primary{
-    border:1px solid #075bff;
-    border-radius:7px;
-    background:#075bff;
-    color:#fff;
-    cursor:pointer;
-}
-
-.dashboard-page .btn-primary:hover{
-    background:#0647d9;
-}
-
-.dashboard-page #pay-section{
-    margin-top:22px;
-    padding:20px;
-    border:1px solid #b9d2ff;
-    border-radius:10px;
-    background:#edf4ff;
-}
-
-.dashboard-page #pay-section h3{
-    margin:0 0 10px;
-    color:#075bff;
-    font-size:18px;
-}
-
-.dashboard-page .demo{
-    padding:13px;
-    margin:14px 0;
-    border:1px solid #e9d79e;
-    border-radius:7px;
-    background:#fffaf0;
-    color:#765d24;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page #btn-pay{
-    width:100%;
-    min-height:45px;
-    padding:12px;
-    font-weight:700;
-}
-
-.dashboard-page #app-form{
-    margin-top:22px;
-}
-
-.dashboard-page .form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:16px;
-}
-
-.dashboard-page .form-grid>div{
-    min-width:0;
-}
-
-.dashboard-page .form-grid .full{
-    grid-column:1/-1;
-}
-
-.dashboard-page .form-grid label{
-    display:block;
-    margin-bottom:7px;
-    color:#294b7d;
-    font-size:13px;
-    font-weight:600;
-}
-
-.dashboard-page .form-grid input,
-.dashboard-page .form-grid select,
-.dashboard-page .form-grid textarea{
-    width:100%;
-    min-height:43px;
-    padding:10px 11px;
-    border:1px solid #ccd9ed;
-    border-radius:7px;
-    background:#fff;
-    color:#172b4d;
-    font:inherit;
-    font-size:14px;
-}
-
-.dashboard-page .form-grid input:focus,
-.dashboard-page .form-grid select:focus,
-.dashboard-page .form-grid textarea:focus{
-    outline:2px solid #d5e4ff;
-    border-color:#1670ff;
-}
-
-.dashboard-page .privacy-note{
-    margin:18px 0;
-    padding:14px;
-    border:1px solid #b9d2ff;
-    border-radius:7px;
-    background:#edf4ff;
-    color:#345b91;
-    font-size:12px;
-    line-height:1.8;
-}
-
-.dashboard-page .msg{
-    display:none;
-    margin-top:13px;
-    font-size:13px;
-}
+const $ = id => document.getElementById(id);
+const DRAFT_PREFIX = "eis_application_draft_";
 
-.dashboard-page .msg.ok{
-    color:#247448;
-}
-
-.dashboard-page .msg.err{
-    color:#b83232;
-}
-
-.dashboard-page .msg.info{
-    color:#075bff;
-}
-
-.dashboard-page .table-wrapper{
-    width:100%;
-    overflow-x:auto;
-    margin-top:18px;
-    border:1px solid #c7dcff;
-    border-radius:8px;
-}
-
-.dashboard-page .applications-table{
-    width:100%;
-    min-width:650px;
-    border-collapse:collapse;
-}
+function showMessage(message, type = "info", targetId = "pay-msg") {
+    const box = $(targetId);
+    if (!box) return;
 
-.dashboard-page .applications-table th{
-    padding:13px 12px;
-    background:#e7f0ff;
-    color:#075bff;
-    text-align:left;
-    font-size:12px;
-    font-weight:700;
-    white-space:nowrap;
+    box.textContent = message;
+    box.className = `msg ${type}`;
+    box.style.display = "block";
 }
 
-.dashboard-page .applications-table td{
-    padding:14px 12px;
-    border-bottom:1px solid #edf1f8;
-    color:#425979;
-    font-size:13px;
+function formatCurrency(amount) {
+    return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        maximumFractionDigits: 2
+    }).format(Number(amount) || 0);
 }
 
-.dashboard-page .status-badge{
-    display:inline-block;
-    padding:5px 9px;
-    border-radius:20px;
-    background:#fff4df;
-    color:#946817;
-    font-size:11px;
-    font-weight:700;
-    white-space:nowrap;
-}
+function formatDate(date) {
+    if (!date) return "N/A";
 
-.dashboard-page .status-badge.completed,
-.dashboard-page .status-badge.approved,
-.dashboard-page .status-badge.resolved{
-    background:#e9f5ed;
-    color:#287044;
-}
+    const value = new Date(date);
+    if (Number.isNaN(value.getTime())) return "N/A";
 
-.dashboard-page .status-badge.rejected,
-.dashboard-page .status-badge.cancelled{
-    background:#faeeee;
-    color:#a83232;
+    return value.toLocaleDateString("en-NG", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
 }
 
-.dashboard-page .status-badge.processing,
-.dashboard-page .status-badge.in_review{
-    background:#eaf2ff;
-    color:#2458a5;
-}
+function formatDateTime(date) {
+    if (!date) return "";
 
-.dashboard-page .customer-care-banner{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:20px;
-    margin-bottom:22px;
-    padding:25px;
-    background:linear-gradient(120deg,#0647d9,#1670ff);
-    border:1px solid #075bff;
-    border-radius:13px;
-    box-shadow:0 7px 22px rgba(7,91,255,.18);
-}
+    const value = new Date(date);
+    if (Number.isNaN(value.getTime())) return "";
 
-.dashboard-page .customer-care-banner h2{
-    margin:0 0 8px;
-    color:#fff;
-    font-size:21px;
+    return value.toLocaleString("en-NG", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
 }
 
-.dashboard-page .customer-care-banner p{
-    margin:0;
-    color:#eaf2ff;
-    font-size:13px;
-    line-height:1.7;
-}
+function generateDemoReference() {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const values = new Uint8Array(9);
 
-.dashboard-page .customer-care-banner a{
-    flex-shrink:0;
-    padding:11px 20px;
-    border:1px solid #fff;
-    border-radius:8px;
-    background:#fff;
-    color:#075bff;
-    font-size:13px;
-    font-weight:700;
-    text-decoration:none;
-}
+    crypto.getRandomValues(values);
 
-.dashboard-page .site-footer{
-    padding:22px 15px;
-    border-top:1px solid #c7dcff;
-    background:#fff;
-    color:#7185a3;
-    text-align:center;
-    font-size:12px;
-}
+    let result = "";
 
-@media(max-width:700px){
-    .dashboard-page .nav-row{
-        gap:9px;
-        padding:12px 13px;
+    for (let i = 0; i < 9; i++) {
+        result += characters[values[i] % characters.length];
     }
 
-    .dashboard-page .brand-mark{
-        width:38px;
-        height:38px;
-    }
+    return `EIS-${result}`;
+}
 
-    .dashboard-page .brand-text b{
-        font-size:19px;
-    }
+function getDraftKey() {
+    return currentUser
+        ? `${DRAFT_PREFIX}${currentUser.id}`
+        : null;
+}
 
-    .dashboard-page .nav-links{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:8px;
-        margin-top:3px;
-    }
+function saveApplicationDraft() {
+    const key = getDraftKey();
 
-    .dashboard-page .nav-links .btn,
-    .dashboard-page .nav-links #nav-logout{
-        min-height:52px;
-        padding:10px 7px;
-        border-radius:12px;
-        font-size:14px;
-    }
+    if (!key || !selectedService) return;
 
-    .dashboard-page .dashboard-main{
-        padding:18px 12px;
-    }
-
-    .dashboard-page .dashboard-intro{
-        padding:21px 17px;
-    }
-
-    .dashboard-page .dashboard-card{
-        padding:18px 14px;
-    }
-
-    .dashboard-page .svcs{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:10px;
-    }
-
-    .dashboard-page .service-card{
-        padding:12px;
-    }
-
-    .dashboard-page .service-card h3{
-        font-size:14px;
-    }
-
-    .dashboard-page .service-card p{
-        font-size:15px;
-    }
-
-    .dashboard-page .service-card .service-description{
-        font-size:11px;
-    }
-
-    .dashboard-page .service-card button{
-        padding:9px 5px;
-        font-size:12px;
-    }
-
-    .dashboard-page .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .dashboard-page .form-grid .full{
-        grid-column:auto;
-    }
-
-    .dashboard-page .customer-care-banner{
-        align-items:flex-start;
-        flex-direction:column;
-        padding:19px;
-    }
-
-    .dashboard-page .customer-care-banner a{
-        width:100%;
-        text-align:center;
+    try {
+        localStorage.setItem(key, JSON.stringify({
+            version: 6,
+            service_id: selectedService.id,
+            form_open: demoPaymentCompleted
+        }));
+    } catch (error) {
+        console.error("Draft saving error:", error);
     }
 }
 
-@media(max-width:370px){
-    .dashboard-page .svcs{
-        grid-template-columns:1fr;
-    }
+function clearApplicationDraft() {
+    const key = getDraftKey();
 
-    .dashboard-page .nav-links{
-        gap:6px;
-    }
+    if (!key) return;
 
-    .dashboard-page .nav-links .btn,
-    .dashboard-page .nav-links #nav-logout{
-        font-size:12px;
-        min-height:48px;
-        padding:8px 5px;
-    }
-
-    .dashboard-page .brand-text b{
-        font-size:17px;
+    try {
+        localStorage.removeItem(key);
+    } catch (error) {
+        console.error("Draft clearing error:", error);
     }
 }
-</style>
 
-<!-- EIS CUSTOMER DASHBOARD: REFINED NEUTRAL DESIGN -->
-<style id="eis-dashboard-professional-theme">
-:root{
-    --eis-page:#f5f6f7;
-    --eis-surface:#ffffff;
-    --eis-surface-soft:#f8f9fa;
-    --eis-text:#202a35;
-    --eis-muted:#697582;
-    --eis-border:#e3e7eb;
-    --eis-accent:#287b70;
-    --eis-accent-dark:#20665d;
-    --eis-accent-soft:#edf6f4;
-    --eis-success:#28784f;
-    --eis-warning:#9a7025;
-}
-body.dashboard-page{
-    background:var(--eis-page)!important;
-    color:var(--eis-text)!important;
-    font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important;
-}
-.dashboard-page .site-header{
-    background:rgba(255,255,255,.96)!important;
-    border-bottom:1px solid var(--eis-border)!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    -webkit-backdrop-filter:none!important;
-    backdrop-filter:none!important;
-}
-.dashboard-page .brand-text b{color:var(--eis-text)!important}
-.dashboard-page .brand-text span{color:var(--eis-muted)!important}
-.dashboard-page .notification-button{
-    color:var(--eis-text)!important;
-    border-color:var(--eis-border)!important;
-    background:#fff!important;
-}
-.dashboard-page .nav-links .btn,
-.dashboard-page .nav-links #nav-logout{
-    color:#46515d!important;
-    border:1px solid transparent!important;
-    background:transparent!important;
-    box-shadow:none!important;
-    border-radius:8px!important;
-    transition:background .18s ease,color .18s ease,border-color .18s ease!important;
-}
-.dashboard-page .nav-links .btn:hover,
-.dashboard-page .nav-links #nav-logout:hover{
-    background:#f1f3f4!important;
-    color:var(--eis-text)!important;
-}
-.dashboard-page .nav-links .btn.active{
-    color:var(--eis-accent-dark)!important;
-    background:var(--eis-accent-soft)!important;
-    border-color:#d9ebe7!important;
-    box-shadow:none!important;
-}
-.dashboard-page .dashboard-main{
-    max-width:1180px!important;
-    padding:30px 24px!important;
-}
-.dashboard-page .dashboard-intro{
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-left:4px solid var(--eis-accent)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    padding:25px 27px!important;
-}
-.dashboard-page .dashboard-intro h1{
-    color:var(--eis-text)!important;
-    font-size:clamp(23px,3vw,29px)!important;
-    letter-spacing:-.55px!important;
-}
-.dashboard-page .dashboard-intro p{
-    color:var(--eis-muted)!important;
-    font-size:14px!important;
-}
-.dashboard-page .dashboard-card{
-    background:var(--eis-surface)!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    padding:24px!important;
-    margin-bottom:22px!important;
-}
-.dashboard-page .section-heading{
-    color:var(--eis-text)!important;
-    font-size:19px!important;
-    letter-spacing:-.2px!important;
-}
-.dashboard-page .section-description{
-    color:var(--eis-muted)!important;
-    line-height:1.65!important;
-}
-.dashboard-page .svcs{
-    grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;
-    gap:16px!important;
-}
-.dashboard-page .service-card{
-    padding:19px!important;
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:9px!important;
-    box-shadow:none!important;
-    transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
-}
-.dashboard-page .service-card:hover{
-    transform:translateY(-2px)!important;
-    border-color:#b9d5cf!important;
-    box-shadow:0 5px 16px rgba(35,75,68,.07)!important;
-}
-.dashboard-page .service-card h3{
-    color:#273541!important;
-    font-size:16px!important;
-    font-weight:650!important;
-    line-height:1.45!important;
-}
-.dashboard-page .service-card .service-description{
-    color:var(--eis-muted)!important;
-    font-size:13px!important;
-    line-height:1.65!important;
-}
-.dashboard-page .service-card p{
-    color:#273541!important;
-    font-size:18px!important;
-    font-weight:700!important;
-    letter-spacing:-.2px!important;
-}
-.dashboard-page .service-card button,
-.dashboard-page .btn-primary{
-    background:var(--eis-accent)!important;
-    border:1px solid var(--eis-accent)!important;
-    border-radius:7px!important;
-    color:#fff!important;
-    font-weight:650!important;
-    box-shadow:none!important;
-    transition:background .18s ease,border-color .18s ease,transform .18s ease!important;
-}
-.dashboard-page .service-card button:hover,
-.dashboard-page .btn-primary:hover{
-    background:var(--eis-accent-dark)!important;
-    border-color:var(--eis-accent-dark)!important;
-}
-.dashboard-page .service-card button:focus-visible,
-.dashboard-page .btn-primary:focus-visible,
-.dashboard-page .nav-links a:focus-visible,
-.dashboard-page .nav-links button:focus-visible{
-    outline:3px solid rgba(40,123,112,.25)!important;
-    outline-offset:2px!important;
-}
-.dashboard-page #pay-section{
-    margin-top:20px!important;
-    padding:22px!important;
-    background:var(--eis-surface-soft)!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:9px!important;
-}
-.dashboard-page #pay-section h3{
-    color:var(--eis-text)!important;
-    font-size:19px!important;
-    margin-bottom:15px!important;
-}
-.dashboard-page #pay-section>div:not(.demo){
-    border-color:var(--eis-border)!important;
-    border-radius:8px!important;
-    box-shadow:none!important;
-}
-.dashboard-page #pay-section>div:not(.demo) h4{
-    color:var(--eis-text)!important;
-}
-.dashboard-page #pay-section>div:not(.demo) strong{
-    color:var(--eis-accent-dark)!important;
-}
-.dashboard-page .demo{
-    background:#fbf8f0!important;
-    border:1px solid #eee4ca!important;
-    border-radius:8px!important;
-    color:#76643d!important;
-    line-height:1.65!important;
-}
-.dashboard-page #btn-pay{
-    min-height:46px!important;
-    border-radius:7px!important;
-    letter-spacing:.1px!important;
-}
-.dashboard-page .form-grid input,
-.dashboard-page .form-grid select,
-.dashboard-page .form-grid textarea{
-    border-color:#d9dfe4!important;
-    border-radius:7px!important;
-    background:#fff!important;
-}
-.dashboard-page .form-grid input:focus,
-.dashboard-page .form-grid select:focus,
-.dashboard-page .form-grid textarea:focus{
-    border-color:var(--eis-accent)!important;
-    outline:3px solid rgba(40,123,112,.12)!important;
-}
-.dashboard-page .privacy-note{
-    background:#f5f8f7!important;
-    border-color:#e0e9e6!important;
-    border-radius:8px!important;
-    color:#52645f!important;
-}
-.dashboard-page .table-wrapper{
-    border-color:var(--eis-border)!important;
-    border-radius:8px!important;
-}
-.dashboard-page .applications-table th{
-    background:#f5f7f8!important;
-    color:#56616d!important;
-    font-weight:650!important;
-}
-.dashboard-page .applications-table td{
-    color:#4d5965!important;
-}
-.dashboard-page .applications-table tr:last-child td{
-    border-bottom:0!important;
-}
-.dashboard-page .status-badge{
-    border-radius:5px!important;
-    font-weight:650!important;
-}
-.dashboard-page .customer-care-banner{
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-left:4px solid var(--eis-accent)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-}
-.dashboard-page .customer-care-banner h2{
-    color:var(--eis-text)!important;
-}
-.dashboard-page .customer-care-banner p{
-    color:var(--eis-muted)!important;
-}
-.dashboard-page .customer-care-banner a{
-    background:var(--eis-accent)!important;
-    border:1px solid var(--eis-accent)!important;
-    color:#fff!important;
-    border-radius:7px!important;
-}
-.dashboard-page .customer-care-banner a:hover{
-    background:var(--eis-accent-dark)!important;
-}
-.dashboard-page .site-footer{
-    background:#fff!important;
-    border-top:1px solid var(--eis-border)!important;
-    color:var(--eis-muted)!important;
-}
-@media(max-width:700px){
-    .dashboard-page .dashboard-main{padding:20px 13px!important}
-    .dashboard-page .dashboard-intro{padding:21px 18px!important}
-    .dashboard-page .dashboard-card{padding:18px 15px!important}
-    .dashboard-page #pay-section{padding:17px!important}
-    .dashboard-page .svcs{grid-template-columns:1fr!important}
-    .dashboard-page .service-card{padding:16px!important}
-}
-@media(prefers-reduced-motion:reduce){
-    .dashboard-page *,
-    .dashboard-page *::before,
-    .dashboard-page *::after{
-        scroll-behavior:auto!important;
-        transition:none!important;
-        animation:none!important;
+async function checkUserSession() {
+    try {
+        const {
+            data: { user },
+            error
+        } = await supabase.auth.getUser();
+
+        if (error) throw error;
+
+        if (!user) {
+            window.location.replace("index.html");
+            return false;
+        }
+
+        currentUser = user;
+        return true;
+
+    } catch (error) {
+        console.error("Authentication error:", error);
+
+        window.location.replace("index.html");
+        return false;
     }
 }
-</style>
 
-<style id="eis-dashboard-navy-teal">
-:root{--eis-navy:#142D4E;--eis-teal:#168477;--eis-teal-dark:#116B61;--eis-teal-soft:#EAF5F2;--eis-page:#F4F7F8;--eis-border:#E1E8EB;--eis-muted:#687783}
-body.dashboard-page{background:var(--eis-page)!important;color:#253342!important;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important}
-.dashboard-page .site-header{background:rgba(255,255,255,.97)!important;border-bottom:1px solid var(--eis-border)!important;box-shadow:0 2px 10px rgba(20,45,78,.045)!important}
-.dashboard-page .brand-text b,.dashboard-page .section-heading,.dashboard-page .dashboard-intro h1,.dashboard-page #pay-section h3,.dashboard-page .customer-care-banner h2{color:var(--eis-navy)!important}
-.dashboard-page .brand-text span,.dashboard-page .section-description,.dashboard-page .dashboard-intro p,.dashboard-page .customer-care-banner p{color:var(--eis-muted)!important}
-.dashboard-page .nav-links .btn,.dashboard-page .nav-links #nav-logout{color:#526171!important;border-color:transparent!important;background:transparent!important;box-shadow:none!important;border-radius:8px!important}
-.dashboard-page .nav-links .btn:hover,.dashboard-page .nav-links #nav-logout:hover{background:#F1F5F5!important;color:var(--eis-navy)!important}
-.dashboard-page .nav-links .btn.active{background:var(--eis-teal-soft)!important;border-color:#D4EAE4!important;color:var(--eis-teal-dark)!important;box-shadow:none!important}
-.dashboard-page .notification-button{color:var(--eis-navy)!important;border-color:var(--eis-border)!important;background:#fff!important}
-.dashboard-page .notification-dropdown{border-color:var(--eis-border)!important;box-shadow:0 12px 30px rgba(20,45,78,.12)!important}
-.dashboard-page .notification-dropdown h3,.dashboard-page .notification-item strong{color:var(--eis-navy)!important}
-.dashboard-page .dashboard-main{max-width:1180px!important}
-.dashboard-page .dashboard-intro{background:linear-gradient(115deg,#fff,#F7FBFA)!important;border:1px solid var(--eis-border)!important;border-left:4px solid var(--eis-teal)!important;border-radius:11px!important;box-shadow:0 3px 12px rgba(20,45,78,.045)!important}
-.dashboard-page .dashboard-intro h1{font-size:clamp(24px,3.2vw,31px)!important;font-weight:750!important;letter-spacing:-.55px!important}
-.dashboard-page .dashboard-card{background:#fff!important;border:1px solid var(--eis-border)!important;border-radius:11px!important;box-shadow:0 3px 13px rgba(20,45,78,.045)!important}
-.dashboard-page .svcs{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;gap:16px!important}
-.dashboard-page .service-card{background:#fff!important;border:1px solid var(--eis-border)!important;border-top:3px solid var(--eis-teal)!important;border-radius:10px!important;box-shadow:0 2px 8px rgba(20,45,78,.025)!important;padding:18px!important}
-.dashboard-page .service-card:hover{border-color:#C9DFDA!important;box-shadow:0 8px 22px rgba(20,45,78,.075)!important;transform:translateY(-2px)!important}
-.dashboard-page .service-card h3{color:var(--eis-navy)!important;font-size:16px!important}
-.dashboard-page .service-card p{color:var(--eis-navy)!important;font-size:18px!important}
-.dashboard-page .service-card .service-description{color:var(--eis-muted)!important;font-size:13px!important}
-.dashboard-page .service-card button,.dashboard-page .btn-primary,.dashboard-page #btn-pay{background:var(--eis-teal)!important;border-color:var(--eis-teal)!important;color:#fff!important;border-radius:7px!important;box-shadow:none!important;font-weight:650!important}
-.dashboard-page .service-card button:hover,.dashboard-page .btn-primary:hover,.dashboard-page #btn-pay:hover{background:var(--eis-teal-dark)!important;border-color:var(--eis-teal-dark)!important}
-.dashboard-page #pay-section{background:#F7F9FA!important;border:1px solid var(--eis-border)!important;border-radius:10px!important}
-.dashboard-page #pay-section>div:not(.demo){border-color:var(--eis-border)!important;box-shadow:none!important}
-.dashboard-page #pay-section>div:not(.demo) h4{color:var(--eis-navy)!important}
-.dashboard-page #pay-section>div:not(.demo) strong{color:var(--eis-teal-dark)!important}
-.dashboard-page .demo{background:#FBF8F0!important;border-color:#EEE3C8!important;color:#75633E!important}
-.dashboard-page .form-grid label{color:var(--eis-navy)!important}
-.dashboard-page .form-grid input,.dashboard-page .form-grid select,.dashboard-page .form-grid textarea{border-color:#D8E0E4!important;border-radius:7px!important}
-.dashboard-page .form-grid input:focus,.dashboard-page .form-grid select:focus,.dashboard-page .form-grid textarea:focus{border-color:var(--eis-teal)!important;outline:3px solid rgba(22,132,119,.13)!important}
-.dashboard-page .privacy-note{background:#F2F7F6!important;border-color:#DDEAE6!important;color:#526761!important}
-.dashboard-page .msg.info{color:var(--eis-teal-dark)!important}
-.dashboard-page .table-wrapper{border-color:var(--eis-border)!important}
-.dashboard-page .applications-table th{background:#F3F6F7!important;color:var(--eis-navy)!important}
-.dashboard-page .applications-table td{border-bottom-color:#EDF0F2!important;color:#53616D!important}
-.dashboard-page .status-badge.processing,.dashboard-page .status-badge.in_review{background:var(--eis-teal-soft)!important;color:var(--eis-teal-dark)!important}
-.dashboard-page .customer-care-banner{background:#fff!important;border:1px solid var(--eis-border)!important;border-left:4px solid var(--eis-teal)!important;border-radius:11px!important;box-shadow:0 3px 13px rgba(20,45,78,.045)!important}
-.dashboard-page .customer-care-banner a{background:var(--eis-teal)!important;border-color:var(--eis-teal)!important;color:#fff!important;border-radius:7px!important}
-.dashboard-page .customer-care-banner a:hover{background:var(--eis-teal-dark)!important}
-.dashboard-page .site-footer{background:#fff!important;border-top:1px solid var(--eis-border)!important;color:var(--eis-muted)!important}
-.dashboard-page button:focus-visible,.dashboard-page a:focus-visible{outline:3px solid rgba(22,132,119,.25)!important;outline-offset:3px!important}
-@media(max-width:700px){.dashboard-page .dashboard-main{padding:20px 13px!important}.dashboard-page .dashboard-intro{padding:21px 18px!important}.dashboard-page .dashboard-card{padding:18px 15px!important}.dashboard-page .svcs{grid-template-columns:1fr!important}.dashboard-page .service-card{padding:16px!important}}
-@media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *:before,.dashboard-page *:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-</style>
+/* =========================================
+   CUSTOMER WELCOME CARD DESIGN
+   Soft blue-white gradient.
+========================================= */
 
-</head>
+function applyDashboardWelcomeStyle() {
+    if (document.getElementById("eis-dashboard-welcome-style")) {
+        return;
+    }
 
-<body class="dashboard-page">
+    const style = document.createElement("style");
+    style.id = "eis-dashboard-welcome-style";
+    style.textContent = `
+        .dashboard-page .dashboard-intro {
+            background: linear-gradient(
+                118deg,
+                #e8f1ff 0%,
+                #f1f6ff 48%,
+                #dceaff 100%
+            ) !important;
+            border: 1px solid #c9dcfa !important;
+            box-shadow: 0 8px 24px rgba(34, 83, 145, 0.10) !important;
+        }
 
-<header class="site-header">
-    <div class="nav-row">
+        .dashboard-page .dashboard-intro h1 {
+            color: #174b91 !important;
+        }
 
-        <a class="brand" href="dashboard.html">
-            <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
-                <rect x="2" y="2" width="44" height="44" rx="9" fill="#075bff"/>
-                <path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="24" cy="26" r="2.6" fill="#d8eaff"/>
-            </svg>
+        .dashboard-page .dashboard-intro p {
+            color: #647c9b !important;
+        }
+    `;
 
-            <span class="brand-text">
-                <b>EIS</b>
-                <span>Digital Services</span>
-            </span>
-        </a>
+    document.head.appendChild(style);
+}
 
-        <div class="nav-right">
 
-            <nav class="nav-links" aria-label="Main navigation">
-                <a href="dashboard.html" class="btn active" aria-current="page">
-                    Dashboard
-                </a>
+/* =========================================
+   USER PROFILE AND ADMIN NAVIGATION
+========================================= */
 
-                <a href="marketplace.html" class="btn">
-                    Marketplace
-                </a>
+function cleanCustomerName(value) {
+    if (typeof value !== "string") return "";
 
-                <a
-                    href="admin.html"
-                    id="nav-admin"
-                    class="btn"
-                    hidden
-                    aria-label="Admin Panel"
-                >
-                    Admin Panel
-                </a>
+    const name = value.replace(/\s+/g, " ").trim();
 
-                <button id="nav-logout" type="button" class="btn">
-                    Log out
-                </button>
-            </nav>
+    if (!name) return "";
 
-            <div class="notification-area">
-                <button type="button" class="notification-button" id="notification-button" aria-label="Notifications" aria-expanded="false">
-                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>
-                        <path d="M8 12h.01"/>
-                        <path d="M12 12h.01"/>
-                        <path d="M16 12h.01"/>
-                    </svg>
-                    <span id="notification-count" class="notification-count">0</span>
-                </button>
+    // Never display an email address as a customer's name.
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name)) {
+        return "";
+    }
 
-                <div id="notification-dropdown" class="notification-dropdown">
-                    <h3 style="font-size:15px;margin:0 0 8px;color:#075bff;">Notifications</h3>
-                    <div id="notifications-list">Loading notifications...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
+    const placeholders = new Set([
+        "customer",
+        "user",
+        "admin",
+        "administrator",
+        "unknown",
+        "guest",
+        "null",
+        "undefined",
+        "there"
+    ]);
 
-<main class="dashboard-main">
+    return placeholders.has(name.toLowerCase()) ? "" : name;
+}
 
-    <section class="dashboard-intro">
-        <h1 id="welcome">Welcome to EIS Digital Services</h1>
-        <p>Manage your services, follow your applications and stay updated with important notifications from your dashboard.</p>
-    </section>
+function joinCustomerName(firstName, lastName) {
+    const first = cleanCustomerName(firstName);
+    const last = cleanCustomerName(lastName);
 
-    <section class="card dashboard-card">
-        <h2 class="section-heading">Our Services</h2>
-        <p class="section-description">Choose a service to view its details, review the information and continue.</p>
+    // A full name needs both parts; otherwise check full_name/name fields.
+    if (!first || !last) return "";
 
-        <div id="services-container" class="svcs">
-            <p>Loading services...</p>
+    return `${first} ${last}`.replace(/\s+/g, " ").trim();
+}
+
+function normalizeCustomerFormData(value) {
+    if (!value) return {};
+
+    if (typeof value === "string") {
+        try {
+            const parsed = JSON.parse(value);
+            return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+                ? parsed
+                : {};
+        } catch {
+            return {};
+        }
+    }
+
+    return typeof value === "object" && !Array.isArray(value)
+        ? value
+        : {};
+}
+
+function getCustomerDisplayName(profile, user, applicationFormData = null) {
+    const metadata = user?.user_metadata || {};
+    const application = normalizeCustomerFormData(applicationFormData);
+    const identityData = (user?.identities || [])
+        .map(identity => identity?.identity_data || {});
+
+    // Check structured first/last-name fields from every available source.
+    const nameSources = [
+        profile || {},
+        metadata,
+        application,
+        ...identityData
+    ];
+
+    for (const source of nameSources) {
+        const name = joinCustomerName(
+            source.first_name ?? source.firstName ?? source.given_name ?? source.givenName,
+            source.last_name ?? source.lastName ?? source.family_name ?? source.familyName ?? source.surname
+        );
+
+        if (name) return name;
+    }
+
+    // Then check common full-name fields, including legacy account formats.
+    const fullNameKeys = [
+        "full_name",
+        "fullName",
+        "fullname",
+        "display_name",
+        "displayName",
+        "customer_name",
+        "customerName",
+        "customer_full_name",
+        "customerFullName",
+        "name"
+    ];
+
+    for (const source of nameSources) {
+        for (const key of fullNameKeys) {
+            const name = cleanCustomerName(source?.[key]);
+            if (name) return name;
+        }
+    }
+
+    // Do not substitute an email address or its username for a real name.
+    return "";
+}
+
+async function loadLatestApplicationFormData() {
+    if (!currentUser) return null;
+
+    try {
+        // Older customer accounts may have their name saved in an application
+        // form even when their profile/auth metadata does not contain it.
+        const { data, error } = await supabase
+            .from("applications")
+            .select("form_data")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+        if (error) throw error;
+
+        for (const application of data || []) {
+            const formData = normalizeCustomerFormData(
+                application?.form_data
+            );
+
+            if (getCustomerDisplayName(null, null, formData)) {
+                return formData;
+            }
+        }
+
+    } catch (error) {
+        console.warn(
+            "Could not retrieve the customer's name from previous applications:",
+            error
+        );
+    }
+
+    return null;
+}
+
+async function loadUserProfile() {
+    applyDashboardWelcomeStyle();
+
+    if (!currentUser) return;
+
+    const welcome = $("welcome");
+    const adminButton = $("nav-admin");
+    let verifiedRole = "";
+
+    // Hide Admin Panel until the user's role is verified.
+    if (adminButton) {
+        adminButton.hidden = true;
+        adminButton.classList.remove("is-admin-nav");
+    }
+
+    try {
+        // Read the complete profile so legacy and newer name columns are supported.
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", currentUser.id)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        currentProfile = data || null;
+        verifiedRole = String(data?.role || "")
+            .trim()
+            .toLowerCase();
+
+    } catch (error) {
+        console.error("Profile loading error:", error);
+        currentProfile = null;
+    }
+
+    let displayName = getCustomerDisplayName(
+        currentProfile,
+        currentUser
+    );
+
+    // For older accounts, recover the full name from a saved application
+    // when the profile and Supabase Auth metadata do not contain it.
+    if (!displayName) {
+        const applicationFormData =
+            await loadLatestApplicationFormData();
+
+        displayName = getCustomerDisplayName(
+            currentProfile,
+            currentUser,
+            applicationFormData
+        );
+    }
+
+    currentCustomerName = displayName;
+
+    if (welcome) {
+        welcome.textContent = displayName
+            ? `Welcome back, ${displayName}`
+            : "Welcome back";
+    }
+
+    // Only verified administrators can see this button.
+    if (
+        ["admin", "super_admin"].includes(verifiedRole) &&
+        adminButton
+    ) {
+        adminButton.hidden = false;
+        adminButton.classList.add("is-admin-nav");
+    }
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[character]);
+}
+
+function getServiceDescription() {
+    return "Review the service information and displayed price. Contact support if you need assistance.";
+}
+
+async function loadServices() {
+    const container = $("services-container");
+
+    if (!container) return;
+
+    container.textContent = "Loading services...";
+
+    try {
+        const { data, error } = await supabase
+            .from("services")
+            .select("id,name,price")
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        servicesCache = data || [];
+
+        container.replaceChildren();
+
+        if (!servicesCache.length) {
+            container.textContent =
+                "No services are available at the moment.";
+            return;
+        }
+
+        servicesCache.forEach(service => {
+            const card = document.createElement("article");
+            card.className = "service-card";
+
+            const title = document.createElement("h3");
+            title.textContent = service.name || "Service";
+
+            const description = document.createElement("div");
+            description.className = "service-description";
+            description.textContent = getServiceDescription();
+
+            const price = document.createElement("p");
+            price.textContent = formatCurrency(service.price);
+
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = "View Service";
+
+            button.addEventListener("click", () => {
+                selectService(service);
+            });
+
+            card.append(
+                title,
+                description,
+                price,
+                button
+            );
+
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Services loading error:", error);
+
+        container.textContent =
+            "Unable to load services. Please try again.";
+    }
+}
+
+function selectService(service) {
+    if (!service) return;
+
+    if (
+        selectedService &&
+        String(selectedService.id) !== String(service.id)
+    ) {
+        clearApplicationDraft();
+        $("app-form")?.reset();
+    }
+
+    selectedService = service;
+    demoPaymentCompleted = false;
+
+    if ($("app-form")) {
+        $("app-form").style.display = "none";
+    }
+
+    saveApplicationDraft();
+    renderDemoPaymentScreen();
+
+    $("pay-section")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+}
+
+function renderDemoPaymentScreen() {
+    const section = $("pay-section");
+
+    if (!section || !selectedService) return;
+
+    section.style.display = "block";
+
+    section.innerHTML = `
+        <h3>Review Your Service</h3>
+
+        <div style="
+            background:#fff;
+            border:1px solid #dce7f8;
+            border-radius:9px;
+            padding:16px;
+            margin:14px 0;
+        ">
+            <p style="margin:0 0 8px;color:#627795;font-size:12px;">
+                SELECTED SERVICE
+            </p>
+
+            <h4 style="margin:0 0 12px;color:#1769d2;font-size:17px;">
+                ${escapeHTML(selectedService.name || "Service")}
+            </h4>
+
+            <p style="margin:0;color:#627795;font-size:12px;">
+                DEMO AMOUNT
+            </p>
+
+            <strong style="display:block;margin-top:5px;color:#1769d2;font-size:23px;">
+                ${formatCurrency(selectedService.price)}
+            </strong>
         </div>
 
-        <div id="pay-section" style="display:none;">
-            <h3>Continue to Application</h3>
-            <div class="demo">
-                <strong>DEMO MODE:</strong>
-                This is a payment-flow demonstration only. No money will be charged, transferred or received.
-                A demo reference ID is not proof of payment.
-            </div>
-            <button id="btn-pay" type="button" class="btn btn-primary">Continue</button>
+        <div class="demo">
+            <strong>DEMO MODE:</strong>
+            This is a demonstration only. No money will be charged,
+            transferred or received. A demo reference ID is not proof of payment.
         </div>
 
-        <p id="pay-msg" class="msg"></p>
-    </section>
-
-    <form class="card dashboard-card" id="app-form" style="display:none;">
-        <h2 class="section-heading">Application Form</h2>
-        <p class="section-description">Complete the required contact information below.</p>
-
-        <div class="form-grid">
-            <div>
-                <label for="f-firstName">FIRST NAME *</label>
-                <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" required>
-            </div>
-
-            <div>
-                <label for="f-lastName">LAST NAME *</label>
-                <input type="text" id="f-lastName" name="lastName" autocomplete="family-name" required>
-            </div>
-
-            <div>
-                <label for="f-email">EMAIL *</label>
-                <input type="email" id="f-email" name="email" autocomplete="email" required>
-            </div>
-
-            <div>
-                <label for="f-phone">PHONE NUMBER (OPTIONAL)</label>
-                <input type="tel" id="f-phone" name="phone" autocomplete="tel">
-            </div>
-        </div>
-
-        <div class="privacy-note">
-            <strong>Privacy notice:</strong>
-            This form only requests basic contact information needed to process your application.
-            Do not enter BVN, bank account numbers, passwords, home address or other sensitive identity details.
-        </div>
-
-        <button class="btn btn-primary" type="submit" style="width:100%;padding:12px;margin-top:5px;">
-            Submit Application
+        <button id="btn-pay" type="button"
+            class="btn btn-primary"
+            style="width:100%;min-height:45px;padding:12px;font-weight:700;">
+            Continue to Demo Payment
         </button>
 
-        <p id="form-msg" class="msg"></p>
-    </form>
+        <div id="demo-payment-panel" style="display:none;margin-top:16px;">
+            <h3 style="font-size:17px;">Demo Payment Simulation</h3>
 
-    <section class="card dashboard-card">
-        <h2 class="section-heading">My Applications</h2>
-        <p class="section-description">Review your previous applications and their current status.</p>
+            <p style="color:#627795;font-size:13px;line-height:1.7;">
+                Choose a test result below. These buttons do not connect
+                to a bank or payment provider.
+            </p>
 
-        <div class="table-wrapper">
-            <table class="applications-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Reference</th>
-                        <th>Service</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
+            <button id="demo-success" type="button"
+                style="width:100%;padding:13px;margin:5px 0;border:0;border-radius:7px;background:#18834a;color:white;font-weight:700;">
+                Simulate Successful Payment
+            </button>
 
-                <tbody id="apps-list">
-                    <tr>
-                        <td colspan="5" style="text-align:center;">Loading applications...</td>
-                    </tr>
-                </tbody>
-            </table>
+            <button id="demo-failure" type="button"
+                style="width:100%;padding:13px;margin:5px 0;border:0;border-radius:7px;background:#b83232;color:white;font-weight:700;">
+                Simulate Failed Payment
+            </button>
         </div>
-    </section>
 
-    <section class="customer-care-banner">
-        <div>
-            <h2>Need Help?</h2>
-            <p>Our Customer Care team is ready to assist you. Contact us if you need help with your application.</p>
-        </div>
-        <a href="support.html">Open Chat</a>
-    </section>
+        <div id="demo-result" aria-live="polite"></div>
+    `;
 
-</main>
+    $("btn-pay")?.addEventListener("click", () => {
+        const panel = $("demo-payment-panel");
 
-<footer class="site-footer">
-    <div class="wrap">
-        <p>&copy; 2026 EIS Digital Services. All rights reserved.</p>
-    </div>
-</footer>
+        if (panel) {
+            panel.style.display = "block";
+        }
 
-<script type="module" src="js/dashboard.js?v=31"></script>
+        const button = $("btn-pay");
 
-</body>
-</html>
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Demo Payment Options Opened";
+        }
+    });
+
+    $("demo-success")?.addEventListener("click", () => {
+        showDemoPaymentResult(
+            true,
+            generateDemoReference()
+        );
+    });
+
+    $("demo-failure")?.addEventListener("click", () => {
+        showDemoPaymentResult(
+            false,
+            generateDemoReference()
+        );
+    });
+}
+
+function showDemoPaymentResult(success, reference) {
+    const result = $("demo-result");
+    const form = $("app-form");
+
+    if (!result) return;
+
+    if (success) {
+        demoPaymentCompleted = true;
+        saveApplicationDraft();
+
+        result.innerHTML = `
+            <div style="
+                margin-top:16px;
+                padding:17px;
+                border:1px solid #b8e1c8;
+                border-radius:9px;
+                background:#effaf3;
+                color:#17683a;
+            ">
+                <h3 style="margin:0 0 10px;color:#17683a;">
+                    ✓ Demo Payment Successful
+                </h3>
+
+                <p style="font-size:13px;line-height:1.7;">
+                    This is a simulated result only. No actual payment was made or received.
+                </p>
+
+                <p style="font-size:12px;margin-bottom:5px;">
+                    DEMO REFERENCE ID
+                </p>
+
+                <strong style="font-size:19px;letter-spacing:1px;">
+                    ${escapeHTML(reference)}
+                </strong>
+
+                <p style="font-size:12px;margin-top:12px;">
+                    Service: ${escapeHTML(selectedService?.name || "Service")}
+                </p>
+
+                <p style="font-size:12px;">
+                    Demo amount: ${formatCurrency(selectedService?.price)}
+                </p>
+
+                <strong style="font-size:11px;">
+                    NOT A REAL PAYMENT RECEIPT
+                </strong>
+            </div>
+        `;
+
+        if (form) {
+            form.style.display = "block";
+
+            form.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+        showMessage(
+            "Demo successful. You may now complete the application form. No money was transferred.",
+            "ok",
+            "form-msg"
+        );
+
+    } else {
+        demoPaymentCompleted = false;
+        clearApplicationDraft();
+
+        result.innerHTML = `
+            <div style="
+                margin-top:16px;
+                padding:17px;
+                border:1px solid #f0c5c5;
+                border-radius:9px;
+                background:#fff3f3;
+                color:#a52d2d;
+            ">
+                <h3 style="margin:0 0 10px;color:#a52d2d;">
+                    ✕ Demo Payment Failed
+                </h3>
+
+                <p style="font-size:13px;line-height:1.7;">
+                    This is a simulated failure. No money was charged or transferred.
+                </p>
+
+                <p style="font-size:12px;margin-bottom:5px;">
+                    DEMO REFERENCE ID
+                </p>
+
+                <strong style="font-size:19px;letter-spacing:1px;">
+                    ${escapeHTML(reference)}
+                </strong>
+
+                <button id="demo-try-again" type="button"
+                    style="
+                        width:100%;
+                        padding:12px;
+                        margin-top:10px;
+                        border:0;
+                        border-radius:7px;
+                        background:#1769d2;
+                        color:white;
+                        font-weight:700;
+                    ">
+                    Try Again
+                </button>
+            </div>
+        `;
+
+        if (form) {
+            form.style.display = "none";
+        }
+
+        $("demo-try-again")?.addEventListener("click", () => {
+            renderDemoPaymentScreen();
+        });
+    }
+}
+
+/*
+ * SAFE APPLICATION DATA
+ * Only basic contact details are collected.
+ * Sensitive identity and financial information is not collected.
+ */
+function getApplicationFormData() {
+    return {
+        first_name: $("f-firstName")?.value.trim() || "",
+        last_name: $("f-lastName")?.value.trim() || "",
+        email: $("f-email")?.value.trim() || "",
+        phone: $("f-phone")?.value.trim() || ""
+    };
+}
+
+function createStatusBadge(status) {
+    const badge = document.createElement("span");
+    const value = String(status || "In review").trim();
+
+    badge.className =
+        `status-badge ${value.toLowerCase().replace(/\s+/g, "_")}`;
+
+    badge.textContent = value;
+
+    return badge;
+}
+
+async function loadApplications() {
+    const container = $("apps-list");
+
+    if (!currentUser || !container) return;
+
+    container.replaceChildren();
+
+    try {
+        const { data, error } = await supabase
+            .from("applications")
+            .select("id,user_id,service_name,amount,status,created_at")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!data?.length) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+
+            cell.colSpan = 5;
+            cell.textContent = "No applications yet.";
+            cell.style.textAlign = "center";
+
+            row.appendChild(cell);
+            container.appendChild(row);
+
+            return;
+        }
+
+        data.forEach(application => {
+            const row = document.createElement("tr");
+
+            const name = document.createElement("td");
+
+            name.textContent =
+                currentCustomerName ||
+                getCustomerDisplayName(currentProfile, currentUser) ||
+                "Customer";
+
+            const reference = document.createElement("td");
+
+            reference.textContent =
+                String(application.id).slice(0, 8).toUpperCase();
+
+            const service = document.createElement("td");
+            service.textContent =
+                application.service_name || "Service";
+
+            const submitted = document.createElement("td");
+            submitted.textContent =
+                formatDate(application.created_at);
+
+            const status = document.createElement("td");
+            status.appendChild(
+                createStatusBadge(application.status)
+            );
+
+            row.append(
+                name,
+                reference,
+                service,
+                submitted,
+                status
+            );
+
+            container.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Applications loading error:", error);
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 5;
+        cell.textContent = "Unable to load applications.";
+        cell.style.textAlign = "center";
+
+        row.appendChild(cell);
+        container.appendChild(row);
+    }
+}
+
+async function loadNotifications() {
+    if (!currentUser) return;
+
+    const list = $("notifications-list");
+    const count = $("notification-count");
+
+    if (list) {
+        list.textContent = "Loading notifications...";
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from("notifications")
+            .select("id,user_id,title,message,is_read,created_at")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false })
+            .limit(20);
+
+        if (error) throw error;
+
+        notificationsCache = data || [];
+
+        const unread = notificationsCache.filter(
+            item => !item.is_read
+        ).length;
+
+        if (count) {
+            count.textContent =
+                unread > 99 ? "99+" : String(unread);
+
+            count.style.display =
+                unread > 0 ? "flex" : "none";
+        }
+
+        renderNotifications();
+
+    } catch (error) {
+        console.error("Notifications loading error:", error);
+
+        if (list) {
+            list.textContent = "Unable to load notifications.";
+        }
+    }
+}
+
+function renderNotifications() {
+    const list = $("notifications-list");
+
+    if (!list) return;
+
+    list.replaceChildren();
+
+    if (!notificationsCache.length) {
+        const empty = document.createElement("p");
+
+        empty.textContent = "You have no notifications.";
+
+        list.appendChild(empty);
+        return;
+    }
+
+    notificationsCache.forEach(notification => {
+        const item = document.createElement("div");
+        item.className = "notification-item";
+
+        const title = document.createElement("strong");
+        title.textContent =
+            notification.title || "Notification";
+
+        const message = document.createElement("p");
+        message.textContent =
+            notification.message || "";
+
+        const time = document.createElement("time");
+        time.textContent =
+            formatDateTime(notification.created_at);
+
+        item.append(title, message, time);
+        list.appendChild(item);
+    });
+}
+
+async function markNotificationsAsRead() {
+    if (!currentUser) return;
+
+    const unreadIds = notificationsCache
+        .filter(item => !item.is_read)
+        .map(item => item.id);
+
+    if (!unreadIds.length) return;
+
+    try {
+        const { error } = await supabase
+            .from("notifications")
+            .update({ is_read: true })
+            .eq("user_id", currentUser.id)
+            .in("id", unreadIds)
+            .eq("is_read", false);
+
+        if (error) throw error;
+
+        notificationsCache = notificationsCache.map(item => ({
+            ...item,
+            is_read: true
+        }));
+
+        if ($("notification-count")) {
+            $("notification-count").style.display = "none";
+        }
+
+        renderNotifications();
+
+    } catch (error) {
+        console.error(
+            "Mark notifications as read error:",
+            error
+        );
+    }
+}
+
+function setupNotificationDropdown() {
+    const button = $("notification-button");
+    const dropdown = $("notification-dropdown");
+
+    if (!button || !dropdown) return;
+
+    button.setAttribute("aria-expanded", "false");
+
+    button.addEventListener("click", async () => {
+        const isOpen = dropdown.classList.toggle("open");
+
+        button.setAttribute(
+            "aria-expanded",
+            String(isOpen)
+        );
+
+        if (isOpen) {
+            await markNotificationsAsRead();
+        }
+    });
+
+    document.addEventListener("click", event => {
+        if (
+            !button.contains(event.target) &&
+            !dropdown.contains(event.target)
+        ) {
+            dropdown.classList.remove("open");
+
+            button.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+        }
+    });
+}
+
+async function submitApplication(event) {
+    event.preventDefault();
+
+    const form = $("app-form");
+
+    if (!currentUser || !selectedService) {
+        showMessage(
+            "Please select a service first.",
+            "err",
+            "form-msg"
+        );
+        return;
+    }
+
+    if (!demoPaymentCompleted) {
+        showMessage(
+            "Please complete the demo step first.",
+            "err",
+            "form-msg"
+        );
+        return;
+    }
+
+    const formData = getApplicationFormData();
+
+    if (
+        !formData.first_name ||
+        !formData.last_name ||
+        !formData.email
+    ) {
+        showMessage(
+            "Please enter your first name, last name and email address.",
+            "err",
+            "form-msg"
+        );
+        return;
+    }
+
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(formData.email)) {
+        showMessage(
+            "Please enter a valid email address.",
+            "err",
+            "form-msg"
+        );
+        return;
+    }
+
+    if (formData.phone) {
+        const phoneDigits =
+            formData.phone.replace(/\D/g, "");
+
+        if (
+            phoneDigits.length < 7 ||
+            phoneDigits.length > 15
+        ) {
+            showMessage(
+                "Please enter a valid phone number.",
+                "err",
+                "form-msg"
+            );
+            return;
+        }
+    }
+
+    const button = form?.querySelector(
+        'button[type="submit"]'
+    );
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Submitting...";
+    }
+
+    try {
+        const { error } = await supabase
+            .from("applications")
+            .insert([{
+                user_id: currentUser.id,
+                service_name: selectedService.name,
+                amount: Number(selectedService.price) || 0,
+                status: "In review",
+                form_data: formData
+            }]);
+
+        if (error) throw error;
+
+        clearApplicationDraft();
+
+        showMessage(
+            "Your application has been submitted successfully.",
+            "ok",
+            "form-msg"
+        );
+
+        form.reset();
+        form.style.display = "none";
+
+        selectedService = null;
+        demoPaymentCompleted = false;
+
+        if ($("pay-section")) {
+            $("pay-section").style.display = "none";
+        }
+
+        await loadApplications();
+
+    } catch (error) {
+        console.error(
+            "Application submission error:",
+            error
+        );
+
+        showMessage(
+            error.message || "Submission failed. Please try again.",
+            "err",
+            "form-msg"
+        );
+
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Submit Application";
+        }
+    }
+}
+
+async function logoutUser() {
+    try {
+        const { error } =
+            await supabase.auth.signOut();
+
+        if (error) throw error;
+
+        window.location.replace("index.html");
+
+    } catch (error) {
+        console.error("Logout error:", error);
+
+        alert("Unable to log out. Please try again.");
+    }
+}
+
+function restoreApplicationDraft() {
+    const key = getDraftKey();
+
+    if (!key) return;
+
+    try {
+        const stored = localStorage.getItem(key);
+
+        if (!stored) return;
+
+        const draft = JSON.parse(stored);
+
+        if (!draft || draft.version !== 6) {
+            clearApplicationDraft();
+            return;
+        }
+
+        const service = servicesCache.find(item =>
+            String(item.id) === String(draft.service_id)
+        );
+
+        if (!service) {
+            clearApplicationDraft();
+            return;
+        }
+
+        selectedService = service;
+
+        if (draft.form_open === true) {
+            renderDemoPaymentScreen();
+
+            demoPaymentCompleted = true;
+
+            showDemoPaymentResult(
+                true,
+                generateDemoReference()
+            );
+
+        } else {
+            renderDemoPaymentScreen();
+        }
+
+    } catch (error) {
+        console.error(
+            "Draft restoration error:",
+            error
+        );
+
+        clearApplicationDraft();
+    }
+}
+
+async function initializeDashboard() {
+    const authenticated =
+        await checkUserSession();
+
+    if (!authenticated) return;
+
+    setupNotificationDropdown();
+
+    const form = $("app-form");
+
+    if (form) {
+        form.addEventListener(
+            "submit",
+            submitApplication
+        );
+
+        form.style.display = "none";
+    }
+
+    $("nav-logout")?.addEventListener(
+        "click",
+        logoutUser
+    );
+
+    if ($("pay-section")) {
+        $("pay-section").style.display = "none";
+    }
+
+    await loadUserProfile();
+
+    await Promise.all([
+        loadServices(),
+        loadApplications(),
+        loadNotifications()
+    ]);
+
+    restoreApplicationDraft();
+}
+
+supabase.auth.onAuthStateChange(event => {
+    if (event === "SIGNED_OUT") {
+        window.location.replace("index.html");
+    }
+});
+
+initializeDashboard();
+
+window.EISDashboard = {
+    loadServices,
+    loadApplications,
+    loadNotifications,
+    loadUserProfile,
+    selectService,
+    logoutUser,
+    saveApplicationDraft,
+    clearApplicationDraft,
+    formatCurrency,
+    formatDate,
+    generateDemoReference
+};
