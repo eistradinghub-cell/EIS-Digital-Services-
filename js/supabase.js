@@ -197,8 +197,6 @@ function addSettingsStyles() {
 
         ".eis-settings-home-card img{display:block;width:100%;height:190px;object-fit:cover}",
 
-        ".eis-settings-home-caption{padding:10px 13px;color:#526783;font-size:11px;font-weight:700}",
-
         ".eis-settings-message-meta{display:flex;align-items:center;gap:7px;margin:0 0 7px;color:#526783;font-size:10px;line-height:1.2}",
 
         ".eis-settings-message-meta img,.eis-settings-message-avatar{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;flex:0 0 23px;border-radius:50%;object-fit:cover;background:#e8efff;color:#2456c5;font-size:8px;font-weight:800}",
@@ -366,15 +364,8 @@ function renderHomepageImages(homeImages) {
             image.loading = "lazy";
 
 
-            const caption = document.createElement("div");
-
-            caption.className =
-                "eis-settings-home-caption";
-
-            caption.textContent = item.label;
-
-
-            card.append(image, caption);
+            // Show the image only. No caption or label is displayed underneath.
+            card.appendChild(image);
 
             gallery.appendChild(card);
 
@@ -749,4 +740,350 @@ if (typeof document !== "undefined") {
 
     }
 
+           }
+
+
+/* =========================================
+   ADMIN HOMEPAGE IMAGE REMOVE CONTROLS
+   Allows an authorized administrator to
+   remove each saved homepage image slot.
+========================================= */
+
+const EIS_HOME_IMAGE_PREVIEWS = {
+    "site-home-image-one-preview": {
+        key: "image1",
+        inputId: "site-home-image-one",
+        label: "Homepage Image 1",
+        folder: "homepage-image-1"
+    },
+    "site-home-image-two-preview": {
+        key: "image2",
+        inputId: "site-home-image-two",
+        label: "Homepage Image 2",
+        folder: "homepage-image-2"
+    },
+    "site-home-image-three-preview": {
+        key: "image3",
+        inputId: "site-home-image-three",
+        label: "Homepage Image 3",
+        folder: "homepage-image-3"
+    }
+};
+
+function addHomepageImageRemoveStyles() {
+    if (document.getElementById("eis-home-image-remove-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "eis-home-image-remove-styles";
+    style.textContent = [
+        "#section-site-settings .site-settings-image-preview{position:relative}",
+        "#section-site-settings .eis-home-image-remove{position:absolute;top:8px;right:8px;z-index:5;display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:7px 12px;border:1px solid rgba(255,255,255,.35);border-radius:9px;background:#dc3545;color:#fff;font:800 11px/1.2 Arial,sans-serif;box-shadow:0 4px 13px rgba(120,20,35,.2);cursor:pointer}",
+        "#section-site-settings .eis-home-image-remove:hover{background:#b92333}",
+        "#section-site-settings .eis-home-image-remove:disabled{opacity:.65;cursor:wait}"
+    ].join("\n");
+    document.head.appendChild(style);
+}
+
+function addHomepageImageRemoveButtons() {
+    if (!document.getElementById("section-site-settings")) return;
+
+    Object.entries(EIS_HOME_IMAGE_PREVIEWS).forEach(([previewId, config]) => {
+        const preview = document.getElementById(previewId);
+        if (!preview) return;
+
+        const image = preview.querySelector("img");
+        const existingButton = preview.querySelector(
+            "[data-eis-remove-home-image]"
+        );
+
+        if (!image) {
+            if (existingButton) existingButton.remove();
+            return;
+        }
+
+        if (existingButton) return;
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "eis-home-image-remove";
+        button.textContent = "Remove Image";
+        button.setAttribute("aria-label", "Remove " + config.label);
+        button.dataset.eisRemoveHomeImage = config.key;
+
+        preview.appendChild(button);
+    });
+}
+
+function showHomepageImageRemoveFeedback(message, type = "success") {
+    const box = document.getElementById("site-settings-feedback");
+
+    if (!box) {
+        console[type === "error" ? "error" : "log"](message);
+        return;
+    }
+
+    box.textContent = message;
+    box.className = "site-settings-feedback" +
+        (type === "error" ? " error" : "");
+    box.hidden = false;
+
+    window.clearTimeout(box._eisRemoveTimer);
+
+    box._eisRemoveTimer = window.setTimeout(() => {
+        box.hidden = true;
+    }, 6500);
+}
+
+function setHomepageImagePreviewEmpty(previewId, label) {
+    const preview = document.getElementById(previewId);
+    if (!preview) return;
+
+    const message = document.createElement("span");
+    message.textContent = label + " has not been uploaded.";
+    preview.replaceChildren(message);
+}
+
+async function handleHomepageImageRemove(event) {
+    const button = event.target.closest("[data-eis-remove-home-image]");
+    if (!button) return;
+
+    const key = button.dataset.eisRemoveHomeImage;
+    const config = Object.values(EIS_HOME_IMAGE_PREVIEWS)
+        .find(item => item.key === key);
+
+    if (!config) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const previewId = Object.keys(EIS_HOME_IMAGE_PREVIEWS)
+        .find(id => EIS_HOME_IMAGE_PREVIEWS[id].key === key);
+
+    const fileInput = document.getElementById(config.inputId);
+
+    // Clear an unsaved file selection without deleting the saved image.
+    if (fileInput && fileInput.files && fileInput.files.length) {
+        fileInput.value = "";
+
+        try {
+            const { data, error } = await supabase
+                .from("site_settings")
+                .select("setting_value")
+                .eq("setting_key", "home_images")
+                .maybeSingle();
+
+            if (error) throw error;
+
+            const savedImages = normalizeSettingValue(
+                data && data.setting_value ? data.setting_value : {}
+            );
+
+            window.EISSiteSettings = window.EISSiteSettings || {};
+            window.EISSiteSettings.home_images = savedImages;
+
+            const savedUrl = getSettingImageUrl(savedImages[key]);
+
+            if (savedUrl) {
+                const image = document.createElement("img");
+                image.src = savedUrl;
+                image.alt = config.label;
+                image.loading = "lazy";
+
+                const preview = document.getElementById(previewId);
+                if (preview) preview.replaceChildren(image);
+
+                addHomepageImageRemoveButtons();
+            } else {
+                setHomepageImagePreviewEmpty(previewId, config.label);
+            }
+
+            showHomepageImageRemoveFeedback(
+                "The selected replacement image has been cleared. The saved image has not been deleted."
+            );
+        } catch (error) {
+            console.error("Unable to reset homepage image preview:", error);
+            setHomepageImagePreviewEmpty(previewId, config.label);
+            showHomepageImageRemoveFeedback(
+                "The selected image was cleared, but the saved preview could not be reloaded.",
+                "error"
+            );
+        }
+
+        return;
+    }
+
+    if (!window.confirm("Remove " + config.label + " from the website?")) {
+        return;
+    }
+
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = "Removing...";
+
+    try {
+        const {
+            data: { user },
+            error: userError
+        } = await supabase.auth.getUser();
+
+        if (userError) throw userError;
+        if (!user) {
+            throw new Error("Please sign in again before removing a homepage image.");
+        }
+
+        const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+        if (profileError) throw profileError;
+
+        if (!profile || !["admin", "super_admin"].includes(
+            String(profile.role || "").toLowerCase()
+        )) {
+            throw new Error("Administrator permission is required.");
+        }
+
+        const { data: settingRow, error: settingError } = await supabase
+            .from("site_settings")
+            .select("setting_value")
+            .eq("setting_key", "home_images")
+            .maybeSingle();
+
+        if (settingError) throw settingError;
+
+        const currentImages = normalizeSettingValue(
+            settingRow && settingRow.setting_value
+                ? settingRow.setting_value
+                : {}
+        );
+
+        const imageToRemove = currentImages[key];
+
+        if (!imageToRemove || !imageToRemove.url) {
+            setHomepageImagePreviewEmpty(previewId, config.label);
+            showHomepageImageRemoveFeedback(
+                config.label + " is already removed."
+            );
+            return;
+        }
+
+        const updatedImages = { ...currentImages };
+        delete updatedImages[key];
+
+        const { error: saveError } = await supabase
+            .from("site_settings")
+            .upsert({
+                setting_key: "home_images",
+                setting_value: updatedImages,
+                updated_by: user.id
+            }, {
+                onConflict: "setting_key"
+            });
+
+        if (saveError) throw saveError;
+
+        window.EISSiteSettings = window.EISSiteSettings || {};
+        window.EISSiteSettings.home_images = updatedImages;
+
+        if (fileInput) fileInput.value = "";
+
+        setHomepageImagePreviewEmpty(previewId, config.label);
+
+        let storageWarning = "";
+
+        // Delete only files belonging to this exact homepage image folder.
+        if (
+            imageToRemove.path &&
+            imageToRemove.path.startsWith(
+                "site-settings/" + config.folder + "/"
+            )
+        ) {
+            const { error: storageError } = await supabase.storage
+                .from("site-assets")
+                .remove([imageToRemove.path]);
+
+            if (storageError) {
+                console.warn(
+                    "Homepage image removed from settings, but storage cleanup failed:",
+                    storageError
+                );
+                storageWarning =
+                    " The website image is removed, but its old storage file could not be cleaned up.";
+            }
+        }
+
+        showHomepageImageRemoveFeedback(
+            config.label + " has been removed successfully." + storageWarning
+        );
+
+    } catch (error) {
+        console.error("Homepage image removal error:", error);
+
+        showHomepageImageRemoveFeedback(
+            error.message || ("Unable to remove " + config.label + "."),
+            "error"
+        );
+
+    } finally {
+        if (button.isConnected) {
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+    }
+}
+
+function initializeHomepageImageRemoveControls() {
+    const section = document.getElementById("section-site-settings");
+    if (!section || section.dataset.eisRemoveControlsReady === "true") {
+        return;
+    }
+
+    section.dataset.eisRemoveControlsReady = "true";
+
+    addHomepageImageRemoveStyles();
+    addHomepageImageRemoveButtons();
+
+    const observer = new MutationObserver(() => {
+        addHomepageImageRemoveButtons();
+    });
+
+    observer.observe(section, {
+        childList: true,
+        subtree: true
+    });
+
+    section.addEventListener("click", handleHomepageImageRemove);
+}
+
+if (typeof document !== "undefined") {
+    const startHomepageImageRemoveControls = () => {
+        initializeHomepageImageRemoveControls();
+
+        // Site Settings markup is generated asynchronously by the admin module.
+        const pageObserver = new MutationObserver(() => {
+            initializeHomepageImageRemoveControls();
+
+            const section = document.getElementById("section-site-settings");
+            if (section && section.dataset.eisRemoveControlsReady === "true") {
+                pageObserver.disconnect();
+            }
+        });
+
+        pageObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            startHomepageImageRemoveControls,
+            { once: true }
+        );
+    } else {
+        startHomepageImageRemoveControls();
+    }
            }
