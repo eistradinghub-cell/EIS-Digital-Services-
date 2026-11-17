@@ -1,3 +1,6 @@
+/dashboard
+  Cache-Control: no-store, no-cache, must-revalidate
+
 /dashboard.html
   Cache-Control: no-store, no-cache, must-revalidate
 
