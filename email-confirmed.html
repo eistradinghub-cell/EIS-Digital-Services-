@@ -1,264 +1,844 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#142D4E">
-<title>Email Verification | EIS Digital Services</title>
-
-<style>
-*{box-sizing:border-box}
-body{
-    margin:0;
-    min-height:100vh;
-    padding:22px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#F4F7F8;
-    font-family:Arial,sans-serif;
-    color:#142D4E
-}
-.card{
-    width:100%;
-    max-width:460px;
-    padding:42px 30px;
-    background:#fff;
-    border:1px solid #E2EAF1;
-    border-radius:22px;
-    text-align:center;
-    box-shadow:0 18px 55px rgba(20,45,78,.09)
-}
-.brand{
-    margin-bottom:30px;
-    color:#168477;
-    font-size:12px;
-    font-weight:800;
-    letter-spacing:2px
-}
-.icon{
-    width:76px;
-    height:76px;
-    margin:0 auto 22px;
-    display:grid;
-    place-items:center;
-    border-radius:50%;
-    background:#E8F6F1;
-    color:#168477;
-    font-size:36px;
-    font-weight:bold
-}
-h1{margin:0 0 13px;font-size:27px;line-height:1.3}
-.description{
-    color:#64748B;
-    font-size:14px;
-    line-height:1.8
-}
-.message{
-    margin-top:22px;
-    padding:14px;
-    border-radius:11px;
-    background:#F0F5FA;
-    color:#526174;
-    font-size:13px;
-    line-height:1.6
-}
-button{
-    width:100%;
-    min-height:50px;
-    margin-top:25px;
-    border:0;
-    border-radius:11px;
-    background:#142D4E;
-    color:white;
-    font-size:14px;
-    font-weight:700;
-    cursor:pointer
-}
-button:hover{background:#168477}
-button:disabled{opacity:.6;cursor:wait}
-.footer{
-    margin-top:28px;
-    color:#94A3B8;
-    font-size:11px
-}
-@media(max-width:480px){
-    .card{padding:34px 22px}
-    h1{font-size:24px}
-}
-</style>
-</head>
-
-<body>
-
-<main class="card">
-
-    <div class="brand">EIS DIGITAL SERVICES</div>
-
-    <div class="icon" id="status-icon">✓</div>
-
-    <h1 id="status-title">Verifying Your Email</h1>
-
-    <p class="description" id="status-description">
-        Please wait while we securely confirm your email address.
-    </p>
-
-    <div class="message" id="status-message">
-        Processing your verification...
-    </div>
-
-    <button id="continue-button" disabled>
-        Please wait...
-    </button>
-
-    <div class="footer">
-        © 2026 EIS Digital Services. All rights reserved.
-    </div>
-
-</main>
-
-<script type="module">
-
-import { supabase } from './js/supabase.js';
-
-const icon = document.getElementById('status-icon');
-const title = document.getElementById('status-title');
-const description = document.getElementById('status-description');
-const message = document.getElementById('status-message');
-const button = document.getElementById('continue-button');
-
-function showError(text){
-
-    icon.textContent = '!';
-    icon.style.background = '#FFF1F0';
-    icon.style.color = '#DC3545';
-
-    title.textContent = 'Verification Not Completed';
-
-    description.textContent =
-        'We could not confirm your email address.';
-
-    message.textContent = text;
-
-    button.disabled = false;
-    button.textContent = 'Return to Login';
-
-    button.onclick = () => {
-        window.location.replace('./index.html');
-    };
+<meta name="theme-color" content="#142D4E"><title>Email Verification | EIS Digital Services</title><meta name="description" content="Secure email verification for EIS Digital Services."><style>
+:root {
+    --navy: #142D4E;
+    --navy-dark: #0D2039;
+    --teal: #168477;
+    --teal-light: #E8F5F1;
+    --text: #172B45;
+    --muted: #69798D;
+    --border: #E5EAF0;
+    --background: #F4F7FA;
+    --white: #FFFFFF;
+    --danger: #C83E4D;
+    --danger-bg: #FFF0F1;
+    --shadow: 0 24px 70px rgba(20,45,78,.10);
 }
 
-async function verifyEmail(){
+* {
+    box-sizing: border-box;
+}
 
-    try{
+html {
+    min-height: 100%;
+    -webkit-text-size-adjust: 100%;
+}
 
-        const url = new URL(window.location.href);
+body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 28px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background);
+    color: var(--text);
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
 
-        const code = url.searchParams.get('code');
+button {
+    font: inherit;
+}
 
-        const errorDescription =
-            url.searchParams.get('error_description');
+.page-shell {
+    width: 100%;
+    max-width: 470px;
+}
 
-        if(errorDescription){
-            throw new Error(
-                decodeURIComponent(errorDescription.replace(/\+/g,' '))
-            );
-        }
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    margin-bottom: 25px;
+}
 
-        let sessionData = null;
+.brand-mark {
+    width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: var(--navy);
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -.7px;
+}
 
-        /*
-         * Exchange Supabase PKCE callback code
-         * for an authenticated session.
-         */
+.brand-name {
+    color: var(--navy);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: .7px;
+}
 
-        if(code){
+.card {
+    overflow: hidden;
+    width: 100%;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 19px;
+    box-shadow: var(--shadow);
+}
 
-            const { data, error } =
-                await supabase.auth.exchangeCodeForSession(code);
+.card-top {
+    height: 5px;
+    background: var(--teal);
+}
 
-            if(error) throw error;
+.card-content {
+    padding: 42px 36px 34px;
+    text-align: center;
+}
 
-            sessionData = data;
+.status-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #EEF2F7;
+    color: var(--navy);
+}
 
-        }else{
+.status-icon svg {
+    width: 35px;
+    height: 35px;
+    display: block;
+}
 
-            const { data, error } =
-                await supabase.auth.getSession();
+.status-icon.success {
+    background: var(--teal-light);
+    color: var(--teal);
+}
 
-            if(error) throw error;
+.status-icon.error {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
 
-            sessionData = data;
-        }
+.status-icon.loading {
+    background: #EDF2F8;
+    color: var(--navy);
+}
 
-        /*
-         * Remove callback code from browser address.
-         */
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #D7E0EA;
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
 
-        window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-        );
-
-        const session = sessionData?.session;
-
-        if(!session){
-
-            throw new Error(
-                'Verification session not found. Please open the latest verification email link again.'
-            );
-        }
-
-        const { data:userData, error:userError } =
-            await supabase.auth.getUser();
-
-        if(userError) throw userError;
-
-        const user = userData.user;
-
-        if(!user || !(user.email_confirmed_at || user.confirmed_at)){
-
-            throw new Error(
-                'Your email address has not been confirmed yet.'
-            );
-        }
-
-        sessionStorage.removeItem(
-            'eis-pending-verification-email'
-        );
-
-        icon.textContent = '✓';
-
-        title.textContent = 'Email Verified Successfully!';
-
-        description.textContent =
-            'Your email address has been confirmed. Welcome to EIS Digital Services.';
-
-        message.textContent =
-            'Your account is now verified. You can continue to your dashboard.';
-
-        button.disabled = false;
-        button.textContent = 'Continue to Dashboard';
-
-        button.onclick = () => {
-            window.location.replace('./dashboard.html');
-        };
-
-    }catch(error){
-
-        console.error('Email verification error:',error);
-
-        showError(
-            error.message ||
-            'Something went wrong while verifying your email.'
-        );
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 
+.eyebrow {
+    margin: 0 0 11px;
+    color: var(--teal);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.7px;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin: 0;
+    color: var(--navy);
+    font-size: clamp(24px, 5vw, 29px);
+    font-weight: 750;
+    line-height: 1.25;
+    letter-spacing: -.8px;
+}
+
+.description {
+    max-width: 340px;
+    margin: 14px auto 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.email-display {
+    display: none;
+    max-width: 100%;
+    margin: 20px auto 0;
+    padding: 12px 15px;
+    overflow-wrap: anywhere;
+    border: 1px solid #E3EBF0;
+    border-radius: 9px;
+    background: #F8FAFC;
+    color: var(--navy);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.email-display.visible {
+    display: block;
+}
+
+.notice {
+    margin-top: 24px;
+    padding: 14px 15px;
+    border: 1px solid #E7EDF3;
+    border-radius: 10px;
+    background: #F7F9FB;
+    color: #65758A;
+    font-size: 12px;
+    line-height: 1.7;
+    text-align: left;
+}
+
+.notice strong {
+    color: var(--navy);
+}
+
+.notice.error-notice {
+    border-color: #F3D9DD;
+    background: #FFF7F8;
+    color: #8D4650;
+}
+
+.actions {
+    display: grid;
+    gap: 11px;
+    margin-top: 25px;
+}
+
+.primary-button,
+.secondary-button {
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 750;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+.primary-button {
+    border: 1px solid var(--navy);
+    background: var(--navy);
+    color: white;
+}
+
+.primary-button:hover {
+    border-color: var(--teal);
+    background: var(--teal);
+}
+
+.secondary-button {
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--navy);
+}
+
+.secondary-button:hover {
+    border-color: #B8C9D9;
+    background: #F7F9FB;
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
+    outline: 3px solid rgba(22,132,119,.25);
+    outline-offset: 3px;
+}
+
+.primary-button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.footer {
+    padding: 21px 10px 0;
+    color: #91A0B1;
+    font-size: 11px;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.footer strong {
+    color: #63758B;
+    font-weight: 700;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 22px 15px;
+    }
+
+    .brand {
+        margin-bottom: 20px;
+    }
+
+    .card {
+        border-radius: 15px;
+    }
+
+    .card-content {
+        padding: 34px 22px 27px;
+    }
+
+    .status-icon {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 22px;
+    }
+
+    .description {
+        font-size: 13px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+</style></head><body><main class="page-shell"><header class="brand" aria-label="EIS Digital Services">
+    <div class="brand-mark">EIS</div>
+    <div class="brand-name">EIS DIGITAL SERVICES</div>
+</header>
+
+<section class="card">
+
+    <div class="card-top"></div>
+
+    <div class="card-content" aria-live="polite">
+
+        <div class="status-icon loading" id="status-icon">
+            <div class="spinner" aria-label="Loading"></div>
+        </div>
+
+        <p class="eyebrow" id="status-eyebrow">
+            ACCOUNT SECURITY
+        </p>
+
+        <h1 id="status-title">
+            Confirming your email
+        </h1>
+
+        <p class="description" id="status-description">
+            Please wait while we securely verify your email address and activate your account.
+        </p>
+
+        <div class="email-display" id="email-display"></div>
+
+        <div class="notice" id="status-notice">
+            <strong>Please wait.</strong>
+            Do not close this page while verification is being completed.
+        </div>
+
+        <div class="actions" id="status-actions">
+
+            <button
+                type="button"
+                class="primary-button"
+                id="continue-button"
+                disabled
+            >
+                Verifying...
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+<footer class="footer">
+    <strong>EIS Digital Services</strong><br>
+    Secure account verification<br>
+    © 2026 EIS Digital Services. All rights reserved.
+</footer>
+
+</main><script type="module">
+
+import { supabase } from './js/supabase.js';
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const icon = document.getElementById('status-icon');
+
+const eyebrow = document.getElementById('status-eyebrow');
+
+const title = document.getElementById('status-title');
+
+const description = document.getElementById('status-description');
+
+const notice = document.getElementById('status-notice');
+
+const emailDisplay = document.getElementById('email-display');
+
+const actions = document.getElementById('status-actions');
+
+
+/* =========================================
+   ICONS
+========================================= */
+
+const icons = {
+
+    success: `
+        <svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true">
+            <path d="m5 12 4.5 4.5L19 7"/>
+        </svg>
+    `,
+
+    error: `
+        <svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 8v5"/>
+            <path d="M12 16.5h.01"/>
+        </svg>
+    `
+
+};
+
+
+/* =========================================
+   BUTTON HELPER
+========================================= */
+
+function createButton(text, callback, secondary = false) {
+
+    const button = document.createElement('button');
+
+    button.type = 'button';
+
+    button.className = secondary
+        ? 'secondary-button'
+        : 'primary-button';
+
+    button.textContent = text;
+
+    button.addEventListener('click', callback);
+
+    actions.appendChild(button);
+
+    return button;
+}
+
+
+/* =========================================
+   LOADING STATE
+========================================= */
+
+function showLoading() {
+
+    icon.className = 'status-icon loading';
+
+    icon.innerHTML = '<div class="spinner"></div>';
+
+    eyebrow.textContent = 'ACCOUNT SECURITY';
+
+    title.textContent = 'Confirming your email';
+
+    description.textContent =
+        'Please wait while we securely verify your email address and activate your account.';
+
+    notice.className = 'notice';
+
+    notice.innerHTML =
+        '<strong>Please wait.</strong> Do not close this page while verification is being completed.';
+
+    actions.replaceChildren();
+
+    const button = document.createElement('button');
+
+    button.type = 'button';
+
+    button.className = 'primary-button';
+
+    button.textContent = 'Verifying...';
+
+    button.disabled = true;
+
+    actions.appendChild(button);
+}
+
+
+/* =========================================
+   SUCCESS STATE
+========================================= */
+
+function showSuccess(user) {
+
+    icon.className = 'status-icon success';
+
+    icon.innerHTML = icons.success;
+
+    eyebrow.textContent = 'VERIFICATION COMPLETE';
+
+    title.textContent = 'Email verified successfully';
+
+    description.textContent =
+        'Your email address has been confirmed. Your EIS Digital Services account is now verified.';
+
+    if (user && user.email) {
+
+        emailDisplay.textContent = user.email;
+
+        emailDisplay.classList.add('visible');
+
+    }
+
+    notice.className = 'notice';
+
+    notice.innerHTML =
+        '<strong>You are all set.</strong> Your account verification is complete. You can now continue to your EIS dashboard.';
+
+    actions.replaceChildren();
+
+    createButton(
+        'Continue to Dashboard',
+        () => {
+            window.location.replace('./dashboard.html');
+        }
+    );
+
+    createButton(
+        'Return to Homepage',
+        () => {
+            window.location.replace('./index.html');
+        },
+        true
+    );
+
+}
+
+
+/* =========================================
+   ERROR STATE
+========================================= */
+
+function showError(errorMessage) {
+
+    icon.className = 'status-icon error';
+
+    icon.innerHTML = icons.error;
+
+    eyebrow.textContent = 'VERIFICATION ISSUE';
+
+    title.textContent = 'Verification could not be completed';
+
+    description.textContent =
+        'We were unable to confirm your email address.';
+
+    notice.className = 'notice error-notice';
+
+    notice.replaceChildren();
+
+    const strong = document.createElement('strong');
+
+    strong.textContent = 'What happened? ';
+
+    const detail = document.createElement('span');
+
+    detail.textContent = errorMessage ||
+        'The verification link may have expired or already been used.';
+
+    notice.append(strong, detail);
+
+    actions.replaceChildren();
+
+    createButton(
+        'Return to Login',
+        () => {
+            window.location.replace('./index.html');
+        }
+    );
+
+    createButton(
+        'Back to Homepage',
+        () => {
+            window.location.replace('./index.html');
+        },
+        true
+    );
+
+}
+
+
+/* =========================================
+   SAFE CALLBACK ERROR READING
+========================================= */
+
+function getCallbackError(url) {
+
+    const params = url.searchParams;
+
+    const error =
+        params.get('error_description') ||
+        params.get('error') ||
+        params.get('error_code');
+
+    if (!error) return null;
+
+    return error
+        .replace(/\+/g, ' ')
+        .trim();
+
+}
+
+
+/* =========================================
+   CLEAN CALLBACK URL
+========================================= */
+
+function cleanCallbackUrl() {
+
+    try {
+
+        const cleanUrl =
+            window.location.pathname;
+
+        window.history.replaceState(
+            window.history.state,
+            document.title,
+            cleanUrl
+        );
+
+    } catch (error) {
+
+        console.warn(
+            'Could not clean verification URL:',
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   VERIFY EMAIL
+========================================= */
+
+async function verifyEmail() {
+
+    showLoading();
+
+    try {
+
+        const url = new URL(window.location.href);
+
+        /*
+         * Check whether Supabase returned an error.
+         */
+
+        const callbackError = getCallbackError(url);
+
+        if (callbackError) {
+
+            throw new Error(callbackError);
+
+        }
+
+
+        /*
+         * IMPORTANT:
+         *
+         * js/supabase.js already has:
+         *
+         * detectSessionInUrl: true
+         * flowType: 'pkce'
+         *
+         * Supabase automatically processes the
+         * verification callback code.
+         *
+         * Do not exchange the same code manually.
+         */
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabase.auth.getSession();
+
+        if (sessionError) {
+
+            throw sessionError;
+
+        }
+
+
+        const session = sessionData?.session;
+
+        if (!session) {
+
+            throw new Error(
+                'No active verification session was found. Please open the latest verification email link again using the same browser and device where you signed up.'
+            );
+
+        }
+
+
+        /*
+         * Confirm the authenticated user directly
+         * with Supabase.
+         */
+
+        const {
+            data: userData,
+            error: userError
+        } = await supabase.auth.getUser();
+
+        if (userError) {
+
+            throw userError;
+
+        }
+
+
+        const user = userData?.user;
+
+        if (!user) {
+
+            throw new Error(
+                'We could not retrieve your account details. Please try signing in again.'
+            );
+
+        }
+
+
+        /*
+         * Ensure that the email is genuinely confirmed.
+         */
+
+        const isConfirmed = Boolean(
+            user.email_confirmed_at ||
+            user.confirmed_at
+        );
+
+        if (!isConfirmed) {
+
+            throw new Error(
+                'Supabase has not confirmed this email address yet. Please open the latest verification link from your inbox.'
+            );
+
+        }
+
+
+        /*
+         * Clear temporary pending email information.
+         */
+
+        try {
+
+            sessionStorage.removeItem(
+                'eis-pending-verification-email'
+            );
+
+        } catch (storageError) {
+
+            console.warn(
+                'Could not clear temporary verification data:',
+                storageError
+            );
+
+        }
+
+
+        /*
+         * Remove callback parameters from the URL.
+         */
+
+        cleanCallbackUrl();
+
+
+        /*
+         * Display success.
+         */
+
+        showSuccess(user);
+
+
+    } catch (error) {
+
+        console.error(
+            'EIS email verification error:',
+            error
+        );
+
+
+        let message =
+            error?.message ||
+            'An unexpected verification error occurred.';
+
+
+        /*
+         * Friendly messages for common errors.
+         */
+
+        if (
+            /expired|invalid|used|otp_expired|token/i.test(message)
+        ) {
+
+            message =
+                'This verification link may have expired or already been used. Please return to the login page and request a new verification email.';
+
+        } else if (
+            /code verifier|code_verifier/i.test(message)
+        ) {
+
+            message =
+                'This verification link could not be completed in this browser. Please open the email link using the same browser and device where you created your account.';
+
+        }
+
+
+        showError(message);
+
+    }
+
+}
+
+
+/* =========================================
+   START VERIFICATION
+========================================= */
+
 verifyEmail();
 
-</script>
-
-</body>
-</html>
+</script></body>
+    </html>
