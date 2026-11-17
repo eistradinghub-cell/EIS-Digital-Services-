@@ -660,7 +660,6 @@ body.dashboard-page{
 }
 </style>
 
-<!-- EIS CUSTOMER DASHBOARD: REFINED NEUTRAL DESIGN -->
 <style id="eis-dashboard-professional-theme">
 :root{
     --eis-page:#f5f6f7;
@@ -884,7 +883,6 @@ body.dashboard-page{
 .dashboard-page .customer-care-banner{
     background:#fff!important;
     border:1px solid var(--eis-border)!important;
-    border-left:4px solid var(--eis-accent)!important;
     border-radius:10px!important;
     box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
 }
@@ -974,6 +972,67 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 @media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *:before,.dashboard-page *:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 
+<style id="eis-dashboard-reference-welcome">
+.dashboard-page main.dashboard-main > .dashboard-intro{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    min-height:390px!important;
+    margin:0 0 28px!important;
+    padding:64px 62px!important;
+    background:#fff!important;
+    border:1px solid #e0e7e9!important;
+    border-left:10px solid #168477!important;
+    border-radius:38px!important;
+    box-shadow:0 2px 9px rgba(20,45,78,.045)!important;
+}
+.dashboard-page main.dashboard-main > .dashboard-intro h1{
+    max-width:1050px!important;
+    margin:0 0 34px!important;
+    color:#142D4E!important;
+    font-size:clamp(38px,5.1vw,64px)!important;
+    font-weight:750!important;
+    line-height:1.2!important;
+    letter-spacing:-1.7px!important;
+}
+.dashboard-page main.dashboard-main > .dashboard-intro p{
+    max-width:1160px!important;
+    margin:0!important;
+    color:#78838d!important;
+    font-size:clamp(19px,2.25vw,30px)!important;
+    font-weight:400!important;
+    line-height:1.75!important;
+}
+@media(max-width:700px){
+    .dashboard-page main.dashboard-main > .dashboard-intro{
+        min-height:0!important;
+        padding:34px 24px!important;
+        border-left-width:8px!important;
+        border-radius:25px!important;
+        margin-bottom:22px!important;
+    }
+    .dashboard-page main.dashboard-main > .dashboard-intro h1{
+        margin-bottom:22px!important;
+        font-size:clamp(31px,8vw,43px)!important;
+        line-height:1.2!important;
+        letter-spacing:-.9px!important;
+    }
+    .dashboard-page main.dashboard-main > .dashboard-intro p{
+        font-size:clamp(17px,4.5vw,21px)!important;
+        line-height:1.7!important;
+    }
+}
+@media(max-width:380px){
+    .dashboard-page main.dashboard-main > .dashboard-intro{
+        padding:29px 19px!important;
+        border-radius:21px!important;
+    }
+    .dashboard-page main.dashboard-main > .dashboard-intro h1{
+        font-size:30px!important;
+    }
+}
+</style>
+
 </head>
 
 <body class="dashboard-page">
@@ -1043,7 +1102,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 <main class="dashboard-main">
 
     <section class="dashboard-intro">
-        <h1 id="welcome">Welcome to EIS Digital Services</h1>
+        <h1>Welcome to EIS Digital Services</h1>
         <p>Manage your services, follow your applications and stay updated with important notifications from your dashboard.</p>
     </section>
 
@@ -1151,4 +1210,4 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 <script type="module" src="js/dashboard.js?v=31"></script>
 
 </body>
- </html>
+</html>
