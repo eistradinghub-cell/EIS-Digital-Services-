@@ -465,33 +465,69 @@ console.warn("Could not save application read state:", error);
 renderStatistics();
 }
 
-async function copyTextToClipboard(value) {
+async function copyTextToClipboard(value, button = null) {
+const originalText = button?.textContent || "Copy";
+const originalScrollX = window.scrollX;
+const originalScrollY = window.scrollY;
+
 try {
 if (navigator.clipboard && window.isSecureContext) {
 await navigator.clipboard.writeText(String(value));
 } else {
 const input = document.createElement("textarea");
 input.value = String(value);
+input.setAttribute("readonly", "");
 input.style.position = "fixed";
+input.style.top = "0";
+input.style.left = "-9999px";
+input.style.width = "1px";
+input.style.height = "1px";
 input.style.opacity = "0";
 document.body.appendChild(input);
+input.focus({ preventScroll: true });
 input.select();
+input.setSelectionRange(0, input.value.length);
 const copied = document.execCommand("copy");
 input.remove();
 if (!copied) throw new Error("Copy command was not successful.");
 }
-showNotice("Copied successfully.");
+
+if (button) {
+button.textContent = "Copied ✓";
+button.classList.add("is-copied");
+button.setAttribute("aria-label", "Copied successfully");
+clearTimeout(button._copyResetTimer);
+button._copyResetTimer = setTimeout(() => {
+if (!button.isConnected) return;
+button.textContent = originalText;
+button.classList.remove("is-copied");
+button.removeAttribute("aria-label");
+}, 1800);
+}
 } catch (error) {
 console.error("Copy error:", error);
+if (button) {
+button.textContent = "Copy failed";
+button.classList.add("is-copy-error");
+setTimeout(() => {
+if (!button.isConnected) return;
+button.textContent = originalText;
+button.classList.remove("is-copy-error");
+button.removeAttribute("aria-label");
+}, 1800);
+} else {
 showNotice("Unable to copy this information.", "error");
+}
+} finally {
+window.scrollTo(originalScrollX, originalScrollY);
 }
 }
 
-async function copyApplicationInformation(appId) {
+function getApplicationCopyText(appId) {
 const app = applicationsCache.find(item => String(item.id) === String(appId));
 if (!app) {
 showNotice("Application not found.", "error");
-return;
+return "";
 }
 const lines = [
 "Customer: " + getCustomerName(app.customer),
@@ -506,7 +542,7 @@ if (!lines.some(line => line.toLowerCase().startsWith(field.label.toLowerCase() 
 lines.push(field.label + ": " + field.value);
 }
 });
-await copyTextToClipboard(lines.join("\n"));
+return lines.join("\n");
 }
 
 function renderApplications() {
@@ -1512,12 +1548,20 @@ sendChatMessage
 document.addEventListener("click", event => {
 const copyFieldButton = event.target.closest("[data-copy-value]");
 if (copyFieldButton) {
-copyTextToClipboard(copyFieldButton.dataset.copyValue || "");
+event.preventDefault();
+copyTextToClipboard(
+copyFieldButton.dataset.copyValue || "",
+copyFieldButton
+);
 return;
 }
 const copyAllButton = event.target.closest("[data-copy-application]");
 if (copyAllButton) {
-copyApplicationInformation(copyAllButton.dataset.copyApplication);
+event.preventDefault();
+copyTextToClipboard(
+getApplicationCopyText(copyAllButton.dataset.copyApplication),
+copyAllButton
+);
 return;
 }
 const saveStatusButton = event.target.closest("[data-save-app-status]");
