@@ -1,0 +1,213 @@
+/* =========================================
+   EIS CUSTOMER NOTIFICATIONS
+   Professional Navy & Teal Design
+========================================= */
+
+.dashboard-page .notification-area {
+    position: relative;
+    z-index: 1200;
+}
+
+.dashboard-page .notification-button {
+    width: 44px !important;
+    height: 44px !important;
+    border: 1px solid #E1E8EB !important;
+    border-radius: 12px !important;
+    background: #FFFFFF !important;
+    color: #142D4E !important;
+    box-shadow: 0 2px 8px rgba(20,45,78,.06) !important;
+    transition: all .2s ease !important;
+}
+
+.dashboard-page .notification-button:hover {
+    background: #F1F7F6 !important;
+    border-color: #B9DCD5 !important;
+    color: #168477 !important;
+    transform: translateY(-1px);
+}
+
+.dashboard-page .notification-count {
+    min-width: 19px !important;
+    height: 19px !important;
+    padding: 0 5px !important;
+    top: -6px !important;
+    right: -6px !important;
+    border: 2px solid #FFFFFF !important;
+    border-radius: 20px !important;
+    background: #D94B55 !important;
+    color: #FFFFFF !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+}
+
+.dashboard-page .notification-dropdown {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    right: 0 !important;
+    width: min(390px, calc(100vw - 26px)) !important;
+    max-height: min(520px, 75vh) !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    border: 1px solid #E1E8EB !important;
+    border-radius: 15px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 18px 48px rgba(20,45,78,.16) !important;
+    scrollbar-width: thin;
+    scrollbar-color: #C8D8D8 transparent;
+}
+
+.dashboard-page .notification-dropdown.open {
+    display: block !important;
+    animation: eisNotificationOpen .18s ease-out;
+}
+
+@keyframes eisNotificationOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-7px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notification heading */
+.dashboard-page .notification-dropdown h3 {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 60px !important;
+    margin: 0 !important;
+    padding: 18px 20px !important;
+    border-bottom: 1px solid #EAF0F1 !important;
+    background: #FFFFFF !important;
+    color: #142D4E !important;
+    font-size: 17px !important;
+    font-weight: 750 !important;
+    letter-spacing: -.3px !important;
+}
+
+/* Notification list */
+.dashboard-page #notifications-list {
+    padding: 10px 12px 12px !important;
+    background: #FFFFFF !important;
+}
+
+/* Individual notification */
+.dashboard-page .notification-item {
+    position: relative !important;
+    display: block !important;
+    margin: 5px 0 !important;
+    padding: 15px 14px 14px 17px !important;
+    border: 1px solid #E9EFF0 !important;
+    border-left: 3px solid #DCE6E8 !important;
+    border-radius: 11px !important;
+    background: #FFFFFF !important;
+    transition: background .18s ease, border-color .18s ease !important;
+}
+
+.dashboard-page .notification-item:hover {
+    background: #F7FAFA !important;
+    border-color: #D5E6E2 !important;
+    border-left-color: #168477 !important;
+}
+
+.dashboard-page .notification-item:last-child {
+    border-bottom: 1px solid #E9EFF0 !important;
+}
+
+/* Notification title */
+.dashboard-page .notification-item strong {
+    display: block !important;
+    margin: 0 0 7px !important;
+    color: #142D4E !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    line-height: 1.45 !important;
+    overflow-wrap: anywhere;
+}
+
+/* Notification message */
+.dashboard-page .notification-item p {
+    margin: 0 !important;
+    color: #667783 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.7 !important;
+    overflow-wrap: anywhere;
+}
+
+/* Notification date */
+.dashboard-page .notification-item time {
+    display: block !important;
+    margin-top: 10px !important;
+    color: #89969F !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+}
+
+/* Empty and loading messages */
+.dashboard-page #notifications-list > p {
+    margin: 0 !important;
+    padding: 25px 12px !important;
+    color: #788791 !important;
+    font-size: 13px !important;
+    line-height: 1.7 !important;
+    text-align: center !important;
+}
+
+/* Scrollbar */
+.dashboard-page .notification-dropdown::-webkit-scrollbar {
+    width: 5px;
+}
+
+.dashboard-page .notification-dropdown::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #C8D8D8;
+}
+
+.dashboard-page .notification-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Mobile */
+@media(max-width: 700px) {
+    .dashboard-page .notification-dropdown {
+        position: fixed !important;
+        top: 72px !important;
+        right: 12px !important;
+        width: min(390px, calc(100vw - 24px)) !important;
+        max-height: calc(100dvh - 95px) !important;
+        border-radius: 13px !important;
+    }
+
+    .dashboard-page .notification-dropdown h3 {
+        min-height: 56px !important;
+        padding: 15px 16px !important;
+        font-size: 16px !important;
+    }
+
+    .dashboard-page #notifications-list {
+        padding: 8px !important;
+    }
+
+    .dashboard-page .notification-item {
+        padding: 13px 12px !important;
+    }
+}
+
+@media(prefers-reduced-motion: reduce) {
+    .dashboard-page .notification-dropdown.open {
+        animation: none !important;
+    }
+
+    .dashboard-page .notification-button,
+    .dashboard-page .notification-item {
+        transition: none !important;
+    }
+  }
