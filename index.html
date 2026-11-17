@@ -7,9 +7,9 @@
     <meta name="theme-color" content="#ffffff">
 
     <meta name="description"
-          content="EIS Digital Services - Manage your account and applications online.">
+          content="EIS Digital Services provides clear information and practical online support for applications, BVN enrolment assistance and digital services.">
 
-    <title>EIS Digital Services</title>
+    <title>EIS Digital Services | Applications & Digital Support</title>
 
     <link rel="stylesheet" href="./css/styles.css?v=16">
 
@@ -45,6 +45,413 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        /* =========================================
+           EIS HOMEPAGE — BUSINESS LANDING PAGE
+        ========================================= */
+
+        .home-section {
+            padding: 76px 22px;
+        }
+
+        .home-container {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+        }
+
+        .home-section-heading {
+            max-width: 680px;
+            margin: 0 auto 34px;
+            text-align: center;
+        }
+
+        .home-kicker {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: var(--blue);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+
+        .home-section-heading h2,
+        .home-copy h2 {
+            margin: 0 0 12px;
+            color: var(--ink);
+            font: 800 clamp(25px, 3.5vw, 36px)/1.2 var(--hd);
+            letter-spacing: -.035em;
+        }
+
+        .home-section-heading p,
+        .home-copy p {
+            color: var(--mu);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        /* SERVICES */
+
+        .home-services {
+            background: #fff;
+            border-top: 1px solid var(--ln);
+            border-bottom: 1px solid var(--ln);
+        }
+
+        .home-service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .home-service-card {
+            min-width: 0;
+            padding: 25px;
+            border: 1px solid var(--ln);
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(13,37,64,.045);
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .home-service-card:hover {
+            transform: translateY(-3px);
+            border-color: #b9cafa;
+            box-shadow: 0 12px 28px rgba(13,37,64,.08);
+        }
+
+        .home-service-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            background: var(--blue-soft);
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .home-service-card h3 {
+            margin-bottom: 8px;
+            color: var(--ink);
+            font: 700 17px/1.35 var(--hd);
+        }
+
+        .home-service-card p {
+            color: var(--mu);
+            font-size: 13px;
+            line-height: 1.75;
+        }
+
+        /* ABOUT */
+
+        .home-about {
+            background: #f8faff;
+        }
+
+        .home-about-grid {
+            display: grid;
+            grid-template-columns: .9fr 1.1fr;
+            gap: 55px;
+            align-items: center;
+        }
+
+        .home-about-panel {
+            padding: 30px;
+            border: 1px solid #dfe7f5;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: var(--shadow-md);
+        }
+
+        .home-about-panel h3 {
+            margin-bottom: 17px;
+            color: var(--ink);
+            font: 700 19px var(--hd);
+        }
+
+        .home-points {
+            display: grid;
+            gap: 15px;
+            list-style: none;
+        }
+
+        .home-points li {
+            display: grid;
+            grid-template-columns: 25px 1fr;
+            gap: 11px;
+            color: var(--mu);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .home-point-check {
+            display: grid;
+            place-items: center;
+            width: 23px;
+            height: 23px;
+            border-radius: 50%;
+            background: var(--mint-soft);
+            color: var(--good);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* HOW IT WORKS */
+
+        .home-process {
+            background: #fff;
+        }
+
+        .home-steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            counter-reset: home-step;
+        }
+
+        .home-step {
+            position: relative;
+            padding: 23px 19px;
+            border: 1px solid var(--ln);
+            border-radius: 13px;
+            background: #fff;
+            counter-increment: home-step;
+        }
+
+        .home-step::before {
+            content: "0" counter(home-step);
+            display: block;
+            margin-bottom: 18px;
+            color: var(--blue);
+            font: 800 22px var(--hd);
+        }
+
+        .home-step h3 {
+            margin-bottom: 7px;
+            color: var(--ink);
+            font: 700 15px var(--hd);
+        }
+
+        .home-step p {
+            color: var(--mu);
+            font-size: 12px;
+            line-height: 1.75;
+        }
+
+        /* GET STARTED */
+
+        .home-help {
+            padding: 62px 22px;
+            background: var(--blue-deep);
+            color: #fff;
+        }
+
+        .home-help-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 28px;
+            width: min(1120px, 100%);
+            margin: 0 auto;
+        }
+
+        .home-help-copy {
+            max-width: 680px;
+        }
+
+        .home-help-copy span {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: #a9c3ff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+
+        .home-help-copy h2 {
+            margin-bottom: 10px;
+            color: #fff;
+            font: 800 clamp(24px, 3vw, 34px)/1.2 var(--hd);
+        }
+
+        .home-help-copy p {
+            color: #d5e0f5;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .home-help .btn {
+            flex: 0 0 auto;
+            background: #fff;
+            color: var(--blue-deep);
+        }
+
+        .home-help .btn:hover {
+            background: #eaf0ff;
+        }
+
+        /* FAQ */
+
+        .home-faq {
+            background: #f8faff;
+        }
+
+        .home-faq-list {
+            display: grid;
+            gap: 10px;
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .home-faq-list details {
+            padding: 17px 19px;
+            border: 1px solid var(--ln);
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .home-faq-list summary {
+            color: var(--ink);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .home-faq-list details p {
+            padding-top: 11px;
+            color: var(--mu);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .home-disclaimer {
+            max-width: 850px;
+            margin: 25px auto 0;
+            padding: 14px 16px;
+            border-left: 3px solid var(--mint);
+            border-radius: 7px;
+            background: #f0faf7;
+            color: #526b68;
+            font-size: 12px;
+            line-height: 1.75;
+        }
+
+        /* HERO AND ADMIN IMAGES */
+
+        .hero .hero-grid > div:first-child {
+            max-width: 590px;
+        }
+
+        .hero .lead {
+            max-width: 560px;
+        }
+
+        .hero > .eis-settings-home-gallery {
+            width: min(1120px, calc(100% - 44px));
+            margin: 36px auto 0;
+        }
+
+        .hero > .eis-settings-home-gallery .eis-settings-home-card {
+            border-color: #e0e7f2;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 7px 20px;
+        }
+
+        /* TABLET */
+
+        @media (max-width: 900px) {
+
+            .home-service-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .home-about-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .home-steps {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .home-section {
+                padding: 52px 17px;
+            }
+
+            .home-service-grid {
+                grid-template-columns: 1fr;
+                gap: 11px;
+            }
+
+            .home-service-card {
+                padding: 20px;
+            }
+
+            .home-about-panel {
+                padding: 22px;
+            }
+
+            .home-steps {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .home-step {
+                padding: 18px 14px;
+            }
+
+            .home-help {
+                padding: 45px 18px;
+            }
+
+            .home-help-inner {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .home-help .btn {
+                width: 100%;
+            }
+
+            .hero > .eis-settings-home-gallery {
+                width: calc(100% - 34px);
+                margin-top: 24px;
+            }
+
+            .home-faq-list details {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 380px) {
+
+            .home-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .home-section-heading {
+                text-align: left;
+            }
+        }
+
     </style>
 </head>
 
@@ -134,6 +541,8 @@
 
     <section class="view" id="view-home">
 
+        <!-- HERO -->
+
         <section class="hero">
 
             <div class="hero-grid">
@@ -141,21 +550,19 @@
                 <div>
 
                     <p class="eyebrow">
-                        ENROLL · GET VERIFIED · EARN
+                        DIGITAL SERVICES · APPLICATION SUPPORT
                     </p>
 
                     <h1>
-                        Android BVN
+                        BVN Enrolment
                         <br>
-                        <span class="accent">
-                            Enrollment User
-                        </span>
+                        <span class="accent">and Digital Services</span>
                     </h1>
 
                     <p class="lead">
-                        Create your account, explore available
-                        services and manage your applications
-                        through EIS Digital Services.
+                        Need help getting started with a service or keeping track of an application?
+                        EIS Digital Services gives you one place to find service information,
+                        submit requests and follow your account activity.
                     </p>
 
                     <div class="hero-actions">
@@ -225,6 +632,401 @@
                     </div>
 
                 </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- OUR SERVICES -->
+
+        <section class="home-section home-services" aria-labelledby="home-services-title">
+
+            <div class="home-container">
+
+                <div class="home-section-heading">
+
+                    <span class="home-kicker">What we help with</span>
+
+                    <h2 id="home-services-title">
+                        Services, with the details kept clear
+                    </h2>
+
+                    <p>
+                        Start with the service you need. You can review the information,
+                        create an account and manage your request from your dashboard.
+                    </p>
+
+                </div>
+
+
+                <div class="home-service-grid">
+
+                    <article class="home-service-card">
+
+                        <span class="home-service-number">01</span>
+
+                        <h3>BVN Enrolment Support</h3>
+
+                        <p>
+                            Find guidance for getting started with BVN-related enrolment
+                            requests and understand the information you may need before proceeding.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-service-card">
+
+                        <span class="home-service-number">02</span>
+
+                        <h3>Application Assistance</h3>
+
+                        <p>
+                            Submit an application through your account and keep the details
+                            together, so it is easier to check what you have sent.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-service-card">
+
+                        <span class="home-service-number">03</span>
+
+                        <h3>Application Updates</h3>
+
+                        <p>
+                            Return to your dashboard to review available status updates
+                            and see the latest information recorded for your request.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-service-card">
+
+                        <span class="home-service-number">04</span>
+
+                        <h3>Customer Support</h3>
+
+                        <p>
+                            If something is unclear, use the customer support area
+                            to send a message and keep the conversation connected to your account.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-service-card">
+
+                        <span class="home-service-number">05</span>
+
+                        <h3>Digital Marketplace</h3>
+
+                        <p>
+                            Browse items and services listed in the marketplace,
+                            with the available descriptions and prices shown before you make a decision.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-service-card">
+
+                        <span class="home-service-number">06</span>
+
+                        <h3>Account Management</h3>
+
+                        <p>
+                            Keep your profile details and application activity in one place,
+                            ready whenever you need to return to the platform.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ABOUT EIS -->
+
+        <section class="home-section home-about" aria-labelledby="home-about-title">
+
+            <div class="home-container home-about-grid">
+
+                <div class="home-copy">
+
+                    <span class="home-kicker">
+                        A more organised way to get started
+                    </span>
+
+                    <h2 id="home-about-title">
+                        Know what to do next, without the guesswork.
+                    </h2>
+
+                    <p>
+                        Online applications can be confusing when instructions,
+                        messages and updates are scattered. EIS brings the main steps
+                        together in a straightforward account area, so you can find
+                        the information you need and return to your request when it suits you.
+                    </p>
+
+                    <p style="margin-top:13px;">
+                        We aim to keep service descriptions practical and easy to understand.
+                        Before submitting a request, take a moment to read the details shown for that service.
+                    </p>
+
+                </div>
+
+
+                <div class="home-about-panel">
+
+                    <h3>What you can expect on the platform</h3>
+
+                    <ul class="home-points">
+
+                        <li>
+                            <span class="home-point-check">✓</span>
+                            <span>Service information presented before you begin an application.</span>
+                        </li>
+
+                        <li>
+                            <span class="home-point-check">✓</span>
+                            <span>A personal dashboard for your account and submitted requests.</span>
+                        </li>
+
+                        <li>
+                            <span class="home-point-check">✓</span>
+                            <span>A place to check updates and messages linked to your account.</span>
+                        </li>
+
+                        <li>
+                            <span class="home-point-check">✓</span>
+                            <span>Customer support access when you need help understanding the next step.</span>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- HOW IT WORKS -->
+
+        <section class="home-section home-process" aria-labelledby="home-process-title">
+
+            <div class="home-container">
+
+                <div class="home-section-heading">
+
+                    <span class="home-kicker">Getting started</span>
+
+                    <h2 id="home-process-title">
+                        Four simple steps
+                    </h2>
+
+                    <p>
+                        You can take your time. Create an account first,
+                        then choose what you need from the services available.
+                    </p>
+
+                </div>
+
+
+                <div class="home-steps">
+
+                    <article class="home-step">
+
+                        <h3>Create your account</h3>
+
+                        <p>
+                            Register with your name, email address and phone number
+                            to set up your personal account.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-step">
+
+                        <h3>Review the services</h3>
+
+                        <p>
+                            Read the available service information and check
+                            the details before choosing what to do.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-step">
+
+                        <h3>Submit your request</h3>
+
+                        <p>
+                            Follow the instructions shown for the service
+                            and provide the information requested.
+                        </p>
+
+                    </article>
+
+
+                    <article class="home-step">
+
+                        <h3>Check your dashboard</h3>
+
+                        <p>
+                            Sign in again whenever you need to review your
+                            application activity or contact support.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- GET STARTED -->
+
+        <section class="home-help" aria-labelledby="home-help-title">
+
+            <div class="home-help-inner">
+
+                <div class="home-help-copy">
+
+                    <span>Ready when you are</span>
+
+                    <h2 id="home-help-title">
+                        Start with an account. Take it one step at a time.
+                    </h2>
+
+                    <p>
+                        Create your EIS account to view the services available
+                        and manage your requests from one place.
+                    </p>
+
+                </div>
+
+                <button type="button" class="btn" data-home-open="signup">
+                    Create an account
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- FREQUENTLY ASKED QUESTIONS -->
+
+        <section class="home-section home-faq" aria-labelledby="home-faq-title">
+
+            <div class="home-container">
+
+                <div class="home-section-heading">
+
+                    <span class="home-kicker">A few useful answers</span>
+
+                    <h2 id="home-faq-title">
+                        Before you get started
+                    </h2>
+
+                    <p>
+                        Some quick information to help you use the platform with confidence.
+                    </p>
+
+                </div>
+
+
+                <div class="home-faq-list">
+
+                    <details>
+
+                        <summary>
+                            Do I need an account to use the platform?
+                        </summary>
+
+                        <p>
+                            You can look through this page without signing in.
+                            To submit and manage requests, create an account and use your dashboard.
+                        </p>
+
+                    </details>
+
+
+                    <details>
+
+                        <summary>
+                            Where can I check an application after submitting it?
+                        </summary>
+
+                        <p>
+                            Sign in and open your dashboard.
+                            Application information and any available updates are shown there.
+                        </p>
+
+                    </details>
+
+
+                    <details>
+
+                        <summary>
+                            What should I do if I need help?
+                        </summary>
+
+                        <p>
+                            Sign in to your account and open the Customer Care area
+                            to send a message about your question or request.
+                        </p>
+
+                    </details>
+
+
+                    <details>
+
+                        <summary>
+                            Can I review service information before applying?
+                        </summary>
+
+                        <p>
+                            Yes. Read the service description and any displayed
+                            requirements before submitting your information.
+                        </p>
+
+                    </details>
+
+
+                    <details>
+
+                        <summary>
+                            How do I find items listed for sale?
+                        </summary>
+
+                        <p>
+                            Open the Marketplace from the website navigation
+                            to view the items currently listed and their displayed details.
+                        </p>
+
+                    </details>
+
+                </div>
+
+
+                <p class="home-disclaimer">
+                    Please use the platform only for the services and purposes
+                    described on the relevant service page. Requirements,
+                    processing steps and availability may vary. Do not share
+                    passwords, one-time codes or sensitive account credentials with anyone.
+                </p>
 
             </div>
 
@@ -400,6 +1202,7 @@
 
 <script>
     window.addEventListener('error', function(event) {
+
         console.error('Website error:', event.message);
 
         const box = document.getElementById('auth-load-error');
@@ -409,10 +1212,27 @@
             box.textContent =
                 'A website script failed to load. Please check the browser console.';
         }
+
     });
 </script>
+
+
+<script>
+    // Connect the additional homepage button to the existing signup flow.
+
+    document.querySelectorAll('[data-home-open="signup"]').forEach(button => {
+
+        button.addEventListener('click', () => {
+
+            document.getElementById('btn-show-signup')?.click();
+
+        });
+
+    });
+</script>
+
 
 <script type="module" src="./js/auth.js?v=16"></script>
 
 </body>
-</html>
+                            </html>
