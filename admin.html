@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/styles.css?v=27">
     <link rel="stylesheet" href="css/admin.css?v=27">
     <link rel="stylesheet" href="css/shared-navigation.css?v=2">
-    <link rel="stylesheet" href="css/admin-sidebar-light.css?v=1">
+    <link rel="stylesheet" href="css/admin-sidebar-light.css?v=2">
 
     <style>
         .marketplace-form-grid {
@@ -427,8 +427,7 @@
         </svg>
 
         <div class="admin-brand-text">
-            <h2>EIS Digital Services</h2>
-            <span>ADMINISTRATION</span>
+            <h2>EISAdmin</h2>
         </div>
 
         <button type="button" class="admin-sidebar-close" id="close-sidebar" aria-label="Close sidebar">&times;</button>
@@ -485,9 +484,9 @@
             </div>
         </div>
 
-        <button type="button" class="sidebar-logout" id="sidebar-logout">
-            <span>↪</span> Log Out
-        </button>
+        <a href="index.html" class="sidebar-logout">
+            <span>←</span> Back to site
+        </a>
     </div>
 </aside>
 
@@ -863,4 +862,89 @@ let cached = [];
 async function loadAdminNotifications() {
     try {
         const {
-            data: { user
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+            if (list) list.textContent = "Please sign in to view notifications.";
+            if (count) count.style.display = "none";
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from("notifications")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+        if (error) throw error;
+
+        cached = Array.isArray(data) ? data : [];
+
+        if (count) {
+            count.textContent = String(cached.length);
+            count.style.display = cached.length ? "grid" : "none";
+        }
+
+        if (list) {
+            if (!cached.length) {
+                list.textContent = "No notifications yet.";
+            } else {
+                list.replaceChildren();
+
+                cached.forEach((item) => {
+                    const article = document.createElement("article");
+                    article.className = "global-admin-notice-item";
+
+                    const title = document.createElement("strong");
+                    title.textContent = item.title || item.subject || "Notification";
+
+                    const message = document.createElement("p");
+                    message.textContent = item.message || item.body || item.description || "";
+
+                    article.append(title, message);
+
+                    if (item.created_at) {
+                        const time = document.createElement("time");
+                        const date = new Date(item.created_at);
+                        time.dateTime = item.created_at;
+                        time.textContent = Number.isNaN(date.getTime())
+                            ? ""
+                            : date.toLocaleString();
+                        article.append(time);
+                    }
+
+                    list.append(article);
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Admin notifications could not be loaded:", error);
+
+        if (list) {
+            list.textContent = "Notifications are temporarily unavailable.";
+        }
+
+        if (count) count.style.display = "none";
+    }
+}
+
+if (button && dropdown) {
+    button.addEventListener("click", () => {
+        const isOpen = dropdown.classList.toggle("open");
+        button.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest(".global-admin-notice-area")) {
+            dropdown.classList.remove("open");
+            button.setAttribute("aria-expanded", "false");
+        }
+    });
+}
+
+loadAdminNotifications();
+</script>
+
+</body>
+                                                   </html>
