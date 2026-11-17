@@ -992,23 +992,57 @@ ${escapeHTML(formatDate(message.created_at))}
 container.scrollTop = container.scrollHeight;
 }
 
+/* FIX: Mark opened customer messages as read and reset the sidebar badge. */
 async function markConversationRead(conversationId) {
 try {
-const { error } = await supabase
+const { error: messagesError } = await supabase
 .from("chat_messages")
 .update({ is_read: true })
 .eq("conversation_id", conversationId)
 .eq("sender_role", "customer")
 .eq("is_read", false);
 
-if (error) {
-console.warn(
+if (messagesError) {
+console.error(
 "Could not mark customer messages as read:",
-error
+messagesError
 );
+showNotice("Unable to mark messages as read. Please refresh and try again.", "error");
 return;
 }
 
+// Reset the unread counter stored on the conversation.
+const { error: conversationError } = await supabase
+.from("chat_conversations")
+.update({ unread_admin_count: 0 })
+.eq("id", conversationId);
+
+if (conversationError) {
+console.error(
+"Could not reset conversation unread count:",
+conversationError
+);
+showNotice("Messages were opened, but the unread counter could not be updated.", "error");
+return;
+}
+
+// Update local cache immediately so the badge disappears.
+conversationsCache = conversationsCache.map(item =>
+item.id === conversationId
+? { ...item, unread_admin_count: 0 }
+: item
+);
+
+if (currentConversation?.id === conversationId) {
+currentConversation = conversationsCache.find(
+item => item.id === conversationId
+) || currentConversation;
+}
+
+renderConversations();
+renderStatistics();
+
+// Reload data from Supabase to synchronize the dashboard.
 await loadConversations();
 
 currentConversation = conversationsCache.find(
@@ -1017,6 +1051,7 @@ item => item.id === conversationId
 
 } catch (error) {
 console.error("Mark conversation read error:", error);
+showNotice("Unable to update the message read status.", "error");
 }
 }
 
