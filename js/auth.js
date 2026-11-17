@@ -202,15 +202,19 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     clearMessages();
 
-    const name = $('signup-name')?.value.trim();
+    const name = $('signup-name')?.value.trim().replace(/\s+/g, ' ');
     const email = $('signup-email')?.value.trim().toLowerCase();
     const phone = $('signup-phone')?.value.trim();
     const password = $('signup-password')?.value;
 
-    if (!name || !email || !phone || !password) {
+    const nameParts = name ? name.split(' ').filter(Boolean) : [];
+    const firstName = nameParts.shift() || '';
+    const lastName = nameParts.join(' ');
+
+    if (!firstName || !lastName || !email || !phone || !password) {
         showMessage(
             'signup-error',
-            'Please complete all fields.'
+            'Please enter both your first name and last name, then complete all fields.'
         );
         return;
     }
@@ -233,7 +237,9 @@ $('form-signup')?.addEventListener('submit', async event => {
                 password,
                 options: {
                     data: {
-                        full_name: name,
+                        first_name: firstName,
+                        last_name: lastName,
+                        full_name: `${firstName} ${lastName}`,
                         phone: phone
                     }
                 }
