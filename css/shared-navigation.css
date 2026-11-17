@@ -54,8 +54,8 @@
 .dashboard-page .brand,
 .marketplace-page .brand,
 .global-admin-brand {
-    grid-column: 1;
-    grid-row: 1;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
     min-width: 0;
 }
 
@@ -70,8 +70,8 @@
 .dashboard-page .notification-area,
 .marketplace-page .notification-area,
 .global-admin-notice-area {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
     justify-self: end;
     margin: 0 !important;
 }
@@ -81,15 +81,17 @@
 .dashboard-page .nav-links,
 .marketplace-page .nav-links,
 .global-admin-nav {
-    grid-column: 3;
-    grid-row: 1;
+    grid-column: 3 !important;
+    grid-row: 1 !important;
     width: auto !important;
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 7px !important;
     margin: 0 !important;
+    min-width: 0 !important;
 }
 
 /* DESKTOP BUTTONS */
@@ -99,20 +101,21 @@
 .global-admin-nav a,
 .global-admin-nav button {
     display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
+    flex: 0 1 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: auto !important;
     min-width: 0 !important;
-    min-height: 34px !important;
-    padding: 7px 11px !important;
+    min-height: 36px !important;
+    padding: 7px 10px !important;
     border: 1px solid #d2def0 !important;
     border-radius: 8px !important;
     background: #ffffff !important;
     color: #17365f !important;
     font: 600 12px/1.2 Arial,Helvetica,sans-serif !important;
     text-decoration: none !important;
-    text-align: center;
-    white-space: nowrap;
+    text-align: center !important;
+    white-space: nowrap !important;
     box-shadow: 0 2px 5px rgba(20,55,100,.04);
     cursor: pointer;
 }
@@ -128,13 +131,15 @@
     box-shadow: 0 4px 12px rgba(36,89,223,.18) !important;
 }
 
-/* LOGOUT - DESKTOP */
+/* LOGOUT */
 
 .dashboard-page .nav-links #nav-logout,
 .marketplace-page .nav-links #nav-logout,
 .global-admin-nav #admin-top-logout {
     grid-column: auto !important;
+    flex: 0 1 auto !important;
     width: auto !important;
+    min-width: 0 !important;
     background: #ffffff !important;
     color: #17365f !important;
 }
@@ -156,10 +161,11 @@
 /* ADMIN NAVIGATION */
 
 .global-admin-nav {
-    grid-column: 3;
-    grid-row: 1;
+    grid-column: 3 !important;
+    grid-row: 1 !important;
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 7px !important;
@@ -172,6 +178,15 @@
 .global-admin-notice-button {
     width: 38px !important;
     height: 38px !important;
+    flex-shrink: 0 !important;
+}
+
+/* NOTIFICATION DROPDOWNS */
+
+.dashboard-page .notification-dropdown,
+.marketplace-page .notification-dropdown,
+.global-admin-notice-dropdown {
+    z-index: 4000 !important;
 }
 
 /* ANDROID / MOBILE */
@@ -189,15 +204,15 @@
     .dashboard-page .brand,
     .marketplace-page .brand,
     .global-admin-brand {
-        grid-column: 1;
-        grid-row: 1;
+        grid-column: 1 !important;
+        grid-row: 1 !important;
     }
 
     .dashboard-page .notification-area,
     .marketplace-page .notification-area,
     .global-admin-notice-area {
-        grid-column: 2;
-        grid-row: 1;
+        grid-column: 2 !important;
+        grid-row: 1 !important;
     }
 
     .dashboard-page .nav-links,
@@ -208,6 +223,7 @@
         width: 100% !important;
         display: grid !important;
         grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+        grid-auto-flow: row !important;
         gap: 7px !important;
         margin: 0 !important;
     }
@@ -219,30 +235,31 @@
     .global-admin-nav a,
     .global-admin-nav button {
         display: flex !important;
+        flex: initial !important;
         width: 100% !important;
         min-width: 0 !important;
-        min-height: 40px !important;
+        min-height: 42px !important;
         padding: 7px 4px !important;
         border-radius: 9px !important;
         font-size: 12px !important;
-        white-space: nowrap;
+        white-space: nowrap !important;
     }
 
-    /* CUSTOMER: THREE BUTTONS IN ONE ROW */
+    /* CUSTOMER LOGOUT */
 
     .dashboard-page .nav-links:not(:has(#nav-admin.is-admin-nav)) #nav-logout,
     .marketplace-page .nav-links:not(:has(#nav-admin.is-admin-nav)) #nav-logout {
         grid-column: auto !important;
     }
 
-    /* ADMIN: LOGOUT GOES BELOW THE FOUR NAV ITEMS */
+    /* ADMIN LOGOUT GETS ITS OWN ROW */
 
     .dashboard-page .nav-links:has(#nav-admin.is-admin-nav) #nav-logout,
     .marketplace-page .nav-links:has(#nav-admin.is-admin-nav) #nav-logout {
         grid-column: 1 / -1 !important;
     }
 
-    /* ADMIN PAGE LOGOUT BELOW NAVIGATION */
+    /* ADMIN PAGE LOGOUT */
 
     .global-admin-nav #admin-top-logout {
         grid-column: 1 / -1 !important;
@@ -285,4 +302,4 @@
         padding: 6px 2px !important;
         font-size: 11px !important;
     }
-     }
+}
