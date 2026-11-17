@@ -280,7 +280,10 @@ $("stat-completed").textContent = completed.toLocaleString();
 }
 
 if ($("applications-badge")) {
-$("applications-badge").textContent = total;
+const seen = getSeenApplicationIds();
+const unreadCount = applicationsCache.filter(app => !seen.has(String(app.id))).length;
+$("applications-badge").textContent = unreadCount;
+$("applications-badge").style.display = unreadCount ? "inline-flex" : "none";
 }
 
 const unread = conversationsCache.reduce((sum, conversation) => {
@@ -311,6 +314,7 @@ return;
 applicationsCache = data || [];
 await loadApplicationCustomers();
 renderApplications();
+if ($("section-applications")?.classList.contains("active")) markApplicationsAsSeen();
 renderStatistics();
 }
 
@@ -345,66 +349,164 @@ customer: profileMap.get(app.user_id) || null
 }));
 }
 
+function getApplicationFields(app) {
+const fields = [];
+const add = (label, value) => {
+if (value === null || value === undefined || value === "") return;
+let display = value;
+if (typeof display === "object") {
+try { display = JSON.stringify(display, null, 2); }
+catch { display = String(display); }
+}
+fields.push({ label, value: String(display) });
+};
+
+let formData = app.form_data && typeof app.form_data === "object" ? app.form_data : {};
+if (typeof app.form_data === "string") {
+try { formData = JSON.parse(app.form_data); } catch { formData = {}; }
+}
+
+Object.entries(formData).forEach(([key, value]) => {
+const label = key
+.replace(/[_-]+/g, " ")
+.replace(/([a-z])([A-Z])/g, "$1 $2")
+.replace(/\b\w/g, char => char.toUpperCase());
+add(label, value);
+});
+
+const profile = app.customer || {};
+const known = [
+["First Name", formData.first_name ?? formData.firstname ?? app.first_name],
+["Last Name", formData.last_name ?? formData.lastname ?? app.last_name],
+["Email (Main)", formData.email ?? formData.email_address ?? profile.email],
+["Phone (Main)", formData.phone ?? formData.phone_number ?? profile.phone],
+["Service", app.service_name],
+["Amount", app.amount === null || app.amount === undefined ? "" : formatCurrency(app.amount)],
+["Reason", app.reason],
+["Customer Name", profile.full_name],
+["Customer Email", profile.email],
+["Customer Phone", profile.phone],
+["Application Reference", app.reference_id ?? app.application_id ?? app.id],
+["Submitted", formatDate(app.created_at)]
+];
+known.forEach(([label, value]) => {
+if (value === null || value === undefined || value === "") return;
+if (fields.some(field => field.label.toLowerCase() === label.toLowerCase())) return;
+add(label, value);
+});
+return fields;
+}
+
 function getApplicationHTML(app) {
-const status = normalizeStatus(app.status);
 const customer = getCustomerName(app.customer);
-const service = app.service_name || "Service";
-
-const phone =
-getFormValue(app.form_data, "phone") ||
-app.customer?.phone ||
-"Not provided";
-
+const fields = getApplicationFields(app);
+const pairs = [];
+for (let index = 0; index < fields.length; index += 2) {
+pairs.push([fields[index], fields[index + 1] || null]);
+}
 const options = [
 ["In review", "In Review"],
 ["In progress", "In Progress"],
 ["Completed", "Completed"],
 ["Rejected", "Rejected"]
 ];
-
 return `
-<article class="admin-app-item">
-<div class="admin-app-details">
-<strong>${escapeHTML(service)}</strong>
-<span>
-Customer: ${escapeHTML(customer)}
-</span>
-<span>
-Phone: ${escapeHTML(phone)}
-</span>
-<span>
-Amount: ${escapeHTML(formatCurrency(app.amount))}
-</span>
-<span>
-Submitted: ${escapeHTML(formatDate(app.created_at))}
-</span>
-${app.reason ? `
-<span>
-Reason: ${escapeHTML(app.reason)}
-</span>
-` : ""}
-<span class="admin-status ${escapeHTML(status)}">
-${escapeHTML(
-String(app.status || "In review")
-)}
-</span>
+<article class="admin-app-item admin-application-card">
+<header class="admin-application-card-head">
+<div class="admin-application-title">
+<strong>${escapeHTML(customer)}</strong>
+<span class="admin-application-reference">${escapeHTML(String(app.reference_id ?? app.application_id ?? app.id ?? "Application"))}</span>
 </div>
-<div class="admin-app-actions">
-<select
-class="admin-status-select"
-data-app-status="${escapeHTML(app.id)}"
-aria-label="Change application status">
+<time>${escapeHTML(formatDate(app.created_at))}</time>
+</header>
+<div class="admin-application-fields">
+${pairs.map(pair => `
+<div class="admin-application-row">
+${pair.map(field => field ? `
+<div class="admin-application-field">
+<span class="admin-application-label">${escapeHTML(field.label)}</span>
+<strong class="admin-application-value">${escapeHTML(field.value)}</strong>
+<button type="button" class="admin-copy-button" data-copy-value="${escapeHTML(field.value)}" aria-label="Copy ${escapeHTML(field.label)}">Copy</button>
+</div>` : '<div class="admin-application-field admin-application-field-empty"></div>').join("")}
+</div>`).join("")}
+</div>
+<footer class="admin-application-card-foot">
+<div class="admin-application-status-control">
+<label for="application-status-${escapeHTML(app.id)}">Status:</label>
+<select id="application-status-${escapeHTML(app.id)}" class="admin-status-select" data-app-status="${escapeHTML(app.id)}" aria-label="Change application status">
 ${options.map(([value, label]) => `
-<option
-value="${escapeHTML(value)}"
-${String(app.status || "In review") === value ? "selected" : ""}>
-${label}
-</option>
+<option value="${escapeHTML(value)}" ${String(app.status || "In review").toLowerCase() === value.toLowerCase() ? "selected" : ""}>${label}</option>
 `).join("")}
 </select>
+<button type="button" class="admin-primary-button admin-save-status" data-save-app-status="${escapeHTML(app.id)}">Save Status</button>
 </div>
-</article>
-`;
+<button type="button" class="admin-copy-all-button" data-copy-application="${escapeHTML(app.id)}">Copy All Information</button>
+</footer>
+</article>`;
+}
+
+function getSeenApplicationIds() {
+try {
+const saved = JSON.parse(localStorage.getItem("eis_admin_seen_application_ids") || "[]");
+return new Set(Array.isArray(saved) ? saved.map(String) : []);
+} catch { return new Set(); }
+}
+
+function markApplicationsAsSeen() {
+const seen = getSeenApplicationIds();
+applicationsCache.forEach(app => {
+if (app?.id !== null && app?.id !== undefined) seen.add(String(app.id));
+});
+try {
+localStorage.setItem("eis_admin_seen_application_ids", JSON.stringify([...seen]));
+} catch (error) {
+console.warn("Could not save application read state:", error);
+}
+renderStatistics();
+}
+
+async function copyTextToClipboard(value) {
+try {
+if (navigator.clipboard && window.isSecureContext) {
+await navigator.clipboard.writeText(String(value));
+} else {
+const input = document.createElement("textarea");
+input.value = String(value);
+input.style.position = "fixed";
+input.style.opacity = "0";
+document.body.appendChild(input);
+input.select();
+const copied = document.execCommand("copy");
+input.remove();
+if (!copied) throw new Error("Copy command was not successful.");
+}
+showNotice("Copied successfully.");
+} catch (error) {
+console.error("Copy error:", error);
+showNotice("Unable to copy this information.", "error");
+}
+}
+
+async function copyApplicationInformation(appId) {
+const app = applicationsCache.find(item => String(item.id) === String(appId));
+if (!app) {
+showNotice("Application not found.", "error");
+return;
+}
+const lines = [
+"Customer: " + getCustomerName(app.customer),
+"Application Reference: " + String(app.reference_id ?? app.application_id ?? app.id ?? ""),
+"Service: " + String(app.service_name || ""),
+"Amount: " + formatCurrency(app.amount),
+"Status: " + String(app.status || "In review"),
+"Submitted: " + formatDate(app.created_at)
+];
+getApplicationFields(app).forEach(field => {
+if (!lines.some(line => line.toLowerCase().startsWith(field.label.toLowerCase() + ":"))) {
+lines.push(field.label + ": " + field.value);
+}
+});
+await copyTextToClipboard(lines.join("\n"));
 }
 
 function renderApplications() {
@@ -424,6 +526,7 @@ showEmpty(
 if ($("applications-count")) {
 $("applications-count").textContent = "0 Applications";
 }
+if ($("applications-badge")) $("applications-badge").style.display = "none";
 return;
 }
 
@@ -707,7 +810,7 @@ await loadServices();
 } catch (error) {
 console.error("Edit service error:", error);
 showNotice(
-"Unable to update service: " + error.message,
+"Unable to edit service: " + error.message,
 "error"
 );
 }
@@ -1011,7 +1114,6 @@ showNotice("Unable to mark messages as read. Please refresh and try again.", "er
 return;
 }
 
-// Reset the unread counter stored on the conversation.
 const { error: conversationError } = await supabase
 .from("chat_conversations")
 .update({ unread_admin_count: 0 })
@@ -1026,7 +1128,6 @@ showNotice("Messages were opened, but the unread counter could not be updated.",
 return;
 }
 
-// Update local cache immediately so the badge disappears.
 conversationsCache = conversationsCache.map(item =>
 item.id === conversationId
 ? { ...item, unread_admin_count: 0 }
@@ -1042,7 +1143,6 @@ item => item.id === conversationId
 renderConversations();
 renderStatistics();
 
-// Reload data from Supabase to synchronize the dashboard.
 await loadConversations();
 
 currentConversation = conversationsCache.find(
@@ -1214,6 +1314,8 @@ const target = $("section-" + sectionName);
 if (!target) return;
 
 target.classList.add("active");
+
+if (sectionName === "applications") markApplicationsAsSeen();
 
 document.querySelectorAll(".sidebar-link").forEach(link => {
 link.classList.toggle(
@@ -1405,20 +1507,26 @@ $("admin-chat-form")?.addEventListener(
 sendChatMessage
 );
 
-document.addEventListener("change", event => {
-const select = event.target.closest(
-"[data-app-status]"
-);
-
-if (!select) return;
-
-updateApplicationStatus(
-select.dataset.appStatus,
-select.value
-);
-});
+// Application status is saved only when the Save Status button is pressed.
 
 document.addEventListener("click", event => {
+const copyFieldButton = event.target.closest("[data-copy-value]");
+if (copyFieldButton) {
+copyTextToClipboard(copyFieldButton.dataset.copyValue || "");
+return;
+}
+const copyAllButton = event.target.closest("[data-copy-application]");
+if (copyAllButton) {
+copyApplicationInformation(copyAllButton.dataset.copyApplication);
+return;
+}
+const saveStatusButton = event.target.closest("[data-save-app-status]");
+if (saveStatusButton) {
+const appId = saveStatusButton.dataset.saveAppStatus;
+const select = [...document.querySelectorAll("[data-app-status]")].find(item => item.dataset.appStatus === appId);
+if (select) updateApplicationStatus(appId, select.value);
+return;
+}
 const editButton = event.target.closest(
 "[data-edit-service]"
 );
