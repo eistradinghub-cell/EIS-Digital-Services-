@@ -20,6 +20,12 @@ const VERIFICATION_PAGE =
 
 let redirecting = false;
 
+// Recovery links must never trigger the normal signed-in dashboard redirect.
+const isPasswordRecoveryRoute =
+    new URLSearchParams(window.location.search).get('mode') === 'recovery';
+
+let passwordRecoveryVerified = false;
+
 let pendingVerificationEmail =
     sessionStorage.getItem('eis-pending-verification-email') || '';
 
@@ -540,6 +546,12 @@ async function initializeAuth() {
 
         const session = data.session;
 
+        if (isPasswordRecoveryRoute) {
+            updateNavigation(session);
+            showView($('view-password-recovery'));
+            return;
+        }
+
         if (session) {
 
             const user = session.user;
@@ -596,6 +608,15 @@ $('form-password-recovery')?.addEventListener('submit', async event => {
 
     const password = $('recovery-new-password')?.value || '';
     const confirm = $('recovery-confirm-password')?.value || '';
+
+    if (!passwordRecoveryVerified) {
+        const errorBox = $('recovery-error');
+        if (errorBox) {
+            errorBox.textContent =
+                'This password reset link is not verified or has expired. Please request a new reset link from the login page.';
+        }
+        return;
+    }
     const button = $('btn-save-new-password');
     const errorBox = $('recovery-error');
 
@@ -615,7 +636,9 @@ $('form-password-recovery')?.addEventListener('submit', async event => {
         if (error) throw error;
 
         await supabase.auth.signOut();
+        passwordRecoveryVerified = false;
         redirecting = false;
+        window.history.replaceState({}, document.title, window.location.pathname);
         showView(viewLogin);
         showMessage('login-error', 'Your password has been updated successfully. You can now log in with your new password.', 'ok');
     } catch (error) {
@@ -634,13 +657,20 @@ supabase.auth.onAuthStateChange((event, session) => {
 
     updateNavigation(session);
 
-    if (event === 'PASSWORD_RECOVERY') {
+    if (event === 'PASSWORD_RECOVERY' && session) {
+        passwordRecoveryVerified = true;
         redirecting = false;
+        updateNavigation(session);
         showView($('view-password-recovery'));
         return;
     }
 
     if (event === 'SIGNED_IN' && session) {
+        if (isPasswordRecoveryRoute) {
+            updateNavigation(session);
+            showView($('view-password-recovery'));
+            return;
+        }
 
         const user = session.user;
 
@@ -1028,7 +1058,7 @@ $('link-forgot-password')?.addEventListener('click', async event => {
 
     try {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/'
+            redirectTo: window.location.origin + '/?mode=recovery'
         });
         if (error) throw error;
 
