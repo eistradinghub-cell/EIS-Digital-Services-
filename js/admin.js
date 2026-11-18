@@ -1495,6 +1495,11 @@ $("nav-logout")?.addEventListener(
 logoutAdmin
 );
 
+$("admin-top-logout")?.addEventListener(
+"click",
+logoutAdmin
+);
+
 $("sidebar-logout")?.addEventListener(
 "click",
 logoutAdmin
