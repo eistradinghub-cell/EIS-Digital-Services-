@@ -58,7 +58,7 @@ export async function onRequestPost({ request, env }) {
     }
 
     const amount = Number(service.price);
-    const reference = `EIS_${crypto.randomUUID().replace(/-/g, "")}`;
+    const reference = `EIS-${crypto.randomUUID().replace(/-/g, "")}`;
 
     const paymentInsert = await fetch(`${SUPABASE_URL}/rest/v1/payments`, {
       method: "POST",
