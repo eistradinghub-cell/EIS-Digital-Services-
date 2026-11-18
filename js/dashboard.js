@@ -1070,6 +1070,29 @@ function getApplicationFormData() {
     return data;
 }
 
+async function sendApplicationReceipt(applicationId) {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+
+    const accessToken = session?.access_token;
+    if (!accessToken) throw new Error("Your session has expired.");
+
+    const response = await fetch("/api/application-receipt", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({ application_id: applicationId })
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.success !== true) {
+        throw new Error(result.error || "Receipt email could not be sent.");
+    }
+    return true;
+}
+
 /* =========================================
    APPLICATION STATUS BADGE
 ========================================= */
@@ -1487,6 +1510,15 @@ async function submitApplication(event) {
             );
         }
 
+        // The application is already safely stored. Send the email receipt
+        // separately so an email-provider issue never reverses a valid submission.
+        let receiptEmailSent = false;
+        try {
+            receiptEmailSent = await sendApplicationReceipt(data);
+        } catch (emailError) {
+            console.warn("Application receipt email could not be sent:", emailError);
+        }
+
         clearApplicationDraft();
         clearPaymentReference();
 
@@ -1502,7 +1534,9 @@ async function submitApplication(event) {
         }
 
         showMessage(
-            "Your application has been submitted. You can follow its progress under Your applications.",
+            receiptEmailSent
+                ? "Your application has been received successfully. A confirmation email has been sent to the email address you provided. You can follow its progress under Your applications."
+                : "Your application has been submitted successfully. You can follow its progress under Your applications. We could not send the confirmation email right now.",
             "ok",
             "form-msg"
         );
