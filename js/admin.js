@@ -172,7 +172,6 @@ if (!isSuperAdmin) {
   siteSettingsLink?.remove();
   siteSettingsSection?.remove();
 } else {
-  await loadSuperAdminUsers();
 }
 
 updateAdminIdentity();
@@ -1504,62 +1503,42 @@ button.textContent = "↻ Refresh Data";
 }
 }
 
-async function loadSuperAdminUsers() {
-  const container = $("site-admins-list");
-  if (!container) return;
-  container.innerHTML = '<div class="admin-loading">Loading registered accounts...</div>';
-  try {
-    const { data, error } = await supabase.rpc("super_admin_list_users");
-    if (error) throw error;
-    const users = Array.isArray(data) ? data : [];
-    if (!users.length) {
-      container.innerHTML = '<div class="admin-empty">No registered accounts found.</div>';
-      return;
-    }
-    container.innerHTML = users.map(user => {
-      const role = String(user.role || "customer").toLowerCase();
-      const isProtected = role === "super_admin" || user.id === currentUser?.id;
-      const action = role === "admin" ? "Remove Admin" : "Make Admin";
-      const makeAdmin = role !== "admin";
-      return `<article class="admin-service-item" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-        <div><strong>${escapeHTML(user.full_name || "User")}</strong><br>
-        <span>${escapeHTML(user.email || "No email")} · ${escapeHTML(role.replace("_"," "))}</span></div>
-        ${isProtected ? '<span class="admin-status-badge">Protected</span>' : `<button type="button" class="admin-small-button" data-set-admin-role="${escapeHTML(user.id)}" data-make-admin="${makeAdmin}">${action}</button>`}
-      </article>`;
-    }).join("");
-  } catch (error) {
-    console.error("Super Admin user list error:", error);
-    container.innerHTML = '<div class="admin-error">Unable to load accounts: ' + escapeHTML(error.message) + '</div>';
-  }
-}
-
-async function setManagedAdminRole(userId, makeAdmin, button) {
+async function setManagedAdminRole(email, makeAdmin, button) {
   if (String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
     showNotice("Only the Super Admin can manage administrator accounts.", "error");
     return;
   }
-  const action = makeAdmin ? "promote this user to Admin" : "remove this user's Admin access";
-  if (!window.confirm(`Are you sure you want to ${action}?`)) return;
-  if (button) { button.disabled = true; button.textContent = "Saving..."; }
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    showNotice("Enter a valid email address.", "error");
+    return;
+  }
+  const action = makeAdmin ? "grant Admin access to " + normalizedEmail : "remove Admin access from " + normalizedEmail;
+  if (!window.confirm("Are you sure you want to " + action + "?")) return;
+  if (button) { button.disabled = true; button.textContent = "Processing..."; }
   try {
-    const { error } = await supabase.rpc("super_admin_set_admin_role", {
-      p_user_id: userId,
+    const { error } = await supabase.rpc("super_admin_set_admin_by_email", {
+      p_email: normalizedEmail,
       p_make_admin: makeAdmin
     });
     if (error) throw error;
-    showNotice(makeAdmin ? "User successfully promoted to Admin." : "Admin access removed.");
-    await loadSuperAdminUsers();
+    showNotice(makeAdmin ? "Admin access successfully granted to " + normalizedEmail : "Admin access removed from " + normalizedEmail);
+    $("admin-manage-email")?.value && ($("admin-manage-email").value = "");
+    $("admin-manage-action") && ($("admin-manage-action").value = "make_admin");
   } catch (error) {
-    showNotice("Unable to change role: " + error.message, "error");
-    if (button) { button.disabled = false; button.textContent = makeAdmin ? "Make Admin" : "Remove Admin"; }
+    console.error("Super Admin role update error:", error);
+    showNotice(error.message || "Unable to update administrator access.", "error");
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "Submit"; }
   }
 }
 
 function setupEventListeners() {
-$("site-admins-list")?.addEventListener("click", event => {
-  const button = event.target.closest("[data-set-admin-role]");
-  if (!button) return;
-  setManagedAdminRole(button.dataset.setAdminRole, button.dataset.makeAdmin === "true", button);
+$("admin-manage-form")?.addEventListener("submit", event => {
+  event.preventDefault();
+  const email = $("admin-manage-email")?.value || "";
+  const makeAdmin = $("admin-manage-action")?.value === "make_admin";
+  setManagedAdminRole(email, makeAdmin, $("admin-manage-submit"));
 });
 
 $("nav-logout")?.addEventListener(
