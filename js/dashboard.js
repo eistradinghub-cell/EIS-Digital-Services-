@@ -1500,10 +1500,9 @@ async function submitApplication(event) {
 
     try {
         const { data, error } = await supabase.rpc(
-            "submit_paid_application",
+            "submit_application_with_payment",
             {
-                p_reference: currentPaymentReference,
-                p_service_name: selectedService.name,
+                p_payment_reference: currentPaymentReference,
                 p_form_data: formData
             }
         );
