@@ -811,7 +811,7 @@ $('form-email-otp')?.addEventListener('submit', async event => {
     const button = $('btn-verify-otp');
     const email = pendingVerificationEmail ||
         sessionStorage.getItem('eis-pending-verification-email') || '';
-    const token = String($('email-otp-input')?.value || '').replace(/\\D/g, '');
+    const token = String($('email-otp-input')?.value || '').replace(/\D/g, '');
 
     clearMessages();
 
@@ -820,7 +820,7 @@ $('form-email-otp')?.addEventListener('submit', async event => {
         return;
     }
 
-    if (!/^\\d{6}$/.test(token)) {
+    if (!/^\d{6}$/.test(token)) {
         showMessage('verify-error', 'Enter the complete 6-digit code sent to your email.');
         return;
     }
