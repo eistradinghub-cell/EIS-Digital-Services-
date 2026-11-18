@@ -62,7 +62,7 @@ export async function onRequestPost({ request, env }) {
 
     if (
       typeof reference !== "string" ||
-      !/^EIS_[a-f0-9]{32}$/i.test(reference)
+      !/^EIS[-_][a-f0-9]{32}$/i.test(reference)
     ) {
       return json({ error: "Invalid payment reference." }, 400);
     }
@@ -148,7 +148,9 @@ export async function onRequestPost({ request, env }) {
       transaction.reference !== reference ||
       transaction.status !== "success" ||
       transaction.currency !== "NGN" ||
-      Number(transaction.amount) !== expectedAmount
+      Number(transaction.amount) !== expectedAmount ||
+      String(transaction.customer?.email || "").trim().toLowerCase() !==
+        String(user.email || "").trim().toLowerCase()
     ) {
       return json({
         error: "Payment details could not be confirmed."
