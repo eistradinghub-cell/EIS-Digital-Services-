@@ -717,6 +717,12 @@ $('form-signup')?.addEventListener('submit', async event => {
             throw new Error('Account creation failed.');
         }
 
+        // Supabase may return an empty identities array for an email
+        // that is already registered when email confirmation is enabled.
+        if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+            throw new Error('This email address has already been used. Please log in or use another email.');
+        }
+
         if (data.session) {
 
             await supabase.auth.signOut();
@@ -749,9 +755,20 @@ $('form-signup')?.addEventListener('submit', async event => {
 
         console.error('Signup error:', error);
 
+        const errorText = [
+            error?.message,
+            error?.details,
+            error?.hint
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        const isDuplicate = error?.code === '23505' ||
+            /duplicate key|already exists|already registered|unique constraint/.test(errorText);
+
         showMessage(
             'signup-error',
-            error.message || 'Unable to create account.'
+            isDuplicate
+                ? 'This email address or phone number has already been used. Each one can only be registered once. Please log in or use different details.'
+                : (error.message || 'Unable to create account.')
         );
 
     } finally {
