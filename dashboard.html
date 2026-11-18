@@ -1141,7 +1141,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
         <div class="form-grid">
             <div>
                 <label for="f-kegow-account">KEGOW ACC NUMBER:</label>
-                <input type="text" id="f-kegow-account" name="kegow_acc_number" autocomplete="off" required>
+                <input type="text" id="f-kegow-account" name="kegow_acc_number" inputmode="numeric" pattern="[0-9]{10}" minlength="10" maxlength="10" autocomplete="off" title="Enter exactly 10 digits." required>
             </div>
 
             <div>
@@ -1161,7 +1161,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 
             <div>
                 <label for="f-account-no">ACCOUNT NO:</label>
-                <input type="text" id="f-account-no" name="account_no" inputmode="numeric" autocomplete="off" required>
+                <input type="text" id="f-account-no" name="account_no" inputmode="numeric" pattern="[0-9]{10}" minlength="10" maxlength="10" autocomplete="off" title="Enter exactly 10 digits." required>
             </div>
 
             <div>
@@ -1196,12 +1196,12 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 
             <div>
                 <label for="f-phone">PHONE NO:</label>
-                <input type="tel" id="f-phone" name="phone" inputmode="tel" autocomplete="tel" required>
+                <input type="text" id="f-phone" name="phone" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" autocomplete="tel" title="Enter exactly 11 digits." required>
             </div>
 
             <div>
                 <label for="f-alternative-phone">ALTERNATIVE PHONE NO:</label>
-                <input type="tel" id="f-alternative-phone" name="alternative_phone_no" inputmode="tel" autocomplete="off" required>
+                <input type="text" id="f-alternative-phone" name="alternative_phone_no" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" autocomplete="off" title="Enter exactly 11 digits." required>
             </div>
 
             <div class="full">
@@ -1329,7 +1329,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=40"></script>
+<script type="module" src="js/dashboard.js?v=41"></script>
 
 </body>
 </html>
