@@ -71,7 +71,7 @@ export async function onRequestPost({ request, env }) {
       ? application.form_data
       : {};
     const recipient = String(formData.email || "").trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(recipient)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
       return json({ error: "The application does not contain a valid email address." }, 422);
     }
 
