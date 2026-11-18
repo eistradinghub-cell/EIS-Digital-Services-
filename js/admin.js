@@ -300,9 +300,7 @@ setLoading("admin-apps-list", "Loading applications...");
 setLoading("applications-full-list", "Loading applications...");
 
 const { data, error } = await supabase
-.from("applications")
-.select("*")
-.order("created_at", { ascending: false });
+.rpc("admin_list_applications");
 
 if (error) {
 console.error("Applications error:", error);
