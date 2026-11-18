@@ -23,7 +23,7 @@ function escapeHtml(value) {
 
 export async function onRequestPost({ request, env }) {
   try {
-    const token = request.headers.get("Authorization")?.replace(/^Bearer\\s+/i, "");
+    const token = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
     if (!token) return json({ error: "Authentication required." }, 401);
 
     const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -71,7 +71,7 @@ export async function onRequestPost({ request, env }) {
       ? application.form_data
       : {};
     const recipient = String(formData.email || "").trim().toLowerCase();
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(recipient)) {
+    if (!/^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(recipient)) {
       return json({ error: "The application does not contain a valid email address." }, 422);
     }
 
