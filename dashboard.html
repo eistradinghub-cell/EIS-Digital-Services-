@@ -1034,6 +1034,11 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 }
 </style>
 
+<style id="eis-form-copy-styles">
+.dashboard-page .field-required,.dashboard-page .field-optional{margin-left:5px;font-size:11px;font-weight:500;color:#687582}
+.dashboard-page .field-hint{display:block;margin-top:6px;color:#697582;font-size:12px;line-height:1.5}
+.dashboard-page .form-grid label{line-height:1.45}
+</style>
 </head>
 
 <body class="dashboard-page">
@@ -1104,81 +1109,83 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 
     <section class="dashboard-intro">
         <h1>Welcome to EIS Digital Services</h1>
-        <p>Manage your services, follow your applications and stay updated with important notifications from your dashboard.</p>
+        <p>Access the services you need, submit applications and keep track of your requests in one place.</p>
     </section>
 
     <section class="card dashboard-card">
-        <h2 class="section-heading">Our Services</h2>
-        <p class="section-description">Choose a service to view its details, review the information and continue.</p>
+        <h2 class="section-heading">Available services</h2>
+        <p class="section-description">Choose a service to review the fee and begin your application.</p>
 
         <div id="services-container" class="svcs">
             <p>Loading services...</p>
         </div>
 
         <div id="pay-section" style="display:none;">
-            <h3>Continue to Application</h3>
+            <h3>Payment details</h3>
             <div class="demo">
-                <strong>DEMO MODE:</strong>
-                This is a payment-flow demonstration only. No money will be charged, transferred or received.
-                A demo reference ID is not proof of payment.
+                <strong>Payment information</strong>
+                Select a service to review its fee. You will be asked to confirm the amount before proceeding to payment.
             </div>
-            <button id="btn-pay" type="button" class="btn btn-primary">Continue</button>
+            <button id="btn-pay" type="button" class="btn btn-primary">Continue to payment</button>
         </div>
 
         <p id="pay-msg" class="msg"></p>
     </section>
 
     <form class="card dashboard-card" id="app-form" style="display:none;">
-        <h2 class="section-heading">Application Form</h2>
-        <p class="section-description">Complete the required contact information below.</p>
+        <h2 class="section-heading">Application details</h2>
+        <p class="section-description">Enter your contact details so we can follow up if we need more information about your application.</p>
 
         <div class="form-grid">
             <div>
-                <label for="f-firstName">FIRST NAME *</label>
-                <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" required>
+                <label for="f-firstName">First name <span class="field-required">Required</span></label>
+                <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" aria-describedby="hint-first-name" required>
+                <small class="field-hint" id="hint-first-name">Enter your first name as it appears on your identification.</small>
             </div>
 
             <div>
-                <label for="f-lastName">LAST NAME *</label>
-                <input type="text" id="f-lastName" name="lastName" autocomplete="family-name" required>
+                <label for="f-lastName">Last name <span class="field-required">Required</span></label>
+                <input type="text" id="f-lastName" name="lastName" autocomplete="family-name" aria-describedby="hint-last-name" required>
+                <small class="field-hint" id="hint-last-name">Enter your surname as it appears on your identification.</small>
             </div>
 
             <div>
-                <label for="f-email">EMAIL *</label>
-                <input type="email" id="f-email" name="email" autocomplete="email" required>
+                <label for="f-email">Email address <span class="field-required">Required</span></label>
+                <input type="email" id="f-email" name="email" autocomplete="email" aria-describedby="hint-email" required>
+                <small class="field-hint" id="hint-email">Use an email address you can access.</small>
             </div>
 
             <div>
-                <label for="f-phone">PHONE NUMBER (OPTIONAL)</label>
-                <input type="tel" id="f-phone" name="phone" autocomplete="tel">
+                <label for="f-phone">Phone number <span class="field-optional">Optional</span></label>
+                <input type="tel" id="f-phone" name="phone" autocomplete="tel" aria-describedby="hint-phone">
+                <small class="field-hint" id="hint-phone">Include your country code if you are outside Nigeria.</small>
             </div>
         </div>
 
         <div class="privacy-note">
-            <strong>Privacy notice:</strong>
-            This form only requests basic contact information needed to process your application.
-            Do not enter BVN, bank account numbers, passwords, home address or other sensitive identity details.
+            <strong>Keep your information safe.</strong>
+            Only provide the details requested in this form. Do not enter your BVN, NIN, bank details, passwords or one-time verification codes.
         </div>
 
         <button class="btn btn-primary" type="submit" style="width:100%;padding:12px;margin-top:5px;">
-            Submit Application
+            Submit application
         </button>
 
         <p id="form-msg" class="msg"></p>
     </form>
 
     <section class="card dashboard-card">
-        <h2 class="section-heading">My Applications</h2>
-        <p class="section-description">Review your previous applications and their current status.</p>
+        <h2 class="section-heading">Your applications</h2>
+        <p class="section-description">View the applications you have submitted and check their latest status.</p>
 
         <div class="table-wrapper">
             <table class="applications-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Reference</th>
+                        <th>Applicant</th>
+                        <th>Reference number</th>
                         <th>Service</th>
-                        <th>Submitted</th>
+                        <th>Date submitted</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -1194,10 +1201,10 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 
     <section class="customer-care-banner">
         <div>
-            <h2>Need Help?</h2>
-            <p>Our Customer Care team is ready to assist you. Contact us if you need help with your application.</p>
+            <h2>Need a hand?</h2>
+            <p>Contact our support team if you have a question about a service, payment or application.</p>
         </div>
-        <a href="support.html">Open Chat</a>
+        <a href="support.html">Contact support</a>
     </section>
 
 </main>
@@ -1208,7 +1215,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=34"></script>
+<script type="module" src="js/dashboard.js?v=35"></script>
 
 </body>
 </html>
