@@ -923,7 +923,7 @@ window.addEventListener("popstate", () => {
     );
 });
 
-function restoreVerifiedPayment(reference) {
+async function restoreVerifiedPayment(reference) {
     const section = $("pay-section");
 
     if (section) {
