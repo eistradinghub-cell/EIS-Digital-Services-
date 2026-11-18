@@ -994,13 +994,27 @@
             </div>
         </div>
 
-        <div id="site-admins-list" class="admin-services-list">
-            <div class="admin-loading">Loading registered accounts...</div>
-        </div>
+        <form id="admin-manage-form" class="admin-form" autocomplete="off">
+            <div class="admin-form-group">
+                <label for="admin-manage-email">Account email address</label>
+                <input type="email" id="admin-manage-email" name="admin_email" required maxlength="254"
+                    placeholder="Enter the exact registered email address"
+                    autocomplete="off" autocapitalize="none" spellcheck="false">
+                <small>Enter the email address directly. No customer or administrator email list will be displayed.</small>
+            </div>
+            <div class="admin-form-group">
+                <label for="admin-manage-action">Action</label>
+                <select id="admin-manage-action" required>
+                    <option value="make_admin">Grant Admin access</option>
+                    <option value="remove_admin">Remove Admin access</option>
+                </select>
+            </div>
+            <button type="submit" class="admin-primary-button" id="admin-manage-submit">Submit</button>
+        </form>
 
         <div class="admin-settings-notice">
-            <strong>How to add an Admin</strong>
-            <p>The person must first create a normal customer account on the website. Their account will then appear here, where the Super Admin can select “Make Admin”. Admin accounts cannot access Site Settings or manage other administrators.</p>
+            <strong>Security notice</strong>
+            <p>Only the Super Admin can use this form. The system checks the email against registered accounts securely on the server. Super Admin accounts cannot be changed here. Regular Admin accounts cannot access Site Settings or manage other administrators.</p>
         </div>
     </div>
 
@@ -1046,7 +1060,7 @@
 </div>
 
 <!-- Main administration functionality -->
-<script type="module" src="js/admin.js?v=5"></script>
+<script type="module" src="js/admin.js?v=6"></script>
 
 <!-- Marketplace product management -->
 <script type="module" src="js/marketplace-admin.js?v=4"></script>
