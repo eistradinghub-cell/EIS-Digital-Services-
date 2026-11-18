@@ -276,6 +276,41 @@ function createVerificationScreen() {
 createVerificationScreen();
 
 /* =========================================
+   PASSWORD RECOVERY SCREEN
+========================================= */
+
+function createPasswordRecoveryScreen() {
+    if ($('view-password-recovery')) return;
+
+    const section = document.createElement('section');
+    section.className = 'view wrap';
+    section.id = 'view-password-recovery';
+    section.style.cssText = 'display:none;padding-top:20px;';
+    section.innerHTML = `
+        <form class="card auth-card" id="form-password-recovery">
+            <h2>Reset Your Password</h2>
+            <p style="color:var(--mu);margin-top:5px;">
+                Enter a new password for your EIS account.
+            </p>
+            <label for="recovery-new-password">New Password</label>
+            <input type="password" id="recovery-new-password"
+                   autocomplete="new-password" minlength="8"
+                   placeholder="Enter your new password" required>
+            <label for="recovery-confirm-password">Confirm New Password</label>
+            <input type="password" id="recovery-confirm-password"
+                   autocomplete="new-password" minlength="8"
+                   placeholder="Confirm your new password" required>
+            <button type="submit" class="btn btn-primary btn-block"
+                    id="btn-save-new-password">Update Password</button>
+            <p class="msg err" id="recovery-error" role="alert"
+               aria-live="polite"></p>
+        </form>`;
+    (document.querySelector('main') || document.body).appendChild(section);
+}
+
+createPasswordRecoveryScreen();
+
+/* =========================================
    PAGE VIEW MANAGEMENT
 ========================================= */
 
@@ -285,7 +320,8 @@ function showView(view) {
         viewHome,
         viewLogin,
         viewSignup,
-        $('view-verify')
+        $('view-verify'),
+        $('view-password-recovery')
     ].forEach(element => {
 
         if (element) {
@@ -552,12 +588,57 @@ async function initializeAuth() {
 }
 
 /* =========================================
+   SAVE NEW PASSWORD
+========================================= */
+
+$('form-password-recovery')?.addEventListener('submit', async event => {
+    event.preventDefault();
+
+    const password = $('recovery-new-password')?.value || '';
+    const confirm = $('recovery-confirm-password')?.value || '';
+    const button = $('btn-save-new-password');
+    const errorBox = $('recovery-error');
+
+    if (errorBox) errorBox.textContent = '';
+    if (password.length < 8) {
+        if (errorBox) errorBox.textContent = 'Password must contain at least 8 characters.';
+        return;
+    }
+    if (password !== confirm) {
+        if (errorBox) errorBox.textContent = 'The passwords do not match.';
+        return;
+    }
+
+    setLoading(button, true, 'Updating password...');
+    try {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+
+        await supabase.auth.signOut();
+        redirecting = false;
+        showView(viewLogin);
+        showMessage('login-error', 'Your password has been updated successfully. You can now log in with your new password.', 'ok');
+    } catch (error) {
+        console.error('Password update error:', error);
+        if (errorBox) errorBox.textContent = error.message || 'Could not update your password. Please request a new reset link.';
+    } finally {
+        setLoading(button, false, 'Update Password');
+    }
+});
+
+/* =========================================
    AUTH STATE LISTENER
 ========================================= */
 
 supabase.auth.onAuthStateChange((event, session) => {
 
     updateNavigation(session);
+
+    if (event === 'PASSWORD_RECOVERY') {
+        redirecting = false;
+        showView($('view-password-recovery'));
+        return;
+    }
 
     if (event === 'SIGNED_IN' && session) {
 
@@ -924,6 +1005,43 @@ $('btn-change-verification-email')?.addEventListener('click', () => {
     clearMessages();
 
     showView(viewSignup);
+});
+
+/* =========================================
+   FORGOT PASSWORD REQUEST
+========================================= */
+
+$('link-forgot-password')?.addEventListener('click', async event => {
+    event.preventDefault();
+    clearMessages();
+
+    const email = $('login-email')?.value.trim().toLowerCase();
+    if (!email) {
+        showMessage('login-error', 'Enter your email address first, then tap Forgot password.');
+        $('login-email')?.focus();
+        return;
+    }
+
+    const link = $('link-forgot-password');
+    link.style.pointerEvents = 'none';
+    link.textContent = 'Sending reset email...';
+
+    try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/'
+        });
+        if (error) throw error;
+
+        showMessage('login-error',
+            'If an account exists for this email, a password reset link has been sent. Check your inbox and spam folder.',
+            'ok');
+    } catch (error) {
+        console.error('Password reset request error:', error);
+        showMessage('login-error', error.message || 'Could not send the password reset email.');
+    } finally {
+        link.style.pointerEvents = '';
+        link.textContent = 'Forgot password?';
+    }
 });
 
 /* =========================================
