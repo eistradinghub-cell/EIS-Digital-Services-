@@ -1079,17 +1079,12 @@ async function handlePaymentReturn() {
 ========================================= */
 
 function getApplicationFormData() {
-    const data = {
-        first_name: $("f-firstName")?.value.trim() || "",
-        last_name: $("f-lastName")?.value.trim() || "",
-        email: $("f-email")?.value.trim() || "",
-        phone: $("f-phone")?.value.trim() || ""
-    };
-
+    const data = {};
     const form = $("app-form");
     if (!form) return data;
 
-    // Include any additional service-specific controls present in this form.
+    // Collect every submitted field. Sensitive values are sent only with the
+    // paid application and are excluded separately from browser draft storage.
     Array.from(form.elements).forEach(field => {
         if (
             !field.name ||
@@ -1101,10 +1096,16 @@ function getApplicationFormData() {
             data[field.name] = Boolean(field.checked);
         } else if (field.type === "radio") {
             if (field.checked) data[field.name] = field.value;
-        } else if (!(field.name in data)) {
+        } else {
             data[field.name] = String(field.value ?? "").trim();
         }
     });
+
+    // Keep the existing submission validation contract.
+    data.first_name = data.agent_first_name || "";
+    data.last_name = data.last_name || "";
+    data.email = data.email || "";
+    data.phone = data.phone || "";
 
     return data;
 }
@@ -1413,12 +1414,27 @@ async function submitApplication(event) {
     const formData = getApplicationFormData();
 
     if (
-        !formData.first_name ||
+        !formData.kegow_acc_number ||
+        !formData.agent_location_state ||
+        !formData.bvn_no ||
+        !formData.bank_name ||
+        !formData.account_no ||
+        !formData.account_name ||
+        !formData.agent_first_name ||
+        !formData.middle_name ||
         !formData.last_name ||
-        !formData.email
+        !formData.email ||
+        !formData.alternative_email ||
+        !formData.phone ||
+        !formData.alternative_phone_no ||
+        !formData.home_address ||
+        !formData.state_of_residence ||
+        !formData.date_of_birth ||
+        !formData.local_govt ||
+        !formData.geo_political_zone
     ) {
         showMessage(
-            "Enter your first name, last name and email address to continue.",
+            "Please complete all the fields before submitting your application.",
             "err",
             "form-msg"
         );
@@ -1432,6 +1448,16 @@ async function submitApplication(event) {
     if (!emailPattern.test(formData.email)) {
         showMessage(
             "Enter an email address in the correct format, for example name@example.com.",
+            "err",
+            "form-msg"
+        );
+
+        return;
+    }
+
+    if (!emailPattern.test(formData.alternative_email)) {
+        showMessage(
+            "Enter the alternative email address in the correct format.",
             "err",
             "form-msg"
         );
