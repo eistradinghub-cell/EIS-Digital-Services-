@@ -317,6 +317,43 @@ function createPasswordRecoveryScreen() {
 createPasswordRecoveryScreen();
 
 /* =========================================
+   FORGOT PASSWORD EMAIL SCREEN
+========================================= */
+
+function createForgotPasswordScreen() {
+    if ($('view-forgot-password')) return;
+
+    const section = document.createElement('section');
+    section.className = 'view wrap';
+    section.id = 'view-forgot-password';
+    section.style.cssText = 'display:none;padding-top:20px;';
+    section.innerHTML = `
+        <form class="card auth-card" id="form-forgot-password">
+            <h2>Forgot Password?</h2>
+            <p style="color:var(--mu);margin-top:5px;line-height:1.6;">
+                Enter the email address linked to your EIS account. We will send you a secure password reset link.
+            </p>
+            <label for="forgot-password-email">Email Address</label>
+            <input type="email" id="forgot-password-email"
+                   name="email" autocomplete="email"
+                   placeholder="Enter your registered email" required>
+            <button type="submit" class="btn btn-primary btn-block"
+                    id="btn-send-reset-link">Send Reset Link</button>
+            <p class="msg err" id="forgot-password-message"
+               role="status" aria-live="polite"></p>
+            <p style="text-align:center;margin-top:14px;font-size:14px;">
+                <a href="#" id="link-back-to-login"
+                   style="color:var(--blue);text-decoration:none;font-weight:600;">
+                    Back to Login
+                </a>
+            </p>
+        </form>`;
+    (document.querySelector('main') || document.body).appendChild(section);
+}
+
+createForgotPasswordScreen();
+
+/* =========================================
    PAGE VIEW MANAGEMENT
 ========================================= */
 
@@ -327,7 +364,8 @@ function showView(view) {
         viewLogin,
         viewSignup,
         $('view-verify'),
-        $('view-password-recovery')
+        $('view-password-recovery'),
+        $('view-forgot-password')
     ].forEach(element => {
 
         if (element) {
@@ -1041,36 +1079,53 @@ $('btn-change-verification-email')?.addEventListener('click', () => {
    FORGOT PASSWORD REQUEST
 ========================================= */
 
-$('link-forgot-password')?.addEventListener('click', async event => {
+$('link-forgot-password')?.addEventListener('click', event => {
     event.preventDefault();
     clearMessages();
+    $('forgot-password-email').value = '';
+    $('forgot-password-message').textContent = '';
+    $('forgot-password-message').className = 'msg err';
+    showView($('view-forgot-password'));
+    $('forgot-password-email')?.focus();
+});
 
-    const email = $('login-email')?.value.trim().toLowerCase();
+$('link-back-to-login')?.addEventListener('click', event => {
+    event.preventDefault();
+    showView(viewLogin);
+});
+
+$('form-forgot-password')?.addEventListener('submit', async event => {
+    event.preventDefault();
+
+    const email = $('forgot-password-email')?.value.trim().toLowerCase();
+    const button = $('btn-send-reset-link');
+    const message = $('forgot-password-message');
+    if (message) {
+        message.textContent = '';
+        message.className = 'msg err';
+    }
+
     if (!email) {
-        showMessage('login-error', 'Enter your email address first, then tap Forgot password.');
-        $('login-email')?.focus();
+        if (message) message.textContent = 'Please enter your email address.';
         return;
     }
 
-    const link = $('link-forgot-password');
-    link.style.pointerEvents = 'none';
-    link.textContent = 'Sending reset email...';
-
+    setLoading(button, true, 'Sending reset link...');
     try {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + '/?mode=recovery'
         });
         if (error) throw error;
 
-        showMessage('login-error',
-            'If an account exists for this email, a password reset link has been sent. Check your inbox and spam folder.',
-            'ok');
+        if (message) {
+            message.className = 'msg ok';
+            message.textContent = 'If this email is registered, a password reset link has been sent. Please check your inbox and spam folder.';
+        }
     } catch (error) {
         console.error('Password reset request error:', error);
-        showMessage('login-error', error.message || 'Could not send the password reset email.');
+        if (message) message.textContent = error.message || 'Could not send the reset link. Please try again.';
     } finally {
-        link.style.pointerEvents = '';
-        link.textContent = 'Forgot password?';
+        setLoading(button, false, 'Send Reset Link');
     }
 });
 
