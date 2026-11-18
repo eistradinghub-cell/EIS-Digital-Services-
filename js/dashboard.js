@@ -1519,7 +1519,7 @@ async function submitApplication(event) {
     } finally {
         if (button) {
             button.disabled = false;
-            button.textContent = "Submit Application";
+            button.textContent = "Submit application";
         }
     }
 }
