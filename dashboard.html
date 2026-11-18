@@ -418,13 +418,16 @@ body.dashboard-page{
 .dashboard-page .privacy-note{
     margin:18px 0;
     padding:14px;
-    border:1px solid #b9d2ff;
+    border:1px solid #fecdca;
+    border-left:4px solid #d92d20;
     border-radius:7px;
-    background:#edf4ff;
-    color:#345b91;
-    font-size:12px;
-    line-height:1.8;
+    background:#fef3f2;
+    color:#b42318;
+    font-size:13px;
+    line-height:1.7;
 }
+
+.dashboard-page .privacy-note strong{color:#b42318;font-weight:700}
 
 .dashboard-page .msg{
     display:none;
@@ -1035,7 +1038,6 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 </style>
 
 <style id="eis-form-copy-styles">
-.dashboard-page .field-required,.dashboard-page .field-optional{margin-left:5px;font-size:11px;font-weight:500;color:#687582}
 .dashboard-page .field-hint{display:block;margin-top:6px;color:#697582;font-size:12px;line-height:1.5}
 .dashboard-page .form-grid label{line-height:1.45}
 </style>
@@ -1138,25 +1140,25 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 
         <div class="form-grid">
             <div>
-                <label for="f-firstName">First name <span class="field-required">Required</span></label>
+                <label for="f-firstName">First name</label>
                 <input type="text" id="f-firstName" name="firstName" autocomplete="given-name" aria-describedby="hint-first-name" required>
                 <small class="field-hint" id="hint-first-name">Enter your first name as it appears on your identification.</small>
             </div>
 
             <div>
-                <label for="f-lastName">Last name <span class="field-required">Required</span></label>
+                <label for="f-lastName">Last name</label>
                 <input type="text" id="f-lastName" name="lastName" autocomplete="family-name" aria-describedby="hint-last-name" required>
                 <small class="field-hint" id="hint-last-name">Enter your surname as it appears on your identification.</small>
             </div>
 
             <div>
-                <label for="f-email">Email address <span class="field-required">Required</span></label>
+                <label for="f-email">Email address</label>
                 <input type="email" id="f-email" name="email" autocomplete="email" aria-describedby="hint-email" required>
                 <small class="field-hint" id="hint-email">Use an email address you can access.</small>
             </div>
 
             <div>
-                <label for="f-phone">Phone number <span class="field-optional">Optional</span></label>
+                <label for="f-phone">Phone number</label>
                 <input type="tel" id="f-phone" name="phone" autocomplete="tel" aria-describedby="hint-phone">
                 <small class="field-hint" id="hint-phone">Include your country code if you are outside Nigeria.</small>
             </div>
@@ -1214,7 +1216,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=36"></script>
+<script type="module" src="js/dashboard.js?v=37"></script>
 
 </body>
 </html>
