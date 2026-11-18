@@ -431,6 +431,44 @@
         }
 
         .admin-settings-notice p { margin: 5px 0 0; }
+        
+        /* Match the customer dashboard notification button exactly. */
+        .global-admin-notice-button {
+            position: relative !important;
+            width: 44px !important;
+            height: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: 1px solid #E1E8EB !important;
+            border-radius: 12px !important;
+            background: #FFFFFF !important;
+            color: #142D4E !important;
+            box-shadow: 0 2px 8px rgba(20,45,78,.05) !important;
+            font-size: initial !important;
+            transition: .2s ease !important;
+        }
+
+        .global-admin-notice-button:hover {
+            color: #168477 !important;
+            background: #F2F8F6 !important;
+            border-color: #BFDCD5 !important;
+        }
+
+        .global-admin-notice-count {
+            min-width: 19px !important;
+            height: 19px !important;
+            padding: 0 5px !important;
+            top: -5px !important;
+            right: -5px !important;
+            border: 2px solid #FFFFFF !important;
+            border-radius: 20px !important;
+            background: #D94B55 !important;
+            color: #FFFFFF !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+        }
+
     </style>
 </head>
 
@@ -448,7 +486,12 @@
             <button type="button" id="global-admin-notice-button"
                 class="global-admin-notice-button"
                 aria-label="Notifications" aria-expanded="false">
-                🔔
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>
+                    <path d="M8 12h.01"/>
+                    <path d="M12 12h.01"/>
+                    <path d="M16 12h.01"/>
+                </svg>
                 <span id="global-admin-notice-count" class="global-admin-notice-count">0</span>
             </button>
 
