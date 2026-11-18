@@ -1,18 +1,30 @@
 import { supabase } from "./supabase.js";
 
+/* =========================================
+   EIS DIGITAL SERVICES
+   CUSTOMER DASHBOARD
+   PAYSTACK + SUPABASE RPC INTEGRATION
+========================================= */
+
 let currentUser = null;
 let currentProfile = null;
 let currentCustomerName = "";
 let selectedService = null;
-let servicesCache = [];
 let notificationsCache = [];
-let demoPaymentCompleted = false;
+let currentPaymentReference = null;
+let paymentBusy = false;
 
 const $ = id => document.getElementById(id);
+
 const DRAFT_PREFIX = "eis_application_draft_";
+const PAYMENT_PREFIX = "eis_verified_payment_";
+
+const PAYSTACK_INITIALIZE_URL = "/api/paystack/initialize";
+const PAYSTACK_VERIFY_URL = "/api/paystack/verify";
 
 function showMessage(message, type = "info", targetId = "pay-msg") {
     const box = $(targetId);
+
     if (!box) return;
 
     box.textContent = message;
@@ -32,6 +44,7 @@ function formatDate(date) {
     if (!date) return "N/A";
 
     const value = new Date(date);
+
     if (Number.isNaN(value.getTime())) return "N/A";
 
     return value.toLocaleDateString("en-NG", {
@@ -45,6 +58,7 @@ function formatDateTime(date) {
     if (!date) return "";
 
     const value = new Date(date);
+
     if (Number.isNaN(value.getTime())) return "";
 
     return value.toLocaleString("en-NG", {
@@ -53,24 +67,15 @@ function formatDateTime(date) {
     });
 }
 
-function generateDemoReference() {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    const values = new Uint8Array(9);
-
-    crypto.getRandomValues(values);
-
-    let result = "";
-
-    for (let i = 0; i < 9; i++) {
-        result += characters[values[i] % characters.length];
-    }
-
-    return `EIS-${result}`;
-}
-
 function getDraftKey() {
     return currentUser
         ? `${DRAFT_PREFIX}${currentUser.id}`
+        : null;
+}
+
+function getPaymentKey() {
+    return currentUser
+        ? `${PAYMENT_PREFIX}${currentUser.id}`
         : null;
 }
 
@@ -81,12 +86,11 @@ function saveApplicationDraft() {
 
     try {
         localStorage.setItem(key, JSON.stringify({
-            version: 6,
-            service_id: selectedService.id,
-            form_open: demoPaymentCompleted
+            version: 7,
+            service_id: selectedService.id
         }));
     } catch (error) {
-        console.error("Draft saving error:", error);
+        console.warn("Draft saving error:", error);
     }
 }
 
@@ -98,8 +102,46 @@ function clearApplicationDraft() {
     try {
         localStorage.removeItem(key);
     } catch (error) {
-        console.error("Draft clearing error:", error);
+        console.warn("Draft clearing error:", error);
     }
+}
+
+function savePaymentReference(reference) {
+    const key = getPaymentKey();
+
+    if (!key || !reference) return;
+
+    try {
+        sessionStorage.setItem(key, reference);
+    } catch (error) {
+        console.warn("Payment reference storage error:", error);
+    }
+}
+
+function getSavedPaymentReference() {
+    const key = getPaymentKey();
+
+    if (!key) return null;
+
+    try {
+        return sessionStorage.getItem(key);
+    } catch {
+        return null;
+    }
+}
+
+function clearPaymentReference() {
+    const key = getPaymentKey();
+
+    if (!key) return;
+
+    try {
+        sessionStorage.removeItem(key);
+    } catch (error) {
+        console.warn("Payment reference clearing error:", error);
+    }
+
+    currentPaymentReference = null;
 }
 
 async function checkUserSession() {
@@ -117,28 +159,29 @@ async function checkUserSession() {
         }
 
         currentUser = user;
+
         return true;
 
     } catch (error) {
         console.error("Authentication error:", error);
 
         window.location.replace("index.html");
+
         return false;
     }
 }
 
 /* =========================================
-   CUSTOMER WELCOME CARD DESIGN
-   Soft blue-white gradient.
+   DASHBOARD WELCOME STYLE
 ========================================= */
 
 function applyDashboardWelcomeStyle() {
-    if (document.getElementById("eis-dashboard-welcome-style")) {
-        return;
-    }
+    if ($("eis-dashboard-welcome-style")) return;
 
     const style = document.createElement("style");
+
     style.id = "eis-dashboard-welcome-style";
+
     style.textContent = `
         .dashboard-page .dashboard-intro {
             background: linear-gradient(
@@ -148,7 +191,7 @@ function applyDashboardWelcomeStyle() {
                 #dceaff 100%
             ) !important;
             border: 1px solid #c9dcfa !important;
-            box-shadow: 0 8px 24px rgba(34, 83, 145, 0.10) !important;
+            box-shadow: 0 8px 24px rgba(34,83,145,.10) !important;
         }
 
         .dashboard-page .dashboard-intro h1 {
@@ -158,14 +201,66 @@ function applyDashboardWelcomeStyle() {
         .dashboard-page .dashboard-intro p {
             color: #647c9b !important;
         }
+
+        #pay-section .eis-payment-box {
+            padding: 17px;
+            margin: 14px 0;
+            border: 1px solid #e3e7eb;
+            border-radius: 9px;
+            background: #fff;
+        }
+
+        #pay-section .eis-payment-label {
+            color: #697582;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        #pay-section .eis-payment-price {
+            color: #20665d;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        #pay-section .eis-payment-note {
+            margin: 14px 0;
+            padding: 13px;
+            border-radius: 8px;
+            background: #edf6f4;
+            color: #45665f;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        #pay-section #btn-pay {
+            width: 100%;
+            min-height: 48px;
+            padding: 13px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        #pay-section #btn-pay:disabled {
+            opacity: .65;
+            cursor: wait;
+        }
+
+        .eis-payment-success {
+            padding: 16px;
+            margin-top: 15px;
+            border: 1px solid #b8e1c8;
+            border-radius: 9px;
+            background: #effaf3;
+            color: #17683a;
+            line-height: 1.7;
+        }
     `;
 
     document.head.appendChild(style);
 }
 
-
 /* =========================================
-   USER PROFILE AND ADMIN NAVIGATION
+   CUSTOMER PROFILE
 ========================================= */
 
 function cleanCustomerName(value) {
@@ -175,7 +270,6 @@ function cleanCustomerName(value) {
 
     if (!name) return "";
 
-    // Never display an email address as a customer's name.
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name)) {
         return "";
     }
@@ -192,17 +286,18 @@ function cleanCustomerName(value) {
         "there"
     ]);
 
-    return placeholders.has(name.toLowerCase()) ? "" : name;
+    return placeholders.has(name.toLowerCase())
+        ? ""
+        : name;
 }
 
 function joinCustomerName(firstName, lastName) {
     const first = cleanCustomerName(firstName);
     const last = cleanCustomerName(lastName);
 
-    // A full name needs both parts; otherwise check full_name/name fields.
     if (!first || !last) return "";
 
-    return `${first} ${last}`.replace(/\s+/g, " ").trim();
+    return `${first} ${last}`.trim();
 }
 
 function normalizeCustomerFormData(value) {
@@ -211,44 +306,62 @@ function normalizeCustomerFormData(value) {
     if (typeof value === "string") {
         try {
             const parsed = JSON.parse(value);
-            return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+
+            return parsed &&
+                typeof parsed === "object" &&
+                !Array.isArray(parsed)
                 ? parsed
                 : {};
+
         } catch {
             return {};
         }
     }
 
-    return typeof value === "object" && !Array.isArray(value)
+    return typeof value === "object" &&
+        !Array.isArray(value)
         ? value
         : {};
 }
 
-function getCustomerDisplayName(profile, user, applicationFormData = null) {
+function getCustomerDisplayName(
+    profile,
+    user,
+    applicationFormData = null
+) {
     const metadata = user?.user_metadata || {};
-    const application = normalizeCustomerFormData(applicationFormData);
+
+    const application =
+        normalizeCustomerFormData(applicationFormData);
+
     const identityData = (user?.identities || [])
         .map(identity => identity?.identity_data || {});
 
-    // Check structured first/last-name fields from every available source.
-    const nameSources = [
+    const sources = [
         profile || {},
         metadata,
         application,
         ...identityData
     ];
 
-    for (const source of nameSources) {
+    for (const source of sources) {
         const name = joinCustomerName(
-            source.first_name ?? source.firstName ?? source.given_name ?? source.givenName,
-            source.last_name ?? source.lastName ?? source.family_name ?? source.familyName ?? source.surname
+            source.first_name ??
+            source.firstName ??
+            source.given_name ??
+            source.givenName,
+
+            source.last_name ??
+            source.lastName ??
+            source.family_name ??
+            source.familyName ??
+            source.surname
         );
 
         if (name) return name;
     }
 
-    // Then check common full-name fields, including legacy account formats.
-    const fullNameKeys = [
+    const keys = [
         "full_name",
         "fullName",
         "fullname",
@@ -261,14 +374,14 @@ function getCustomerDisplayName(profile, user, applicationFormData = null) {
         "name"
     ];
 
-    for (const source of nameSources) {
-        for (const key of fullNameKeys) {
+    for (const source of sources) {
+        for (const key of keys) {
             const name = cleanCustomerName(source?.[key]);
+
             if (name) return name;
         }
     }
 
-    // Do not substitute an email address or its username for a real name.
     return "";
 }
 
@@ -276,8 +389,6 @@ async function loadLatestApplicationFormData() {
     if (!currentUser) return null;
 
     try {
-        // Older customer accounts may have their name saved in an application
-        // form even when their profile/auth metadata does not contain it.
         const { data, error } = await supabase
             .from("applications")
             .select("form_data")
@@ -298,10 +409,7 @@ async function loadLatestApplicationFormData() {
         }
 
     } catch (error) {
-        console.warn(
-            "Could not retrieve the customer's name from previous applications:",
-            error
-        );
+        console.warn("Previous customer name lookup failed:", error);
     }
 
     return null;
@@ -314,16 +422,15 @@ async function loadUserProfile() {
 
     const welcome = $("welcome");
     const adminButton = $("nav-admin");
+
     let verifiedRole = "";
 
-    // Hide Admin Panel until the user's role is verified.
     if (adminButton) {
         adminButton.hidden = true;
         adminButton.classList.remove("is-admin-nav");
     }
 
     try {
-        // Read the complete profile so legacy and newer name columns are supported.
         const { data, error } = await supabase
             .from("profiles")
             .select("*")
@@ -333,12 +440,14 @@ async function loadUserProfile() {
         if (error) throw error;
 
         currentProfile = data || null;
+
         verifiedRole = String(data?.role || "")
             .trim()
             .toLowerCase();
 
     } catch (error) {
         console.error("Profile loading error:", error);
+
         currentProfile = null;
     }
 
@@ -347,8 +456,6 @@ async function loadUserProfile() {
         currentUser
     );
 
-    // For older accounts, recover the full name from a saved application
-    // when the profile and Supabase Auth metadata do not contain it.
     if (!displayName) {
         const applicationFormData =
             await loadLatestApplicationFormData();
@@ -368,7 +475,6 @@ async function loadUserProfile() {
             : "Welcome back";
     }
 
-    // Only verified administrators can see this button.
     if (
         ["admin", "super_admin"].includes(verifiedRole) &&
         adminButton
@@ -377,6 +483,10 @@ async function loadUserProfile() {
         adminButton.classList.add("is-admin-nav");
     }
 }
+
+/* =========================================
+   SERVICES
+========================================= */
 
 function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>"']/g, character => ({
@@ -407,31 +517,38 @@ async function loadServices() {
 
         if (error) throw error;
 
-        servicesCache = data || [];
+        const services = data || [];
 
         container.replaceChildren();
 
-        if (!servicesCache.length) {
+        if (!services.length) {
             container.textContent =
                 "No services are available at the moment.";
+
             return;
         }
 
-        servicesCache.forEach(service => {
+        services.forEach(service => {
             const card = document.createElement("article");
+
             card.className = "service-card";
 
             const title = document.createElement("h3");
+
             title.textContent = service.name || "Service";
 
             const description = document.createElement("div");
+
             description.className = "service-description";
+
             description.textContent = getServiceDescription();
 
             const price = document.createElement("p");
+
             price.textContent = formatCurrency(service.price);
 
             const button = document.createElement("button");
+
             button.type = "button";
             button.textContent = "View Service";
 
@@ -457,26 +574,36 @@ async function loadServices() {
     }
 }
 
+/* =========================================
+   SELECT SERVICE
+========================================= */
+
 function selectService(service) {
-    if (!service) return;
+    if (!service || paymentBusy) return;
 
     if (
         selectedService &&
         String(selectedService.id) !== String(service.id)
     ) {
         clearApplicationDraft();
+        clearPaymentReference();
+
         $("app-form")?.reset();
     }
 
     selectedService = service;
-    demoPaymentCompleted = false;
+
+    currentPaymentReference = null;
+
+    clearPaymentReference();
 
     if ($("app-form")) {
         $("app-form").style.display = "none";
     }
 
     saveApplicationDraft();
-    renderDemoPaymentScreen();
+
+    renderPaymentReview();
 
     $("pay-section")?.scrollIntoView({
         behavior: "smooth",
@@ -484,7 +611,11 @@ function selectService(service) {
     });
 }
 
-function renderDemoPaymentScreen() {
+/* =========================================
+   PAYMENT REVIEW
+========================================= */
+
+function renderPaymentReview() {
     const section = $("pay-section");
 
     if (!section || !selectedService) return;
@@ -494,218 +625,323 @@ function renderDemoPaymentScreen() {
     section.innerHTML = `
         <h3>Review Your Service</h3>
 
-        <div style="
-            background:#fff;
-            border:1px solid #dce7f8;
-            border-radius:9px;
-            padding:16px;
-            margin:14px 0;
-        ">
-            <p style="margin:0 0 8px;color:#627795;font-size:12px;">
+        <div class="eis-payment-box">
+            <div class="eis-payment-label">
                 SELECTED SERVICE
-            </p>
+            </div>
 
-            <h4 style="margin:0 0 12px;color:#1769d2;font-size:17px;">
+            <h4 style="margin:0 0 15px;">
                 ${escapeHTML(selectedService.name || "Service")}
             </h4>
 
-            <p style="margin:0;color:#627795;font-size:12px;">
-                DEMO AMOUNT
-            </p>
+            <div class="eis-payment-label">
+                SERVICE AMOUNT
+            </div>
 
-            <strong style="display:block;margin-top:5px;color:#1769d2;font-size:23px;">
+            <div class="eis-payment-price">
                 ${formatCurrency(selectedService.price)}
-            </strong>
+            </div>
         </div>
 
-        <div class="demo">
-            <strong>DEMO MODE:</strong>
-            This is a demonstration only. No money will be charged,
-            transferred or received. A demo reference ID is not proof of payment.
+        <div class="eis-payment-note">
+            You will be redirected to Paystack's secure checkout
+            to complete your payment. Your application form will
+            become available after the payment is verified.
         </div>
 
-        <button id="btn-pay" type="button"
+        <button
+            id="btn-pay"
+            type="button"
             class="btn btn-primary"
-            style="width:100%;min-height:45px;padding:12px;font-weight:700;">
-            Continue to Demo Payment
+        >
+            Continue to Secure Payment
         </button>
 
-        <div id="demo-payment-panel" style="display:none;margin-top:16px;">
-            <h3 style="font-size:17px;">Demo Payment Simulation</h3>
-
-            <p style="color:#627795;font-size:13px;line-height:1.7;">
-                Choose a test result below. These buttons do not connect
-                to a bank or payment provider.
-            </p>
-
-            <button id="demo-success" type="button"
-                style="width:100%;padding:13px;margin:5px 0;border:0;border-radius:7px;background:#18834a;color:white;font-weight:700;">
-                Simulate Successful Payment
-            </button>
-
-            <button id="demo-failure" type="button"
-                style="width:100%;padding:13px;margin:5px 0;border:0;border-radius:7px;background:#b83232;color:white;font-weight:700;">
-                Simulate Failed Payment
-            </button>
-        </div>
-
-        <div id="demo-result" aria-live="polite"></div>
+        <p id="pay-msg" class="msg" aria-live="polite"></p>
     `;
 
-    $("btn-pay")?.addEventListener("click", () => {
-        const panel = $("demo-payment-panel");
-
-        if (panel) {
-            panel.style.display = "block";
-        }
-
-        const button = $("btn-pay");
-
-        if (button) {
-            button.disabled = true;
-            button.textContent = "Demo Payment Options Opened";
-        }
-    });
-
-    $("demo-success")?.addEventListener("click", () => {
-        showDemoPaymentResult(
-            true,
-            generateDemoReference()
-        );
-    });
-
-    $("demo-failure")?.addEventListener("click", () => {
-        showDemoPaymentResult(
-            false,
-            generateDemoReference()
-        );
-    });
+    $("btn-pay")?.addEventListener("click", initializePayment);
 }
 
-function showDemoPaymentResult(success, reference) {
-    const result = $("demo-result");
-    const form = $("app-form");
+/* =========================================
+   INITIALIZE PAYSTACK PAYMENT
+========================================= */
 
-    if (!result) return;
+async function initializePayment() {
+    if (paymentBusy || !currentUser || !selectedService) {
+        return;
+    }
 
-    if (success) {
-        demoPaymentCompleted = true;
-        saveApplicationDraft();
+    const button = $("btn-pay");
 
-        result.innerHTML = `
-            <div style="
-                margin-top:16px;
-                padding:17px;
-                border:1px solid #b8e1c8;
-                border-radius:9px;
-                background:#effaf3;
-                color:#17683a;
-            ">
-                <h3 style="margin:0 0 10px;color:#17683a;">
-                    ✓ Demo Payment Successful
-                </h3>
+    paymentBusy = true;
 
-                <p style="font-size:13px;line-height:1.7;">
-                    This is a simulated result only. No actual payment was made or received.
-                </p>
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Connecting to Paystack...";
+    }
 
-                <p style="font-size:12px;margin-bottom:5px;">
-                    DEMO REFERENCE ID
-                </p>
+    try {
+        const {
+            data: { session },
+            error: sessionError
+        } = await supabase.auth.getSession();
 
-                <strong style="font-size:19px;letter-spacing:1px;">
-                    ${escapeHTML(reference)}
-                </strong>
+        if (sessionError) throw sessionError;
 
-                <p style="font-size:12px;margin-top:12px;">
-                    Service: ${escapeHTML(selectedService?.name || "Service")}
-                </p>
+        const accessToken = session?.access_token;
 
-                <p style="font-size:12px;">
-                    Demo amount: ${formatCurrency(selectedService?.price)}
-                </p>
+        if (!accessToken) {
+            throw new Error("Your session has expired. Please sign in again.");
+        }
 
-                <strong style="font-size:11px;">
-                    NOT A REAL PAYMENT RECEIPT
-                </strong>
-            </div>
+        const response = await fetch(PAYSTACK_INITIALIZE_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+                service_id: selectedService.id
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.error || "Unable to initialize payment."
+            );
+        }
+
+        if (
+            typeof result.authorization_url !== "string" ||
+            !result.authorization_url.startsWith("https://")
+        ) {
+            throw new Error("Invalid payment checkout address.");
+        }
+
+        window.location.assign(result.authorization_url);
+
+    } catch (error) {
+        console.error("Payment initialization error:", error);
+
+        showMessage(
+            error.message || "Unable to start payment. Please try again.",
+            "err"
+        );
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Try Payment Again";
+        }
+
+    } finally {
+        paymentBusy = false;
+    }
+}
+
+/* =========================================
+   VERIFY PAYSTACK PAYMENT
+========================================= */
+
+async function verifyPayment(reference) {
+    if (
+        typeof reference !== "string" ||
+        !/^EIS_[a-f0-9]{32}$/i.test(reference)
+    ) {
+        throw new Error("Invalid payment reference.");
+    }
+
+    const {
+        data: { session },
+        error: sessionError
+    } = await supabase.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const accessToken = session?.access_token;
+
+    if (!accessToken) {
+        throw new Error("Please sign in again to verify your payment.");
+    }
+
+    const response = await fetch(PAYSTACK_VERIFY_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+            reference
+        })
+    });
+
+    const result = await response.json();
+
+    if (
+        !response.ok ||
+        !result.success ||
+        result.verified !== true
+    ) {
+        throw new Error(
+            result.error || "Payment verification was unsuccessful."
+        );
+    }
+
+    if (
+        result.reference !== reference ||
+        typeof result.service_name !== "string"
+    ) {
+        throw new Error("Payment verification response is invalid.");
+    }
+
+    return result;
+}
+
+/* =========================================
+   RESTORE VERIFIED PAYMENT
+========================================= */
+
+async function restoreVerifiedPayment(reference) {
+    const section = $("pay-section");
+
+    if (section) {
+        section.style.display = "block";
+
+        section.innerHTML = `
+            <h3>Verifying Your Payment</h3>
+            <p id="pay-msg" class="msg info" style="display:block;">
+                Please wait while we confirm your transaction securely.
+            </p>
         `;
+    }
 
-        if (form) {
-            form.style.display = "block";
+    try {
+        const result = await verifyPayment(reference);
 
-            form.scrollIntoView({
+        currentPaymentReference = result.reference;
+
+        savePaymentReference(result.reference);
+
+        const matchingService = servicesCache.find(service =>
+            String(service.name).trim() ===
+            String(result.service_name).trim()
+        );
+
+        selectedService = matchingService || {
+            id: null,
+            name: result.service_name,
+            price: result.amount
+        };
+
+        if (section) {
+            section.innerHTML = `
+                <h3>Payment Verified</h3>
+
+                <div class="eis-payment-success">
+                    <strong>✓ Payment confirmed successfully.</strong>
+
+                    <p>
+                        Service:
+                        ${escapeHTML(result.service_name)}
+                    </p>
+
+                    <p>
+                        Amount:
+                        ${formatCurrency(result.amount)}
+                    </p>
+
+                    <p>
+                        Reference:
+                        ${escapeHTML(result.reference)}
+                    </p>
+
+                    <p>
+                        You can now complete your application form.
+                    </p>
+                </div>
+            `;
+
+            section.style.display = "block";
+        }
+
+        if ($("app-form")) {
+            $("app-form").style.display = "block";
+
+            $("app-form").scrollIntoView({
                 behavior: "smooth",
                 block: "start"
             });
         }
 
+        saveApplicationDraft();
+
         showMessage(
-            "Demo successful. You may now complete the application form. No money was transferred.",
+            "Payment verified. Please complete your application form.",
             "ok",
             "form-msg"
         );
 
-    } else {
-        demoPaymentCompleted = false;
-        clearApplicationDraft();
+        return true;
 
-        result.innerHTML = `
-            <div style="
-                margin-top:16px;
-                padding:17px;
-                border:1px solid #f0c5c5;
-                border-radius:9px;
-                background:#fff3f3;
-                color:#a52d2d;
-            ">
-                <h3 style="margin:0 0 10px;color:#a52d2d;">
-                    ✕ Demo Payment Failed
-                </h3>
+    } catch (error) {
+        console.error("Payment verification error:", error);
 
-                <p style="font-size:13px;line-height:1.7;">
-                    This is a simulated failure. No money was charged or transferred.
-                </p>
+        currentPaymentReference = null;
 
-                <p style="font-size:12px;margin-bottom:5px;">
-                    DEMO REFERENCE ID
-                </p>
-
-                <strong style="font-size:19px;letter-spacing:1px;">
-                    ${escapeHTML(reference)}
-                </strong>
-
-                <button id="demo-try-again" type="button"
-                    style="
-                        width:100%;
-                        padding:12px;
-                        margin-top:10px;
-                        border:0;
-                        border-radius:7px;
-                        background:#1769d2;
-                        color:white;
-                        font-weight:700;
-                    ">
-                    Try Again
-                </button>
-            </div>
-        `;
-
-        if (form) {
-            form.style.display = "none";
+        if ($("app-form")) {
+            $("app-form").style.display = "none";
         }
 
-        $("demo-try-again")?.addEventListener("click", () => {
-            renderDemoPaymentScreen();
-        });
+        showMessage(
+            error.message ||
+            "We could not confirm your payment. Please try again.",
+            "err",
+            "pay-msg"
+        );
+
+        return false;
     }
 }
 
-/*
- * SAFE APPLICATION DATA
- * Only basic contact details are collected.
- * Sensitive identity and financial information is not collected.
- */
+/* =========================================
+   HANDLE PAYSTACK CALLBACK
+========================================= */
+
+async function handlePaymentReturn() {
+    const url = new URL(window.location.href);
+
+    const urlReference =
+        url.searchParams.get("reference") ||
+        url.searchParams.get("trxref");
+
+    const savedReference = getSavedPaymentReference();
+
+    const reference = urlReference || savedReference;
+
+    if (!reference) return;
+
+    if (urlReference) {
+        savePaymentReference(urlReference);
+
+        url.searchParams.delete("reference");
+        url.searchParams.delete("trxref");
+
+        window.history.replaceState(
+            {},
+            document.title,
+            url.pathname + url.search + url.hash
+        );
+    }
+
+    await restoreVerifiedPayment(reference);
+}
+
+/* =========================================
+   APPLICATION FORM DATA
+========================================= */
+
 function getApplicationFormData() {
     return {
         first_name: $("f-firstName")?.value.trim() || "",
@@ -715,8 +951,13 @@ function getApplicationFormData() {
     };
 }
 
+/* =========================================
+   APPLICATION STATUS BADGE
+========================================= */
+
 function createStatusBadge(status) {
     const badge = document.createElement("span");
+
     const value = String(status || "In review").trim();
 
     badge.className =
@@ -726,6 +967,10 @@ function createStatusBadge(status) {
 
     return badge;
 }
+
+/* =========================================
+   LOAD APPLICATIONS
+========================================= */
 
 async function loadApplications() {
     const container = $("apps-list");
@@ -773,14 +1018,17 @@ async function loadApplications() {
                 String(application.id).slice(0, 8).toUpperCase();
 
             const service = document.createElement("td");
+
             service.textContent =
                 application.service_name || "Service";
 
             const submitted = document.createElement("td");
+
             submitted.textContent =
                 formatDate(application.created_at);
 
             const status = document.createElement("td");
+
             status.appendChild(
                 createStatusBadge(application.status)
             );
@@ -810,6 +1058,10 @@ async function loadApplications() {
         container.appendChild(row);
     }
 }
+
+/* =========================================
+   NOTIFICATIONS
+========================================= */
 
 async function loadNotifications() {
     if (!currentUser) return;
@@ -869,26 +1121,32 @@ function renderNotifications() {
         empty.textContent = "You have no notifications.";
 
         list.appendChild(empty);
+
         return;
     }
 
     notificationsCache.forEach(notification => {
         const item = document.createElement("div");
+
         item.className = "notification-item";
 
         const title = document.createElement("strong");
+
         title.textContent =
             notification.title || "Notification";
 
         const message = document.createElement("p");
+
         message.textContent =
             notification.message || "";
 
         const time = document.createElement("time");
+
         time.textContent =
             formatDateTime(notification.created_at);
 
         item.append(title, message, time);
+
         list.appendChild(item);
     });
 }
@@ -924,10 +1182,7 @@ async function markNotificationsAsRead() {
         renderNotifications();
 
     } catch (error) {
-        console.error(
-            "Mark notifications as read error:",
-            error
-        );
+        console.error("Mark notifications as read error:", error);
     }
 }
 
@@ -967,6 +1222,11 @@ function setupNotificationDropdown() {
     });
 }
 
+/* =========================================
+   SUBMIT APPLICATION
+   Uses secure Supabase RPC.
+========================================= */
+
 async function submitApplication(event) {
     event.preventDefault();
 
@@ -978,15 +1238,17 @@ async function submitApplication(event) {
             "err",
             "form-msg"
         );
+
         return;
     }
 
-    if (!demoPaymentCompleted) {
+    if (!currentPaymentReference) {
         showMessage(
-            "Please complete the demo step first.",
+            "A verified payment is required before submitting.",
             "err",
             "form-msg"
         );
+
         return;
     }
 
@@ -1002,6 +1264,7 @@ async function submitApplication(event) {
             "err",
             "form-msg"
         );
+
         return;
     }
 
@@ -1014,6 +1277,7 @@ async function submitApplication(event) {
             "err",
             "form-msg"
         );
+
         return;
     }
 
@@ -1030,6 +1294,7 @@ async function submitApplication(event) {
                 "err",
                 "form-msg"
             );
+
             return;
         }
     }
@@ -1044,19 +1309,35 @@ async function submitApplication(event) {
     }
 
     try {
-        const { error } = await supabase
-            .from("applications")
-            .insert([{
-                user_id: currentUser.id,
-                service_name: selectedService.name,
-                amount: Number(selectedService.price) || 0,
-                status: "In review",
-                form_data: formData
-            }]);
+        const { data, error } = await supabase.rpc(
+            "submit_paid_application",
+            {
+                p_reference: currentPaymentReference,
+                p_service_name: selectedService.name,
+                p_form_data: formData
+            }
+        );
 
         if (error) throw error;
 
+        if (!data) {
+            throw new Error(
+                "The application could not be confirmed."
+            );
+        }
+
         clearApplicationDraft();
+        clearPaymentReference();
+
+        currentPaymentReference = null;
+        selectedService = null;
+
+        form.reset();
+        form.style.display = "none";
+
+        if ($("pay-section")) {
+            $("pay-section").style.display = "none";
+        }
 
         showMessage(
             "Your application has been submitted successfully.",
@@ -1064,26 +1345,14 @@ async function submitApplication(event) {
             "form-msg"
         );
 
-        form.reset();
-        form.style.display = "none";
-
-        selectedService = null;
-        demoPaymentCompleted = false;
-
-        if ($("pay-section")) {
-            $("pay-section").style.display = "none";
-        }
-
         await loadApplications();
 
     } catch (error) {
-        console.error(
-            "Application submission error:",
-            error
-        );
+        console.error("Application submission error:", error);
 
         showMessage(
-            error.message || "Submission failed. Please try again.",
+            error.message ||
+            "Submission failed. Please try again.",
             "err",
             "form-msg"
         );
@@ -1095,6 +1364,10 @@ async function submitApplication(event) {
         }
     }
 }
+
+/* =========================================
+   LOGOUT
+========================================= */
 
 async function logoutUser() {
     try {
@@ -1112,6 +1385,11 @@ async function logoutUser() {
     }
 }
 
+/* =========================================
+   RESTORE APPLICATION DRAFT
+   Drafts NEVER grant payment access.
+========================================= */
+
 function restoreApplicationDraft() {
     const key = getDraftKey();
 
@@ -1124,7 +1402,7 @@ function restoreApplicationDraft() {
 
         const draft = JSON.parse(stored);
 
-        if (!draft || draft.version !== 6) {
+        if (!draft || draft.version !== 7) {
             clearApplicationDraft();
             return;
         }
@@ -1140,33 +1418,21 @@ function restoreApplicationDraft() {
 
         selectedService = service;
 
-        if (draft.form_open === true) {
-            renderDemoPaymentScreen();
-
-            demoPaymentCompleted = true;
-
-            showDemoPaymentResult(
-                true,
-                generateDemoReference()
-            );
-
-        } else {
-            renderDemoPaymentScreen();
-        }
+        renderPaymentReview();
 
     } catch (error) {
-        console.error(
-            "Draft restoration error:",
-            error
-        );
+        console.error("Draft restoration error:", error);
 
         clearApplicationDraft();
     }
 }
 
+/* =========================================
+   INITIALIZE DASHBOARD
+========================================= */
+
 async function initializeDashboard() {
-    const authenticated =
-        await checkUserSession();
+    const authenticated = await checkUserSession();
 
     if (!authenticated) return;
 
@@ -1201,7 +1467,14 @@ async function initializeDashboard() {
     ]);
 
     restoreApplicationDraft();
+
+    // Verify Paystack callback only after services and session load.
+    await handlePaymentReturn();
 }
+
+/* =========================================
+   AUTH STATE
+========================================= */
 
 supabase.auth.onAuthStateChange(event => {
     if (event === "SIGNED_OUT") {
@@ -1210,6 +1483,10 @@ supabase.auth.onAuthStateChange(event => {
 });
 
 initializeDashboard();
+
+/* =========================================
+   PUBLIC DASHBOARD METHODS
+========================================= */
 
 window.EISDashboard = {
     loadServices,
@@ -1222,5 +1499,5 @@ window.EISDashboard = {
     clearApplicationDraft,
     formatCurrency,
     formatDate,
-    generateDemoReference
+    verifyPayment
 };
