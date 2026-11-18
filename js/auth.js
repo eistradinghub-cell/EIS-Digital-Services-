@@ -3,7 +3,7 @@ import { supabase } from './supabase.js';
 /* =========================================
    EIS DIGITAL SERVICES
    AUTHENTICATION SYSTEM
-   EMAIL LINK VERIFICATION
+   6-DIGIT EMAIL OTP VERIFICATION
 ========================================= */
 
 const $ = (id) => document.getElementById(id);
@@ -179,7 +179,7 @@ function createVerificationScreen() {
             <h2>Check Your Inbox</h2>
 
             <p class="eis-verify-description">
-                We've sent an email verification link to:
+                We've sent a 6-digit verification code to:
             </p>
 
             <div
@@ -188,24 +188,48 @@ function createVerificationScreen() {
             </div>
 
             <p class="eis-verify-description">
-                Open your email and click the
-                <strong>Verify Email</strong> button
-                to activate your EIS account.
+                Enter the 6-digit code from your email below
+                to verify and activate your EIS account.
             </p>
+
+            <form id="form-email-otp" style="margin-top:20px;">
+                <label for="email-otp-input" style="display:block;text-align:left;color:#142d4e;font-size:13px;font-weight:700;margin-bottom:8px;">
+                    6-DIGIT VERIFICATION CODE
+                </label>
+                <input
+                    id="email-otp-input"
+                    name="token"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    maxlength="6"
+                    minlength="6"
+                    required
+                    aria-label="Six digit email verification code"
+                    placeholder="Enter 6-digit code"
+                    style="width:100%;height:54px;padding:12px 15px;border:1px solid #cbd5e1;border-radius:11px;text-align:center;letter-spacing:9px;font-size:23px;font-weight:800;color:#142d4e;">
+                <button
+                    type="submit"
+                    class="eis-verify-button"
+                    id="btn-verify-otp">
+                    Verify Email Address
+                </button>
+            </form>
 
             <a
                 href="https://mail.google.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="eis-verify-button eis-verify-gmail">
-                Open Gmail
+                Open Email Inbox
             </a>
 
             <button
                 type="button"
-                class="eis-verify-button"
+                class="eis-verify-button eis-verify-secondary"
                 id="btn-resend-verification">
-                Resend Verification Email
+                Resend 6-Digit Code
             </button>
 
             <p
@@ -778,6 +802,56 @@ $('form-signup')?.addEventListener('submit', async event => {
 });
 
 /* =========================================
+   VERIFY 6-DIGIT SIGNUP OTP
+========================================= */
+
+$('form-email-otp')?.addEventListener('submit', async event => {
+    event.preventDefault();
+
+    const button = $('btn-verify-otp');
+    const email = pendingVerificationEmail ||
+        sessionStorage.getItem('eis-pending-verification-email') || '';
+    const token = String($('email-otp-input')?.value || '').replace(/\\D/g, '');
+
+    clearMessages();
+
+    if (!email) {
+        showMessage('verify-error', 'Your pending email address was not found. Please sign up again.');
+        return;
+    }
+
+    if (!/^\\d{6}$/.test(token)) {
+        showMessage('verify-error', 'Enter the complete 6-digit code sent to your email.');
+        return;
+    }
+
+    setLoading(button, true, 'Verifying code...');
+
+    try {
+        const { data, error } = await supabase.auth.verifyOtp({
+            email,
+            token,
+            type: 'signup'
+        });
+
+        if (error) throw error;
+        if (!data.user || !data.session) {
+            throw new Error('Verification could not be completed. Please request a new code.');
+        }
+
+        sessionStorage.removeItem('eis-pending-verification-email');
+        pendingVerificationEmail = '';
+        goToDashboard();
+
+    } catch (error) {
+        console.error('Email OTP verification error:', error);
+        showMessage('verify-error', error.message || 'The code is invalid or has expired. Request a new code and try again.');
+    } finally {
+        setLoading(button, false, 'Verify Email Address');
+    }
+});
+
+/* =========================================
    RESEND VERIFICATION EMAIL
 ========================================= */
 
@@ -822,7 +896,7 @@ $('btn-resend-verification')?.addEventListener('click', async () => {
 
         showMessage(
             'verify-success',
-            'A new verification email has been sent. Please check your inbox and spam folder.',
+            'A new 6-digit verification code has been sent. Please check your inbox and spam folder.',
             'ok'
         );
 
