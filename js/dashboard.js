@@ -880,7 +880,7 @@ function activateApplicationMode() {
         const notice = document.createElement("div");
         notice.id = "eis-form-protection-notice";
         notice.className = "eis-form-protection-notice";
-        notice.innerHTML = '<span aria-hidden="true">🔒</span><span><strong>Payment confirmed</strong>Your payment has been received. Complete the form below to submit your application. Your progress is saved on this device while you work.</span>';
+        notice.innerHTML = '<span><strong>Payment confirmed</strong>Your payment has been received. Complete the form below to submit your application. Your progress is saved on this device while you work.</span>';
         const heading = form.querySelector("h2");
         if (heading) heading.insertAdjacentElement("afterend", notice);
         else form.prepend(notice);
