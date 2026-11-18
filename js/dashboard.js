@@ -14,6 +14,7 @@ let servicesCache = [];
 let notificationsCache = [];
 let currentPaymentReference = null;
 let paymentBusy = false;
+let applicationModeActive = false;
 
 const $ = id => document.getElementById(id);
 
@@ -86,9 +87,21 @@ function saveApplicationDraft() {
     if (!key || !selectedService) return;
 
     try {
+        const formData = getApplicationFormData();
+        const safeFormData = {};
+
+        Object.entries(formData).forEach(([field, value]) => {
+            if (!/(bvn|nin|otp|password|passcode|account|card|pin|secret|token)/i.test(field)) {
+                safeFormData[field] = value;
+            }
+        });
+
         localStorage.setItem(key, JSON.stringify({
-            version: 7,
-            service_id: selectedService.id
+            version: 8,
+            service_id: selectedService.id,
+            service_name: selectedService.name,
+            form_data: safeFormData,
+            updated_at: new Date().toISOString()
         }));
     } catch (error) {
         console.warn("Draft saving error:", error);
@@ -113,7 +126,9 @@ function savePaymentReference(reference) {
     if (!key || !reference) return;
 
     try {
-        sessionStorage.setItem(key, reference);
+        // A transaction reference is not an authentication credential.
+        // Persist it so an unfinished paid application can resume after reload.
+        localStorage.setItem(key, reference);
     } catch (error) {
         console.warn("Payment reference storage error:", error);
     }
@@ -125,7 +140,7 @@ function getSavedPaymentReference() {
     if (!key) return null;
 
     try {
-        return sessionStorage.getItem(key);
+        return localStorage.getItem(key);
     } catch {
         return null;
     }
@@ -137,7 +152,7 @@ function clearPaymentReference() {
     if (!key) return;
 
     try {
-        sessionStorage.removeItem(key);
+        localStorage.removeItem(key);
     } catch (error) {
         console.warn("Payment reference clearing error:", error);
     }
@@ -583,7 +598,8 @@ async function loadServices() {
 ========================================= */
 
 function selectService(service) {
-    if (!service || paymentBusy) return;
+    // Do not allow a paid, unfinished application to be replaced.
+    if (!service || paymentBusy || applicationModeActive || currentPaymentReference) return;
 
     if (
         selectedService &&
@@ -807,7 +823,107 @@ async function verifyPayment(reference) {
    RESTORE VERIFIED PAYMENT
 ========================================= */
 
-async function restoreVerifiedPayment(reference) {
+async function restoreApplicationFormData(formData = {}) {
+    const form = $("app-form");
+    if (!form || !formData || typeof formData !== "object") return;
+
+    const aliases = { firstName: "first_name", lastName: "last_name" };
+    const sensitive = /(bvn|nin|otp|password|passcode|account|card|pin|secret|token)/i;
+
+    Array.from(form.elements).forEach(field => {
+        if (!field.name || field.disabled) return;
+        if (sensitive.test(field.name) || sensitive.test(field.id || "")) return;
+
+        const savedValue = formData[field.name] ??
+            formData[aliases[field.name]] ??
+            formData[field.id];
+
+        if (savedValue === undefined || savedValue === null) return;
+
+        if (field.type === "checkbox") {
+            field.checked = Boolean(savedValue);
+        } else if (field.type === "radio") {
+            field.checked = String(field.value) === String(savedValue);
+        } else if (field.type !== "file" && field.type !== "password") {
+            field.value = String(savedValue);
+        }
+    });
+}
+
+function applyApplicationProtectionStyles() {
+    if ($("eis-application-protection-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "eis-application-protection-styles";
+    style.textContent = [
+        "body.eis-application-mode::before{content:'';position:fixed;inset:0;z-index:9998;background:rgba(13,29,48,.66);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}",
+        "body.eis-application-mode #app-form.eis-application-active{display:block!important;position:fixed!important;top:50%!important;left:50%!important;z-index:9999!important;width:min(760px,calc(100vw - 24px))!important;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;margin:0!important;overflow:auto!important;overscroll-behavior:contain;transform:translate(-50%,-50%)!important;border:1px solid #dce7e5!important;border-radius:16px!important;background:#fff!important;box-shadow:0 24px 80px rgba(0,0,0,.28)!important;padding:24px!important;-webkit-overflow-scrolling:touch}",
+        "#app-form .eis-form-protection-notice{display:flex;align-items:flex-start;gap:10px;margin:0 0 18px;padding:13px 14px;border:1px solid #cfe8df;border-radius:10px;background:#f0faf6;color:#245e50;font-size:13px;line-height:1.6}",
+        "#app-form .eis-form-protection-notice strong{display:block;margin-bottom:2px;color:#174f43}",
+        "@media(max-width:600px){body.eis-application-mode #app-form.eis-application-active{width:calc(100vw - 16px)!important;max-height:calc(100vh - 16px)!important;max-height:calc(100dvh - 16px)!important;padding:17px!important;border-radius:13px!important}}"
+    ].join("\n");
+    document.head.appendChild(style);
+}
+
+function activateApplicationMode() {
+    const form = $("app-form");
+    if (!form || applicationModeActive) return;
+
+    applyApplicationProtectionStyles();
+    applicationModeActive = true;
+    form.style.display = "block";
+    form.classList.add("eis-application-active");
+    form.setAttribute("role", "dialog");
+    form.setAttribute("aria-modal", "true");
+    form.setAttribute("aria-label", "Complete your paid service application");
+    document.body.classList.add("eis-application-mode");
+
+    if (!$("eis-form-protection-notice")) {
+        const notice = document.createElement("div");
+        notice.id = "eis-form-protection-notice";
+        notice.className = "eis-form-protection-notice";
+        notice.innerHTML = '<span aria-hidden="true">🔒</span><span><strong>Your payment is confirmed — your form is protected.</strong>Complete and submit this form to continue. Other dashboard controls are temporarily locked, and your non-sensitive entries are saved automatically.</span>';
+        const heading = form.querySelector("h2");
+        if (heading) heading.insertAdjacentElement("afterend", notice);
+        else form.prepend(notice);
+    }
+
+    window.history.pushState(
+        { ...(window.history.state || {}), eisApplicationForm: true },
+        "",
+        window.location.href
+    );
+}
+
+function deactivateApplicationMode() {
+    applicationModeActive = false;
+    document.body.classList.remove("eis-application-mode");
+
+    const form = $("app-form");
+    if (form) {
+        form.classList.remove("eis-application-active");
+        form.removeAttribute("role");
+        form.removeAttribute("aria-modal");
+        form.removeAttribute("aria-label");
+    }
+}
+
+window.addEventListener("beforeunload", event => {
+    if (!applicationModeActive) return;
+    event.preventDefault();
+    event.returnValue = "";
+});
+
+window.addEventListener("popstate", () => {
+    if (!applicationModeActive) return;
+    window.history.pushState(
+        { ...(window.history.state || {}), eisApplicationForm: true },
+        "",
+        window.location.href
+    );
+});
+
+function restoreVerifiedPayment(reference) {
     const section = $("pay-section");
 
     if (section) {
@@ -871,9 +987,27 @@ async function restoreVerifiedPayment(reference) {
         }
 
         if ($("app-form")) {
-            $("app-form").style.display = "block";
+            const form = $("app-form");
+            const heading = form.querySelector("h2");
 
-            $("app-form").scrollIntoView({
+            if (heading) {
+                heading.textContent = String(selectedService.name || "Service") + " — Application Form";
+            }
+
+            form.style.display = "block";
+
+            let savedFormData = {};
+            try {
+                const draft = JSON.parse(localStorage.getItem(getDraftKey()) || "{}");
+                savedFormData = draft.form_data || {};
+            } catch (error) {
+                console.warn("Saved form data could not be read:", error);
+            }
+
+            restoreApplicationFormData(savedFormData);
+            activateApplicationMode();
+
+            form.scrollIntoView({
                 behavior: "smooth",
                 block: "start"
             });
@@ -947,12 +1081,34 @@ async function handlePaymentReturn() {
 ========================================= */
 
 function getApplicationFormData() {
-    return {
+    const data = {
         first_name: $("f-firstName")?.value.trim() || "",
         last_name: $("f-lastName")?.value.trim() || "",
         email: $("f-email")?.value.trim() || "",
         phone: $("f-phone")?.value.trim() || ""
     };
+
+    const form = $("app-form");
+    if (!form) return data;
+
+    // Include any additional service-specific controls present in this form.
+    Array.from(form.elements).forEach(field => {
+        if (
+            !field.name ||
+            field.disabled ||
+            ["button", "submit", "reset", "file", "password"].includes(field.type)
+        ) return;
+
+        if (field.type === "checkbox") {
+            data[field.name] = Boolean(field.checked);
+        } else if (field.type === "radio") {
+            if (field.checked) data[field.name] = field.value;
+        } else if (!(field.name in data)) {
+            data[field.name] = String(field.value ?? "").trim();
+        }
+    });
+
+    return data;
 }
 
 /* =========================================
@@ -1336,6 +1492,7 @@ async function submitApplication(event) {
         currentPaymentReference = null;
         selectedService = null;
 
+        deactivateApplicationMode();
         form.reset();
         form.style.display = "none";
 
@@ -1374,6 +1531,15 @@ async function submitApplication(event) {
 ========================================= */
 
 async function logoutUser() {
+    if (applicationModeActive) {
+        showMessage(
+            "Please submit your paid application before leaving this page.",
+            "err",
+            "form-msg"
+        );
+        return;
+    }
+
     try {
         const { error } =
             await supabase.auth.signOut();
@@ -1406,7 +1572,7 @@ function restoreApplicationDraft() {
 
         const draft = JSON.parse(stored);
 
-        if (!draft || draft.version !== 7) {
+        if (!draft || ![7, 8].includes(draft.version)) {
             clearApplicationDraft();
             return;
         }
@@ -1421,6 +1587,7 @@ function restoreApplicationDraft() {
         }
 
         selectedService = service;
+        restoreApplicationFormData(draft.form_data || {});
 
         renderPaymentReview();
 
@@ -1449,6 +1616,10 @@ async function initializeDashboard() {
             "submit",
             submitApplication
         );
+
+        // Save form edits automatically, including additional service fields.
+        form.addEventListener("input", saveApplicationDraft);
+        form.addEventListener("change", saveApplicationDraft);
 
         form.style.display = "none";
     }
