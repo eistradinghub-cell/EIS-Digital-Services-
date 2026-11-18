@@ -164,6 +164,17 @@ return;
 }
 
 currentProfile = profile;
+
+const isSuperAdmin = String(profile.role || "").toLowerCase() === "super_admin";
+const siteSettingsLink = document.querySelector('[data-section="site-settings"]');
+const siteSettingsSection = $("section-site-settings");
+if (!isSuperAdmin) {
+  siteSettingsLink?.remove();
+  siteSettingsSection?.remove();
+} else {
+  await loadSuperAdminUsers();
+}
+
 updateAdminIdentity();
 updateDate();
 setupNavigation();
@@ -1336,6 +1347,10 @@ button.textContent = "Send Broadcast";
 }
 
 function openSection(sectionName) {
+if (sectionName === "site-settings" && String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
+  showNotice("Only the Super Admin can access Site Settings.", "error");
+  return;
+}
 const sections = document.querySelectorAll(
 ".admin-section"
 );
@@ -1489,7 +1504,64 @@ button.textContent = "↻ Refresh Data";
 }
 }
 
+async function loadSuperAdminUsers() {
+  const container = $("site-admins-list");
+  if (!container) return;
+  container.innerHTML = '<div class="admin-loading">Loading registered accounts...</div>';
+  try {
+    const { data, error } = await supabase.rpc("super_admin_list_users");
+    if (error) throw error;
+    const users = Array.isArray(data) ? data : [];
+    if (!users.length) {
+      container.innerHTML = '<div class="admin-empty">No registered accounts found.</div>';
+      return;
+    }
+    container.innerHTML = users.map(user => {
+      const role = String(user.role || "customer").toLowerCase();
+      const isProtected = role === "super_admin" || user.id === currentUser?.id;
+      const action = role === "admin" ? "Remove Admin" : "Make Admin";
+      const makeAdmin = role !== "admin";
+      return `<article class="admin-service-item" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div><strong>${escapeHTML(user.full_name || "User")}</strong><br>
+        <span>${escapeHTML(user.email || "No email")} · ${escapeHTML(role.replace("_"," "))}</span></div>
+        ${isProtected ? '<span class="admin-status-badge">Protected</span>' : `<button type="button" class="admin-small-button" data-set-admin-role="${escapeHTML(user.id)}" data-make-admin="${makeAdmin}">${action}</button>`}
+      </article>`;
+    }).join("");
+  } catch (error) {
+    console.error("Super Admin user list error:", error);
+    container.innerHTML = '<div class="admin-error">Unable to load accounts: ' + escapeHTML(error.message) + '</div>';
+  }
+}
+
+async function setManagedAdminRole(userId, makeAdmin, button) {
+  if (String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
+    showNotice("Only the Super Admin can manage administrator accounts.", "error");
+    return;
+  }
+  const action = makeAdmin ? "promote this user to Admin" : "remove this user's Admin access";
+  if (!window.confirm(`Are you sure you want to ${action}?`)) return;
+  if (button) { button.disabled = true; button.textContent = "Saving..."; }
+  try {
+    const { error } = await supabase.rpc("super_admin_set_admin_role", {
+      p_user_id: userId,
+      p_make_admin: makeAdmin
+    });
+    if (error) throw error;
+    showNotice(makeAdmin ? "User successfully promoted to Admin." : "Admin access removed.");
+    await loadSuperAdminUsers();
+  } catch (error) {
+    showNotice("Unable to change role: " + error.message, "error");
+    if (button) { button.disabled = false; button.textContent = makeAdmin ? "Make Admin" : "Remove Admin"; }
+  }
+}
+
 function setupEventListeners() {
+$("site-admins-list")?.addEventListener("click", event => {
+  const button = event.target.closest("[data-set-admin-role]");
+  if (!button) return;
+  setManagedAdminRole(button.dataset.setAdminRole, button.dataset.makeAdmin === "true", button);
+});
+
 $("nav-logout")?.addEventListener(
 "click",
 logoutAdmin
