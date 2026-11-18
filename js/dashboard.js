@@ -401,35 +401,6 @@ function getCustomerDisplayName(
     return "";
 }
 
-async function loadLatestApplicationFormData() {
-    if (!currentUser) return null;
-
-    try {
-        const { data, error } = await supabase
-            .from("applications")
-            .select("form_data")
-            .eq("user_id", currentUser.id)
-            .order("created_at", { ascending: false })
-            .limit(10);
-
-        if (error) throw error;
-
-        for (const application of data || []) {
-            const formData = normalizeCustomerFormData(
-                application?.form_data
-            );
-
-            if (getCustomerDisplayName(null, null, formData)) {
-                return formData;
-            }
-        }
-
-    } catch (error) {
-        console.warn("Previous customer name lookup failed:", error);
-    }
-
-    return null;
-}
 
 async function loadUserProfile() {
     applyDashboardWelcomeStyle();
@@ -471,17 +442,6 @@ async function loadUserProfile() {
         currentProfile,
         currentUser
     );
-
-    if (!displayName) {
-        const applicationFormData =
-            await loadLatestApplicationFormData();
-
-        displayName = getCustomerDisplayName(
-            currentProfile,
-            currentUser,
-            applicationFormData
-        );
-    }
 
     currentCustomerName = displayName;
 
