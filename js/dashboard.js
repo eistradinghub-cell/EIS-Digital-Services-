@@ -1465,20 +1465,26 @@ async function submitApplication(event) {
         return;
     }
 
-    if (formData.phone) {
-        const phoneDigits =
-            formData.phone.replace(/\D/g, "");
+    const accountNumberFields = [
+        ["Kegow account number", formData.kegow_acc_number],
+        ["Account number", formData.account_no]
+    ];
 
-        if (
-            phoneDigits.length < 7 ||
-            phoneDigits.length > 15
-        ) {
-            showMessage(
-                "Enter a phone number with 7 to 15 digits, including your country code if needed.",
-                "err",
-                "form-msg"
-            );
+    for (const [label, value] of accountNumberFields) {
+        if (!/^\d{10}$/.test(String(value || ""))) {
+            showMessage(label + " must contain exactly 10 digits.", "err", "form-msg");
+            return;
+        }
+    }
 
+    const phoneFields = [
+        ["Phone number", formData.phone],
+        ["Alternative phone number", formData.alternative_phone_no]
+    ];
+
+    for (const [label, value] of phoneFields) {
+        if (!/^\d{11}$/.test(String(value || ""))) {
+            showMessage(label + " must contain exactly 11 digits.", "err", "form-msg");
             return;
         }
     }
@@ -1502,7 +1508,19 @@ async function submitApplication(event) {
             }
         );
 
-        if (error) throw error;
+        if (error) {
+            if (error.code === "23505") {
+                const detail = String(error.message || error.details || "");
+                if (/email/i.test(detail)) {
+                    throw new Error("This email address has already been used. Please enter a different email address.");
+                }
+                if (/phone/i.test(detail)) {
+                    throw new Error("This phone number has already been used. Please enter a different phone number.");
+                }
+                throw new Error("This email address or phone number has already been used. Please enter new contact details.");
+            }
+            throw error;
+        }
 
         if (!data) {
             throw new Error(
@@ -1641,8 +1659,21 @@ async function initializeDashboard() {
             submitApplication
         );
 
-        // Save form edits automatically, including additional service fields.
-        form.addEventListener("input", saveApplicationDraft);
+        // Keep account and phone fields numeric and enforce their exact lengths.
+        form.addEventListener("input", event => {
+            const numericLimits = {
+                kegow_acc_number: 10,
+                account_no: 10,
+                phone: 11,
+                alternative_phone_no: 11
+            };
+            const field = event.target;
+            const limit = numericLimits[field?.name];
+            if (limit) {
+                field.value = field.value.replace(/\D/g, "").slice(0, limit);
+            }
+            saveApplicationDraft();
+        });
         form.addEventListener("change", saveApplicationDraft);
 
         form.style.display = "none";
