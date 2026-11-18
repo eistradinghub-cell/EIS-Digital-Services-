@@ -766,7 +766,7 @@ async function initializePayment() {
 async function verifyPayment(reference) {
     if (
         typeof reference !== "string" ||
-        !/^EIS_[a-f0-9]{32}$/i.test(reference)
+        !/^EIS[-_][a-f0-9]{32}$/i.test(reference)
     ) {
         throw new Error("Invalid payment reference.");
     }
