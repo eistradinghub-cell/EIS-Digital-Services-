@@ -515,7 +515,7 @@ function escapeHTML(value) {
 }
 
 function getServiceDescription() {
-    return "Review the service information and displayed price. Contact support if you need assistance.";
+    return "Select this service to review the fee and start your application.";
 }
 
 async function loadServices() {
@@ -542,7 +542,7 @@ async function loadServices() {
 
         if (!services.length) {
             container.textContent =
-                "No services are available at the moment.";
+                "There are no services available right now. Please check back later.";
 
             return;
         }
@@ -569,7 +569,7 @@ async function loadServices() {
             const button = document.createElement("button");
 
             button.type = "button";
-            button.textContent = "View Service";
+            button.textContent = "View service";
 
             button.addEventListener("click", () => {
                 selectService(service);
@@ -589,7 +589,7 @@ async function loadServices() {
         console.error("Services loading error:", error);
 
         container.textContent =
-            "Unable to load services. Please try again.";
+            "We could not load the services. Refresh the page to try again.";
     }
 }
 
@@ -643,11 +643,11 @@ function renderPaymentReview() {
     section.style.display = "block";
 
     section.innerHTML = `
-        <h3>Review Your Service</h3>
+        <h3>Payment summary</h3>
 
         <div class="eis-payment-box">
             <div class="eis-payment-label">
-                SELECTED SERVICE
+                SERVICE
             </div>
 
             <h4 style="margin:0 0 15px;">
@@ -655,7 +655,7 @@ function renderPaymentReview() {
             </h4>
 
             <div class="eis-payment-label">
-                SERVICE AMOUNT
+                AMOUNT DUE
             </div>
 
             <div class="eis-payment-price">
@@ -664,9 +664,7 @@ function renderPaymentReview() {
         </div>
 
         <div class="eis-payment-note">
-            You will be redirected to Paystack's secure checkout
-            to complete your payment. Your application form will
-            become available after the payment is verified.
+            You'll be taken to Paystack to complete your payment securely. Once your payment is confirmed, your application form will open here.
         </div>
 
         <button
@@ -674,7 +672,7 @@ function renderPaymentReview() {
             type="button"
             class="btn btn-primary"
         >
-            Continue to Secure Payment
+            Pay securely with Paystack
         </button>
 
         <p id="pay-msg" class="msg" aria-live="polite"></p>
@@ -698,7 +696,7 @@ async function initializePayment() {
 
     if (button) {
         button.disabled = true;
-        button.textContent = "Connecting to Paystack...";
+        button.textContent = "Opening secure checkout...";
     }
 
     try {
@@ -747,13 +745,13 @@ async function initializePayment() {
         console.error("Payment initialization error:", error);
 
         showMessage(
-            error.message || "Unable to start payment. Please try again.",
+            error.message || "We could not start the payment. Check your connection and try again.",
             "err"
         );
 
         if (button) {
             button.disabled = false;
-            button.textContent = "Try Payment Again";
+            button.textContent = "Try again";
         }
 
     } finally {
@@ -882,7 +880,7 @@ function activateApplicationMode() {
         const notice = document.createElement("div");
         notice.id = "eis-form-protection-notice";
         notice.className = "eis-form-protection-notice";
-        notice.innerHTML = '<span aria-hidden="true">🔒</span><span><strong>Your payment is confirmed — your form is protected.</strong>Complete and submit this form to continue. Other dashboard controls are temporarily locked, and your non-sensitive entries are saved automatically.</span>';
+        notice.innerHTML = '<span aria-hidden="true">🔒</span><span><strong>Payment confirmed</strong>Your payment has been received. Complete the form below to submit your application. Your progress is saved on this device while you work.</span>';
         const heading = form.querySelector("h2");
         if (heading) heading.insertAdjacentElement("afterend", notice);
         else form.prepend(notice);
@@ -930,9 +928,9 @@ async function restoreVerifiedPayment(reference) {
         section.style.display = "block";
 
         section.innerHTML = `
-            <h3>Verifying Your Payment</h3>
+            <h3>Confirming your payment</h3>
             <p id="pay-msg" class="msg info" style="display:block;">
-                Please wait while we confirm your transaction securely.
+                This usually takes a few moments. Please keep this page open while we check your payment.
             </p>
         `;
     }
@@ -957,28 +955,28 @@ async function restoreVerifiedPayment(reference) {
 
         if (section) {
             section.innerHTML = `
-                <h3>Payment Verified</h3>
+                <h3>Payment confirmed</h3>
 
                 <div class="eis-payment-success">
-                    <strong>✓ Payment confirmed successfully.</strong>
+                    <strong>Your payment has been confirmed.</strong>
 
                     <p>
-                        Service:
+                        Service
                         ${escapeHTML(result.service_name)}
                     </p>
 
                     <p>
-                        Amount:
+                        Amount paid
                         ${formatCurrency(result.amount)}
                     </p>
 
                     <p>
-                        Reference:
+                        Payment reference
                         ${escapeHTML(result.reference)}
                     </p>
 
                     <p>
-                        You can now complete your application form.
+                        Your application form is ready. Complete the details below to submit your request.
                     </p>
                 </div>
             `;
@@ -991,7 +989,7 @@ async function restoreVerifiedPayment(reference) {
             const heading = form.querySelector("h2");
 
             if (heading) {
-                heading.textContent = String(selectedService.name || "Service") + " — Application Form";
+                heading.textContent = String(selectedService.name || "Service") + " application";
             }
 
             form.style.display = "block";
@@ -1016,7 +1014,7 @@ async function restoreVerifiedPayment(reference) {
         saveApplicationDraft();
 
         showMessage(
-            "Payment verified. Please complete your application form.",
+            "Payment confirmed. Complete the form below to submit your application.",
             "ok",
             "form-msg"
         );
@@ -1034,7 +1032,7 @@ async function restoreVerifiedPayment(reference) {
 
         showMessage(
             error.message ||
-            "We could not confirm your payment. Please try again.",
+            "We have not been able to confirm this payment yet. Try again in a moment or contact support if you have already been charged.",
             "err",
             "pay-msg"
         );
@@ -1211,7 +1209,7 @@ async function loadApplications() {
         const cell = document.createElement("td");
 
         cell.colSpan = 5;
-        cell.textContent = "Unable to load applications.";
+        cell.textContent = "We could not load your applications. Refresh the page to try again.";
         cell.style.textAlign = "center";
 
         row.appendChild(cell);
@@ -1230,7 +1228,7 @@ async function loadNotifications() {
     const count = $("notification-count");
 
     if (list) {
-        list.textContent = "Loading notifications...";
+        list.textContent = "Checking for notifications...";
     }
 
     try {
@@ -1263,7 +1261,7 @@ async function loadNotifications() {
         console.error("Notifications loading error:", error);
 
         if (list) {
-            list.textContent = "Unable to load notifications.";
+            list.textContent = "Notifications are temporarily unavailable.";
         }
     }
 }
@@ -1278,7 +1276,7 @@ function renderNotifications() {
     if (!notificationsCache.length) {
         const empty = document.createElement("p");
 
-        empty.textContent = "You have no notifications.";
+        empty.textContent = "You’re all caught up. New notifications will appear here.";
 
         list.appendChild(empty);
 
@@ -1394,7 +1392,7 @@ async function submitApplication(event) {
 
     if (!currentUser || !selectedService) {
         showMessage(
-            "Please select a service first.",
+            "Choose a service before submitting your application.",
             "err",
             "form-msg"
         );
@@ -1404,7 +1402,7 @@ async function submitApplication(event) {
 
     if (!currentPaymentReference) {
         showMessage(
-            "A verified payment is required before submitting.",
+            "We need to confirm your payment before you can submit this application.",
             "err",
             "form-msg"
         );
@@ -1420,7 +1418,7 @@ async function submitApplication(event) {
         !formData.email
     ) {
         showMessage(
-            "Please enter your first name, last name and email address.",
+            "Enter your first name, last name and email address to continue.",
             "err",
             "form-msg"
         );
@@ -1433,7 +1431,7 @@ async function submitApplication(event) {
 
     if (!emailPattern.test(formData.email)) {
         showMessage(
-            "Please enter a valid email address.",
+            "Enter an email address in the correct format, for example name@example.com.",
             "err",
             "form-msg"
         );
@@ -1450,7 +1448,7 @@ async function submitApplication(event) {
             phoneDigits.length > 15
         ) {
             showMessage(
-                "Please enter a valid phone number.",
+                "Enter a phone number with 7 to 15 digits, including your country code if needed.",
                 "err",
                 "form-msg"
             );
@@ -1465,7 +1463,7 @@ async function submitApplication(event) {
 
     if (button) {
         button.disabled = true;
-        button.textContent = "Submitting...";
+        button.textContent = "Submitting application...";
     }
 
     try {
@@ -1482,7 +1480,7 @@ async function submitApplication(event) {
 
         if (!data) {
             throw new Error(
-                "The application could not be confirmed."
+                "We could not confirm that your application was submitted. Please try again."
             );
         }
 
@@ -1501,7 +1499,7 @@ async function submitApplication(event) {
         }
 
         showMessage(
-            "Your application has been submitted successfully.",
+            "Your application has been submitted. You can follow its progress under Your applications.",
             "ok",
             "form-msg"
         );
@@ -1513,7 +1511,7 @@ async function submitApplication(event) {
 
         showMessage(
             error.message ||
-            "Submission failed. Please try again.",
+            "We could not submit your application. Check your connection and try again.",
             "err",
             "form-msg"
         );
@@ -1533,7 +1531,7 @@ async function submitApplication(event) {
 async function logoutUser() {
     if (applicationModeActive) {
         showMessage(
-            "Please submit your paid application before leaving this page.",
+            "Complete and submit your paid application before leaving this page.",
             "err",
             "form-msg"
         );
