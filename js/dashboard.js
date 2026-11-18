@@ -10,6 +10,7 @@ let currentUser = null;
 let currentProfile = null;
 let currentCustomerName = "";
 let selectedService = null;
+let servicesCache = [];
 let notificationsCache = [];
 let currentPaymentReference = null;
 let paymentBusy = false;
@@ -518,6 +519,9 @@ async function loadServices() {
         if (error) throw error;
 
         const services = data || [];
+
+        // Keep the loaded services available for payment restoration.
+        servicesCache = services;
 
         container.replaceChildren();
 
