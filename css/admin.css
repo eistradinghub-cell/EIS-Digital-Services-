@@ -2905,3 +2905,117 @@
     border-color: var(--admin-blue);
     background: #eff5ff;
 }
+
+
+/* Payments management */
+.admin-page .admin-payment-toolbar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(150px, 210px) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #edf0f5;
+}
+.admin-page .admin-payment-toolbar .admin-form-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+}
+.admin-page .admin-payments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.admin-page .admin-payment-card {
+    padding: 16px 20px;
+    border-bottom: 1px solid #edf0f5;
+    background: #fff;
+}
+.admin-page .admin-payment-card:last-child {
+    border-bottom: 0;
+}
+.admin-page .admin-payment-main {
+    display: grid;
+    grid-template-columns: minmax(190px, 1.15fr) minmax(150px, 1fr) minmax(150px, 1fr) minmax(125px, .8fr);
+    gap: 16px;
+    align-items: center;
+}
+.admin-page .admin-payment-main > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+.admin-page .admin-payment-main strong {
+    color: #26364d;
+    font-size: 12px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+.admin-page .admin-payment-main span:not(.admin-status) {
+    color: #718096;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+.admin-page .admin-payment-total {
+    align-items: flex-start;
+}
+.admin-page .admin-payment-total > strong {
+    font-size: 14px;
+}
+.admin-page .admin-payment-total .admin-status {
+    width: fit-content;
+}
+.admin-page .admin-status.successful {
+    background: #e8f8ef;
+    color: #16804f;
+}
+.admin-page .admin-status.used {
+    background: #edf3ff;
+    color: #2864e8;
+}
+.admin-page .admin-status.failed {
+    background: #fff0f0;
+    color: #cf3939;
+}
+.admin-page .admin-payment-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid #edf0f5;
+    color: #64748b;
+    font-size: 12px;
+}
+.admin-page .admin-payment-pagination[hidden] {
+    display: none !important;
+}
+@media (max-width: 850px) {
+    .admin-page .admin-payment-main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 700px) {
+    .admin-page .admin-payment-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 13px;
+    }
+    .admin-page .admin-payment-card {
+        padding: 14px;
+    }
+    .admin-page .admin-payment-main {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+    .admin-page .admin-payment-total {
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .admin-page .admin-payment-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px;
+    }
+}
