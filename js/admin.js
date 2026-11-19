@@ -1111,30 +1111,43 @@ async function loadReports() {
 }
 
 
-async function loadCustomers() {
-const container = $("admin-customers-list");
-if (!container) return;
-const requestId = ++customerLoadSequence;
-setLoading("admin-customers-list", "Loading customer accounts...");
-
+function getCustomerDirectoryQuery() {
 const rawQuery = String($("customer-search")?.value || "").trim();
 const query = rawQuery.replace(/[^\p{L}\p{N}@.+\- ]/gu, "").trim().slice(0, 80);
-const from = (customersPage - 1) * CUSTOMERS_PAGE_SIZE;
-
-try {
+const sort = $("customer-sort")?.value || "newest";
 let request = supabase
 .from("profiles")
 .select("id,full_name,email,phone,created_at", { count: "exact" })
-.eq("role", "customer")
-.order("created_at", { ascending: false })
-.range(from, from + CUSTOMERS_PAGE_SIZE - 1);
+.eq("role", "customer");
 
 if (query) {
 const pattern = query.replace(/[%_]/g, "");
 request = request.or(`full_name.ilike.%${pattern}%,email.ilike.%${pattern}%,phone.ilike.%${pattern}%`);
 }
+const fromValue = $("customer-date-from")?.value || "";
+const toValue = $("customer-date-to")?.value || "";
+if (fromValue) request = request.gte("created_at", new Date(`${fromValue}T00:00:00`).toISOString());
+if (toValue) request = request.lte("created_at", new Date(`${toValue}T23:59:59.999`).toISOString());
 
-const { data, error, count } = await request;
+if (sort === "name") request = request.order("full_name", { ascending: true, nullsFirst: false });
+else request = request.order("created_at", { ascending: sort === "oldest" });
+return { request, query, fromValue, toValue };
+}
+
+async function loadCustomers() {
+const container = $("admin-customers-list");
+if (!container) return;
+const requestId = ++customerLoadSequence;
+setLoading("admin-customers-list", "Loading customer accounts...");
+const from = (customersPage - 1) * CUSTOMERS_PAGE_SIZE;
+
+try {
+const { request: baseRequest, query, fromValue, toValue } = getCustomerDirectoryQuery();
+if (fromValue && toValue && fromValue > toValue) {
+throw new Error("The registration start date must be before the end date.");
+}
+const { data, error, count } = await baseRequest
+.range(from, from + CUSTOMERS_PAGE_SIZE - 1);
 if (error) throw error;
 if (requestId !== customerLoadSequence) return;
 
@@ -1147,7 +1160,9 @@ return loadCustomers();
 customersCache = data || [];
 
 if (!customersCache.length) {
-showEmpty("admin-customers-list", query ? "No customer accounts match this search." : "No customer accounts have been registered yet.");
+showEmpty("admin-customers-list", query || fromValue || toValue
+? "No customer accounts match these filters."
+: "No customer accounts have been registered yet.");
 } else {
 $("admin-customers-list").innerHTML = customersCache.map(customer => {
 const name = String(customer.full_name || "").trim() || "Name not provided";
@@ -1184,7 +1199,8 @@ ${customer.phone ? `<button type="button" class="admin-secondary-button" data-co
 }
 
 if ($("customers-count")) {
-$("customers-count").textContent = query
+const hasFilters = Boolean(query || fromValue || toValue);
+$("customers-count").textContent = hasFilters
 ? `Showing ${customersTotal} matching customers`
 : `${customersTotal.toLocaleString()} Customers`;
 }
@@ -1200,11 +1216,60 @@ if ($("customers-next-page")) $("customers-next-page").disabled = customersPage 
 } catch (error) {
 if (requestId !== customerLoadSequence) return;
 console.error("Customers load error:", error);
-showError("admin-customers-list", "Customer accounts could not be loaded. Please refresh and try again.");
+showError("admin-customers-list", error.message || "Customer accounts could not be loaded. Please refresh and try again.");
 if ($("customers-pagination")) $("customers-pagination").hidden = true;
 }
 }
 
+async function exportCustomersCSV() {
+const button = $("export-customers-csv");
+if (button) { button.disabled = true; button.textContent = "Preparing..."; }
+try {
+const { request: baseRequest, fromValue, toValue } = getCustomerDirectoryQuery();
+if (fromValue && toValue && fromValue > toValue) throw new Error("The registration start date must be before the end date.");
+const allCustomers = [];
+const batchSize = 500;
+for (let offset = 0; ; offset += batchSize) {
+const { data, error } = await baseRequest.range(offset, offset + batchSize - 1);
+if (error) throw error;
+const batch = data || [];
+allCustomers.push(...batch);
+if (batch.length < batchSize) break;
+}
+if (!allCustomers.length) {
+showNotice("There are no customer accounts matching these filters.", "error");
+return;
+}
+const headers = ["Full name", "Email", "Phone", "Account created"];
+const quote = value => {
+const raw = String(value ?? "");
+const first = raw.trimStart().charAt(0);
+const safe = ["=", "+", "-", "@"].includes(first) ? "'" + raw : raw;
+return `"${safe.replace(/"/g, '""')}"`;
+};
+const csv = [headers, ...allCustomers.map(customer => [
+customer.full_name || "",
+customer.email || "",
+customer.phone || "",
+customer.created_at || ""
+])].map(row => row.map(quote).join(",")).join("\r\n");
+const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+const url = URL.createObjectURL(blob);
+const link = document.createElement("a");
+link.href = url;
+link.download = `eis-customers-${new Date().toISOString().slice(0, 10)}.csv`;
+document.body.appendChild(link);
+link.click();
+link.remove();
+setTimeout(() => URL.revokeObjectURL(url), 1000);
+showNotice(`Exported ${allCustomers.length} customer records.`);
+} catch (error) {
+console.error("Customer export error:", error);
+showNotice(error.message || "Unable to export customer records.", "error");
+} finally {
+if (button) { button.disabled = false; button.textContent = "Export CSV"; }
+}
+}
 async function loadCustomerActivity(customerId, panel, button) {
 if (!customerId || !panel || !button) return;
 button.disabled = true;
@@ -2379,6 +2444,10 @@ $("refresh-reports")?.addEventListener("click", loadReports);
 $("report-date-range")?.addEventListener("change", loadReports);
 $("refresh-customers")?.addEventListener("click", refreshCustomers);
 $("search-customers")?.addEventListener("click", () => { customersPage = 1; loadCustomers(); });
+$("export-customers-csv")?.addEventListener("click", exportCustomersCSV);
+["customer-sort", "customer-date-from", "customer-date-to"].forEach(id => {
+$(id)?.addEventListener("change", () => { customersPage = 1; loadCustomers(); });
+});
 $("customer-search")?.addEventListener("keydown", event => {
 if (event.key === "Enter") { event.preventDefault(); customersPage = 1; loadCustomers(); }
 });
