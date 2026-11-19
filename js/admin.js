@@ -125,9 +125,68 @@ return formData[key] ?? "";
 }
 
 function setupAdminPanelDisclosures() {
-  // Keep every admin panel expanded; no collapse controls are added.
-  document.querySelectorAll(".admin-content .admin-panel").forEach(panel => {
-    panel.classList.remove("is-expanded");
+  const panels = [...document.querySelectorAll(".admin-content .admin-panel")];
+
+  panels.forEach((panel, index) => {
+    const header = panel.querySelector(":scope > .admin-panel-header");
+    if (!header || panel.dataset.disclosureReady === "true") return;
+
+    const heading = header.querySelector("h2, h3, h4");
+    const label = heading?.textContent?.trim() || "Section";
+    const contentId = `admin-panel-details-${index + 1}`;
+    const content = document.createElement("div");
+    content.className = "admin-panel-content";
+    content.id = contentId;
+    content.hidden = true;
+
+    while (header.nextSibling) content.append(header.nextSibling);
+    panel.append(content);
+
+    const indicator = document.createElement("span");
+    indicator.className = "admin-panel-indicator";
+    indicator.setAttribute("aria-hidden", "true");
+    header.append(indicator);
+
+    header.classList.add("admin-panel-header-trigger");
+    header.setAttribute("role", "button");
+    header.setAttribute("tabindex", "0");
+    header.setAttribute("aria-controls", contentId);
+
+    const setExpanded = (expanded) => {
+      content.hidden = !expanded;
+      panel.classList.toggle("is-expanded", expanded);
+      header.setAttribute("aria-expanded", String(expanded));
+      header.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${label}`);
+    };
+
+    const toggle = () => {
+      const shouldExpand = header.getAttribute("aria-expanded") !== "true";
+      if (shouldExpand) {
+        panels.forEach(otherPanel => {
+          if (otherPanel === panel) return;
+          const otherHeader = otherPanel.querySelector(":scope > .admin-panel-header");
+          const otherContent = otherPanel.querySelector(":scope > .admin-panel-content");
+          if (otherHeader && otherContent) {
+            otherContent.hidden = true;
+            otherPanel.classList.remove("is-expanded");
+            otherHeader.setAttribute("aria-expanded", "false");
+            const otherLabel = otherHeader.querySelector("h2, h3, h4")?.textContent?.trim() || "Section";
+            otherHeader.setAttribute("aria-label", `Expand ${otherLabel}`);
+          }
+        });
+      }
+      setExpanded(shouldExpand);
+    };
+
+    header.addEventListener("click", toggle);
+    header.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggle();
+      }
+    });
+
+    setExpanded(false);
     panel.dataset.disclosureReady = "true";
   });
 }
