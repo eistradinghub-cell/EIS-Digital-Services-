@@ -1574,7 +1574,7 @@ if (button) { button.disabled = true; button.textContent = "Sending..."; }
 try {
 const { error } = await supabase.from("chat_messages").insert({ conversation_id: conversationId, sender_id: currentUser.id, sender_role: "admin", content, is_read: false });
 if (error) throw error;
-if (input) input.value = '';
+if (currentConversation?.id === conversationId && input?.value.trim() === content) input.value = '';
 if (currentConversation?.id === conversationId) await loadChatMessages(conversationId);
 await loadConversations();
 if (currentConversation?.id === conversationId) updateChatConversationHeader(currentConversation);
@@ -1599,8 +1599,8 @@ try {
 const { data, error } = await supabase.from("chat_conversations").update({ status: nextStatus }).eq("id", conversation.id).select("id,status").single();
 if (error) throw error;
 conversationsCache = conversationsCache.map(item => item.id === conversation.id ? { ...item, status: data.status } : item);
-currentConversation = conversationsCache.find(item => item.id === conversation.id) || { ...conversation, status: data.status };
-updateChatConversationHeader(currentConversation);
+const updatedConversation = conversationsCache.find(item => item.id === conversation.id) || { ...conversation, status: data.status };
+if (currentConversation?.id === conversation.id) { currentConversation = updatedConversation; updateChatConversationHeader(currentConversation); }
 updateConversationSummary();
 renderConversations();
 showNotice(nextStatus === "Closed" ? "Conversation closed." : "Conversation reopened.");
