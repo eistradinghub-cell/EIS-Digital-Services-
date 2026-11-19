@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#075bff">
-    <meta name="description" content="EIS Digital Services Administration Dashboard">
-    <title>Admin Dashboard | EIS Digital Services</title>
+    <meta name="theme-color" content="#173b4b">
+    <meta name="description" content="Manage EIS Digital Services applications, products and customer messages.">
+    <title>Administration | EIS Digital Services</title>
     <link rel="stylesheet" href="css/styles.css?v=28">
     <link rel="stylesheet" href="css/admin.css?v=30">
     <link rel="stylesheet" href="css/shared-navigation.css?v=2">
@@ -523,14 +523,14 @@
         </svg>
 
         <div class="admin-brand-text">
-            <h2>EISAdmin</h2>
+            <h2>EIS Digital Services</h2>
         </div>
 
         <button type="button" class="admin-sidebar-close" id="close-sidebar" aria-label="Close sidebar">&times;</button>
     </div>
 
     <div class="admin-sidebar-content">
-        <div class="sidebar-section-title">MAIN MENU</div>
+        <div class="sidebar-section-title">WORKSPACE</div>
 
         <nav class="admin-sidebar-nav">
             <button type="button" class="sidebar-link active" data-section="overview">
@@ -538,7 +538,7 @@
             </button>
 
             <button type="button" class="sidebar-link" data-section="marketplace">
-                <span class="sidebar-icon">▣</span><span>Post to Marketplace</span>
+                <span class="sidebar-icon">▣</span><span>Products</span>
             </button>
 
             <button type="button" class="sidebar-link" data-section="applications">
@@ -549,24 +549,24 @@
 
             <button type="button" class="sidebar-link" data-section="customer-care">
                 <span class="sidebar-icon">☏</span>
-                <span>Customer Care</span>
+                <span>Customer messages</span>
                 <span class="sidebar-badge" id="chat-badge">0</span>
             </button>
 
             <button type="button" class="sidebar-link" data-section="prices">
-                <span class="sidebar-icon">₦</span><span>Prices Management</span>
+                <span class="sidebar-icon">₦</span><span>Service prices</span>
             </button>
         </nav>
 
-        <div class="sidebar-section-title">COMMUNICATION</div>
+        <div class="sidebar-section-title">OTHER</div>
 
         <nav class="admin-sidebar-nav">
             <button type="button" class="sidebar-link" data-section="broadcast">
-                <span class="sidebar-icon">✉</span><span>Broadcast Message</span>
+                <span class="sidebar-icon">✉</span><span>Send an update</span>
             </button>
 
             <button type="button" class="sidebar-link" data-section="site-settings">
-                <span class="sidebar-icon">⚙</span><span>Site Settings</span>
+                <span class="sidebar-icon">⚙</span><span>Website settings</span>
             </button>
         </nav>
     </div>
@@ -616,9 +616,9 @@
 
     <div class="admin-page-heading">
         <div>
-            <span class="admin-eyebrow">ADMINISTRATION</span>
-            <h1>Dashboard Overview</h1>
-            <p>Welcome back. Here's what's happening with EIS Digital Services.</p>
+            
+            <h1>Overview</h1>
+            <p>A quick look at recent activity and the work that needs attention.</p>
         </div>
 
         <div class="admin-heading-actions">
@@ -630,18 +630,18 @@
     <div class="admin-stats-grid">
         <article class="admin-stat-card">
             <div class="stat-card-top">
-                <span>Total Applications</span><div class="stat-icon blue">▤</div>
+                <span>Applications received</span><div class="stat-icon blue">▤</div>
             </div>
             <h2 id="stat-total">0</h2>
-            <p>All submitted applications</p>
+            <p>All customer submissions</p>
         </article>
 
         <article class="admin-stat-card">
             <div class="stat-card-top">
-                <span>In Review</span><div class="stat-icon orange">◷</div>
+                <span>Awaiting review</span><div class="stat-icon orange">◷</div>
             </div>
             <h2 id="stat-review">0</h2>
-            <p>Applications being processed</p>
+            <p>Currently being handled</p>
         </article>
 
         <article class="admin-stat-card">
@@ -649,22 +649,22 @@
                 <span>Completed</span><div class="stat-icon green">✓</div>
             </div>
             <h2 id="stat-completed">0</h2>
-            <p>Successfully completed</p>
+            <p>Finished applications</p>
         </article>
 
         <article class="admin-stat-card">
             <div class="stat-card-top">
-                <span>Marketplace Products</span><div class="stat-icon purple">▣</div>
+                <span>Products listed</span><div class="stat-icon purple">▣</div>
             </div>
             <h2 id="stat-products">0</h2>
-            <p>Available products</p>
+            <p>Live on the marketplace</p>
         </article>
     </div>
 
     <div class="admin-overview-grid">
         <div class="admin-panel">
             <div class="admin-panel-header">
-                <div><h3>Marketplace Services</h3><p>Services currently available</p></div>
+                <div><h3>Services on the website</h3><p>Services customers can request</p></div>
                 <button type="button" class="admin-text-button" data-open-section="prices">Manage →</button>
             </div>
             <div class="admin-services-list" id="admin-services-list">
@@ -678,15 +678,15 @@
 
     <div class="admin-page-heading">
         <div>
-            <span class="admin-eyebrow">EIS MARKETPLACE</span>
-            <h1>Post a Product</h1>
-            <p>Add products for customers to view on the Marketplace page.</p>
+            
+            <h1>Products</h1>
+            <p>Add a product or update one that is already listed.</p>
         </div>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
-            <div><h3 id="marketplace-form-heading">Product Information</h3><p>Fill in the product details and publish it.</p></div>
+            <div><h3 id="marketplace-form-heading">Product details</h3><p>Enter the details customers will see.</p></div>
         </div>
 
         <form id="marketplace-product-form" enctype="multipart/form-data">
@@ -727,7 +727,7 @@
 
     <div class="admin-panel" style="margin-top:25px;">
         <div class="admin-panel-header">
-            <div><h3>Marketplace Products</h3><p>View, edit or delete products you have posted.</p></div>
+            <div><h3>Listed products</h3><p>Edit a listing or take it off the marketplace.</p></div>
             <button type="button" class="admin-primary-button" id="marketplace-refresh">↻ Refresh</button>
         </div>
 
@@ -740,16 +740,16 @@
 <section class="admin-section" id="section-applications">
     <div class="admin-page-heading">
         <div>
-            <span class="admin-eyebrow">CUSTOMER RECORDS</span>
-            <h1>Applications Management</h1>
-            <p>Review applications and update their status.</p>
+            
+            <h1>Applications</h1>
+            <p>Check submitted details and keep each application up to date.</p>
         </div>
         <button type="button" class="admin-primary-button" id="refresh-applications">↻ Refresh Applications</button>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
-            <div><h3>All Applications</h3><p>Customer application records</p></div>
+            <div><h3>Customer applications</h3><p>Newest submissions appear first.</p></div>
             <span class="admin-result-count" id="applications-count">0 Applications</span>
         </div>
         <div class="admin-application-search" style="display:flex;gap:10px;align-items:center;padding:16px 20px;flex-wrap:wrap;">
@@ -765,9 +765,9 @@
 <section class="admin-section" id="section-customer-care">
     <div class="admin-page-heading">
         <div>
-            <span class="admin-eyebrow">SUPPORT CENTER</span>
-            <h1>Customer Care</h1>
-            <p>Manage customer conversations and respond to support messages.</p>
+            
+            <h1>Customer messages</h1>
+            <p>Read messages from customers and reply to them here.</p>
         </div>
         <button type="button" class="admin-primary-button" id="refresh-conversations">↻ Refresh Chats</button>
     </div>
@@ -775,7 +775,7 @@
     <div class="admin-chat-layout">
         <div class="admin-panel admin-chat-list-panel">
             <div class="admin-panel-header">
-                <div><h3>Conversations</h3><p>Customer support inbox</p></div>
+                <div><h3>Inbox</h3><p>Recent customer conversations</p></div>
             </div>
             <div id="admin-conversations-list" class="admin-conversations-list">
                 <div class="admin-loading">Loading conversations...</div>
@@ -785,8 +785,8 @@
         <div class="admin-panel admin-chat-window">
             <div class="admin-chat-empty" id="admin-chat-empty">
                 <div class="chat-empty-icon">☏</div>
-                <h3>Select a Conversation</h3>
-                <p>Select a customer conversation to view and respond to messages.</p>
+                <h3>Choose a message</h3>
+                <p>Choose a conversation from the inbox to read and reply.</p>
             </div>
 
             <div class="admin-chat-active" id="admin-chat-active" hidden>
@@ -813,16 +813,16 @@
 <section class="admin-section" id="section-prices">
     <div class="admin-page-heading">
         <div>
-            <span class="admin-eyebrow">SERVICE MANAGEMENT</span>
-            <h1>Prices Management</h1>
-            <p>Add services, update prices and manage your service catalogue.</p>
+            
+            <h1>Service prices</h1>
+            <p>Add a service, change its price or remove an old listing.</p>
         </div>
         <button type="button" class="admin-primary-button" id="refresh-services">↻ Refresh Services</button>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
-            <div><h3>Add New Service</h3><p>Create a new service in your catalogue.</p></div>
+            <div><h3>Add a service</h3><p>Enter the service name and current price.</p></div>
         </div>
 
         <form id="add-service-form" class="admin-form">
@@ -842,7 +842,7 @@
 
     <div class="admin-panel">
         <div class="admin-panel-header">
-            <div><h3>Existing Services</h3><p>Update or remove existing services.</p></div>
+            <div><h3>Current services</h3><p>Review and update the services customers can choose.</p></div>
         </div>
         <div class="admin-services-list" id="prices-services-list">
             <div class="admin-loading">Loading services...</div>
@@ -853,15 +853,15 @@
 <section class="admin-section" id="section-broadcast">
     <div class="admin-page-heading">
         <div>
-            <span class="admin-eyebrow">COMMUNICATION</span>
-            <h1>Broadcast Message</h1>
-            <p>Send notifications to customers.</p>
+            
+            <h1>Send an update</h1>
+            <p>Send an announcement to customers with registered accounts.</p>
         </div>
     </div>
 
     <div class="admin-panel admin-broadcast-panel">
         <div class="admin-panel-header">
-            <div><h3>Create Notification</h3><p>Send a message to all registered customers.</p></div>
+            <div><h3>New announcement</h3><p>Write the message you want customers to receive.</p></div>
         </div>
 
         <form id="broadcast-form" class="admin-form admin-broadcast-form">
@@ -876,7 +876,7 @@
             </div>
 
             <div class="admin-broadcast-note">
-                This notification will be sent to all customers with registered profiles.
+                This announcement will go to all customers with registered profiles.
             </div>
 
             <button type="submit" class="admin-primary-button" id="broadcast-send">Send Broadcast</button>
@@ -888,17 +888,17 @@
 <section class="admin-section" id="section-site-settings">
     <div class="admin-page-heading">
         <div>
-            <span class="admin-eyebrow">CONFIGURATION</span>
-            <h1>Site Settings</h1>
-            <p>Manage your website appearance, homepage images and administrator profile.</p>
+            
+            <h1>Website settings</h1>
+            <p>Update the website images, logo and administrator details.</p>
         </div>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Website Logo</h3>
-                <p>Upload and change the logo displayed across the website.</p>
+                <h3>Website logo</h3>
+                <p>Choose the logo shown across the website.</p>
             </div>
         </div>
 
@@ -920,8 +920,8 @@
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Homepage Images</h3>
-                <p>Change the images used on the homepage.</p>
+                <h3>Homepage images</h3>
+                <p>Replace the images displayed on the home page.</p>
             </div>
         </div>
 
@@ -957,7 +957,7 @@
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Admin Profile</h3>
+                <h3>Administrator profile</h3>
                 <p>Set the administrator name and profile picture shown to customers in Customer Care.</p>
             </div>
         </div>
@@ -983,7 +983,7 @@
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Manage Administrators</h3>
+                <h3>Administrator access</h3>
                 <p>Only the Super Admin can promote registered customer accounts to Admin or remove Admin access.</p>
             </div>
         </div>
@@ -1015,8 +1015,8 @@
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Current Administrator Account</h3>
-                <p>Signed-in administrator information.</p>
+                <h3>Your account</h3>
+                <p>Account details for the signed-in administrator.</p>
             </div>
         </div>
 
@@ -1048,12 +1048,10 @@
 
 <footer class="admin-footer">
     <p>© <span id="admin-year"></span> EIS Digital Services. All rights reserved.</p>
-    <span>Administration Dashboard</span>
+    <span>Admin</span>
 </footer>
 
 </div>
-
-<script defer src="js/admin-panels.js?v=1"></script>
 
 <!-- Main administration functionality -->
 <script type="module" src="js/admin.js?v=8"></script>
