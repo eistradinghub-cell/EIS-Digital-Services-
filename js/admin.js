@@ -13,6 +13,7 @@ let paymentsPage = 1;
 let paymentsTotal = 0;
 let paymentLoadSequence = 0;
 const PAYMENTS_PAGE_SIZE = 10;
+let reportsLoadSequence = 0;
 let servicesCache = [];
 let conversationsCache = [];
 let currentConversation = null;
@@ -858,6 +859,189 @@ if (statusSelect?.isConnected) statusSelect.disabled = false;
 }
 }
 
+
+const REPORT_PAGE_SIZE = 1000;
+const REPORT_PAID_STATUSES = new Set(["successful", "used"]);
+
+function getReportStartDate(days) {
+  const start = new Date();
+  start.setDate(start.getDate() - Number(days));
+  return start;
+}
+
+async function fetchReportRows(table, fields, startISO, requestId) {
+  const rows = [];
+  let offset = 0;
+  while (true) {
+    let query = supabase
+      .from(table)
+      .select(fields)
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(offset, offset + REPORT_PAGE_SIZE - 1);
+    if (startISO) query = query.gte("created_at", startISO);
+    const { data, error } = await query;
+    if (error) throw error;
+    if (requestId !== reportsLoadSequence) return null;
+    const batch = data || [];
+    rows.push(...batch);
+    if (batch.length < REPORT_PAGE_SIZE) break;
+    offset += REPORT_PAGE_SIZE;
+  }
+  return rows;
+}
+
+function formatReportDay(date) {
+  return date.toLocaleDateString("en-NG", { day: "numeric", month: "short" });
+}
+
+function renderReportStatus(applications) {
+  const container = $("report-application-status");
+  if (!container) return;
+  const counts = new Map();
+  applications.forEach(item => {
+    const key = normalizeStatus(item.status || "in_review");
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  const labels = {
+    in_review: "In review",
+    in_progress: "In progress",
+    completed: "Completed",
+    rejected: "Rejected"
+  };
+  const total = applications.length;
+  if (!total) {
+    showEmpty("report-application-status", "No applications were received during this period.");
+    return;
+  }
+  container.innerHTML = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([status, count]) => {
+      const percent = Math.round((count / total) * 100);
+      return `
+        <div class="admin-report-status-row">
+          <div><strong>${escapeHTML(labels[status] || status.replace(/_/g, " "))}</strong><span>${count.toLocaleString()} · ${percent}%</span></div>
+          <div class="admin-report-track"><span style="width:${percent}%"></span></div>
+        </div>`;
+    }).join("");
+}
+
+function renderReportServices(payments, applications) {
+  const container = $("report-service-performance");
+  if (!container) return;
+  const services = new Map();
+  payments.filter(payment => REPORT_PAID_STATUSES.has(normalizeStatus(payment.status))).forEach(payment => {
+    const name = String(payment.service_name || "Unspecified service").trim() || "Unspecified service";
+    const entry = services.get(name) || { name, revenue: 0, paidCount: 0, applications: 0 };
+    entry.revenue += Number(payment.amount) || 0;
+    entry.paidCount += 1;
+    services.set(name, entry);
+  });
+  applications.forEach(application => {
+    const name = String(application.service_name || "Unspecified service").trim() || "Unspecified service";
+    const entry = services.get(name) || { name, revenue: 0, paidCount: 0, applications: 0 };
+    entry.applications += 1;
+    services.set(name, entry);
+  });
+  const rows = [...services.values()].sort((a, b) => b.revenue - a.revenue || b.applications - a.applications).slice(0, 8);
+  if (!rows.length) {
+    showEmpty("report-service-performance", "No service activity was recorded during this period.");
+    return;
+  }
+  const maxRevenue = Math.max(...rows.map(row => row.revenue), 1);
+  container.innerHTML = rows.map(row => {
+    const width = Math.max(2, Math.round((row.revenue / maxRevenue) * 100));
+    return `
+      <div class="admin-report-service-row">
+        <div class="admin-report-service-top">
+          <strong>${escapeHTML(row.name)}</strong>
+          <b>${escapeHTML(formatCurrency(row.revenue))}</b>
+        </div>
+        <div class="admin-report-track"><span style="width:${width}%"></span></div>
+        <small>${row.paidCount.toLocaleString()} paid · ${row.applications.toLocaleString()} applications</small>
+      </div>`;
+  }).join("");
+}
+
+function renderReportRevenueChart(payments, days, startDate) {
+  const container = $("report-revenue-chart");
+  if (!container) return;
+  const buckets = new Map();
+  const today = new Date();
+  const firstDay = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const totalDays = Math.max(1, Math.ceil((new Date(today.getFullYear(), today.getMonth(), today.getDate()) - firstDay) / 86400000) + 1);
+  for (let i = 0; i < totalDays; i += 1) {
+    const date = new Date(firstDay);
+    date.setDate(firstDay.getDate() + i);
+    const key = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    buckets.set(key, { date, revenue: 0 });
+  }
+  payments.filter(payment => REPORT_PAID_STATUSES.has(normalizeStatus(payment.status))).forEach(payment => {
+    const date = new Date(payment.created_at);
+    if (Number.isNaN(date.getTime())) return;
+    const key = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    if (buckets.has(key)) buckets.get(key).revenue += Number(payment.amount) || 0;
+  });
+  const rows = [...buckets.values()];
+  const maxRevenue = Math.max(...rows.map(row => row.revenue), 1);
+  if (!payments.some(payment => REPORT_PAID_STATUSES.has(normalizeStatus(payment.status)))) {
+    container.innerHTML = '<div class="admin-report-empty">No verified revenue was recorded during this period.</div>';
+    return;
+  }
+  container.innerHTML = rows.map(row => {
+    const height = row.revenue > 0 ? Math.max(5, Math.round((row.revenue / maxRevenue) * 100)) : 2;
+    return `
+      <div class="admin-report-bar-item" title="${escapeHTML(formatReportDay(row.date))}: ${escapeHTML(formatCurrency(row.revenue))}">
+        <div class="admin-report-bar-value">${row.revenue ? escapeHTML(formatCurrency(row.revenue)) : ""}</div>
+        <div class="admin-report-bar-track"><span style="height:${height}%"></span></div>
+        <small>${escapeHTML(formatReportDay(row.date))}</small>
+      </div>`;
+  }).join("");
+}
+
+async function loadReports() {
+  const section = $("section-reports");
+  if (!section) return;
+  const requestId = ++reportsLoadSequence;
+  const days = Number($("report-date-range")?.value || 30);
+  const safeDays = [7, 30, 90].includes(days) ? days : 30;
+  const startDate = getReportStartDate(safeDays);
+  const startISO = startDate.toISOString();
+  const refreshButton = $("refresh-reports");
+  if (refreshButton) { refreshButton.disabled = true; refreshButton.textContent = "Loading..."; }
+  ["report-revenue-chart", "report-service-performance", "report-application-status"].forEach(id => setLoading(id, "Preparing report..."));
+  ["report-revenue", "report-paid-count", "report-application-count", "report-customer-count"].forEach(id => { if ($(id)) $(id).textContent = "—"; });
+  try {
+    const [payments, applications, customerResult] = await Promise.all([
+      fetchReportRows("payments", "id,service_name,amount,status,created_at", startISO, requestId),
+      fetchReportRows("applications", "id,service_name,status,created_at", startISO, requestId),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer").gte("created_at", startISO)
+    ]);
+    if (requestId !== reportsLoadSequence) return;
+    if (customerResult.error) throw customerResult.error;
+    const reportPayments = payments || [];
+    const reportApplications = applications || [];
+    const paidPayments = reportPayments.filter(payment => REPORT_PAID_STATUSES.has(normalizeStatus(payment.status)));
+    const revenue = paidPayments.reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0);
+    $("report-revenue").textContent = formatCurrency(revenue);
+    $("report-paid-count").textContent = paidPayments.length.toLocaleString();
+    $("report-application-count").textContent = reportApplications.length.toLocaleString();
+    $("report-customer-count").textContent = Number(customerResult.count || 0).toLocaleString();
+    renderReportRevenueChart(reportPayments, safeDays, startDate);
+    renderReportServices(reportPayments, reportApplications);
+    renderReportStatus(reportApplications);
+    if ($("report-range-description")) $("report-range-description").textContent = `Last ${safeDays} days`;
+  } catch (error) {
+    if (requestId !== reportsLoadSequence) return;
+    console.error("Reports load error:", error);
+    ["report-revenue-chart", "report-service-performance", "report-application-status"].forEach(id => showError(id, "Report data could not be loaded. Please refresh and try again."));
+    showNotice("Reports could not be loaded. Check administrator access and try again.", "error");
+  } finally {
+    if (requestId === reportsLoadSequence && refreshButton) { refreshButton.disabled = false; refreshButton.textContent = "↻ Refresh Reports"; }
+  }
+}
+
+
 async function loadCustomers() {
 const container = $("admin-customers-list");
 if (!container) return;
@@ -1698,6 +1882,7 @@ target.classList.add("active");
 
 if (sectionName === "applications") markApplicationsAsSeen();
 if (sectionName === "payments") loadPayments();
+if (sectionName === "reports") loadReports();
 if (sectionName === "customers") loadCustomers();
 
 document.querySelectorAll(".sidebar-link").forEach(link => {
@@ -1712,6 +1897,7 @@ overview: "Overview",
 marketplace: "Marketplace",
 applications: "Applications",
 payments: "Payments",
+reports: "Reports & Analytics",
 customers: "Customers",
 "customer-care": "Customer Care",
 prices: "Prices Management",
@@ -1907,6 +2093,8 @@ $("refresh-applications")?.addEventListener(
 refreshApplications
 );
 $("refresh-payments")?.addEventListener("click", refreshPayments);
+$("refresh-reports")?.addEventListener("click", loadReports);
+$("report-date-range")?.addEventListener("change", loadReports);
 $("refresh-customers")?.addEventListener("click", refreshCustomers);
 $("search-customers")?.addEventListener("click", () => { customersPage = 1; loadCustomers(); });
 $("customer-search")?.addEventListener("keydown", event => {
