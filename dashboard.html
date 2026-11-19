@@ -1146,16 +1146,15 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                             <small id="profile-email-note">This is the email address linked to your account. It cannot be changed.</small>
                         </div>
                         <div class="profile-settings-field">
-                            <label for="profile-full-name">Full name</label>
-                            <input id="profile-full-name" name="full_name" type="text" maxlength="120" autocomplete="name" required>
+                            <div class="profile-settings-label-row"><label for="profile-full-name">Full name</label><button class="profile-field-action" type="button" data-profile-edit="full_name">Edit</button></div>
+                            <input id="profile-full-name" name="full_name" type="text" maxlength="120" autocomplete="name" readonly required>
                         </div>
                         <div class="profile-settings-field">
-                            <label for="profile-phone">Phone number</label>
-                            <input id="profile-phone" name="phone" type="tel" maxlength="20" inputmode="tel" autocomplete="tel">
+                            <div class="profile-settings-label-row"><label for="profile-phone">Phone number</label><button class="profile-field-action" type="button" data-profile-edit="phone">Edit</button></div>
+                            <input id="profile-phone" name="phone" type="tel" maxlength="20" inputmode="tel" autocomplete="tel" readonly>
                         </div>
                     </div>
                     <p class="profile-settings-message" id="profile-details-message" role="status" aria-live="polite"></p>
-                    <button class="profile-settings-primary" id="profile-details-save" type="submit">Save changes</button>
                 </form>
                 <form id="profile-password-form" class="profile-settings-form profile-password-form">
                     <div class="profile-settings-heading">
