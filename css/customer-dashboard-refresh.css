@@ -145,3 +145,23 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
  .dashboard-page .payment-history-section{padding:19px 15px!important}
  .dashboard-page .payments-table{min-width:650px}
 }
+
+
+/* Collapsible payment history */
+.dashboard-page .payment-history-section{padding:0!important;overflow:hidden}
+.dashboard-page .payment-history-details{width:100%}
+.dashboard-page .payment-history-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:19px 22px;cursor:pointer;list-style:none}
+.dashboard-page .payment-history-toggle::-webkit-details-marker{display:none}
+.dashboard-page .payment-history-toggle>span:first-child{display:grid;gap:5px}
+.dashboard-page .payment-history-toggle strong{font-size:16px;font-weight:650;color:var(--eis-ink)}
+.dashboard-page .payment-history-toggle small{font-size:13px;font-weight:400;color:var(--eis-muted)}
+.dashboard-page .payment-history-action{display:inline-flex;align-items:center;gap:12px;color:var(--eis-ink);font-size:13px;font-weight:600}
+.dashboard-page .payment-history-action::after{content:"";width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);transition:transform .18s ease;margin-top:-4px}
+.dashboard-page .payment-history-details[open] .payment-history-action::after{transform:rotate(225deg);margin-top:4px}
+.dashboard-page .payment-history-details[open] .payment-history-action{font-size:0}
+.dashboard-page .payment-history-details[open] .payment-history-action::before{content:"Close";font-size:13px}
+.dashboard-page .payment-history-content{padding:0 22px 20px;border-top:1px solid var(--eis-border,#e5e9ef)}
+@media(max-width:760px){
+ .dashboard-page .payment-history-toggle{padding:17px}
+ .dashboard-page .payment-history-content{padding:0 15px 16px}
+}
