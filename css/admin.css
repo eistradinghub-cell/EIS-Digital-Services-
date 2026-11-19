@@ -3390,3 +3390,22 @@
   .admin-page .admin-application-search-wrap { grid-column: auto; }
   .admin-page .admin-application-filter-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
+
+
+/* Advanced customer directory filters */
+.admin-page .admin-customer-toolbar {
+  grid-template-columns: minmax(210px, 1.5fr) minmax(145px, .9fr) minmax(135px, .8fr) minmax(135px, .8fr) auto;
+  align-items: end;
+}
+.admin-page .admin-customer-toolbar label { display: block; min-width: 0; }
+.admin-page .admin-customer-filter-actions { display: flex; align-items: center; gap: 7px; }
+.admin-page .admin-customer-filter-actions button { min-height: 40px; white-space: nowrap; }
+@media (max-width: 1100px) {
+  .admin-page .admin-customer-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-page .admin-customer-search-wrap { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  .admin-page .admin-customer-toolbar { grid-template-columns: minmax(0, 1fr); padding: 13px; }
+  .admin-page .admin-customer-search-wrap { grid-column: auto; }
+  .admin-page .admin-customer-filter-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
