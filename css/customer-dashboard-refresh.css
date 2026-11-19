@@ -202,3 +202,45 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 .dashboard-page .payment-receipt-button:hover{background:#f1f7f5;border-color:#9fc5ba}
 .dashboard-page .payment-receipt-button:focus-visible{outline:3px solid rgba(22,132,119,.2);outline-offset:2px}
 .dashboard-page .receipt-unavailable{color:#89949b;font-size:11px}
+
+
+/* Profile and account settings */
+.dashboard-page .profile-settings-section{margin:0 0 22px;border:1px solid var(--eis-line);border-radius:9px;background:#fff;overflow:hidden}
+.dashboard-page .profile-settings-details{width:100%}
+.dashboard-page .profile-settings-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 21px;cursor:pointer;list-style:none}
+.dashboard-page .profile-settings-toggle::-webkit-details-marker{display:none}
+.dashboard-page .profile-settings-toggle>span:first-child{display:grid;gap:5px}
+.dashboard-page .profile-settings-toggle strong{color:var(--eis-ink);font-size:15px;font-weight:650}
+.dashboard-page .profile-settings-toggle small{color:var(--eis-muted);font-size:12px;line-height:1.5}
+.dashboard-page .profile-settings-action{display:inline-flex;align-items:center;gap:12px;color:var(--eis-teal-dark);font-size:12px;font-weight:650;white-space:nowrap}
+.dashboard-page .profile-settings-action::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin-top:-4px}
+.dashboard-page .profile-settings-details[open] .profile-settings-action{font-size:0}
+.dashboard-page .profile-settings-details[open] .profile-settings-action::before{content:"Close";font-size:12px}
+.dashboard-page .profile-settings-details[open] .profile-settings-action::after{transform:rotate(225deg);margin-top:4px}
+.dashboard-page .profile-settings-content{border-top:1px solid var(--eis-line);padding:22px}
+.dashboard-page .profile-settings-form{max-width:760px}
+.dashboard-page .profile-settings-heading h3{margin:0 0 5px;color:var(--eis-ink);font-size:15px;font-weight:650}
+.dashboard-page .profile-settings-heading p{margin:0 0 17px;color:var(--eis-muted);font-size:12px;line-height:1.5}
+.dashboard-page .profile-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.dashboard-page .profile-settings-field{min-width:0;display:grid;gap:7px}
+.dashboard-page .profile-settings-full{grid-column:1/-1}
+.dashboard-page .profile-settings-field label{color:#435363;font-size:12px;font-weight:600}
+.dashboard-page .profile-settings-field input{width:100%;min-height:42px;padding:10px 12px;border:1px solid #d8e1e5;border-radius:5px;background:#fff;color:#263746;font:inherit;font-size:13px;box-sizing:border-box}
+.dashboard-page .profile-settings-field input:focus{outline:2px solid rgba(22,132,119,.16);border-color:#6fa99c}
+.dashboard-page .profile-settings-field input[readonly]{background:#f4f6f7;color:#697783;cursor:not-allowed}
+.dashboard-page .profile-settings-field small{color:#78858e;font-size:11px;line-height:1.5}
+.dashboard-page .profile-settings-primary{margin-top:15px;padding:10px 15px;border:1px solid var(--eis-ink);border-radius:5px;background:var(--eis-ink);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.dashboard-page .profile-settings-primary:hover{background:#203f63}
+.dashboard-page .profile-settings-primary:disabled{opacity:.6;cursor:wait}
+.dashboard-page .profile-settings-message{min-height:0;margin:10px 0 0;font-size:12px;line-height:1.5}
+.dashboard-page .profile-settings-message:empty{display:none}
+.dashboard-page .profile-settings-message[data-state="success"]{color:#18724f}
+.dashboard-page .profile-settings-message[data-state="error"]{color:#b42318}
+.dashboard-page .profile-password-form{margin-top:24px;padding-top:22px;border-top:1px solid var(--eis-line)}
+@media(max-width:600px){
+ .dashboard-page .profile-settings-toggle{padding:16px}
+ .dashboard-page .profile-settings-content{padding:17px 15px}
+ .dashboard-page .profile-settings-grid{grid-template-columns:1fr;gap:13px}
+ .dashboard-page .profile-settings-full{grid-column:auto}
+ .dashboard-page .profile-settings-primary{width:100%;min-height:42px}
+}
