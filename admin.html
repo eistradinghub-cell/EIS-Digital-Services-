@@ -7,7 +7,7 @@
     <meta name="description" content="Manage EIS Digital Services applications, products and customer messages.">
     <title>Administration | EIS Digital Services</title>
     <link rel="stylesheet" href="css/styles.css?v=28">
-    <link rel="stylesheet" href="css/admin.css?v=36">
+    <link rel="stylesheet" href="css/admin.css?v=37">
     <link rel="stylesheet" href="css/shared-navigation.css?v=2">
     <link rel="stylesheet" href="css/admin-sidebar-light.css?v=2">
     <link rel="stylesheet" href="css/site-settings-responsive.css?v=5">
@@ -552,6 +552,11 @@
                 <span>Payments</span>
             </button>
 
+            <button type="button" class="sidebar-link" data-section="customers">
+                <span class="sidebar-icon">♙</span>
+                <span>Customers</span>
+            </button>
+
             <button type="button" class="sidebar-link" data-section="customer-care">
                 <span class="sidebar-icon">☏</span>
                 <span>Customer messages</span>
@@ -832,6 +837,40 @@
     </div>
 </section>
 
+<section class="admin-section" id="section-customers">
+    <div class="admin-page-heading">
+        <div>
+            <h1>Customers</h1>
+            <p>Find customer accounts and review their contact details.</p>
+        </div>
+        <button type="button" class="admin-primary-button" id="refresh-customers">↻ Refresh Customers</button>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Customer directory</h3>
+                <p>Customer account information is visible to authorised administrators only.</p>
+            </div>
+            <span class="admin-result-count" id="customers-count">0 Customers</span>
+        </div>
+        <div class="admin-customer-toolbar">
+            <input type="search" id="customer-search" class="admin-form-input" placeholder="Search name, email or phone..." aria-label="Search customers by name, email or phone">
+            <button type="button" class="admin-primary-button" id="search-customers">Search</button>
+        </div>
+        <div class="admin-customers-list" id="admin-customers-list">
+            <div class="admin-loading">Open Customers to load accounts.</div>
+        </div>
+        <div class="admin-customer-pagination" id="customers-pagination" hidden>
+            <span id="customers-page-summary" aria-live="polite"></span>
+            <div class="admin-application-page-actions">
+                <button type="button" class="admin-secondary-button" id="customers-prev-page" disabled>Previous</button>
+                <button type="button" class="admin-secondary-button" id="customers-next-page" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="admin-section" id="section-customer-care">
     <div class="admin-page-heading">
         <div>
@@ -1102,7 +1141,7 @@
 </div>
 
 <!-- Main administration functionality -->
-<script type="module" src="js/admin.js?v=15"></script>
+<script type="module" src="js/admin.js?v=16"></script>
 
 <!-- Marketplace product management -->
 <script type="module" src="js/marketplace-admin.js?v=4"></script>
