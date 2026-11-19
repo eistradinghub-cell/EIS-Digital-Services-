@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/styles.css?v=18">
 <link rel="stylesheet" href="css/shared-navigation.css?v=2">
 <link rel="stylesheet" href="css/dashboard-notifications.css?v=2">
-<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=1">
+<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=2">
 
 <style>
 *{box-sizing:border-box}
@@ -1147,6 +1147,28 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
         </div>
     </section>
 
+    
+    <section class="card dashboard-card payment-history-section" aria-labelledby="payment-history-title">
+        <h2 class="section-heading" id="payment-history-title">Payment History</h2>
+        <p class="section-description">A record of payments made for your applications.</p>
+        <div class="table-wrapper">
+            <table class="applications-table payments-table">
+                <thead>
+                    <tr>
+                        <th>Payment reference</th>
+                        <th>Service</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="payments-list">
+                    <tr><td colspan="5" class="table-message">Loading payments...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
     <section class="card dashboard-card">
         <h2 class="section-heading">Available services</h2>
         <p class="section-description">Choose a service to review the fee and begin your application.</p>
@@ -1379,7 +1401,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=42"></script>
+<script type="module" src="js/dashboard.js?v=43"></script>
 
 </body>
 </html>
