@@ -790,7 +790,7 @@ showNotice("Application found.");
 }
 }
 
-async function updateApplicationStatus(appId, newStatus) {
+async function updateApplicationStatus(appId, newStatus, button = null) {
 const allowedStatuses = [
 "In review",
 "In progress",
@@ -803,30 +803,46 @@ showNotice("Invalid application status.", "error");
 return;
 }
 
-const app = applicationsCache.find(item => item.id === appId);
-
+const app = applicationsCache.find(item => String(item.id) === String(appId));
 if (!app) {
 showNotice("Application not found.", "error");
 return;
 }
 
-const { error } = await supabase
+const statusSelect = document.querySelector(`[data-app-status="${CSS.escape(String(appId))}"]`);
+const originalButtonText = button?.textContent || "Save Status";
+if (button) {
+button.disabled = true;
+button.textContent = "Saving...";
+}
+if (statusSelect) statusSelect.disabled = true;
+
+try {
+const { data, error } = await supabase
 .from("applications")
 .update({ status: newStatus })
-.eq("id", appId);
+.eq("id", appId)
+.select("id")
+.maybeSingle();
 
-if (error) {
-console.error("Application update error:", error);
-showNotice(
-"Could not update application: " + error.message,
-"error"
-);
-await loadApplications();
-return;
+if (error) throw error;
+if (!data) {
+throw new Error("This application could not be updated. Check your administrator access and refresh the list.");
 }
 
 showNotice("Application status updated successfully.");
 await loadApplications();
+} catch (error) {
+console.error("Application status update error:", error);
+showNotice(error.message || "Unable to update application status.", "error");
+await loadApplications();
+} finally {
+if (button?.isConnected) {
+button.disabled = false;
+button.textContent = originalButtonText;
+}
+if (statusSelect?.isConnected) statusSelect.disabled = false;
+}
 }
 
 async function loadServices() {
@@ -1848,7 +1864,7 @@ const saveStatusButton = event.target.closest("[data-save-app-status]");
 if (saveStatusButton) {
 const appId = saveStatusButton.dataset.saveAppStatus;
 const select = [...document.querySelectorAll("[data-app-status]")].find(item => item.dataset.appStatus === appId);
-if (select) updateApplicationStatus(appId, select.value);
+if (select) updateApplicationStatus(appId, select.value, saveStatusButton);
 return;
 }
 const editButton = event.target.closest(
