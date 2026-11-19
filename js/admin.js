@@ -1960,6 +1960,45 @@ return `
 }).join('');
 }
 
+async function markConversationRead(conversationId) {
+const { error: messagesError } = await supabase
+.from("chat_messages")
+.update({ is_read: true })
+.eq("conversation_id", conversationId)
+.eq("sender_role", "customer")
+.eq("is_read", false);
+
+if (messagesError) {
+console.error("Mark customer messages as read error:", messagesError);
+showNotice("Messages are open, but their read status could not be updated.", "error");
+return;
+}
+
+const { error: conversationError } = await supabase
+.from("chat_conversations")
+.update({ unread_admin_count: 0 })
+.eq("id", conversationId);
+
+if (conversationError) {
+console.error("Reset conversation unread count error:", conversationError);
+showNotice("Messages are open, but the unread count could not be refreshed.", "error");
+return;
+}
+
+conversationsCache = conversationsCache.map(item =>
+item.id === conversationId
+? { ...item, unread_admin_count: 0 }
+: item
+);
+
+if (currentConversation?.id === conversationId) {
+currentConversation = conversationsCache.find(item => item.id === conversationId) || currentConversation;
+}
+
+updateConversationSummary();
+renderConversations();
+}
+
 async function openConversation(conversationId) {
 const conversation = conversationsCache.find(item => item.id === conversationId);
 if (!conversation) { showNotice("Conversation not found.", "error"); return; }
