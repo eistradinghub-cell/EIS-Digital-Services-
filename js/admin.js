@@ -845,7 +845,12 @@ showNotice("There are no matching applications to export.", "error");
 return;
 }
 const headers = ["Application reference", "Service", "Customer name", "Customer email", "Amount (NGN)", "Status", "Submitted", "Payment reference"];
-const quote = value => `"${String(value ?? "").replace(/"/g, '""')}"`;
+const quote = value => {
+const raw = String(value ?? "");
+const first = raw.trimStart().charAt(0);
+const safe = ["=", "+", "-", "@"].includes(first) ? "'" + raw : raw;
+return `"${safe.replace(/"/g, '""')}"`;
+};
 const csv = [headers, ...rows.map(app => [
 formatApplicationReference(app.reference_id ?? app.application_id ?? app.id ?? ""),
 app.service_name || "",
@@ -856,7 +861,7 @@ app.status || "In review",
 app.created_at || "",
 app.payment_reference || ""
 ])].map(row => row.map(quote).join(",")).join("\r\n");
-const blob = new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
 const url = URL.createObjectURL(blob);
 const link = document.createElement("a");
 link.href = url;
