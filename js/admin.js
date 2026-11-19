@@ -342,9 +342,9 @@ applicationsCache
 if (!userIds.length) return;
 
 const { data, error } = await supabase
-.from("profiles")
-.select("id,full_name,email,phone")
-.in("id", userIds);
+.rpc("admin_get_application_customers", {
+p_user_ids: userIds
+});
 
 if (error) {
 console.warn("Could not load application customers:", error);
@@ -407,11 +407,11 @@ return fields;
 
 function getApplicationHTML(app) {
 const account = app.customer || {};
+const accountEmail = account.email || "Account email unavailable";
 const savedAccountName = String(account.full_name || "").trim();
 const accountName = savedAccountName && savedAccountName.toLowerCase() !== "customer"
 ? savedAccountName
-: "Signup name unavailable";
-const accountEmail = account.email || "Account email unavailable";
+: accountEmail;
 const reference = app.reference_id ?? app.application_id ?? app.id ?? "Unavailable";
 const fields = getApplicationFields(app);
 const pairs = fields.map(field => [field]);
