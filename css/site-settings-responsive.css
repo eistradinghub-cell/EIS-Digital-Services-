@@ -56,12 +56,12 @@
     display: grid !important;
     place-items: center !important;
     border-radius: 12px !important;
-    background: #EAF5F2 !important;
-    color: #168477 !important;
+    background: #E7F8F4 !important;
+    color: #12B894 !important;
 }
 
 #section-site-settings .site-settings-card-label {
-    color: #168477 !important;
+    color: #12B894 !important;
     font-size: 10px !important;
     font-weight: 800 !important;
     letter-spacing: 1.2px !important;
@@ -97,13 +97,13 @@
 }
 
 #section-site-settings .site-settings-upload:hover {
-    border-color: #168477 !important;
+    border-color: #12B894 !important;
     background: #EDF6F3 !important;
 }
 
 #section-site-settings .site-settings-upload-icon {
     background: #E5F2EF !important;
-    color: #168477 !important;
+    color: #12B894 !important;
 }
 
 #section-site-settings .site-settings-preview {
@@ -162,13 +162,13 @@
     min-height: 44px !important;
     padding: 11px 19px !important;
     border-radius: 8px !important;
-    background: #168477 !important;
+    background: #12B894 !important;
     color: #FFFFFF !important;
     box-shadow: 0 4px 12px rgba(22,132,119,.15) !important;
 }
 
 #section-site-settings .site-settings-save:hover {
-    background: #116B61 !important;
+    background: #0D927B !important;
 }
 
 /* Administrator list */
@@ -186,8 +186,8 @@
 }
 
 #section-site-settings .site-settings-role {
-    background: #EAF5F2 !important;
-    color: #168477 !important;
+    background: #E7F8F4 !important;
+    color: #12B894 !important;
 }
 
 /* Account information */
