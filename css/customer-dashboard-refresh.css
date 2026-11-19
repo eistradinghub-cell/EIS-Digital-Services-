@@ -296,3 +296,25 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 .dashboard-page .profile-field-action:focus-visible{outline:3px solid rgba(22,132,119,.2);outline-offset:2px}
 .dashboard-page .profile-settings-field input[readonly]{background:#f5f7f7;color:#66737b;cursor:default}
 .dashboard-page .profile-settings-field input:not([readonly]){background:#fff;border-color:var(--eis-teal)}
+
+
+/* Profile details remain read-only until the customer explicitly edits a field. */
+.dashboard-page .profile-settings-field input[readonly]{background:#f3f5f5!important;border-color:#e1e6e6!important;color:#5e6b70!important;cursor:default;caret-color:transparent}
+.dashboard-page .profile-settings-field input[readonly]:focus{outline:none;box-shadow:none}
+.dashboard-page .profile-settings-label-row{margin-bottom:7px}
+.dashboard-page .profile-field-action{min-height:30px;padding:5px 11px;border-radius:5px;font-size:12px;letter-spacing:.01em}
+.dashboard-page .profile-password-strength{display:flex;align-items:center;gap:10px;margin-top:10px}
+.dashboard-page .profile-password-strength-track{height:5px;flex:1;overflow:hidden;border-radius:10px;background:#e9eeee}
+.dashboard-page .profile-password-strength-track span{display:block;width:0;height:100%;border-radius:inherit;background:#b94b4b;transition:width .18s ease,background .18s ease}
+.dashboard-page .profile-password-strength-track span[data-strength="medium"]{background:#c58a32}
+.dashboard-page .profile-password-strength-track span[data-strength="strong"]{background:#25835f}
+.dashboard-page #profile-password-strength-label{min-width:112px;color:#66737b;font-size:11px;text-align:right}
+.dashboard-page .profile-password-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;margin:11px 0 0;padding:0;list-style:none}
+.dashboard-page .profile-password-rules li{position:relative;padding-left:17px;color:#78838a;font-size:11px;line-height:1.45}
+.dashboard-page .profile-password-rules li:before{position:absolute;left:0;top:0;content:"○";color:#98a3a8}
+.dashboard-page .profile-password-rules li.is-met{color:#287653}
+.dashboard-page .profile-password-rules li.is-met:before{content:"✓";font-weight:700;color:#287653}
+.dashboard-page .profile-password-match{display:block;margin-top:7px;color:#78838a;font-size:11px}
+.dashboard-page .profile-password-match[data-state="success"]{color:#287653}
+.dashboard-page .profile-password-match[data-state="error"]{color:#b94b4b}
+@media(max-width:520px){.dashboard-page .profile-password-rules{grid-template-columns:1fr}.dashboard-page #profile-password-strength-label{min-width:96px}}
