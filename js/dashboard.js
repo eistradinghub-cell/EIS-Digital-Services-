@@ -1166,7 +1166,7 @@ async function loadApplications() {
             const row = document.createElement("tr");
             const cell = document.createElement("td");
 
-            cell.colSpan = 5;
+            cell.colSpan = 6;
             cell.textContent = "No applications yet.";
             cell.style.textAlign = "center";
 
@@ -1212,12 +1212,22 @@ async function loadApplications() {
                 createStatusBadge(application.status)
             );
 
+            const action = document.createElement("td");
+            const trackButton = document.createElement("button");
+            trackButton.type = "button";
+            trackButton.className = "application-track-button";
+            trackButton.textContent = "Track";
+            trackButton.setAttribute("aria-label", "Track application " + rawReference);
+            trackButton.addEventListener("click", () => openApplicationTracking(application));
+            action.appendChild(trackButton);
+
             row.append(
                 name,
                 reference,
                 service,
                 submitted,
-                status
+                status,
+                action
             );
 
             container.appendChild(row);
@@ -1237,6 +1247,84 @@ async function loadApplications() {
         container.appendChild(row);
     }
 }
+
+
+/* =========================================
+   APPLICATION TRACKING
+========================================= */
+
+function openApplicationTracking(application) {
+    const dialog = $("application-track-dialog");
+    const statusBox = $("track-current-status");
+    const details = $("track-details");
+    const note = $("track-status-note");
+
+    if (!dialog || !statusBox || !details || !note) return;
+
+    const rawReference = String(application.id || "").toUpperCase();
+    const reference = rawReference.startsWith("EIS-") ? rawReference : "EIS-" + rawReference;
+    const currentStatus = String(application.status || "In review").trim();
+    const normalized = currentStatus.toLowerCase().replace(/[ -]+/g, "_");
+
+    statusBox.replaceChildren();
+    const label = document.createElement("span");
+    label.textContent = "Current status";
+    const badge = createStatusBadge(currentStatus);
+    statusBox.append(label, badge);
+
+    const fields = [
+        ["Reference number", reference],
+        ["Service", application.service_name || "Service"],
+        ["Date submitted", formatDateTime(application.created_at)]
+    ];
+
+    details.replaceChildren();
+    fields.forEach(([title, value]) => {
+        const wrapper = document.createElement("div");
+        const term = document.createElement("dt");
+        const description = document.createElement("dd");
+        term.textContent = title;
+        description.textContent = value;
+        wrapper.append(term, description);
+        details.appendChild(wrapper);
+    });
+
+    const messages = {
+        pending: "Your application has been received and is waiting to be reviewed.",
+        submitted: "Your application has been received and is waiting to be reviewed.",
+        in_progress: "Your application is being processed by our team.",
+        processing: "Your application is being processed by our team.",
+        completed: "Your application has been marked as completed.",
+        approved: "Your application has been approved.",
+        rejected: "Your application was not approved. Please contact support for assistance."
+    };
+
+    note.textContent = messages[normalized] ||
+        "This is the latest status available for your application. Contact support if you need more information.";
+
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+}
+
+function closeApplicationTracking() {
+    const dialog = $("application-track-dialog");
+    if (!dialog) return;
+    if (typeof dialog.close === "function") dialog.close();
+    else dialog.removeAttribute("open");
+}
+
+["track-dialog-close", "track-dialog-done"].forEach(id => {
+    const button = $(id);
+    if (button) button.addEventListener("click", closeApplicationTracking);
+});
+
+const trackingDialog = $("application-track-dialog");
+if (trackingDialog) {
+    trackingDialog.addEventListener("click", event => {
+        if (event.target === trackingDialog) closeApplicationTracking();
+    });
+}
+
 
 /* =========================================
    NOTIFICATIONS
