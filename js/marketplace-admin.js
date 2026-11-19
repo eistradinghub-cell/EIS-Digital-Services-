@@ -1303,6 +1303,82 @@ const SITE_SETTINGS_CSS = `
         grid-template-columns: 1fr;
     }
 }
+
+#section-site-settings .site-settings-card-head {
+    margin-bottom: 0;
+}
+
+#section-site-settings .site-settings-card-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+#section-site-settings .site-settings-card-toggle > div:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+#section-site-settings .site-settings-card-chevron {
+    flex: 0 0 auto;
+    margin-left: auto;
+    color: #687783;
+    font-size: 20px;
+    line-height: 1;
+    transition: transform .18s ease;
+}
+
+#section-site-settings .site-settings-card.is-expanded .site-settings-card-chevron {
+    transform: rotate(180deg);
+}
+
+#section-site-settings .site-settings-card-content {
+    margin-top: 20px;
+}
+
+#section-site-settings .site-settings-card-content[hidden] {
+    display: none !important;
+}
+
+#section-site-settings .site-settings-card-action {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+#section-site-settings .site-settings-card-action p {
+    margin: 0;
+    color: #74818C;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+#section-site-settings .site-settings-card-toggle:focus-visible {
+    outline: 3px solid rgba(40, 100, 232, .3);
+    outline-offset: 5px;
+    border-radius: 8px;
+}
+
+@media (max-width: 650px) {
+    #section-site-settings .site-settings-card-action {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #section-site-settings .site-settings-card-action .admin-primary-button {
+        width: 100%;
+    }
+}
 `;
 
 function siteSettingsFeedback(message, type = "success") {
@@ -1370,41 +1446,7 @@ function siteSettingsMarkup() {
 
             </header>
 
-            <nav class="site-settings-shortcuts" aria-label="Site settings sections">
 
-                <a class="site-settings-shortcut" href="#site-brand-card">
-                    <span class="site-settings-shortcut-number">01</span>
-                    <span>
-                        <strong>Brand Identity</strong>
-                        <small>Website logo</small>
-                    </span>
-                </a>
-
-                <a class="site-settings-shortcut" href="#site-home-card">
-                    <span class="site-settings-shortcut-number">02</span>
-                    <span>
-                        <strong>Homepage</strong>
-                        <small>Images and visuals</small>
-                    </span>
-                </a>
-
-                <a class="site-settings-shortcut" href="#site-profile-card">
-                    <span class="site-settings-shortcut-number">03</span>
-                    <span>
-                        <strong>Admin Profile</strong>
-                        <small>Name and picture</small>
-                    </span>
-                </a>
-
-                <a class="site-settings-shortcut" href="#site-admins-card">
-                    <span class="site-settings-shortcut-number">04</span>
-                    <span>
-                        <strong>Administrators</strong>
-                        <small>Account overview</small>
-                    </span>
-                </a>
-
-            </nav>
 
             <div
                 id="site-settings-feedback"
@@ -1645,31 +1687,22 @@ function siteSettingsMarkup() {
 
                 </article>
 
-                <!-- ADMINISTRATOR MANAGEMENT -->
+                <!-- STAFF ACCESS -->
 
                 <article class="site-settings-card" id="site-admins-card">
 
                     <div class="site-settings-card-head">
                         <div class="site-settings-card-icon">♧</div>
                         <div>
-                            <span class="site-settings-card-label">ACCESS OVERVIEW</span>
-                            <h2>Manage Administrators</h2>
-                            <p>View administrator accounts and their assigned roles.</p>
+                            <span class="site-settings-card-label">STAFF ACCESS</span>
+                            <h2>Staff &amp; Admin Management</h2>
+                            <p>Review administrator access and manage staff permissions.</p>
                         </div>
                     </div>
 
-                    <div
-                        id="site-admins-list"
-                        class="site-settings-admin-list"
-                    >
-                        <div class="admin-loading">
-                            Loading administrator accounts...
-                        </div>
-                    </div>
-
-                    <div class="site-settings-notice">
-                        Administrator role changes are protected. This section is currently
-                        read-only until secure super-admin role management is configured.
+                    <div class="site-settings-card-action">
+                        <p>Administrator roles are managed separately to keep access controls in one place.</p>
+                        <button type="button" class="admin-primary-button" data-open-section="staff-management">Manage access →</button>
                     </div>
 
                 </article>
@@ -1729,6 +1762,56 @@ function siteSettingsMarkup() {
                 block: "start"
             });
         });
+    });
+}
+
+function setupSiteSettingsDisclosures() {
+    const cards = document.querySelectorAll(
+        "#section-site-settings .site-settings-card"
+    );
+
+    cards.forEach((card, index) => {
+        const header = card.querySelector(":scope > .site-settings-card-head");
+        if (!header || card.dataset.disclosureReady === "true") return;
+
+        const title = header.querySelector("h2")?.textContent.trim() || `Settings ${index + 1}`;
+        const content = document.createElement("div");
+        content.className = "site-settings-card-content";
+        content.id = `site-settings-content-${index + 1}`;
+
+        while (header.nextSibling) {
+            content.append(header.nextSibling);
+        }
+
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "site-settings-card-toggle";
+        toggle.setAttribute("aria-controls", content.id);
+        toggle.setAttribute("aria-expanded", "false");
+
+        while (header.firstChild) {
+            toggle.append(header.firstChild);
+        }
+
+        const indicator = document.createElement("span");
+        indicator.className = "site-settings-card-chevron";
+        indicator.setAttribute("aria-hidden", "true");
+        indicator.textContent = "⌄";
+        toggle.append(indicator);
+
+        header.replaceChildren(toggle);
+        content.hidden = true;
+        card.append(content);
+
+        toggle.addEventListener("click", () => {
+            const expanded = toggle.getAttribute("aria-expanded") === "true";
+            toggle.setAttribute("aria-expanded", String(!expanded));
+            content.hidden = expanded;
+            card.classList.toggle("is-expanded", !expanded);
+        });
+
+        card.dataset.disclosureReady = "true";
+        card.dataset.settingsTitle = title;
     });
 }
 
@@ -2263,6 +2346,7 @@ async function initializeSiteSettings() {
     }
 
     siteSettingsMarkup();
+    setupSiteSettingsDisclosures();
     setupSiteSettingsEvents();
 
     try {
