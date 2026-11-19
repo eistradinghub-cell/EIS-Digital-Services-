@@ -931,7 +931,7 @@ async function saveSiteLogo(event) {
     event.preventDefault();
 
     const button = $("site-logo-save");
-    setSettingsButton(button, true, "Save Website Logo");
+    setSettingsButton(button, true, "Save");
 
     try {
         const file = $("site-logo-file")?.files?.[0];
@@ -969,7 +969,7 @@ async function saveSiteLogo(event) {
         );
 
     } finally {
-        setSettingsButton(button, false, "Save Website Logo");
+        setSettingsButton(button, false, "Save");
     }
 }
 
@@ -977,7 +977,7 @@ async function saveHomepageImages(event) {
     event.preventDefault();
 
     const button = $("site-home-images-save");
-    setSettingsButton(button, true, "Save Homepage Images");
+    setSettingsButton(button, true, "Save");
 
     try {
         const currentImages = {
@@ -1060,7 +1060,7 @@ async function saveHomepageImages(event) {
         );
 
     } finally {
-        setSettingsButton(button, false, "Save Homepage Images");
+        setSettingsButton(button, false, "Save");
     }
 }
 
@@ -1068,7 +1068,7 @@ async function saveAdminSiteProfile(event) {
     event.preventDefault();
 
     const button = $("site-admin-profile-save");
-    setSettingsButton(button, true, "Save Admin Profile");
+    setSettingsButton(button, true, "Save");
 
     try {
         const currentProfileSettings =
@@ -1124,7 +1124,7 @@ async function saveAdminSiteProfile(event) {
         );
 
     } finally {
-        setSettingsButton(button, false, "Save Admin Profile");
+        setSettingsButton(button, false, "Save");
     }
 }
 
