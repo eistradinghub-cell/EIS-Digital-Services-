@@ -250,3 +250,19 @@
         font-size: 11px;
     }
 }
+
+
+/* Site Settings save feedback */
+#section-site-settings .admin-settings-notice[hidden] {
+    display: none !important;
+}
+
+#section-site-settings .admin-settings-notice.success {
+    background: #edf7f3;
+    color: #116b61;
+}
+
+#section-site-settings .admin-settings-notice.error {
+    background: #fff1f0;
+    color: #a12b24;
+}
