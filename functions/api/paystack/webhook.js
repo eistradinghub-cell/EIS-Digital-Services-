@@ -66,7 +66,7 @@ export async function onRequestPost({ request, env }) {
     };
 
     const lookup = await fetch(
-      `${SUPABASE_URL}/rest/v1/payments?reference=eq.${encodeURIComponent(reference)}&select=reference,amount,status`,
+      `${SUPABASE_URL}/rest/v1/payments?reference=eq.${encodeURIComponent(reference)}&select=reference,user_id,amount,status`,
       { headers }
     );
     if (!lookup.ok) return json({ error: "Could not look up payment." }, 502);
@@ -78,6 +78,43 @@ export async function onRequestPost({ request, env }) {
     const expectedKobo = Math.round(Number(payment.amount) * 100);
     if (!Number.isSafeInteger(expectedKobo) || expectedKobo <= 0 || Number(tx.amount) !== expectedKobo) {
       return json({ error: "Paid amount does not match the expected amount." }, 409);
+    }
+
+    // Confirm the webhook against Paystack's transaction verification API.
+    const verification = await fetch(
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
+      { headers: { Authorization: `Bearer ${paystackKey}`, "Content-Type": "application/json" } }
+    );
+    if (!verification.ok) return json({ error: "Could not verify transaction with Paystack." }, 502);
+
+    const verified = await verification.json();
+    const verifiedTx = verified?.data;
+    if (
+      !verified.status ||
+      !verifiedTx ||
+      verifiedTx.reference !== reference ||
+      verifiedTx.status !== "success" ||
+      verifiedTx.currency !== "NGN" ||
+      Number(verifiedTx.amount) !== expectedKobo ||
+      (tx.id != null && String(verifiedTx.id) !== String(tx.id))
+    ) {
+      return json({ error: "Paystack transaction verification did not match." }, 409);
+    }
+
+    // Confirm the verified transaction was paid by the account that owns this reference.
+    if (payment.user_id) {
+      const ownerResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(payment.user_id)}&select=email`,
+        { headers }
+      );
+      if (!ownerResponse.ok) return json({ error: "Could not confirm payment owner." }, 502);
+
+      const owners = await ownerResponse.json();
+      const ownerEmail = String(owners[0]?.email || "").trim().toLowerCase();
+      const paidEmail = String(verifiedTx.customer?.email || "").trim().toLowerCase();
+      if (!ownerEmail || !paidEmail || ownerEmail !== paidEmail) {
+        return json({ error: "Payment customer does not match the account owner." }, 409);
+      }
     }
 
     // Idempotent: never downgrade a consumed payment or overwrite another state.
