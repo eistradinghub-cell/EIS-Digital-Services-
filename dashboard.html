@@ -1115,6 +1115,38 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
         <p>Access the services you need, submit applications and keep track of your requests in one place.</p>
     </section>
 
+    <section class="dashboard-overview" aria-label="Application overview">
+        <div class="overview-heading">
+            <div>
+                <h2>Application overview</h2>
+                <p>A quick summary of your submitted applications.</p>
+            </div>
+            <a href="#my-applications">View applications</a>
+        </div>
+        <div class="overview-grid">
+            <article class="overview-stat">
+                <span class="overview-stat-label">Total applications</span>
+                <strong id="stat-total" aria-live="polite">—</strong>
+                <span class="overview-stat-note">All submissions</span>
+            </article>
+            <article class="overview-stat">
+                <span class="overview-stat-label">Pending</span>
+                <strong id="stat-pending" aria-live="polite">—</strong>
+                <span class="overview-stat-note">Awaiting review</span>
+            </article>
+            <article class="overview-stat">
+                <span class="overview-stat-label">In progress</span>
+                <strong id="stat-processing" aria-live="polite">—</strong>
+                <span class="overview-stat-note">Being processed</span>
+            </article>
+            <article class="overview-stat">
+                <span class="overview-stat-label">Completed</span>
+                <strong id="stat-completed" aria-live="polite">—</strong>
+                <span class="overview-stat-note">Approved or completed</span>
+            </article>
+        </div>
+    </section>
+
     <section class="card dashboard-card">
         <h2 class="section-heading">Available services</h2>
         <p class="section-description">Choose a service to review the fee and begin your application.</p>
@@ -1290,7 +1322,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </form>
 
     <section class="card dashboard-card">
-        <h2 class="section-heading">Your applications</h2>
+        <h2 class="section-heading" id="my-applications">Your applications</h2>
         <p class="section-description">View the applications you have submitted and check their latest status.</p>
 
         <div class="table-wrapper">
