@@ -87,3 +87,19 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
  .dashboard-page .dashboard-intro h1{font-size:23px!important}
 }
 @media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *:before,.dashboard-page *:after{transition:none!important;animation:none!important}}
+
+
+/* Customer application overview cards */
+.dashboard-page .dashboard-overview{margin:0 0 24px}
+.dashboard-page .overview-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 14px}
+.dashboard-page .overview-heading h2{margin:0 0 5px;color:var(--eis-ink);font-size:18px;font-weight:750;letter-spacing:-.25px}
+.dashboard-page .overview-heading p{margin:0;color:var(--eis-muted);font-size:13px;line-height:1.55}
+.dashboard-page .overview-heading>a{flex-shrink:0;color:var(--eis-teal-dark);font-size:12px;font-weight:700;text-decoration:none}
+.dashboard-page .overview-heading>a:hover{text-decoration:underline}
+.dashboard-page .overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.dashboard-page .overview-stat{min-width:0;padding:19px 20px;background:#fff;border:1px solid var(--eis-line);border-radius:12px;box-shadow:0 3px 12px rgba(20,45,78,.035)}
+.dashboard-page .overview-stat-label{display:block;color:#687783;font-size:12px;font-weight:650}
+.dashboard-page .overview-stat strong{display:block;margin:10px 0 5px;color:var(--eis-ink);font-size:29px;font-weight:780;line-height:1.1;letter-spacing:-.8px}
+.dashboard-page .overview-stat-note{display:block;color:#89949e;font-size:11px}
+@media(max-width:760px){.dashboard-page .overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-page .overview-stat{padding:16px}.dashboard-page .overview-stat strong{font-size:26px}}
+@media(max-width:390px){.dashboard-page .overview-heading{align-items:flex-start;flex-direction:column;gap:7px}.dashboard-page .overview-grid{gap:8px}.dashboard-page .overview-stat{padding:13px}.dashboard-page .overview-stat-label{font-size:11px}}
