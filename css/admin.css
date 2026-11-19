@@ -2649,11 +2649,6 @@
   background: #f5f8f8;
   color: #234b59;
 }
-.admin-page .admin-panel-toggle-mark {
-  width: 6px;
-  height: 6px;
-  border-width: 1.5px;
-}
 .admin-page .admin-panel-content {
   padding: 18px;
   border-top: 1px solid var(--admin-border);
