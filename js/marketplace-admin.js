@@ -1368,10 +1368,6 @@ function siteSettingsMarkup() {
                     <p>Customize your website identity, homepage visuals and administrator profile from one place.</p>
                 </div>
 
-                <div class="site-settings-status">
-                    <span></span>
-                    Settings Workspace
-                </div>
             </header>
 
             <nav class="site-settings-shortcuts" aria-label="Site settings sections">
