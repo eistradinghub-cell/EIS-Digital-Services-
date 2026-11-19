@@ -407,7 +407,10 @@ return fields;
 
 function getApplicationHTML(app) {
 const account = app.customer || {};
-const accountName = account.full_name || account.email || "Account name unavailable";
+const savedAccountName = String(account.full_name || "").trim();
+const accountName = savedAccountName && savedAccountName.toLowerCase() !== "customer"
+? savedAccountName
+: "Signup name unavailable";
 const accountEmail = account.email || "Account email unavailable";
 const reference = app.reference_id ?? app.application_id ?? app.id ?? "Unavailable";
 const fields = getApplicationFields(app);
@@ -422,8 +425,8 @@ return `
 <article class="admin-app-item admin-application-card">
 <header class="admin-application-card-head">
 <div class="admin-application-title">
-<strong>${escapeHTML(accountName)}</strong>
-<span class="admin-application-reference">${escapeHTML(accountEmail)}</span>
+<strong class="admin-account-name">${escapeHTML(accountName)}</strong>
+<span class="admin-account-email">${escapeHTML(accountEmail)}</span>
 <span class="admin-application-reference">Reference: ${escapeHTML(String(reference))}</span>
 </div>
 <time>Submitted: ${escapeHTML(formatDate(app.created_at))}</time>
