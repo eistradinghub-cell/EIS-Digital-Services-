@@ -1,45 +1,57 @@
-/* Site Settings — compact admin layout */
+/* Site settings */
 #section-site-settings {
     width: 100%;
     min-width: 0;
 }
 
 #section-site-settings > .admin-page-heading {
-    margin-bottom: 18px;
+    margin: 0 0 20px;
 }
 
-#section-site-settings > .admin-page-heading p {
-    display: none;
+#section-site-settings > .admin-page-heading h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
 }
 
 #section-site-settings .admin-panel {
-    margin-bottom: 12px;
-    border: 1px solid #e2e8ed;
-    border-radius: 8px;
-    background: #fff;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid #e6eaed;
+    border-radius: 0;
+    background: transparent;
     box-shadow: none;
-    overflow: hidden;
+    overflow: visible;
 }
 
 #section-site-settings .admin-panel-header {
-    min-height: 58px;
-    padding: 13px 17px;
+    min-height: 52px;
+    margin: 0;
+    padding: 0;
     gap: 12px;
 }
 
 #section-site-settings .admin-panel-header h3 {
-    color: #24364b;
+    margin: 0;
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 600;
+    color: #243746;
 }
 
 #section-site-settings .admin-panel-toggle {
-    min-height: 34px;
-    padding: 4px 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 2px;
     border: 0;
     border-radius: 0;
     background: transparent;
     color: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 
 #section-site-settings .admin-panel-toggle:hover,
@@ -51,22 +63,31 @@
 
 #section-site-settings .admin-panel-toggle:focus-visible {
     outline: 2px solid #168477;
-    outline-offset: 4px;
+    outline-offset: 2px;
 }
 
 #section-site-settings .admin-panel-toggle-mark {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
+    margin-right: 4px;
+    border-right: 1.5px solid #718096;
+    border-bottom: 1.5px solid #718096;
+    transform: rotate(45deg);
+    transition: transform .16s ease;
+}
+
+#section-site-settings .admin-panel.is-expanded .admin-panel-toggle-mark {
+    transform: rotate(225deg);
 }
 
 #section-site-settings .admin-panel-content {
-    padding: 17px;
-    border-top: 1px solid #edf0f2;
+    padding: 4px 2px 20px;
+    border: 0;
 }
 
 #section-site-settings .admin-form {
     display: grid;
-    gap: 16px;
+    gap: 15px;
 }
 
 #section-site-settings .admin-form-group {
@@ -76,29 +97,30 @@
 
 #section-site-settings .admin-form-group label {
     display: block;
-    margin-bottom: 7px;
-    color: #34465a;
-    font-size: 12px;
-    font-weight: 600;
+    margin-bottom: 6px;
+    color: #354657;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 #section-site-settings .admin-form-group small {
     display: block;
-    margin-top: 6px;
-    color: #778392;
+    margin-top: 5px;
+    color: #7a8792;
     font-size: 11px;
-    line-height: 1.5;
 }
 
 #section-site-settings .admin-form-group input[type="file"] {
+    display: block;
     width: 100%;
-    max-width: 100%;
-    min-height: 42px;
-    padding: 8px;
-    border: 1px solid #dce3e9;
-    border-radius: 6px;
-    background: #fafbfc;
+    max-width: 440px;
+    min-height: 40px;
+    padding: 7px;
+    border: 1px solid #dce2e7;
+    border-radius: 5px;
+    background: #fff;
     color: #526174;
+    font: inherit;
     font-size: 12px;
 }
 
@@ -106,13 +128,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 105px;
-    margin-top: 10px;
-    padding: 12px;
-    border: 1px solid #e5eaef;
-    border-radius: 6px;
-    background: #f8fafb;
-    color: #7b8794;
+    width: min(100%, 360px);
+    min-height: 96px;
+    margin: 9px 0 0;
+    padding: 10px;
+    border: 1px dashed #d5dde2;
+    border-radius: 5px;
+    background: #fafbfc;
+    color: #7a8792;
     font-size: 11px;
     overflow: hidden;
 }
@@ -120,19 +143,34 @@
 #section-site-settings .admin-settings-preview img {
     display: block;
     max-width: 100%;
-    max-height: 150px;
+    max-height: 145px;
     object-fit: contain;
 }
 
+#section-site-settings #site-home-images-form {
+    gap: 18px;
+}
+
+#section-site-settings #site-home-images-form .admin-settings-preview {
+    width: min(100%, 400px);
+}
+
+#section-site-settings #site-home-images-form .admin-settings-preview img {
+    width: 100%;
+    height: 145px;
+    object-fit: cover;
+}
+
 #section-site-settings .admin-primary-button {
-    min-height: 38px;
     width: fit-content;
-    padding: 9px 15px;
-    border-radius: 6px;
+    min-height: 36px;
+    padding: 8px 15px;
+    border: 0;
+    border-radius: 5px;
     background: #168477;
     box-shadow: none;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 #section-site-settings .admin-primary-button:hover {
@@ -144,25 +182,26 @@
 #section-site-settings .admin-settings-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    gap: 20px;
 }
 
 #section-site-settings .admin-setting-item {
     min-width: 0;
-    padding: 13px;
-    border: 1px solid #e5eaef;
-    border-radius: 6px;
-    background: #fafbfc;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
 }
 
 #section-site-settings .admin-setting-item span {
-    color: #718092;
-    font-size: 11px;
+    color: #7a8792;
+    font-size: 12px;
 }
 
 #section-site-settings .admin-setting-item strong {
-    color: #24364b;
+    color: #243746;
     font-size: 13px;
+    font-weight: 500;
     overflow-wrap: anywhere;
 }
 
@@ -171,33 +210,43 @@
 }
 
 @media (max-width: 700px) {
+    #section-site-settings > .admin-page-heading {
+        margin-bottom: 14px;
+    }
+
+    #section-site-settings > .admin-page-heading h1 {
+        font-size: 22px;
+    }
+
     #section-site-settings .admin-panel-header {
-        min-height: 54px;
-        padding: 12px 14px;
+        min-height: 48px;
     }
 
     #section-site-settings .admin-panel-content {
-        padding: 14px;
+        padding: 2px 0 17px;
     }
 
     #section-site-settings .admin-settings-grid {
         grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
     }
 
     #section-site-settings .admin-primary-button {
-        width: 100%;
+        width: fit-content;
     }
 
     #section-site-settings .admin-panel-header:has(> .admin-primary-button) {
-        align-items: flex-start;
-        flex-direction: column;
+        align-items: center;
+        flex-direction: row;
     }
 }
 
 @media (max-width: 380px) {
-    #section-site-settings .admin-panel-header,
-    #section-site-settings .admin-panel-content {
-        padding-left: 12px;
-        padding-right: 12px;
+    #section-site-settings .admin-panel-header h3 {
+        font-size: 13px;
+    }
+
+    #section-site-settings .admin-form-group input[type="file"] {
+        font-size: 11px;
     }
 }
