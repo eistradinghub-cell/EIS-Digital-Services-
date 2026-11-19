@@ -848,6 +848,15 @@
     font-weight: 800;
 }
 
+.admin-page .admin-panel-header > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-page .admin-panel-header h3 .admin-panel-toggle {
+    width: 100%;
+}
+
 .admin-page .admin-panel-header p {
     margin: 6px 0 0;
 
