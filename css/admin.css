@@ -2889,3 +2889,19 @@
         padding: 13px;
     }
 }
+
+.admin-page .admin-secondary-button {
+    min-height: 35px;
+    padding: 8px 13px;
+    border: 1px solid #cbd7e8;
+    border-radius: 7px;
+    background: #fff;
+    color: #254a85;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.admin-page .admin-secondary-button:hover:not(:disabled) {
+    border-color: var(--admin-blue);
+    background: #eff5ff;
+}
