@@ -429,7 +429,8 @@ const savedAccountName = String(account.full_name || "").trim();
 const accountName = savedAccountName && savedAccountName.toLowerCase() !== "customer"
 ? savedAccountName
 : accountEmail;
-const reference = app.reference_id ?? app.application_id ?? app.id ?? "Unavailable";
+const rawReference = app.reference_id ?? app.application_id ?? app.id ?? "Unavailable";
+const reference = formatApplicationReference(rawReference);
 const fields = getApplicationFields(app);
 const pairs = fields.map(field => [field]);
 const options = [
@@ -562,7 +563,7 @@ const profile = app.customer || {};
 const lines = [
 "Account Name: " + String(profile.full_name || ""),
 "Account Email: " + String(profile.email || ""),
-"Application Reference: " + String(app.reference_id ?? app.application_id ?? app.id ?? ""),
+"Application Reference: " + formatApplicationReference(app.reference_id ?? app.application_id ?? app.id ?? ""),
 "Submitted: " + formatDate(app.created_at)
 ];
 getApplicationFields(app).forEach(field => {
@@ -571,16 +572,22 @@ lines.push(field.label + ": " + field.value);
 return lines.join("\n");
 }
 
+function formatApplicationReference(value) {
+const reference = String(value ?? "").trim().toUpperCase();
+if (!reference || reference === "UNAVAILABLE") return reference || "UNAVAILABLE";
+return reference.startsWith("EIS-") ? reference : `EIS-${reference}`;
+}
+
 function getApplicationReference(app) {
-return String(app.reference_id ?? app.application_id ?? app.id ?? "")
+return formatApplicationReference(app.reference_id ?? app.application_id ?? app.id ?? "")
 .trim().toLowerCase();
 }
 
 function renderApplications() {
 const searchInput = $("application-reference-search");
-const query = String(searchInput?.value || "").trim().toLowerCase();
+const query = String(searchInput?.value || "").trim().toLowerCase().replace(/^eis-/, "");
 const filteredApplications = query
-? applicationsCache.filter(app => getApplicationReference(app).includes(query))
+? applicationsCache.filter(app => getApplicationReference(app).replace(/^eis-/, "").includes(query))
 : applicationsCache;
 
 if (!applicationsCache.length) {
@@ -606,7 +613,7 @@ $("applications-count").textContent = query
 
 function searchApplicationByReference() {
 const input = $("application-reference-search");
-const query = String(input?.value || "").trim().toLowerCase();
+const query = String(input?.value || "").trim().toLowerCase().replace(/^eis-/, "");
 if (!query) {
 showNotice("Enter an application reference number to search.", "error");
 input?.focus();
@@ -615,14 +622,14 @@ return;
 
 renderApplications();
 const matches = applicationsCache.filter(app =>
-getApplicationReference(app).includes(query)
+getApplicationReference(app).replace(/^eis-/, "").includes(query)
 );
 if (!matches.length) {
 showNotice("No application found with that reference number.", "error");
 return;
 }
 
-const exactMatch = matches.find(app => getApplicationReference(app) === query);
+const exactMatch = matches.find(app => getApplicationReference(app).replace(/^eis-/, "") === query);
 const target = exactMatch || matches[0];
 const card = document.querySelector(`[data-application-card="${CSS.escape(String(target.id))}"]`);
 card?.scrollIntoView({ behavior: "smooth", block: "start" });
