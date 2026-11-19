@@ -860,7 +860,7 @@
 .admin-page .admin-overview-grid {
     display: grid;
 
-    grid-template-columns: 1.3fr 0.9fr;
+    grid-template-columns: minmax(0, 1fr);
 
     gap: 19px;
 }
