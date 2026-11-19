@@ -1239,7 +1239,7 @@ async function loadApplications() {
         const row = document.createElement("tr");
         const cell = document.createElement("td");
 
-        cell.colSpan = 5;
+        cell.colSpan = 6;
         cell.textContent = "We could not load your applications. Refresh the page to try again.";
         cell.style.textAlign = "center";
 
