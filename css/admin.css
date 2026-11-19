@@ -3346,3 +3346,28 @@
   .admin-page .admin-audit-row time { grid-column: 2; grid-row: 2; margin-top: -3px; }
   .admin-page .admin-audit-pagination { justify-content: space-between; padding: 12px 14px; }
 }
+
+
+/* Account security */
+.admin-page .admin-security-content { padding: 20px 22px 22px; }
+.admin-page .admin-security-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.admin-page .admin-security-item { min-width: 0; padding: 14px 15px; border: 1px solid #e8edf1; border-radius: 9px; background: #fbfcfd; }
+.admin-page .admin-security-item span { display: block; margin-bottom: 7px; color: #788696; font-size: 11px; }
+.admin-page .admin-security-item strong { display: block; color: #344457; font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
+.admin-page .admin-security-note { margin: 14px 0 0; color: #547365; font-size: 12px; line-height: 1.6; }
+.admin-page .admin-security-action { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 0; border-bottom: 1px solid #edf0f3; }
+.admin-page .admin-security-action:last-of-type { border-bottom: 0; }
+.admin-page .admin-security-action strong { color: #344457; font-size: 13px; }
+.admin-page .admin-security-action p { margin: 5px 0 0; color: #7a8796; font-size: 11px; line-height: 1.55; }
+.admin-page .admin-security-action-danger { margin-top: 2px; }
+.admin-page .admin-danger-button { flex: 0 0 auto; min-height: 38px; padding: 8px 13px; border: 1px solid #e4b7b7; border-radius: 7px; background: #fff7f7; color: #a83b3b; font: inherit; font-size: 11px; font-weight: 650; cursor: pointer; }
+.admin-page .admin-danger-button:hover { background: #ffeded; }
+.admin-page .admin-security-footnote { margin: 14px 0 0; color: #8a96a4; font-size: 10px; line-height: 1.6; }
+.admin-page .admin-security-message { min-height: 18px; margin: 12px 0 0; color: #39724f; font-size: 12px; line-height: 1.5; }
+.admin-page .admin-security-action button:disabled { opacity: .55; cursor: wait; }
+@media (max-width: 650px) {
+  .admin-page .admin-security-content { padding: 16px 14px 18px; }
+  .admin-page .admin-security-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-page .admin-security-action { align-items: stretch; flex-direction: column; gap: 12px; }
+  .admin-page .admin-security-action button { width: 100%; }
+}
