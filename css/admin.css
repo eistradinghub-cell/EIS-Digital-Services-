@@ -3732,3 +3732,44 @@
         font-size: 9px;
     }
 }
+
+/* Desktop Customer Care: keep the conversation frame fixed and scroll messages inside it. */
+@media (min-width: 761px) {
+    .admin-page #section-customer-care .admin-chat-layout {
+        align-items: stretch;
+    }
+
+    .admin-page #section-customer-care .admin-chat-window {
+        height: 620px;
+        min-height: 560px;
+        max-height: calc(100vh - 250px);
+        overflow: hidden;
+    }
+
+    .admin-page #section-customer-care .admin-chat-active {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        max-height: 100%;
+        overflow: hidden;
+    }
+
+    .admin-page #section-customer-care .admin-chat-header,
+    .admin-page #section-customer-care .admin-chat-form {
+        flex: 0 0 auto;
+    }
+
+    .admin-page #section-customer-care .admin-chat-messages {
+        display: flex;
+        flex: 1 1 0;
+        flex-direction: column;
+        min-height: 0;
+        max-height: none;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+    }
+}
