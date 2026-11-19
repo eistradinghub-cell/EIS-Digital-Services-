@@ -93,13 +93,7 @@ body.admin-page .field-hint {
     line-height: 1.5;
 }
 
-body.admin-page .sidebar-section-title,
-body.admin-page .site-settings-card-label,
-body.admin-page .site-settings-kicker {
-    font-size: 11px;
-    font-weight: 650;
-    letter-spacing: 0.08em;
-}
+
 
 body.admin-page .global-admin-brand {
     font-family: inherit !important;
@@ -115,52 +109,27 @@ body.admin-page .global-admin-nav button {
 body.admin-page .admin-sidebar,
 body.admin-page .admin-main,
 body.admin-page .admin-content,
-body.admin-page .admin-section,
-body.admin-page .site-settings-shell {
+body.admin-page .admin-section {
     font-family: inherit !important;
 }
 
-body.admin-page .site-settings-hero h1 {
-    font-size: clamp(27px, 3vw, 34px);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-}
 
-body.admin-page .site-settings-card-head h2 {
-    font-size: 17px;
-    font-weight: 650;
-}
 
-body.admin-page .site-settings-card-head p,
-body.admin-page .site-settings-hero p {
-    font-size: 13px;
-    line-height: 1.6;
-}
 
-body.admin-page .site-settings-card-label {
-    font-size: 11px;
-}
 
-body.admin-page .site-settings-field label.field-title,
-body.admin-page .site-settings-preview-title,
-body.admin-page .site-settings-image-card h3 {
-    font-size: 12px;
-    font-weight: 600;
-}
 
-body.admin-page .site-settings-field input[type="text"] {
-    font-size: 14px;
-}
 
-body.admin-page .site-settings-upload strong {
-    font-size: 13px;
-    font-weight: 600;
-}
 
-body.admin-page .site-settings-upload small,
-body.admin-page .site-settings-preview {
-    font-size: 11px;
-}
+
+
+
+
+
+
+
+
+
+
 
 @media (max-width: 700px) {
     body.admin-page {
