@@ -3,6 +3,11 @@ const $ = (id) => document.getElementById(id);
 let currentUser = null;
 let currentProfile = null;
 let applicationsCache = [];
+let paymentsCache = [];
+let paymentsPage = 1;
+let paymentsTotal = 0;
+let paymentLoadSequence = 0;
+const PAYMENTS_PAGE_SIZE = 10;
 let servicesCache = [];
 let conversationsCache = [];
 let currentConversation = null;
@@ -277,6 +282,7 @@ const allowedSections = new Set([
 "overview",
 "marketplace",
 "applications",
+"payments",
 "customer-care",
 "prices",
 "broadcast",
@@ -843,6 +849,124 @@ button.textContent = originalButtonText;
 }
 if (statusSelect?.isConnected) statusSelect.disabled = false;
 }
+}
+
+function getPaymentStatusLabel(status) {
+const normalized = normalizeStatus(status || "pending");
+const labels = {
+pending: "Pending",
+successful: "Paid",
+used: "Applied",
+failed: "Failed"
+};
+return labels[normalized] || String(status || "Unknown").replace(/_/g, " ");
+}
+
+async function loadPayments() {
+const container = $("payments-admin-list");
+if (!container) return;
+const requestId = ++paymentLoadSequence;
+setLoading("payments-admin-list", "Loading payment records...");
+
+const query = String($("payment-reference-search")?.value || "").trim().replace(/^eis-/i, "").replace(/[%_]/g, "");
+const statusFilter = String($("payment-status-filter")?.value || "all").toLowerCase();
+const requestedPage = paymentsPage;
+const from = (requestedPage - 1) * PAYMENTS_PAGE_SIZE;
+let request = supabase
+.from("payments")
+.select("id,reference,user_id,service_name,amount,status,created_at", { count: "exact" })
+.order("created_at", { ascending: false })
+.range(from, from + PAYMENTS_PAGE_SIZE - 1);
+
+if (query) request = request.ilike("reference", `%EIS-${query}%`);
+if (statusFilter !== "all") request = request.eq("status", statusFilter);
+
+try {
+const { data, error, count } = await request;
+if (error) throw error;
+if (requestId !== paymentLoadSequence) return;
+
+paymentsTotal = Number(count || 0);
+const pageCount = Math.max(1, Math.ceil(paymentsTotal / PAYMENTS_PAGE_SIZE));
+if (paymentsPage > pageCount) {
+paymentsPage = pageCount;
+return loadPayments();
+}
+paymentsCache = data || [];
+
+const userIds = [...new Set(paymentsCache.map(payment => payment.user_id).filter(Boolean))];
+let profileMap = new Map();
+if (userIds.length) {
+const { data: profiles, error: profileError } = await supabase.rpc("admin_get_application_customers", {
+p_user_ids: userIds
+});
+if (profileError) {
+console.warn("Could not load payment customer details:", profileError);
+} else {
+profileMap = new Map((profiles || []).map(profile => [profile.id, profile]));
+}
+}
+
+if (requestId !== paymentLoadSequence) return;
+const records = paymentsCache.map(payment => {
+const customer = profileMap.get(payment.user_id) || {};
+const customerName = String(customer.full_name || "Customer");
+const customerEmail = String(customer.email || "Email unavailable");
+const status = normalizeStatus(payment.status || "pending");
+return `
+<article class="admin-payment-card">
+<div class="admin-payment-main">
+<div class="admin-payment-reference">
+<strong>${escapeHTML(payment.reference || "Reference unavailable")}</strong>
+<span>${escapeHTML(formatDate(payment.created_at))}</span>
+</div>
+<div class="admin-payment-customer">
+<strong>${escapeHTML(customerName)}</strong>
+<span>${escapeHTML(customerEmail)}</span>
+</div>
+<div class="admin-payment-service">
+<strong>${escapeHTML(payment.service_name || "Service unavailable")}</strong>
+<span>Payment amount</span>
+</div>
+<div class="admin-payment-total">
+<strong>${escapeHTML(formatCurrency(payment.amount))}</strong>
+<span class="admin-status ${escapeHTML(status)}">${escapeHTML(getPaymentStatusLabel(payment.status))}</span>
+</div>
+</div>
+</article>`;
+});
+
+if (!paymentsCache.length) {
+showEmpty("payments-admin-list", query || statusFilter !== "all" ? "No payments match these filters." : "No payment records have been received yet.");
+} else {
+container.innerHTML = records.join("");
+}
+
+if ($("payments-count")) {
+$("payments-count").textContent = query || statusFilter !== "all"
+? `Showing ${paymentsTotal} matching payments`
+: `${paymentsTotal.toLocaleString()} Payments`;
+}
+const pagination = $("payments-pagination");
+if (pagination) {
+pagination.hidden = paymentsTotal <= PAYMENTS_PAGE_SIZE;
+const first = paymentsTotal ? from + 1 : 0;
+const last = Math.min(from + PAYMENTS_PAGE_SIZE, paymentsTotal);
+if ($("payments-page-summary")) $("payments-page-summary").textContent = `Showing ${first}–${last} of ${paymentsTotal}`;
+if ($("payments-prev-page")) $("payments-prev-page").disabled = paymentsPage <= 1;
+if ($("payments-next-page")) $("payments-next-page").disabled = paymentsPage >= pageCount;
+}
+} catch (error) {
+if (requestId !== paymentLoadSequence) return;
+console.error("Payments load error:", error);
+showError("payments-admin-list", "Payment records could not be loaded. Please refresh and try again.");
+if ($("payments-pagination")) $("payments-pagination").hidden = true;
+}
+}
+
+async function refreshPayments() {
+await loadPayments();
+showNotice("Payment records refreshed.");
 }
 
 async function loadServices() {
@@ -1586,6 +1710,7 @@ console.warn("Could not save current admin section:", error);
 target.classList.add("active");
 
 if (sectionName === "applications") markApplicationsAsSeen();
+if (sectionName === "payments") loadPayments();
 
 document.querySelectorAll(".sidebar-link").forEach(link => {
 link.classList.toggle(
@@ -1598,6 +1723,7 @@ const titleMap = {
 overview: "Overview",
 marketplace: "Marketplace",
 applications: "Applications",
+payments: "Payments",
 "customer-care": "Customer Care",
 prices: "Prices Management",
 broadcast: "Broadcast Message",
@@ -1791,6 +1917,14 @@ $("refresh-applications")?.addEventListener(
 "click",
 refreshApplications
 );
+$("refresh-payments")?.addEventListener("click", refreshPayments);
+$("search-payment-reference")?.addEventListener("click", () => { paymentsPage = 1; loadPayments(); });
+$("payment-reference-search")?.addEventListener("keydown", event => {
+if (event.key === "Enter") { event.preventDefault(); paymentsPage = 1; loadPayments(); }
+});
+$("payment-status-filter")?.addEventListener("change", () => { paymentsPage = 1; loadPayments(); });
+$("payments-prev-page")?.addEventListener("click", () => { paymentsPage = Math.max(1, paymentsPage - 1); loadPayments(); });
+$("payments-next-page")?.addEventListener("click", () => { paymentsPage += 1; loadPayments(); });
 
 $("application-reference-search")?.addEventListener("input", () => { applicationsPage = 1; renderApplications(); });
 $("application-status-filter")?.addEventListener("change", () => { applicationsPage = 1; renderApplications(); });
@@ -1915,6 +2049,23 @@ loadApplications();
 
 realtimeChannels.push(applicationsChannel);
 
+const paymentsChannel = supabase
+.channel("admin-payments-live")
+.on(
+"postgres_changes",
+{
+event: "*",
+schema: "public",
+table: "payments"
+},
+() => {
+if ($("section-payments")?.classList.contains("active")) loadPayments();
+}
+)
+.subscribe();
+
+realtimeChannels.push(paymentsChannel);
+
 const servicesChannel = supabase
 .channel("admin-services-live")
 .on(
@@ -2000,6 +2151,7 @@ removeRealtimeSubscriptions();
 window.EISAdmin = {
 refreshDashboard,
 refreshApplications,
+refreshPayments,
 refreshServices,
 refreshConversations,
 openSection,
