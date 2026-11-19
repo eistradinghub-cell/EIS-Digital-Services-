@@ -16,6 +16,8 @@ const PAYMENTS_PAGE_SIZE = 10;
 let servicesCache = [];
 let conversationsCache = [];
 let currentConversation = null;
+let conversationLoadSequence = 0;
+let chatMessageLoadSequence = 0;
 let realtimeChannels = [];
 let noticeTimer = null;
 let isSendingMessage = false;
@@ -1380,205 +1382,129 @@ showNotice(
 }
 
 async function loadConversations() {
-setLoading(
-"admin-conversations-list",
-"Loading conversations..."
-);
-
-const { data, error } = await supabase
-.from("chat_conversations")
-.select("*")
-.order("last_message_at", {
-ascending: false,
-nullsFirst: false
-});
-
-if (error) {
-console.error("Conversation error:", error);
-showError("admin-conversations-list", error.message);
-return;
-}
-
-conversationsCache = data || [];
-await loadConversationCustomers();
+const requestId = ++conversationLoadSequence;
+setLoading("admin-conversations-list", "Loading conversations...");
+const { data, error } = await supabase.from("chat_conversations")
+.select("id,customer_id,status,last_message,last_message_at,unread_admin_count,unread_customer_count,created_at")
+.order("last_message_at", { ascending: false, nullsFirst: false });
+if (requestId !== conversationLoadSequence) return;
+if (error) { console.error('Conversation error:', error); showError('admin-conversations-list', 'Conversations could not be loaded. Please refresh and try again.'); return; }
+const enriched = await loadConversationCustomers(data || []);
+if (requestId !== conversationLoadSequence) return;
+conversationsCache = enriched;
+if (currentConversation) currentConversation = conversationsCache.find(item => item.id === currentConversation.id) || null;
+updateConversationSummary();
 renderConversations();
-renderStatistics();
+if (currentConversation) updateChatConversationHeader(currentConversation);
+if (typeof renderStatistics === 'function') renderStatistics();
 }
 
-async function loadConversationCustomers() {
-const customerIds = [
-...new Set(
-conversationsCache
-.map(item => item.customer_id)
-.filter(Boolean)
-)
-];
-
-if (!customerIds.length) return;
-
-const { data, error } = await supabase
-.from("profiles")
-.select("id,full_name,email,phone")
-.in("id", customerIds);
-
-if (error) {
-console.warn("Conversation customer error:", error);
-return;
+async function loadConversationCustomers(conversations) {
+const customerIds = [...new Set(conversations.map(item => item.customer_id).filter(Boolean))];
+if (!customerIds.length) return conversations;
+const { data, error } = await supabase.from("profiles").select("id,full_name,email").in("id", customerIds);
+if (error) { console.warn('Conversation customer details could not be loaded:', error); return conversations.map(item => ({ ...item, customer: null })); }
+const profileMap = new Map((data || []).map(profile => [profile.id, profile]));
+return conversations.map(item => ({ ...item, customer: profileMap.get(item.customer_id) || null }));
 }
 
-const profileMap = new Map(
-(data || []).map(profile => [profile.id, profile])
-);
+function getVisibleConversations() {
+const query = String($("chat-inbox-search")?.value || "").trim().toLocaleLowerCase();
+const filter = String($("chat-inbox-filter")?.value || "all").toLowerCase();
+return conversationsCache.filter(conversation => {
+const unread = Number(conversation.unread_admin_count || 0) > 0;
+const status = String(conversation.status || "Open").trim().toLowerCase();
+if (filter === "unread" && !unread) return false;
+if (filter === "open" && status !== "open") return false;
+if (filter === "closed" && status !== "closed") return false;
+if (!query) return true;
+const searchable = [getCustomerName(conversation.customer), conversation.customer?.email, conversation.last_message].join(' ').toLocaleLowerCase();
+return searchable.includes(query);
+});
+}
 
-conversationsCache = conversationsCache.map(item => ({
-...item,
-customer: profileMap.get(item.customer_id) || null
-}));
+function updateConversationSummary() {
+const total = conversationsCache.length;
+const unread = conversationsCache.reduce((sum, item) => sum + Math.max(0, Number(item.unread_admin_count || 0)), 0);
+if ($("chat-conversation-count")) $("chat-conversation-count").textContent = `${total} ${total === 1 ? "conversation" : "conversations"}`;
+if ($("chat-unread-count")) $("chat-unread-count").textContent = `${unread} unread`;
 }
 
 function renderConversations() {
 const container = $("admin-conversations-list");
 if (!container) return;
-
-if (!conversationsCache.length) {
-showEmpty(
-"admin-conversations-list",
-"No customer conversations found."
-);
+const visible = getVisibleConversations();
+if (!visible.length) {
+const hasConversations = conversationsCache.length > 0;
+showEmpty("admin-conversations-list", hasConversations ? "No conversations match these filters." : "No customer conversations yet.");
 return;
 }
-
-container.innerHTML = conversationsCache.map(conversation => {
+container.innerHTML = visible.map(conversation => {
 const name = getCustomerName(conversation.customer);
-
-const unread = Number(
-conversation.unread_admin_count || 0
-);
-
-const active =
-currentConversation?.id === conversation.id;
-
+const unread = Number(conversation.unread_admin_count || 0);
+const active = currentConversation?.id === conversation.id;
+const status = String(conversation.status || "Open");
+const lastMessage = conversation.last_message || 'No messages yet';
 return `
-<button
-type="button"
-class="admin-conversation-item ${active ? "active" : ""}"
-data-conversation-id="${escapeHTML(conversation.id)}">
-<div class="conversation-avatar" aria-label="EIS Digital Services logo">
-<svg viewBox="0 0 48 48" role="img" aria-label="EIS Digital Services">
-<rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
-<path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="24" cy="26" r="2.6" fill="#12b894"/>
-</svg>
-</div>
-<div class="conversation-info">
-<strong>${escapeHTML(name)}</strong>
-<span class="conversation-email">
-${escapeHTML(
-conversation.customer?.email || "Email not available"
-)}
+<button type="button" class="admin-conversation-item ${active ? "active" : ""} ${unread > 0 ? "has-unread" : ""}" data-conversation-id="${escapeHTML(conversation.id)}" aria-current="${active ? "true" : "false"}">
+<span class="conversation-avatar" aria-hidden="true">${escapeHTML(getInitials(name))}</span>
+<span class="conversation-info">
+<span class="conversation-item-topline"><strong>${escapeHTML(name)}</strong><time>${escapeHTML(formatShortDate(conversation.last_message_at || conversation.created_at))}</time></span>
+<span class="conversation-email">${escapeHTML(conversation.customer?.email || "Email not available")}</span>
+<span class="conversation-preview">${escapeHTML(lastMessage)}</span>
+<span class="conversation-item-bottomline"><span class="conversation-status-label ${status.toLowerCase() === "closed" ? "closed" : "open"}">${escapeHTML(status)}</span>${unread > 0 ? `<span class="conversation-unread">${unread > 99 ? "99+" : unread}</span>` : ""}</span>
 </span>
-<p>
-${escapeHTML(
-conversation.last_message || "No messages yet"
-)}
-</p>
-<span>
-${escapeHTML(
-formatShortDate(
-conversation.last_message_at ||
-conversation.created_at
-)
-)}
-</span>
-</div>
-${unread > 0 ? `
-<span class="conversation-unread">
-${unread}
-</span>
-` : ""}
-</button>
-`;
-}).join("");
+</button>`;
+}).join('');
 }
 
 async function openConversation(conversationId) {
-const conversation = conversationsCache.find(
-item => item.id === conversationId
-);
-
-if (!conversation) {
-showNotice("Conversation not found.", "error");
-return;
-}
-
+const conversation = conversationsCache.find(item => item.id === conversationId);
+if (!conversation) { showNotice("Conversation not found.", "error"); return; }
 currentConversation = conversation;
+chatMessageLoadSequence += 1;
 renderConversations();
-
-if ($("admin-chat-empty")) {
-$("admin-chat-empty").hidden = true;
-}
-
-if ($("admin-chat-active")) {
-$("admin-chat-active").hidden = false;
-}
-
-const name = getCustomerName(conversation.customer);
-
-if ($("chat-customer-name")) {
-$("chat-customer-name").textContent = name;
-}
-
-if ($("chat-customer-email")) {
-$("chat-customer-email").textContent =
-conversation.customer?.email || "Email not available";
-}
-
-if ($("chat-customer-avatar")) {
-$("chat-customer-avatar").innerHTML = `
-<svg viewBox="0 0 48 48" role="img" aria-label="EIS Digital Services">
-<rect x="2" y="2" width="44" height="44" rx="12" fill="#1f4fe0"/>
-<path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="24" cy="26" r="2.6" fill="#12b894"/>
-</svg>
-`;
-}
-
-if ($("chat-customer-status")) {
-$("chat-customer-status").textContent =
-conversation.status || "Conversation";
-}
-
+if ($("admin-chat-empty")) $("admin-chat-empty").hidden = true;
+if ($("admin-chat-active")) $("admin-chat-active").hidden = false;
+updateChatConversationHeader(conversation);
 await loadChatMessages(conversationId);
-await markConversationRead(conversationId);
+if (currentConversation?.id === conversationId) await markConversationRead(conversationId);
+}
+
+function updateChatConversationHeader(conversation) {
+if (!conversation) return;
+const name = getCustomerName(conversation.customer);
+if ($("chat-customer-name")) $("chat-customer-name").textContent = name;
+if ($("chat-customer-email")) $("chat-customer-email").textContent = conversation.customer?.email || "Email not available";
+if ($("chat-customer-avatar")) $("chat-customer-avatar").textContent = getInitials(name);
+const closed = String(conversation.status || "Open").toLowerCase() === "closed";
+if ($("chat-customer-status")) $("chat-customer-status").textContent = closed ? "Closed conversation" : "Open conversation";
+const toggle = $("chat-status-toggle");
+if (toggle) { toggle.textContent = closed ? "Reopen conversation" : "Close conversation"; toggle.dataset.nextStatus = closed ? "Open" : "Closed"; }
+const input = $("admin-chat-input");
+const send = $("admin-chat-send");
+if (input) { input.disabled = closed; input.placeholder = closed ? "Reopen this conversation to reply." : "Type your reply..."; }
+if (send) send.disabled = closed || isSendingMessage;
 }
 
 async function loadChatMessages(conversationId) {
+const requestId = ++chatMessageLoadSequence;
 setLoading("admin-chat-messages", "Loading messages...");
-
-const { data, error } = await supabase
-.from("chat_messages")
-.select(`
-id,
-conversation_id,
-sender_id,
-sender_role,
-content,
-attachment_url,
-is_read,
-created_at
-`)
+const { data, error } = await supabase.from("chat_messages")
+.select("id,conversation_id,sender_id,sender_role,content,attachment_url,is_read,created_at")
 .eq("conversation_id", conversationId)
 .order("created_at", { ascending: true });
-
-if (error) {
-console.error("Chat messages error:", error);
-showError("admin-chat-messages", error.message);
-return;
-}
-
+if (requestId !== chatMessageLoadSequence || currentConversation?.id !== conversationId) return;
+if (error) { console.error("Chat messages error:", error); showError("admin-chat-messages", "Messages could not be loaded. Please try again."); return; }
 renderChatMessages(data || []);
 }
 
+function getSafeChatAttachmentUrl(value) {
+try {
+const url = new URL(String(value || ''), window.location.origin);
+return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
+} catch (error) { return ''; }
+}
 function renderChatMessages(messages) {
 const container = $("admin-chat-messages");
 if (!container) return;
@@ -1602,17 +1528,9 @@ return `
 <div>
 ${escapeHTML(message.content)}
 </div>
-${message.attachment_url ? `
-<p>
-Attachment:
-<a
-href="${escapeHTML(message.attachment_url)}"
-target="_blank"
-rel="noopener noreferrer">
-View attachment
-</a>
-</p>
-` : ""}
+${getSafeChatAttachmentUrl(message.attachment_url) ? `
+<p class="chat-attachment-link">Attachment: <a href="${escapeHTML(getSafeChatAttachmentUrl(message.attachment_url))}" target="_blank" rel="noopener noreferrer">View attachment</a></p>
+` : message.attachment_url ? '<p class="chat-attachment-unavailable">Attachment link unavailable.</p>' : ""}
 <time>
 ${escapeHTML(formatDate(message.created_at))}
 </time>
@@ -1626,125 +1544,71 @@ container.scrollTop = container.scrollHeight;
 /* FIX: Mark opened customer messages as read and reset the sidebar badge. */
 async function markConversationRead(conversationId) {
 try {
-const { error: messagesError } = await supabase
-.from("chat_messages")
-.update({ is_read: true })
-.eq("conversation_id", conversationId)
-.eq("sender_role", "customer")
-.eq("is_read", false);
-
-if (messagesError) {
-console.error(
-"Could not mark customer messages as read:",
-messagesError
-);
-showNotice("Unable to mark messages as read. Please refresh and try again.", "error");
-return;
-}
-
-const { error: conversationError } = await supabase
-.from("chat_conversations")
-.update({ unread_admin_count: 0 })
-.eq("id", conversationId);
-
-if (conversationError) {
-console.error(
-"Could not reset conversation unread count:",
-conversationError
-);
-showNotice("Messages were opened, but the unread counter could not be updated.", "error");
-return;
-}
-
-conversationsCache = conversationsCache.map(item =>
-item.id === conversationId
-? { ...item, unread_admin_count: 0 }
-: item
-);
-
-if (currentConversation?.id === conversationId) {
-currentConversation = conversationsCache.find(
-item => item.id === conversationId
-) || currentConversation;
-}
-
+const { error: messagesError } = await supabase.from("chat_messages").update({ is_read: true }).eq("conversation_id", conversationId).eq("sender_role", "customer").eq("is_read", false);
+if (messagesError) throw messagesError;
+const { error: conversationError } = await supabase.from("chat_conversations").update({ unread_admin_count: 0 }).eq("id", conversationId);
+if (conversationError) throw conversationError;
+conversationsCache = conversationsCache.map(item => item.id === conversationId ? { ...item, unread_admin_count: 0 } : item);
+if (currentConversation?.id === conversationId) currentConversation = conversationsCache.find(item => item.id === conversationId) || currentConversation;
+updateConversationSummary();
 renderConversations();
-renderStatistics();
-
-await loadConversations();
-
-currentConversation = conversationsCache.find(
-item => item.id === conversationId
-) || currentConversation;
-
+if (typeof renderStatistics === 'function') renderStatistics();
 } catch (error) {
 console.error("Mark conversation read error:", error);
-showNotice("Unable to update the message read status.", "error");
+showNotice("Messages opened, but their read status could not be updated.", "error");
 }
 }
 
 async function sendChatMessage(event) {
 event.preventDefault();
-
 if (isSendingMessage) return;
-
-if (!currentConversation || !currentUser) {
-showNotice("Select a conversation first.", "error");
-return;
-}
-
+const conversationId = currentConversation?.id;
+if (!conversationId || !currentUser) { showNotice("Select a conversation first.", "error"); return; }
 const input = $("admin-chat-input");
 const content = input?.value.trim();
-
 if (!content) return;
-
+if (String(currentConversation?.status || "Open").toLowerCase() === "closed") { showNotice("Reopen this conversation before replying.", "error"); return; }
 isSendingMessage = true;
-
 const button = $("admin-chat-send");
-
-if (button) {
-button.disabled = true;
-button.textContent = "Sending...";
-}
-
+if (button) { button.disabled = true; button.textContent = "Sending..."; }
 try {
-const { error } = await supabase
-.from("chat_messages")
-.insert({
-conversation_id: currentConversation.id,
-sender_id: currentUser.id,
-sender_role: "admin",
-content,
-is_read: false
-});
-
+const { error } = await supabase.from("chat_messages").insert({ conversation_id: conversationId, sender_id: currentUser.id, sender_role: "admin", content, is_read: false });
 if (error) throw error;
-
-input.value = "";
-
-await loadChatMessages(currentConversation.id);
+if (input) input.value = '';
+if (currentConversation?.id === conversationId) await loadChatMessages(conversationId);
 await loadConversations();
-
-currentConversation = conversationsCache.find(
-item => item.id === currentConversation?.id
-) || currentConversation;
-
-showNotice("Message sent successfully.");
-
+if (currentConversation?.id === conversationId) updateChatConversationHeader(currentConversation);
+showNotice("Reply sent successfully.");
 } catch (error) {
 console.error("Send message error:", error);
-showNotice(
-"Unable to send message: " + error.message,
-"error"
-);
+showNotice("Unable to send message. Please try again.", "error");
 } finally {
 isSendingMessage = false;
+if (button) { button.textContent = "Send"; button.disabled = String(currentConversation?.status || "Open").toLowerCase() === "closed"; }
+}
+}
 
-if (button) {
-button.disabled = false;
-button.textContent = "Send";
-}
-}
+async function updateConversationStatus() {
+const conversation = currentConversation;
+if (!conversation) return;
+const button = $("chat-status-toggle");
+const nextStatus = button?.dataset.nextStatus;
+if (!['Open', 'Closed'].includes(nextStatus)) return;
+if (button) { button.disabled = true; button.textContent = "Updating..."; }
+try {
+const { data, error } = await supabase.from("chat_conversations").update({ status: nextStatus }).eq("id", conversation.id).select("id,status").single();
+if (error) throw error;
+conversationsCache = conversationsCache.map(item => item.id === conversation.id ? { ...item, status: data.status } : item);
+currentConversation = conversationsCache.find(item => item.id === conversation.id) || { ...conversation, status: data.status };
+updateChatConversationHeader(currentConversation);
+updateConversationSummary();
+renderConversations();
+showNotice(nextStatus === "Closed" ? "Conversation closed." : "Conversation reopened.");
+} catch (error) {
+console.error("Conversation status update error:", error);
+showNotice("Unable to update conversation status. Please try again.", "error");
+if (button) button.textContent = String(conversation.status || "Open").toLowerCase() === "closed" ? "Reopen conversation" : "Close conversation";
+} finally { if (button) button.disabled = false; }
 }
 
 async function sendBroadcast(event) {
@@ -2103,6 +1967,9 @@ $("refresh-conversations")?.addEventListener(
 "click",
 refreshConversations
 );
+$("chat-inbox-search")?.addEventListener("input", renderConversations);
+$("chat-inbox-filter")?.addEventListener("change", renderConversations);
+$("chat-status-toggle")?.addEventListener("click", updateConversationStatus);
 
 $("add-service-form")?.addEventListener(
 "submit",
