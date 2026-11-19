@@ -538,3 +538,112 @@
     #section-site-settings .admin-settings-notice { margin: 0 16px 16px; }
     #section-site-settings .admin-settings-grid { grid-template-columns: 1fr; padding: 2px 16px 12px; }
 }
+
+
+/* Website settings: conventional, content-first administration layout */
+#section-site-settings {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+        "heading heading"
+        "logo profile"
+        "home home"
+        "access access"
+        "account account";
+    align-items: start;
+    gap: 0 18px;
+}
+#section-site-settings > .admin-page-heading { grid-area: heading; }
+#section-site-settings > .admin-panel:nth-of-type(1) { grid-area: logo; }
+#section-site-settings > .admin-panel:nth-of-type(2) { grid-area: home; }
+#section-site-settings > .admin-panel:nth-of-type(3) { grid-area: profile; }
+#section-site-settings > .admin-panel:nth-of-type(4) { grid-area: access; }
+#section-site-settings > .admin-panel:nth-of-type(5) { grid-area: account; }
+#section-site-settings > .admin-panel {
+    align-self: stretch;
+    margin-bottom: 18px;
+}
+#section-site-settings .admin-page-heading {
+    margin-bottom: 20px;
+}
+#section-site-settings .admin-page-heading h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -.25px;
+}
+#section-site-settings .admin-page-heading p {
+    font-size: 13px;
+}
+#section-site-settings .admin-panel-header {
+    min-height: 58px;
+    padding: 15px 18px;
+}
+#section-site-settings .admin-panel-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+}
+#section-site-settings .admin-panel-header p {
+    font-size: 12px;
+}
+#section-site-settings .admin-form {
+    gap: 14px;
+    padding: 17px 18px 18px;
+}
+#section-site-settings .admin-form-group label {
+    font-size: 12px;
+    font-weight: 600;
+}
+#section-site-settings .admin-settings-preview {
+    min-height: 84px;
+    margin-top: 8px;
+    background: #fafbfb;
+}
+#section-site-settings #site-home-images-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 16px;
+}
+#section-site-settings #site-home-images-form .admin-form-group {
+    min-width: 0;
+}
+#section-site-settings #site-home-images-form .admin-settings-preview {
+    min-height: 145px;
+}
+#section-site-settings #site-home-images-form .admin-settings-preview img {
+    width: 100%;
+    height: 125px;
+    object-fit: cover;
+}
+#section-site-settings #site-home-images-save {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+#section-site-settings .admin-settings-notice {
+    margin-top: 0;
+}
+#section-site-settings .admin-settings-grid {
+    padding-top: 0;
+}
+@media (max-width: 900px) {
+    #section-site-settings {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "heading"
+            "logo"
+            "profile"
+            "home"
+            "access"
+            "account";
+    }
+    #section-site-settings #site-home-images-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    #section-site-settings #site-home-images-save {
+        grid-column: auto;
+    }
+}
+@media (max-width: 700px) {
+    #section-site-settings .admin-page-heading h1 { font-size: 22px; }
+    #section-site-settings .admin-form { padding: 15px 16px 16px; }
+}
