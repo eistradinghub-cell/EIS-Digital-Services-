@@ -2050,7 +2050,7 @@ async function logoutUser() {
 
     try {
         const { error } =
-            await supabase.auth.signOut();
+            await supabase.auth.signOut({ scope: "local" });
 
         if (error) throw error;
 
@@ -2060,6 +2060,42 @@ async function logoutUser() {
         console.error("Logout error:", error);
 
         alert("Unable to log out. Please try again.");
+    }
+}
+
+async function logoutAllSessions() {
+    if (applicationModeActive) {
+        setProfileSettingsMessage("profile-session-message", "Complete and submit your paid application before ending your sessions.", "error");
+        return;
+    }
+
+    const confirmed = window.confirm(
+        "Sign out of EIS Digital Services on every device and browser? You will need to sign in again."
+    );
+    if (!confirmed) return;
+
+    const button = $("profile-signout-all");
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Signing out...";
+    }
+
+    try {
+        const { error } = await supabase.auth.signOut({ scope: "global" });
+        if (error) throw error;
+        // Supabase emits SIGNED_OUT after global revocation; the existing
+        // auth listener redirects this browser to the sign-in page.
+    } catch (error) {
+        console.error("Sign out all sessions error:", error);
+        setProfileSettingsMessage(
+            "profile-session-message",
+            "We could not end all sessions. Check your connection and try again.",
+            "error"
+        );
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Sign out all devices";
+        }
     }
 }
 
@@ -2175,6 +2211,7 @@ async function initializeDashboard() {
         }
     });
     $("profile-password-form")?.addEventListener("submit", updateAccountPassword);
+    $("profile-signout-all")?.addEventListener("click", logoutAllSessions);
     $("profile-new-password")?.addEventListener("input", updatePasswordStrength);
     $("profile-confirm-password")?.addEventListener("input", updatePasswordMatch);
 
