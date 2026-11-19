@@ -1964,6 +1964,7 @@ async function openConversation(conversationId) {
 const conversation = conversationsCache.find(item => item.id === conversationId);
 if (!conversation) { showNotice("Conversation not found.", "error"); return; }
 currentConversation = conversation;
+currentChatMessages = [];
 chatMessageLoadSequence += 1;
 renderConversations();
 if ($("admin-chat-empty")) $("admin-chat-empty").hidden = true;
@@ -2059,7 +2060,7 @@ function exportCurrentChatTranscript() {
             ""
         ])
     ];
-    const blob = new Blob(["\\uFEFF" + lines.join("\\r\\n")], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
