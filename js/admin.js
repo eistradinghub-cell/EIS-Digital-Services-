@@ -126,32 +126,28 @@ return formData[key] ?? "";
 
 function setupAdminPanelDisclosures() {
   const attachPanels = (root = document) => {
+    const selector = ".admin-section .admin-panel:not(.admin-chat-list-panel):not(.admin-chat-window)";
     const candidates = [];
-    if (root instanceof Element && root.matches(".admin-section .admin-panel:not(.admin-chat-list-panel):not(.admin-chat-window)")) {
+
+    if (root instanceof Element && root.matches(selector)) {
       candidates.push(root);
     }
     if (root.querySelectorAll) {
-      candidates.push(...root.querySelectorAll(
-        ".admin-section .admin-panel:not(.admin-chat-list-panel):not(.admin-chat-window)"
-      ));
+      candidates.push(...root.querySelectorAll(selector));
     }
 
-    candidates.forEach((panel, index) => {
+    candidates.forEach(panel => {
       if (panel.dataset.disclosureReady === "true") return;
 
-      const heading = panel.querySelector(":scope > .admin-panel-header");
-      if (!heading) return;
+      const header = panel.querySelector(":scope > .admin-panel-header");
+      const titleHeading = header?.querySelector("h2, h3, h4");
+      if (!header || !titleHeading) return;
 
-      const movableNodes = [...heading.childNodes].filter(node => {
-        if (node.nodeType !== Node.ELEMENT_NODE) return true;
-        return !node.matches("button, a, input, select, textarea, label");
-      });
-      if (!movableNodes.length) return;
-
+      const title = titleHeading.textContent.trim() || "Panel";
       const sectionKey = panel.closest(".admin-section")?.id || "admin";
-      const title = heading.querySelector("h3")?.textContent.trim() || "panel";
       const panelKey = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       const storageKey = `eis-admin-panel:${sectionKey}:${panelKey}`;
+
       const body = document.createElement("div");
       body.className = "admin-panel-content";
       body.id = `admin-panel-content-${sectionKey}-${panelKey}-${document.querySelectorAll(".admin-panel-content").length + 1}`;
@@ -161,14 +157,18 @@ function setupAdminPanelDisclosures() {
       toggle.className = "admin-panel-toggle";
       toggle.setAttribute("aria-controls", body.id);
 
-      movableNodes.forEach(node => toggle.append(node));
+      const label = document.createElement("span");
+      label.className = "admin-panel-toggle-label";
+      label.textContent = title;
+
       const mark = document.createElement("span");
       mark.className = "admin-panel-toggle-mark";
       mark.setAttribute("aria-hidden", "true");
-      toggle.append(mark);
-      heading.prepend(toggle);
 
-      while (heading.nextSibling) body.append(heading.nextSibling);
+      toggle.append(label, mark);
+      titleHeading.replaceChildren(toggle);
+
+      while (header.nextSibling) body.append(header.nextSibling);
       panel.append(body);
 
       let expanded = false;
@@ -181,6 +181,7 @@ function setupAdminPanelDisclosures() {
         panel.classList.toggle("is-expanded", expanded);
         toggle.setAttribute("aria-expanded", String(expanded));
         body.hidden = !expanded;
+
         if (persist) {
           try {
             localStorage.setItem(storageKey, expanded ? "open" : "closed");
@@ -195,6 +196,7 @@ function setupAdminPanelDisclosures() {
   };
 
   attachPanels();
+
   if (!window.eisAdminPanelObserver) {
     window.eisAdminPanelObserver = new MutationObserver(records => {
       records.forEach(record => {
@@ -203,6 +205,7 @@ function setupAdminPanelDisclosures() {
         });
       });
     });
+
     window.eisAdminPanelObserver.observe(
       document.querySelector(".admin-content") || document.body,
       { childList: true, subtree: true }
