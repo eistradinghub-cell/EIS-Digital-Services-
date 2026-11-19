@@ -551,32 +551,102 @@ async function saveProfileField(field, button) {
     }
 }
 
+function getPasswordStrength(password) {
+    return {
+        length: password.length >= 12,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /\\d/.test(password),
+        symbol: /[^A-Za-z0-9]/.test(password)
+    };
+}
+
+function updatePasswordStrength() {
+    const password = $("profile-new-password")?.value || "";
+    const rules = getPasswordStrength(password);
+    const passed = Object.values(rules).filter(Boolean).length;
+    document.querySelectorAll("[data-password-rule]").forEach(item => {
+        const valid = Boolean(rules[item.dataset.passwordRule]);
+        item.classList.toggle("is-met", valid);
+        item.setAttribute("aria-label", item.textContent + (valid ? ", met" : ", not met"));
+    });
+    const fill = $("profile-password-strength-fill");
+    const label = $("profile-password-strength-label");
+    const strength = passed === 5 ? "Strong" : passed >= 3 ? "Getting stronger" : password ? "Weak" : "Password strength";
+    if (fill) {
+        fill.style.width = (passed * 20) + "%";
+        fill.dataset.strength = passed === 5 ? "strong" : passed >= 3 ? "medium" : "weak";
+    }
+    if (label) label.textContent = strength;
+    updatePasswordMatch();
+}
+
+function updatePasswordMatch() {
+    const password = $("profile-new-password")?.value || "";
+    const confirmation = $("profile-confirm-password")?.value || "";
+    const message = $("profile-password-match");
+    if (!message) return;
+    if (!confirmation) {
+        message.textContent = "Re-enter your new password to confirm it.";
+        message.dataset.state = "neutral";
+    } else if (password === confirmation) {
+        message.textContent = "Passwords match.";
+        message.dataset.state = "success";
+    } else {
+        message.textContent = "Passwords do not match.";
+        message.dataset.state = "error";
+    }
+}
+
 async function updateAccountPassword(event) {
     event.preventDefault();
     if (!currentUser) return;
+
     const button = $("profile-password-save");
+    const currentPassword = $("profile-current-password")?.value || "";
     const password = $("profile-new-password")?.value || "";
     const confirmation = $("profile-confirm-password")?.value || "";
 
-    if (password.length < 8) {
-        setProfileSettingsMessage("profile-password-message", "Use at least 8 characters for your new password.", "error");
+    if (!currentPassword) {
+        setProfileSettingsMessage("profile-password-message", "Enter your current password to continue.", "error");
+        $("profile-current-password")?.focus();
+        return;
+    }
+    const rules = getPasswordStrength(password);
+    if (!Object.values(rules).every(Boolean)) {
+        setProfileSettingsMessage("profile-password-message", "Your new password does not meet all the strength requirements.", "error");
+        $("profile-new-password")?.focus();
+        return;
+    }
+    if (password === currentPassword) {
+        setProfileSettingsMessage("profile-password-message", "Your new password must be different from your current password.", "error");
+        $("profile-new-password")?.focus();
         return;
     }
     if (password !== confirmation) {
-        setProfileSettingsMessage("profile-password-message", "The passwords do not match. Please check and try again.", "error");
+        setProfileSettingsMessage("profile-password-message", "The new passwords do not match. Please check and try again.", "error");
+        $("profile-confirm-password")?.focus();
         return;
     }
 
     button.disabled = true;
     button.textContent = "Updating...";
     try {
-        const { error } = await supabase.auth.updateUser({ password });
+        const { error } = await supabase.auth.updateUser({
+            current_password: currentPassword,
+            password
+        });
         if (error) throw error;
+
         $("profile-password-form")?.reset();
+        updatePasswordStrength();
         setProfileSettingsMessage("profile-password-message", "Your password has been updated successfully.");
     } catch (error) {
         console.error("Password update error:", error);
-        setProfileSettingsMessage("profile-password-message", error.message || "We could not update your password. Please try again.", "error");
+        const message = /current password|password.*(incorrect|invalid)|invalid.*password/i.test(error.message || "")
+            ? "Your current password is incorrect. Please check it and try again."
+            : error.message || "We could not update your password. Please try again.";
+        setProfileSettingsMessage("profile-password-message", message, "error");
     } finally {
         button.disabled = false;
         button.textContent = "Update password";
@@ -2105,6 +2175,8 @@ async function initializeDashboard() {
         }
     });
     $("profile-password-form")?.addEventListener("submit", updateAccountPassword);
+    $("profile-new-password")?.addEventListener("input", updatePasswordStrength);
+    $("profile-confirm-password")?.addEventListener("input", updatePasswordMatch);
 
     if ($("pay-section")) {
         $("pay-section").style.display = "none";
