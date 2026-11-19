@@ -7,7 +7,7 @@
     <meta name="description" content="Manage EIS Digital Services applications, products and customer messages.">
     <title>Administration | EIS Digital Services</title>
     <link rel="stylesheet" href="css/styles.css?v=28">
-    <link rel="stylesheet" href="css/admin.css?v=41">
+    <link rel="stylesheet" href="css/admin.css?v=42">
     <link rel="stylesheet" href="css/shared-navigation.css?v=2">
     <link rel="stylesheet" href="css/admin-sidebar-light.css?v=2">
     <link rel="stylesheet" href="css/site-settings-responsive.css?v=5">
@@ -583,6 +583,10 @@
                 <span class="sidebar-icon">♙</span><span>Staff &amp; Admin Management</span>
             </button>
 
+            <button type="button" class="sidebar-link" data-section="audit-log" id="audit-log-nav">
+                <span class="sidebar-icon">▤</span><span>Activity Log</span>
+            </button>
+
             <button type="button" class="sidebar-link" data-section="site-settings">
                 <span class="sidebar-icon">⚙</span><span>Website settings</span>
             </button>
@@ -1116,6 +1120,57 @@
         </div>
         <div id="managed-admin-list" class="admin-staff-list">
             <div class="admin-loading">Open this section to load administrator accounts.</div>
+        </div>
+    </div>
+</section>
+
+<!-- SUPER ADMIN ACTIVITY LOG -->
+<section class="admin-section" id="section-audit-log">
+    <div class="admin-page-heading">
+        <div>
+            <h1>Activity Log</h1>
+            <p>A record of important changes made across the platform.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel admin-audit-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Recent activity</h3>
+                <p>Administrator and system events. Sensitive customer form data is not recorded.</p>
+            </div>
+            <button type="button" class="admin-secondary-button" id="refresh-audit-logs">↻ Refresh</button>
+        </div>
+
+        <div class="admin-audit-tools">
+            <div class="admin-audit-search">
+                <label for="audit-search">Search activity</label>
+                <div>
+                    <input type="search" id="audit-search" class="admin-form-input" maxlength="100" placeholder="Search actions, staff or records">
+                    <button type="button" class="admin-primary-button" id="search-audit-logs">Search</button>
+                </div>
+            </div>
+            <div class="admin-audit-filter">
+                <label for="audit-filter">Activity type</label>
+                <select id="audit-filter" class="admin-form-input">
+                    <option value="all">All activity</option>
+                    <option value="security">Administrator access</option>
+                    <option value="applications">Applications</option>
+                    <option value="payments">Payments</option>
+                    <option value="services">Services</option>
+                    <option value="settings">Website settings</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="admin-audit-meta" id="audit-log-meta" aria-live="polite">Open this section to load activity.</div>
+        <div class="admin-audit-list" id="audit-log-list">
+            <div class="admin-loading">Activity will appear here.</div>
+        </div>
+        <div class="admin-audit-pagination">
+            <button type="button" class="admin-secondary-button" id="audit-prev-page" disabled>Previous</button>
+            <span id="audit-page-label">Page 1</span>
+            <button type="button" class="admin-secondary-button" id="audit-next-page" disabled>Next</button>
         </div>
     </div>
 </section>
