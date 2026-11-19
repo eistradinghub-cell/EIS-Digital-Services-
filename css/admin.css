@@ -3474,3 +3474,23 @@
 @media (max-width: 380px) {
   .admin-page .admin-report-summary-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+
+/* Advanced customer care tools */
+.admin-page .admin-chat-tools { grid-template-columns: minmax(0, 1fr) 145px 130px; }
+.admin-page .admin-chat-sort-wrap select { width: 100%; min-width: 0; height: 39px; padding: 0 10px; border: 1px solid var(--admin-border); border-radius: 8px; background: #fff; color: var(--admin-text); font-size: 10px; }
+.admin-page .admin-chat-header .admin-chat-export-button { margin-left: auto; flex-shrink: 0; min-height: 36px; padding: 8px 12px; font-size: 10px; }
+.admin-page .admin-chat-export-button:disabled { opacity: .45; cursor: not-allowed; }
+.admin-page .chat-conversation-activity { display: block; margin-top: 4px; color: #8793a4; font-size: 9px; line-height: 1.4; overflow-wrap: anywhere; }
+.admin-page .chat-attachment-link a { display: inline-flex; padding: 5px 8px; border-radius: 6px; background: rgba(40,100,232,.08); color: #2455a6; font-weight: 650; text-decoration: none; }
+@media (max-width: 760px) {
+ .admin-page .admin-chat-tools { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+ .admin-page .admin-chat-search-wrap { grid-column: 1 / -1; }
+ .admin-page .admin-chat-header { align-items: flex-start; flex-wrap: wrap; }
+ .admin-page .admin-chat-header .admin-chat-export-button { margin-left: 50px; }
+}
+@media (max-width: 420px) {
+ .admin-page .admin-chat-tools { grid-template-columns: minmax(0, 1fr); }
+ .admin-page .admin-chat-search-wrap { grid-column: auto; }
+ .admin-page .admin-chat-header .admin-chat-export-button { margin-left: 0; }
+}
