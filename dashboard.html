@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/styles.css?v=18">
 <link rel="stylesheet" href="css/shared-navigation.css?v=2">
 <link rel="stylesheet" href="css/dashboard-notifications.css?v=2">
-<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=9">
+<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=10">
 
 <style>
 *{box-sizing:border-box}
@@ -1156,19 +1156,35 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                     </div>
                     <p class="profile-settings-message" id="profile-details-message" role="status" aria-live="polite"></p>
                 </form>
-                <form id="profile-password-form" class="profile-settings-form profile-password-form">
+                <form id="profile-password-form" class="profile-settings-form profile-password-form" novalidate>
                     <div class="profile-settings-heading">
                         <h3>Change password</h3>
-                        <p>Choose a strong password you do not use on other websites.</p>
+                        <p>Verify your current password before choosing a new one.</p>
                     </div>
                     <div class="profile-settings-grid">
-                        <div class="profile-settings-field">
-                            <label for="profile-new-password">New password</label>
-                            <input id="profile-new-password" name="new_password" type="password" minlength="8" autocomplete="new-password" required>
+                        <div class="profile-settings-field profile-settings-full">
+                            <label for="profile-current-password">Current password</label>
+                            <input id="profile-current-password" name="current_password" type="password" autocomplete="current-password" required>
                         </div>
-                        <div class="profile-settings-field">
+                        <div class="profile-settings-field profile-settings-full">
+                            <label for="profile-new-password">New password</label>
+                            <input id="profile-new-password" name="new_password" type="password" minlength="12" maxlength="128" autocomplete="new-password" aria-describedby="profile-password-rules" required>
+                            <div class="profile-password-strength" id="profile-password-strength" aria-live="polite">
+                                <div class="profile-password-strength-track"><span id="profile-password-strength-fill"></span></div>
+                                <span id="profile-password-strength-label">Password strength</span>
+                            </div>
+                            <ul class="profile-password-rules" id="profile-password-rules">
+                                <li data-password-rule="length">At least 12 characters</li>
+                                <li data-password-rule="upper">One uppercase letter (A–Z)</li>
+                                <li data-password-rule="lower">One lowercase letter (a–z)</li>
+                                <li data-password-rule="number">One number (0–9)</li>
+                                <li data-password-rule="symbol">One special character</li>
+                            </ul>
+                        </div>
+                        <div class="profile-settings-field profile-settings-full">
                             <label for="profile-confirm-password">Confirm new password</label>
-                            <input id="profile-confirm-password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required>
+                            <input id="profile-confirm-password" name="confirm_password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required>
+                            <small id="profile-password-match" class="profile-password-match" aria-live="polite">Re-enter your new password to confirm it.</small>
                         </div>
                     </div>
                     <p class="profile-settings-message" id="profile-password-message" role="status" aria-live="polite"></p>
@@ -1474,7 +1490,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=46"></script>
+<script type="module" src="js/dashboard.js?v=47"></script>
 
 </body>
 </html>
