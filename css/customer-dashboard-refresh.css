@@ -165,3 +165,33 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
  .dashboard-page .payment-history-toggle{padding:17px}
  .dashboard-page .payment-history-content{padding:0 15px 16px}
 }
+
+
+/* Payment history: contained vertical scrolling for longer histories */
+.dashboard-page .payment-history-scroll{
+  max-height:min(62vh,360px);
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  -webkit-overflow-scrolling:touch;
+}
+.dashboard-page .payment-history-scroll:focus-visible{
+  outline:3px solid rgba(22,132,119,.22);
+  outline-offset:2px;
+}
+.dashboard-page .payment-history-scroll .payments-table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.dashboard-page .payment-history-scroll .payments-table thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#f3f6f7!important;
+  box-shadow:0 1px 0 var(--eis-line);
+}
+.dashboard-page .payment-history-scroll .payments-table tbody tr:last-child td{border-bottom:0}
+@media(max-width:760px){
+  .dashboard-page .payment-history-scroll{max-height:min(58vh,340px)}
+}
