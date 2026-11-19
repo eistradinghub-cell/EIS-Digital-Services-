@@ -876,9 +876,10 @@ $('form-signup')?.addEventListener('submit', async event => {
                     emailRedirectTo: VERIFICATION_PAGE,
 
                     data: {
+                        name: name,
+                        full_name: name,
                         first_name: firstName,
                         last_name: lastName,
-                        full_name: `${firstName} ${lastName}`,
                         phone: phone
                     }
                 }
