@@ -52,7 +52,7 @@ BEGIN
 
     IF TG_TABLE_NAME = 'profiles' THEN
         IF TG_OP <> 'UPDATE' OR OLD.role IS NOT DISTINCT FROM NEW.role THEN RETURN NULL; END IF;
-        IF v_actor_role IS DISTINCT FROM 'super_admin' THEN RETURN NULL; END IF;
+        IF v_actor_role <> 'super_admin' THEN RETURN NULL; END IF;
         v_entity_id := NEW.id;
         v_action := 'administrator_role_changed';
         v_summary := jsonb_build_object('previous_role', OLD.role, 'new_role', NEW.role);
@@ -73,7 +73,7 @@ BEGIN
 
     ELSIF TG_TABLE_NAME = 'payments' THEN
         IF TG_OP <> 'UPDATE' OR OLD.status IS NOT DISTINCT FROM NEW.status THEN RETURN NULL; END IF;
-        IF v_actor_id IS NOT NULL AND v_actor_role NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
+        IF v_actor_role NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
         v_entity_id := NEW.id;
         v_action := 'payment_status_changed';
         v_summary := jsonb_build_object('service', NEW.service_name, 'amount', NEW.amount, 'previous_status', OLD.status, 'new_status', NEW.status);
@@ -96,7 +96,7 @@ BEGIN
         END IF;
 
     ELSIF TG_TABLE_NAME = 'site_settings' THEN
-        IF v_actor_id IS NOT NULL AND v_actor_role IS DISTINCT FROM 'super_admin' THEN RETURN NULL; END IF;
+        IF v_actor_role <> 'super_admin' THEN RETURN NULL; END IF;
         IF TG_OP = 'DELETE' THEN
             v_action := 'website_setting_deleted';
             v_summary := jsonb_build_object('setting_key', OLD.setting_key);
