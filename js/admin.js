@@ -393,6 +393,8 @@ if ($("stat-completed")) {
 $("stat-completed").textContent = completed.toLocaleString();
 }
 
+renderRecentApplications();
+
 if ($("applications-badge")) {
 const seen = getSeenApplicationIds();
 const unreadCount = applicationsCache.filter(app => !seen.has(String(app.id))).length;
@@ -407,6 +409,30 @@ return sum + Number(conversation.unread_admin_count || 0);
 if ($("chat-badge")) {
 $("chat-badge").textContent = unread;
 }
+}
+
+function renderRecentApplications() {
+const container = $("admin-recent-applications");
+if (!container) return;
+
+const recent = applicationsCache.slice(0, 5);
+if (!recent.length) {
+showEmpty("admin-recent-applications", "No applications have been received yet.");
+return;
+}
+
+container.innerHTML = recent.map(app => {
+const status = String(app.status || "In review").replace(/_/g, " ");
+return `
+<article class="admin-recent-item">
+<div class="admin-recent-details">
+<strong>${escapeHTML(app.service_name || "Service application")}</strong>
+<span>${escapeHTML(formatShortDate(app.created_at) || "Date unavailable")}</span>
+</div>
+<span class="admin-recent-status">${escapeHTML(status)}</span>
+</article>
+`;
+}).join("");
 }
 
 async function loadApplications() {
