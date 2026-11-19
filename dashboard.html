@@ -1334,6 +1334,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                         <th>Service</th>
                         <th>Date submitted</th>
                         <th>Status</th>
+                        <th> </th>
                     </tr>
                 </thead>
 
@@ -1345,6 +1346,23 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
             </table>
         </div>
     </section>
+
+    <dialog class="application-track-dialog" id="application-track-dialog" aria-labelledby="track-dialog-title">
+        <div class="track-dialog-header">
+            <div>
+                <span class="track-eyebrow">APPLICATION DETAILS</span>
+                <h2 id="track-dialog-title">Application status</h2>
+            </div>
+            <button type="button" class="track-close" id="track-dialog-close" aria-label="Close">×</button>
+        </div>
+        <div class="track-current-status" id="track-current-status"></div>
+        <dl class="track-details" id="track-details"></dl>
+        <p class="track-status-note" id="track-status-note"></p>
+        <div class="track-dialog-footer">
+            <a href="support.html">Contact support</a>
+            <button type="button" id="track-dialog-done">Close</button>
+        </div>
+    </dialog>
 
     <section class="customer-care-banner">
         <div>
