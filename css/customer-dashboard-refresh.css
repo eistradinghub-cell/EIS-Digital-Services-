@@ -106,23 +106,29 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 @media(max-width:390px){.dashboard-page .overview-heading{align-items:flex-start;flex-direction:column;gap:7px}.dashboard-page .overview-grid{gap:8px}.dashboard-page .overview-stat{padding:13px}.dashboard-page .overview-stat-label{font-size:11px}}
 
 
-/* Customer application tracking dialog */
-.dashboard-page .application-track-button{padding:7px 12px;border:1px solid #cbded9;border-radius:6px;background:#fff;color:var(--eis-teal-dark);font-size:12px;font-weight:650;cursor:pointer}
-.dashboard-page .application-track-button:hover{background:var(--eis-teal-soft);border-color:#a9cec4}
-.dashboard-page .application-track-dialog{width:min(520px,calc(100% - 28px));max-width:520px;padding:0;border:1px solid var(--eis-line);border-radius:12px;background:#fff;color:#253342;box-shadow:0 20px 60px rgba(20,45,78,.2)}
-.dashboard-page .application-track-dialog::backdrop{background:rgba(18,35,52,.48)}
-.dashboard-page .track-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;padding:22px 24px 17px;border-bottom:1px solid var(--eis-line)}
-.dashboard-page .track-eyebrow{color:var(--eis-teal-dark);font-size:10px;font-weight:750;letter-spacing:1px}
-.dashboard-page .track-dialog-header h2{margin:5px 0 0;color:var(--eis-ink);font-size:20px}
-.dashboard-page .track-close{width:32px;height:32px;border:0;border-radius:6px;background:#f2f5f6;color:#526171;font-size:22px;cursor:pointer}
-.dashboard-page .track-current-status{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;background:#f8faf9}
-.dashboard-page .track-current-status>span:first-child{color:var(--eis-muted);font-size:12px;font-weight:650}
-.dashboard-page .track-details{display:grid;gap:0;margin:0;padding:5px 24px}
-.dashboard-page .track-details>div{display:flex;justify-content:space-between;gap:18px;padding:13px 0;border-bottom:1px solid #edf0f2}
-.dashboard-page .track-details dt{color:var(--eis-muted);font-size:12px}
-.dashboard-page .track-details dd{margin:0;color:var(--eis-ink);font-size:12px;font-weight:650;text-align:right;overflow-wrap:anywhere}
-.dashboard-page .track-status-note{margin:12px 24px 20px;padding:13px 14px;border-left:3px solid var(--eis-teal);background:#f5f8f8;color:#53616d;font-size:12px;line-height:1.65}
-.dashboard-page .track-dialog-footer{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-top:1px solid var(--eis-line)}
-.dashboard-page .track-dialog-footer a{color:var(--eis-teal-dark);font-size:12px;font-weight:650;text-decoration:none}
-.dashboard-page .track-dialog-footer button{padding:9px 16px;border:1px solid var(--eis-ink);border-radius:6px;background:var(--eis-ink);color:#fff;font-size:12px;font-weight:650;cursor:pointer}
-@media(max-width:520px){.dashboard-page .track-dialog-header,.dashboard-page .track-current-status{padding-left:17px;padding-right:17px}.dashboard-page .track-details{padding-left:17px;padding-right:17px}.dashboard-page .track-status-note{margin-left:17px;margin-right:17px}.dashboard-page .track-dialog-footer{padding-left:17px;padding-right:17px}}
+
+
+/* Application details */
+.dashboard-page .application-track-button{padding:7px 11px;border:1px solid #d5e0e2;border-radius:5px;background:#fff;color:var(--eis-ink);font-size:12px;font-weight:600;cursor:pointer}
+.dashboard-page .application-track-button:hover{border-color:#9bbeb5;background:#f7faf9;color:var(--eis-teal-dark)}
+.dashboard-page .application-track-dialog{width:min(500px,calc(100% - 28px));max-width:500px;max-height:calc(100% - 32px);padding:0;overflow:auto;border:1px solid #dce4e7;border-radius:9px;background:#fff;color:#263746;box-shadow:0 16px 48px rgba(20,45,78,.18)}
+.dashboard-page .application-track-dialog::backdrop{background:rgba(17,34,49,.42)}
+.dashboard-page .track-dialog-header{display:flex;justify-content:space-between;align-items:center;padding:20px 23px;border-bottom:1px solid var(--eis-line)}
+.dashboard-page .track-dialog-header h2{margin:0;color:var(--eis-ink);font-size:19px;font-weight:700;letter-spacing:-.2px}
+.dashboard-page .track-close{display:flex;width:30px;height:30px;align-items:center;justify-content:center;border:1px solid #e0e6e8;border-radius:5px;background:#fff;color:#53616d;font-size:20px;line-height:1;cursor:pointer}
+.dashboard-page .track-close:hover{background:#f4f7f7}
+.dashboard-page .track-current-status{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 23px;border-bottom:1px solid #edf0f2}
+.dashboard-page .track-current-status>span:first-child{color:#687783;font-size:12px;font-weight:600}
+.dashboard-page .track-details{display:grid;gap:0;margin:0;padding:3px 23px}
+.dashboard-page .track-details>div{display:grid;grid-template-columns:125px minmax(0,1fr);align-items:start;gap:14px;padding:13px 0;border-bottom:1px solid #edf0f2}
+.dashboard-page .track-details dt{color:#71808a;font-size:12px;line-height:1.5}
+.dashboard-page .track-details dd{margin:0;color:#263746;font-size:12px;font-weight:600;line-height:1.5;text-align:right;overflow-wrap:anywhere}
+.dashboard-page .track-update{margin:17px 23px 20px;padding:14px 15px;border:1px solid #e3e9eb;border-radius:6px;background:#f8faf9}
+.dashboard-page .track-update h3{margin:0 0 6px;color:var(--eis-ink);font-size:12px;font-weight:700}
+.dashboard-page .track-status-note{margin:0;color:#5d6b75;font-size:12px;line-height:1.65}
+.dashboard-page .track-dialog-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 23px;border-top:1px solid var(--eis-line)}
+.dashboard-page .track-dialog-footer a{color:var(--eis-teal-dark);font-size:12px;font-weight:600;text-decoration:none}
+.dashboard-page .track-dialog-footer a:hover{text-decoration:underline}
+.dashboard-page .track-dialog-footer button{min-width:72px;padding:9px 15px;border:1px solid var(--eis-ink);border-radius:5px;background:var(--eis-ink);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.dashboard-page .track-dialog-footer button:hover{background:#203f63}
+@media(max-width:520px){.dashboard-page .track-dialog-header,.dashboard-page .track-current-status{padding-left:17px;padding-right:17px}.dashboard-page .track-details{padding-left:17px;padding-right:17px}.dashboard-page .track-details>div{grid-template-columns:105px minmax(0,1fr)}.dashboard-page .track-update{margin-left:17px;margin-right:17px}.dashboard-page .track-dialog-footer{padding-left:17px;padding-right:17px}}
