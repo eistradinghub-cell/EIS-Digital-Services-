@@ -306,7 +306,6 @@ $("chat-badge").textContent = unread;
 }
 
 async function loadApplications() {
-setLoading("admin-apps-list", "Loading applications...");
 setLoading("applications-full-list", "Loading applications...");
 
 const { data, error } = await supabase
@@ -314,7 +313,6 @@ const { data, error } = await supabase
 
 if (error) {
 console.error("Applications error:", error);
-showError("admin-apps-list", error.message);
 showError("applications-full-list", error.message);
 return;
 }
@@ -560,17 +558,7 @@ return lines.join("\n");
 }
 
 function renderApplications() {
-const recent = applicationsCache
-.slice()
-.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
-.slice(0, 5);
-
 if (!applicationsCache.length) {
-showEmpty(
-"admin-apps-list",
-"No applications have been submitted yet."
-);
-
 showEmpty(
 "applications-full-list",
 "No applications found."
@@ -581,11 +569,6 @@ $("applications-count").textContent = "0 Applications";
 }
 if ($("applications-badge")) $("applications-badge").style.display = "none";
 return;
-}
-
-if ($("admin-apps-list")) {
-$("admin-apps-list").innerHTML =
-recent.map(getApplicationHTML).join("");
 }
 
 if ($("applications-full-list")) {
