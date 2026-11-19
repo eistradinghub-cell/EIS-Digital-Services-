@@ -125,14 +125,12 @@ return formData[key] ?? "";
 }
 
 function setupAdminPanelDisclosures() {
-  const panels = [...document.querySelectorAll(".admin-content .admin-panel")];
-
-  panels.forEach((panel, index) => {
+  document.querySelectorAll(".admin-content .admin-panel").forEach((panel, index) => {
     const header = panel.querySelector(":scope > .admin-panel-header");
     if (!header || panel.dataset.disclosureReady === "true") return;
 
     const heading = header.querySelector("h2, h3, h4");
-    const label = heading?.textContent?.trim() || "Section";
+    const label = heading?.textContent?.trim() || "Panel";
     const contentId = `admin-panel-details-${index + 1}`;
     const content = document.createElement("div");
     content.className = "admin-panel-content";
@@ -142,51 +140,26 @@ function setupAdminPanelDisclosures() {
     while (header.nextSibling) content.append(header.nextSibling);
     panel.append(content);
 
-    const indicator = document.createElement("span");
-    indicator.className = "admin-panel-indicator";
-    indicator.setAttribute("aria-hidden", "true");
-    header.append(indicator);
-
-    header.classList.add("admin-panel-header-trigger");
-    header.setAttribute("role", "button");
-    header.setAttribute("tabindex", "0");
-    header.setAttribute("aria-controls", contentId);
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "admin-panel-toggle";
+    toggle.setAttribute("aria-controls", contentId);
+    toggle.innerHTML = '<span class="admin-panel-toggle-label">View</span><span class="admin-panel-toggle-mark" aria-hidden="true"></span>';
+    header.append(toggle);
 
     const setExpanded = (expanded) => {
       content.hidden = !expanded;
       panel.classList.toggle("is-expanded", expanded);
-      header.setAttribute("aria-expanded", String(expanded));
-      header.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${label}`);
+      toggle.setAttribute("aria-expanded", String(expanded));
+      toggle.querySelector(".admin-panel-toggle-label").textContent = expanded ? "Hide" : "View";
+      toggle.setAttribute("aria-label", `${expanded ? "Hide" : "View"} ${label}`);
     };
-
-    const toggle = () => {
-      const shouldExpand = header.getAttribute("aria-expanded") !== "true";
-      if (shouldExpand) {
-        panels.forEach(otherPanel => {
-          if (otherPanel === panel) return;
-          const otherHeader = otherPanel.querySelector(":scope > .admin-panel-header");
-          const otherContent = otherPanel.querySelector(":scope > .admin-panel-content");
-          if (otherHeader && otherContent) {
-            otherContent.hidden = true;
-            otherPanel.classList.remove("is-expanded");
-            otherHeader.setAttribute("aria-expanded", "false");
-            const otherLabel = otherHeader.querySelector("h2, h3, h4")?.textContent?.trim() || "Section";
-            otherHeader.setAttribute("aria-label", `Expand ${otherLabel}`);
-          }
-        });
-      }
-      setExpanded(shouldExpand);
-    };
-
-    header.addEventListener("click", toggle);
-    header.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        toggle();
-      }
-    });
 
     setExpanded(false);
+    toggle.addEventListener("click", () => {
+      setExpanded(toggle.getAttribute("aria-expanded") !== "true");
+    });
+
     panel.dataset.disclosureReady = "true";
   });
 }
