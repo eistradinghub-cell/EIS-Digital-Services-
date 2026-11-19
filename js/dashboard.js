@@ -478,6 +478,102 @@ function getServiceDescription() {
     return "Select this service to review the fee and start your application.";
 }
 
+
+/* =========================================
+   PROFILE & ACCOUNT SETTINGS
+========================================= */
+function setProfileSettingsMessage(targetId, message, type = "success") {
+    const element = $(targetId);
+    if (!element) return;
+    element.textContent = message;
+    element.dataset.state = type;
+}
+
+function populateProfileSettings() {
+    if (!currentUser) return;
+    const email = $("profile-account-email");
+    const fullName = $("profile-full-name");
+    const phone = $("profile-phone");
+    if (email) email.value = currentUser.email || "";
+    if (fullName) fullName.value = currentProfile?.full_name || currentCustomerName || "";
+    if (phone) phone.value = currentProfile?.phone || "";
+}
+
+async function saveProfileSettings(event) {
+    event.preventDefault();
+    if (!currentUser) return;
+    const button = $("profile-details-save");
+    const fullName = $("profile-full-name")?.value.trim() || "";
+    const phone = $("profile-phone")?.value.trim() || "";
+
+    if (!fullName) {
+        setProfileSettingsMessage("profile-details-message", "Please enter your full name.", "error");
+        return;
+    }
+    if (phone && !/^[+()\d\s.-]{7,20}$/.test(phone)) {
+        setProfileSettingsMessage("profile-details-message", "Enter a valid phone number.", "error");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+    try {
+        const { data, error } = await supabase
+            .from("profiles")
+            .update({ full_name: fullName, phone: phone || null })
+            .eq("id", currentUser.id)
+            .select("id, full_name, phone")
+            .maybeSingle();
+
+        if (error) throw error;
+        if (!data) throw new Error("Your profile could not be updated. Please refresh and try again.");
+
+        currentProfile = { ...(currentProfile || {}), ...data };
+        currentCustomerName = data.full_name || fullName;
+        const welcome = $("welcome");
+        if (welcome) welcome.textContent = "Welcome back, " + currentCustomerName;
+        setProfileSettingsMessage("profile-details-message", "Your profile details have been saved.");
+    } catch (error) {
+        console.error("Profile update error:", error);
+        setProfileSettingsMessage("profile-details-message", error.message || "We could not save your changes. Please try again.", "error");
+    } finally {
+        button.disabled = false;
+        button.textContent = "Save changes";
+    }
+}
+
+async function updateAccountPassword(event) {
+    event.preventDefault();
+    if (!currentUser) return;
+    const button = $("profile-password-save");
+    const password = $("profile-new-password")?.value || "";
+    const confirmation = $("profile-confirm-password")?.value || "";
+
+    if (password.length < 8) {
+        setProfileSettingsMessage("profile-password-message", "Use at least 8 characters for your new password.", "error");
+        return;
+    }
+    if (password !== confirmation) {
+        setProfileSettingsMessage("profile-password-message", "The passwords do not match. Please check and try again.", "error");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Updating...";
+    try {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+        $("profile-password-form")?.reset();
+        setProfileSettingsMessage("profile-password-message", "Your password has been updated successfully.");
+    } catch (error) {
+        console.error("Password update error:", error);
+        setProfileSettingsMessage("profile-password-message", error.message || "We could not update your password. Please try again.", "error");
+    } finally {
+        button.disabled = false;
+        button.textContent = "Update password";
+    }
+}
+
 async function loadServices() {
     const container = $("services-container");
 
@@ -1975,11 +2071,15 @@ async function initializeDashboard() {
         logoutUser
     );
 
+    $("profile-details-form")?.addEventListener("submit", saveProfileSettings);
+    $("profile-password-form")?.addEventListener("submit", updateAccountPassword);
+
     if ($("pay-section")) {
         $("pay-section").style.display = "none";
     }
 
     await loadUserProfile();
+    populateProfileSettings();
 
     await Promise.all([
         loadServices(),
