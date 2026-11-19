@@ -1111,6 +1111,36 @@ function createStatusBadge(status) {
 }
 
 /* =========================================
+   CUSTOMER APPLICATION OVERVIEW
+========================================= */
+
+function updateApplicationOverview(applications) {
+    const counts = {
+        total: applications.length,
+        pending: 0,
+        processing: 0,
+        completed: 0
+    };
+
+    applications.forEach(application => {
+        const status = String(application.status || "").trim().toLowerCase().replace(/[ -]+/g, "_");
+
+        if (["pending", "submitted", "awaiting_review", "awaiting_approval"].includes(status)) {
+            counts.pending += 1;
+        } else if (["processing", "in_review", "under_review", "in_progress", "review"].includes(status)) {
+            counts.processing += 1;
+        } else if (["completed", "approved", "resolved"].includes(status)) {
+            counts.completed += 1;
+        }
+    });
+
+    Object.entries(counts).forEach(([key, value]) => {
+        const element = $("stat-" + key);
+        if (element) element.textContent = String(value);
+    });
+}
+
+/* =========================================
    LOAD APPLICATIONS
 ========================================= */
 
@@ -1129,6 +1159,8 @@ async function loadApplications() {
             .order("created_at", { ascending: false });
 
         if (error) throw error;
+
+        updateApplicationOverview(data || []);
 
         if (!data?.length) {
             const row = document.createElement("tr");
