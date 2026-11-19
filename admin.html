@@ -592,7 +592,7 @@
             </button>
 
             <button type="button" class="sidebar-link" data-section="site-settings">
-                <span class="sidebar-icon">⚙</span><span>Website settings</span>
+                <span class="sidebar-icon">⚙</span><span>Site Settings</span>
             </button>
         </nav>
     </div>
@@ -1326,8 +1326,9 @@
 <section class="admin-section" id="section-site-settings">
     <div class="admin-page-heading">
         <div>
-            <h1>Website Settings</h1>
-            
+            <span class="admin-eyebrow">CONFIGURATION</span>
+            <h1>Site Settings</h1>
+            <p>Manage your website appearance, homepage images and administrator profile.</p>
         </div>
     </div>
 
@@ -1335,19 +1336,19 @@
         <div class="admin-panel-header">
             <div>
                 <h3>Website Logo</h3>
-                
+                <p>Upload and change the logo displayed across the website.</p>
             </div>
         </div>
 
         <form id="site-logo-form" class="admin-form">
             <div class="admin-form-group">
-                <label for="site-logo-file">Website logo</label>
+                <label for="site-logo-file">Choose new logo</label>
                 <input type="file" id="site-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
                 <small>PNG, JPG, WEBP or SVG. Recommended: transparent background.</small>
             </div>
 
             <div id="site-logo-preview" class="admin-settings-preview">
-                <span>Current logo</span>
+                <span>Current logo preview will appear here.</span>
             </div>
 
             <button type="submit" class="admin-primary-button" id="site-logo-save">Save Website Logo</button>
@@ -1358,32 +1359,32 @@
         <div class="admin-panel-header">
             <div>
                 <h3>Homepage Images</h3>
-                
+                <p>Change the images used on the homepage.</p>
             </div>
         </div>
 
         <form id="site-home-images-form" class="admin-form">
             <div class="admin-form-group">
-                <label for="site-home-image-one">Homepage image 1</label>
+                <label for="site-home-image-one">Homepage Image 1</label>
                 <input type="file" id="site-home-image-one" accept="image/png,image/jpeg,image/webp">
                 <div id="site-home-image-one-preview" class="admin-settings-preview">
-                    <span>Current image</span>
+                    <span>Current image preview will appear here.</span>
                 </div>
             </div>
 
             <div class="admin-form-group">
-                <label for="site-home-image-two">Homepage image 2</label>
+                <label for="site-home-image-two">Homepage Image 2</label>
                 <input type="file" id="site-home-image-two" accept="image/png,image/jpeg,image/webp">
                 <div id="site-home-image-two-preview" class="admin-settings-preview">
-                    <span>Current image</span>
+                    <span>Current image preview will appear here.</span>
                 </div>
             </div>
 
             <div class="admin-form-group">
-                <label for="site-home-image-three">Homepage image 3</label>
+                <label for="site-home-image-three">Homepage Image 3</label>
                 <input type="file" id="site-home-image-three" accept="image/png,image/jpeg,image/webp">
                 <div id="site-home-image-three-preview" class="admin-settings-preview">
-                    <span>Current image</span>
+                    <span>Current image preview will appear here.</span>
                 </div>
             </div>
 
@@ -1395,21 +1396,21 @@
         <div class="admin-panel-header">
             <div>
                 <h3>Admin Profile</h3>
-                
+                <p>Set the administrator name and profile picture shown to customers in Customer Care.</p>
             </div>
         </div>
 
         <form id="site-admin-profile-form" class="admin-form">
             <div class="admin-form-group">
-                <label for="site-admin-display-name">Display name</label>
+                <label for="site-admin-display-name">Display Name</label>
                 <input type="text" id="site-admin-display-name" maxlength="80" placeholder="Enter admin display name">
             </div>
 
             <div class="admin-form-group">
-                <label for="site-admin-avatar-file">Profile picture</label>
+                <label for="site-admin-avatar-file">Admin Profile Picture</label>
                 <input type="file" id="site-admin-avatar-file" accept="image/png,image/jpeg,image/webp">
                 <div id="site-admin-avatar-preview" class="admin-settings-preview">
-                    <span>Current profile picture</span>
+                    <span>Current profile picture preview will appear here.</span>
                 </div>
             </div>
 
@@ -1430,8 +1431,8 @@
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Your account</h3>
-                
+                <h3>Current Administrator Account</h3>
+                <p>Signed-in administrator information.</p>
             </div>
         </div>
 
@@ -1451,6 +1452,10 @@
                 <strong id="settings-admin-role">Loading...</strong>
             </div>
 
+            <div class="admin-setting-item">
+                <span>Platform</span>
+                <strong>EIS Digital Services</strong>
+            </div>
         </div>
     </div>
 </section>
