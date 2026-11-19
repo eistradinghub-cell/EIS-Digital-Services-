@@ -1156,8 +1156,10 @@ async function loadApplications() {
 
             const reference = document.createElement("td");
 
+            // Show the complete application reference so the admin can
+            // search for this exact application from the Applications dashboard.
             reference.textContent =
-                String(application.id).slice(0, 8).toUpperCase();
+                String(application.id).toUpperCase();
 
             const service = document.createElement("td");
 
