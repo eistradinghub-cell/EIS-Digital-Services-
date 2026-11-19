@@ -647,3 +647,10 @@
     #section-site-settings .admin-page-heading h1 { font-size: 22px; }
     #section-site-settings .admin-form { padding: 15px 16px 16px; }
 }
+
+/* Direct child positions: heading, logo, homepage, profile, access, account. */
+#section-site-settings > .admin-panel:nth-child(2) { grid-area: logo; }
+#section-site-settings > .admin-panel:nth-child(3) { grid-area: home; }
+#section-site-settings > .admin-panel:nth-child(4) { grid-area: profile; }
+#section-site-settings > .admin-panel:nth-child(5) { grid-area: access; }
+#section-site-settings > .admin-panel:nth-child(6) { grid-area: account; }
