@@ -318,3 +318,16 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 .dashboard-page .profile-password-match[data-state="success"]{color:#287653}
 .dashboard-page .profile-password-match[data-state="error"]{color:#b94b4b}
 @media(max-width:520px){.dashboard-page .profile-password-rules{grid-template-columns:1fr}.dashboard-page #profile-password-strength-label{min-width:96px}}
+
+
+/* Account session security */
+.dashboard-page .profile-session-security{max-width:760px;margin-top:24px;padding-top:22px;border-top:1px solid var(--eis-line)}
+.dashboard-page .profile-session-action{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 16px;border:1px solid #eadede;border-radius:7px;background:#fffdfd}
+.dashboard-page .profile-session-action>div{min-width:0}
+.dashboard-page .profile-session-action strong{display:block;color:var(--eis-ink);font-size:13px;font-weight:650}
+.dashboard-page .profile-session-action p{margin:5px 0 0;color:var(--eis-muted);font-size:12px;line-height:1.55}
+.dashboard-page .profile-session-danger{flex:0 0 auto;min-height:36px;padding:8px 12px;border:1px solid #d9a7a7;border-radius:5px;background:#fff;color:#a33232;font-size:12px;font-weight:650;cursor:pointer}
+.dashboard-page .profile-session-danger:hover{background:#fff4f4;border-color:#c77c7c}
+.dashboard-page .profile-session-danger:focus-visible{outline:3px solid rgba(163,50,50,.16);outline-offset:2px}
+.dashboard-page .profile-session-danger:disabled{opacity:.6;cursor:wait}
+@media(max-width:520px){.dashboard-page .profile-session-action{align-items:stretch;flex-direction:column}.dashboard-page .profile-session-danger{width:100%}}
