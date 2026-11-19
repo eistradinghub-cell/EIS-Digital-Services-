@@ -856,7 +856,7 @@ const normalized = normalizeStatus(status || "pending");
 const labels = {
 pending: "Pending",
 successful: "Paid",
-used: "Applied",
+used: "Used",
 failed: "Failed"
 };
 return labels[normalized] || String(status || "Unknown").replace(/_/g, " ");
