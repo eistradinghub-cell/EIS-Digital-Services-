@@ -547,6 +547,11 @@
                 <span class="sidebar-badge" id="applications-badge">0</span>
             </button>
 
+            <button type="button" class="sidebar-link" data-section="payments">
+                <span class="sidebar-icon">₦</span>
+                <span>Payments</span>
+            </button>
+
             <button type="button" class="sidebar-link" data-section="customer-care">
                 <span class="sidebar-icon">☏</span>
                 <span>Customer messages</span>
@@ -781,6 +786,47 @@
             <div class="admin-application-page-actions">
                 <button type="button" class="admin-secondary-button" id="applications-prev-page" disabled>Previous</button>
                 <button type="button" class="admin-secondary-button" id="applications-next-page" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="admin-section" id="section-payments">
+    <div class="admin-page-heading">
+        <div>
+            <h1>Payments</h1>
+            <p>Review customer payments and verify transaction records.</p>
+        </div>
+        <button type="button" class="admin-primary-button" id="refresh-payments">↻ Refresh Payments</button>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Payment records</h3>
+                <p>Payment status is updated only after server-side Paystack verification.</p>
+            </div>
+            <span class="admin-result-count" id="payments-count">0 Payments</span>
+        </div>
+        <div class="admin-payment-toolbar">
+            <input type="search" id="payment-reference-search" class="admin-form-input" placeholder="Search by payment reference..." aria-label="Search payments by reference">
+            <select id="payment-status-filter" class="admin-form-input" aria-label="Filter payments by status">
+                <option value="all">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="successful">Successful</option>
+                <option value="used">Used</option>
+                <option value="failed">Failed</option>
+            </select>
+            <button type="button" class="admin-primary-button" id="search-payment-reference">Search</button>
+        </div>
+        <div class="admin-payments-list" id="payments-admin-list">
+            <div class="admin-loading">Open Payments to load records.</div>
+        </div>
+        <div class="admin-payment-pagination" id="payments-pagination" hidden>
+            <span id="payments-page-summary" aria-live="polite"></span>
+            <div class="admin-application-page-actions">
+                <button type="button" class="admin-secondary-button" id="payments-prev-page" disabled>Previous</button>
+                <button type="button" class="admin-secondary-button" id="payments-next-page" disabled>Next</button>
             </div>
         </div>
     </div>
