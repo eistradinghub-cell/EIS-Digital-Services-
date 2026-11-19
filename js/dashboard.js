@@ -1163,7 +1163,7 @@ async function loadPaymentHistory() {
         if (!data?.length) {
             const row = document.createElement("tr");
             const cell = document.createElement("td");
-            cell.colSpan = 5;
+            cell.colSpan = 6;
             cell.className = "table-message";
             cell.textContent = "No payments found.";
             row.appendChild(cell);
@@ -1197,7 +1197,23 @@ async function loadPaymentHistory() {
             badge.textContent = displayStatus;
             status.appendChild(badge);
 
-            row.append(reference, service, date, amount, status);
+            const receipt = document.createElement("td");
+            if (paid) {
+                const receiptButton = document.createElement("button");
+                receiptButton.type = "button";
+                receiptButton.className = "payment-receipt-button";
+                receiptButton.textContent = "Download receipt";
+                receiptButton.setAttribute("aria-label", "Download receipt for payment " + (payment.reference || ""));
+                receiptButton.addEventListener("click", () => downloadPaymentReceipt(payment));
+                receipt.appendChild(receiptButton);
+            } else {
+                const unavailable = document.createElement("span");
+                unavailable.className = "receipt-unavailable";
+                unavailable.textContent = "Available when paid";
+                receipt.appendChild(unavailable);
+            }
+
+            row.append(reference, service, date, amount, status, receipt);
             container.appendChild(row);
         });
     } catch (error) {
@@ -1205,12 +1221,96 @@ async function loadPaymentHistory() {
 
         const row = document.createElement("tr");
         const cell = document.createElement("td");
-        cell.colSpan = 5;
+        cell.colSpan = 6;
         cell.className = "table-message";
         cell.textContent = "We could not load your payment history. Refresh the page to try again.";
         row.appendChild(cell);
         container.appendChild(row);
     }
+}
+
+/* =========================================
+   PRINTABLE PAYMENT RECEIPT
+   Only successful/paid payment records qualify.
+========================================= */
+
+function downloadPaymentReceipt(payment) {
+    const paidStatuses = ["successful", "success", "used", "paid"];
+    const status = String(payment?.status || "").trim().toLowerCase();
+
+    if (!payment || !paidStatuses.includes(status)) {
+        alert("A receipt is available only after payment has been confirmed.");
+        return;
+    }
+
+    const receiptWindow = window.open("", "_blank");
+    if (!receiptWindow) {
+        alert("Please allow pop-ups for this website, then try again.");
+        return;
+    }
+
+    const escapeHtml = value => String(value ?? "—").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[character]);
+
+    const reference = escapeHtml(payment.reference);
+    const service = escapeHtml(payment.service_name);
+    const date = escapeHtml(formatDate(payment.created_at));
+    const amount = escapeHtml(formatCurrency(payment.amount));
+    const issuedAt = escapeHtml(new Date().toLocaleString());
+
+    receiptWindow.document.open();
+    receiptWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payment receipt | EIS Digital Services</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:32px;background:#f4f6f6;color:#26343d;font-family:Arial,Helvetica,sans-serif}
+.receipt{max-width:680px;margin:24px auto;padding:42px;background:#fff;border:1px solid #e1e6e8}
+.brand{font-size:20px;font-weight:700;letter-spacing:.2px}
+.brand span{display:block;margin-top:5px;color:#6a777e;font-size:11px;font-weight:400;letter-spacing:1px;text-transform:uppercase}
+.rule{height:3px;margin:28px 0;background:#287b70}
+h1{margin:0 0 8px;font-size:25px}
+.intro{margin:0;color:#697780;font-size:13px;line-height:1.6}
+.paid{display:inline-block;margin:25px 0 8px;padding:7px 12px;border:1px solid #cce5d8;border-radius:4px;background:#eff8f2;color:#246b43;font-size:12px;font-weight:700;letter-spacing:.5px}
+dl{margin:18px 0 0}
+dl div{display:flex;justify-content:space-between;gap:20px;padding:15px 0;border-bottom:1px solid #edf0f1}
+dt{color:#6b7880;font-size:13px}
+dd{margin:0;color:#26343d;font-size:13px;font-weight:600;text-align:right;overflow-wrap:anywhere}
+.total{margin-top:22px;padding:18px;background:#f6f8f8}
+.total span{display:block;color:#68757c;font-size:12px}
+.total strong{display:block;margin-top:7px;font-size:25px}
+.footer{margin-top:30px;padding-top:17px;border-top:1px solid #e6eaeb;color:#748087;font-size:11px;line-height:1.7}
+.actions{max-width:680px;margin:0 auto;text-align:right}
+button{padding:11px 18px;border:0;border-radius:5px;background:#287b70;color:#fff;font-weight:600;cursor:pointer}
+@media(max-width:560px){body{padding:12px}.receipt{margin:8px auto;padding:24px 19px}.actions{padding:0 4px}}
+@media print{body{padding:0;background:#fff}.receipt{max-width:none;margin:0;padding:32px;border:0}.actions{display:none}}
+</style>
+</head>
+<body>
+<main class="receipt">
+<div class="brand">EIS Digital Services<span>Payment confirmation</span></div>
+<div class="rule"></div>
+<h1>Payment receipt</h1>
+<p class="intro">This receipt confirms a payment recorded by EIS Digital Services.</p>
+<div class="paid">PAYMENT CONFIRMED</div>
+<dl>
+<div><dt>Payment reference</dt><dd>${reference}</dd></div>
+<div><dt>Service</dt><dd>${service}</dd></div>
+<div><dt>Payment date</dt><dd>${date}</dd></div>
+<div><dt>Status</dt><dd>Paid</dd></div>
+</dl>
+<div class="total"><span>Amount paid</span><strong>${amount}</strong></div>
+<div class="footer">Keep this receipt for your records. If you need help with this payment, contact EIS Digital Services and quote the payment reference above.<br>Receipt prepared: ${issuedAt}</div>
+</main>
+<div class="actions"><button type="button" onclick="window.print()">Print / Save as PDF</button></div>
+<script>window.addEventListener("load",()=>setTimeout(()=>window.print(),300));<\/script>
+</body>
+</html>`);
+    receiptWindow.document.close();
 }
 
 /* =========================================
