@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/styles.css?v=18">
 <link rel="stylesheet" href="css/shared-navigation.css?v=2">
 <link rel="stylesheet" href="css/dashboard-notifications.css?v=2">
-<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=6">
+<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=7">
 
 <style>
 *{box-sizing:border-box}
@@ -1104,6 +1104,13 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                     <div id="notifications-list">Loading notifications...</div>
                 </div>
             </div>
+            <button type="button" class="account-settings-button" id="open-profile-settings" aria-label="Open profile and account settings" title="Account settings">
+                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8" r="3.5"></circle>
+                    <path d="M5 20c.7-3.3 3.2-5 7-5s6.3 1.7 7 5"></path>
+                </svg>
+                <span>Account</span>
+            </button>
         </div>
     </div>
 </header>
@@ -1116,16 +1123,16 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </section>
 
 
-    <section class="profile-settings-section" id="profile-settings" aria-labelledby="profile-settings-title">
-        <details class="profile-settings-details">
-            <summary class="profile-settings-toggle">
-                <span>
-                    <strong id="profile-settings-title">Profile &amp; Account Settings</strong>
-                    <small>Manage your personal details and account security</small>
-                </span>
-                <span class="profile-settings-action" aria-hidden="true">Manage</span>
-            </summary>
-            <div class="profile-settings-content">
+    <dialog class="profile-settings-dialog" id="profile-settings-dialog" aria-labelledby="profile-settings-title">
+        <div class="profile-settings-dialog-header">
+            <div>
+                <h2 id="profile-settings-title">Profile &amp; Account Settings</h2>
+                <p>Manage your personal details and account security.</p>
+            </div>
+            <button type="button" class="profile-settings-close" id="profile-settings-close" aria-label="Close account settings">&times;</button>
+        </div>
+        <div class="profile-settings-content">
+
                 <form id="profile-details-form" class="profile-settings-form">
                     <div class="profile-settings-heading">
                         <h3>Personal details</h3>
@@ -1167,9 +1174,9 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                     <p class="profile-settings-message" id="profile-password-message" role="status" aria-live="polite"></p>
                     <button class="profile-settings-primary" id="profile-password-save" type="submit">Update password</button>
                 </form>
-            </div>
-        </details>
-    </section>
+
+        </div>
+    </dialog>
 
     <section class="dashboard-overview" aria-label="Application overview">
         <div class="overview-heading">
