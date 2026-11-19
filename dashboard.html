@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/styles.css?v=18">
 <link rel="stylesheet" href="css/shared-navigation.css?v=2">
 <link rel="stylesheet" href="css/dashboard-notifications.css?v=2">
-<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=5">
+<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=6">
 
 <style>
 *{box-sizing:border-box}
@@ -1115,6 +1115,62 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
         <p>Access the services you need, submit applications and keep track of your requests in one place.</p>
     </section>
 
+
+    <section class="profile-settings-section" id="profile-settings" aria-labelledby="profile-settings-title">
+        <details class="profile-settings-details">
+            <summary class="profile-settings-toggle">
+                <span>
+                    <strong id="profile-settings-title">Profile &amp; Account Settings</strong>
+                    <small>Manage your personal details and account security</small>
+                </span>
+                <span class="profile-settings-action" aria-hidden="true">Manage</span>
+            </summary>
+            <div class="profile-settings-content">
+                <form id="profile-details-form" class="profile-settings-form">
+                    <div class="profile-settings-heading">
+                        <h3>Personal details</h3>
+                        <p>Keep your account information up to date.</p>
+                    </div>
+                    <div class="profile-settings-grid">
+                        <div class="profile-settings-field profile-settings-full">
+                            <label for="profile-account-email">Registration email</label>
+                            <input id="profile-account-email" type="email" readonly aria-describedby="profile-email-note">
+                            <small id="profile-email-note">This is the email address linked to your account. It cannot be changed.</small>
+                        </div>
+                        <div class="profile-settings-field">
+                            <label for="profile-full-name">Full name</label>
+                            <input id="profile-full-name" name="full_name" type="text" maxlength="120" autocomplete="name" required>
+                        </div>
+                        <div class="profile-settings-field">
+                            <label for="profile-phone">Phone number</label>
+                            <input id="profile-phone" name="phone" type="tel" maxlength="20" inputmode="tel" autocomplete="tel">
+                        </div>
+                    </div>
+                    <p class="profile-settings-message" id="profile-details-message" role="status" aria-live="polite"></p>
+                    <button class="profile-settings-primary" id="profile-details-save" type="submit">Save changes</button>
+                </form>
+                <form id="profile-password-form" class="profile-settings-form profile-password-form">
+                    <div class="profile-settings-heading">
+                        <h3>Change password</h3>
+                        <p>Choose a strong password you do not use on other websites.</p>
+                    </div>
+                    <div class="profile-settings-grid">
+                        <div class="profile-settings-field">
+                            <label for="profile-new-password">New password</label>
+                            <input id="profile-new-password" name="new_password" type="password" minlength="8" autocomplete="new-password" required>
+                        </div>
+                        <div class="profile-settings-field">
+                            <label for="profile-confirm-password">Confirm new password</label>
+                            <input id="profile-confirm-password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required>
+                        </div>
+                    </div>
+                    <p class="profile-settings-message" id="profile-password-message" role="status" aria-live="polite"></p>
+                    <button class="profile-settings-primary" id="profile-password-save" type="submit">Update password</button>
+                </form>
+            </div>
+        </details>
+    </section>
+
     <section class="dashboard-overview" aria-label="Application overview">
         <div class="overview-heading">
             <div>
@@ -1411,7 +1467,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </div>
 </footer>
 
-<script type="module" src="js/dashboard.js?v=44"></script>
+<script type="module" src="js/dashboard.js?v=45"></script>
 
 </body>
 </html>
