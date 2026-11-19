@@ -762,12 +762,26 @@
             <div><h3>Customer applications</h3><p>Newest submissions appear first.</p></div>
             <span class="admin-result-count" id="applications-count">0 Applications</span>
         </div>
-        <div class="admin-application-search" style="display:flex;gap:10px;align-items:center;padding:16px 20px;flex-wrap:wrap;">
-            <input type="search" id="application-reference-search" class="admin-form-input" placeholder="Search by application reference number..." aria-label="Search applications by reference number" style="flex:1;min-width:220px;">
-            <button type="button" class="admin-primary-button" id="search-application-reference">Search Application</button>
+        <div class="admin-application-toolbar">
+            <input type="search" id="application-reference-search" class="admin-form-input" placeholder="Search by application reference..." aria-label="Search applications by reference number">
+            <select id="application-status-filter" class="admin-form-input" aria-label="Filter applications by status">
+                <option value="all">All statuses</option>
+                <option value="in review">In review</option>
+                <option value="in progress">In progress</option>
+                <option value="completed">Completed</option>
+                <option value="rejected">Rejected</option>
+            </select>
+            <button type="button" class="admin-primary-button" id="search-application-reference">Search</button>
         </div>
         <div class="admin-apps-list" id="applications-full-list">
             <div class="admin-loading">Loading applications...</div>
+        </div>
+        <div class="admin-application-pagination" id="applications-pagination" hidden>
+            <span id="applications-page-summary" aria-live="polite"></span>
+            <div class="admin-application-page-actions">
+                <button type="button" class="admin-secondary-button" id="applications-prev-page" disabled>Previous</button>
+                <button type="button" class="admin-secondary-button" id="applications-next-page" disabled>Next</button>
+            </div>
         </div>
     </div>
 </section>
