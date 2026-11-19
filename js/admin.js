@@ -14,6 +14,10 @@ let paymentsTotal = 0;
 let paymentLoadSequence = 0;
 const PAYMENTS_PAGE_SIZE = 10;
 let reportsLoadSequence = 0;
+let auditLoadSequence = 0;
+let auditPage = 1;
+let auditHasNextPage = false;
+const AUDIT_PAGE_SIZE = 25;
 let servicesCache = [];
 let conversationsCache = [];
 let currentConversation = null;
@@ -273,6 +277,8 @@ const siteSettingsSection = $("section-site-settings");
 const staffManagementLink = document.querySelector('[data-section="staff-management"]');
 const staffManagementSection = $("section-staff-management");
 if (!isSuperAdmin) {
+  document.querySelector('[data-section="audit-log"]')?.remove();
+  $("section-audit-log")?.remove();
   siteSettingsLink?.remove();
   siteSettingsSection?.remove();
   staffManagementLink?.remove();
@@ -299,7 +305,7 @@ const allowedSections = new Set([
 "customer-care",
 "prices",
 "broadcast",
-...(isSuperAdmin ? ["site-settings", "staff-management"] : [])
+...(isSuperAdmin ? ["site-settings", "staff-management", "audit-log"] : [])
 ]);
 const sectionToRestore = allowedSections.has(savedSection)
 ? savedSection
@@ -1822,7 +1828,7 @@ button.textContent = "Send Broadcast";
 }
 
 function openSection(sectionName) {
-if (["site-settings", "staff-management"].includes(sectionName) && String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
+if (["site-settings", "staff-management", "audit-log"].includes(sectionName) && String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
   showNotice("Only the Super Admin can access this section.", "error");
   return;
 }
@@ -1850,6 +1856,7 @@ if (sectionName === "payments") loadPayments();
 if (sectionName === "reports") loadReports();
 if (sectionName === "customers") loadCustomers();
 if (sectionName === "staff-management") loadManagedAdmins();
+if (sectionName === "audit-log") loadAuditLogs();
 
 document.querySelectorAll(".sidebar-link").forEach(link => {
 link.classList.toggle(
@@ -1869,7 +1876,8 @@ customers: "Customers",
 prices: "Prices Management",
 broadcast: "Broadcast Message",
 "site-settings": "Site Settings",
-"staff-management": "Staff & Admin Management"
+"staff-management": "Staff & Admin Management",
+"audit-log": "Activity Log"
 };
 
 if ($("breadcrumb-current")) {
@@ -1993,6 +2001,125 @@ button.textContent = "↻ Refresh Data";
 }
 }
 
+
+function getAuditActionLabel(action) {
+const labels = {
+administrator_role_changed: "Administrator access changed",
+application_status_changed: "Application status updated",
+application_deleted: "Application deleted",
+payment_status_changed: "Payment status updated",
+service_created: "Service created",
+service_updated: "Service updated",
+service_deleted: "Service deleted",
+website_setting_created: "Website setting added",
+website_setting_updated: "Website setting updated",
+website_setting_deleted: "Website setting removed"
+};
+return labels[action] || String(action || "Activity").replace(/_/g, " ");
+}
+
+function getAuditSummaryText(row) {
+const summary = row.summary || {};
+const statusChange = (summary.previous_status || "—") + " → " + (summary.new_status || "—");
+
+switch (row.action) {
+case "administrator_role_changed":
+return "Role: " + (summary.previous_role || "—") + " → " + (summary.new_role || "—");
+case "application_status_changed":
+return (summary.service || "Application") + " · " + statusChange;
+case "application_deleted":
+return summary.service || "Application record removed";
+case "payment_status_changed":
+return (summary.service || "Payment") + " · " + formatCurrency(summary.amount) + " · " + statusChange;
+case "service_created":
+return (summary.service || "Service") + " · " + formatCurrency(summary.price);
+case "service_updated":
+return (summary.previous_name || summary.new_name || "Service") +
+" · " + formatCurrency(summary.previous_price) + " → " + formatCurrency(summary.new_price);
+case "service_deleted":
+return (summary.service || "Service") + " · " + formatCurrency(summary.price);
+default:
+return summary.setting_key ? "Setting: " + summary.setting_key : "Platform configuration changed";
+}
+}
+
+function renderAuditLogs(rows) {
+const container = $("audit-log-list");
+if (!container) return;
+
+if (!rows.length) {
+showEmpty("audit-log-list", "No activity found for this search.");
+return;
+}
+
+container.innerHTML = rows.map(row => {
+const actor = row.actor_name || (row.actor_role === "system" ? "System" : "Administrator");
+const role = String(row.actor_role || "system").replace(/_/g, " ");
+const entityId = row.entity_id ? String(row.entity_id).slice(0, 8) : "";
+return `
+<article class="admin-audit-row">
+    <div class="admin-audit-indicator" aria-hidden="true"></div>
+    <div class="admin-audit-main">
+        <div class="admin-audit-title-line">
+            <strong>${escapeHTML(getAuditActionLabel(row.action))}</strong>
+            <span class="admin-audit-role">${escapeHTML(role)}</span>
+        </div>
+        <p>${escapeHTML(getAuditSummaryText(row))}</p>
+        <div class="admin-audit-byline">
+            <span>By ${escapeHTML(actor)}</span>
+            ${row.actor_email ? `<span>${escapeHTML(row.actor_email)}</span>` : ""}
+            ${entityId ? `<span>Record ${escapeHTML(entityId)}</span>` : ""}
+        </div>
+    </div>
+    <time datetime="${escapeHTML(row.created_at)}">${escapeHTML(formatDate(row.created_at))}</time>
+</article>
+`;
+}).join("");
+}
+
+async function loadAuditLogs() {
+if (String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
+showNotice("Only the Super Admin can view the activity log.", "error");
+return;
+}
+
+const requestId = ++auditLoadSequence;
+setLoading("audit-log-list", "Loading activity...");
+if ($("audit-log-meta")) $("audit-log-meta").textContent = "Loading activity…";
+
+try {
+const { data, error } = await supabase.rpc("admin_list_audit_events", {
+p_limit: AUDIT_PAGE_SIZE + 1,
+p_offset: (auditPage - 1) * AUDIT_PAGE_SIZE,
+p_filter: $("audit-filter")?.value || "all",
+p_search: $("audit-search")?.value.trim() || null
+});
+if (error) throw error;
+if (requestId !== auditLoadSequence) return;
+
+const results = Array.isArray(data) ? data : [];
+auditHasNextPage = results.length > AUDIT_PAGE_SIZE;
+const rows = results.slice(0, AUDIT_PAGE_SIZE);
+renderAuditLogs(rows);
+
+if ($("audit-log-meta")) {
+$("audit-log-meta").textContent = rows.length
+? `Showing ${rows.length} activities · Page ${auditPage}`
+: "No matching activity";
+}
+if ($("audit-page-label")) $("audit-page-label").textContent = "Page " + auditPage;
+if ($("audit-prev-page")) $("audit-prev-page").disabled = auditPage <= 1;
+if ($("audit-next-page")) $("audit-next-page").disabled = !auditHasNextPage;
+} catch (error) {
+if (requestId !== auditLoadSequence) return;
+console.error("Audit log load error:", error);
+showError("audit-log-list", error.message || "Unable to load activity.");
+if ($("audit-log-meta")) $("audit-log-meta").textContent = "Activity could not be loaded.";
+if ($("audit-prev-page")) $("audit-prev-page").disabled = auditPage <= 1;
+if ($("audit-next-page")) $("audit-next-page").disabled = true;
+}
+}
+
 async function loadManagedAdmins() {
   const container = $("managed-admin-list");
   if (!container) return;
@@ -2074,6 +2201,18 @@ $("admin-manage-form")?.addEventListener("submit", event => {
   setManagedAdminRole($("admin-manage-email")?.value || "", true, $("admin-manage-submit"));
 });
 $("refresh-managed-admins")?.addEventListener("click", loadManagedAdmins);
+$("refresh-audit-logs")?.addEventListener("click", loadAuditLogs);
+$("search-audit-logs")?.addEventListener("click", () => { auditPage = 1; loadAuditLogs(); });
+$("audit-search")?.addEventListener("keydown", event => {
+if (event.key === "Enter") { event.preventDefault(); auditPage = 1; loadAuditLogs(); }
+});
+$("audit-filter")?.addEventListener("change", () => { auditPage = 1; loadAuditLogs(); });
+$("audit-prev-page")?.addEventListener("click", () => {
+if (auditPage > 1) { auditPage -= 1; loadAuditLogs(); }
+});
+$("audit-next-page")?.addEventListener("click", () => {
+if (auditHasNextPage) { auditPage += 1; loadAuditLogs(); }
+});
 document.addEventListener("click", event => {
   const revokeButton = event.target.closest("[data-revoke-admin]");
   if (!revokeButton) return;
