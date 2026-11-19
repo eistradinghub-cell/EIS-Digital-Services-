@@ -795,18 +795,19 @@ const SITE_SETTINGS_CSS = `
     gap: 11px;
     min-width: 0;
     padding: 15px 13px;
-    border: 1px solid #e5ebf5;
-    border-radius: 15px;
+    border: 1px solid #E1E8EB;
+    border-radius: 8px;
     background: #fff;
-    color: #17243a;
+    color: #142D4E;
     text-decoration: none;
-    transition: .2s ease;
+    box-shadow: 0 2px 9px rgba(20, 45, 78, .045);
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
 }
 
 #section-site-settings .site-settings-shortcut:hover {
-    transform: translateY(-2px);
-    border-color: #b9ceff;
-    box-shadow: 0 9px 22px rgba(30, 75, 150, .08);
+    border-color: #168477;
+    background: #EAF5F2;
+    box-shadow: 0 4px 12px rgba(20, 45, 78, .07);
 }
 
 #section-site-settings .site-settings-shortcut-number {
@@ -815,11 +816,11 @@ const SITE_SETTINGS_CSS = `
     width: 34px;
     height: 34px;
     flex: 0 0 34px;
-    border-radius: 11px;
-    background: #edf3ff;
-    color: #2864e8;
+    border-radius: 7px;
+    background: #EAF5F2;
+    color: #116B61;
     font-size: 11px;
-    font-weight: 900;
+    font-weight: 700;
 }
 
 #section-site-settings .site-settings-shortcut strong,
@@ -828,14 +829,15 @@ const SITE_SETTINGS_CSS = `
 }
 
 #section-site-settings .site-settings-shortcut strong {
-    font-size: 11px;
-    font-weight: 850;
+    color: #142D4E;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 #section-site-settings .site-settings-shortcut small {
     margin-top: 4px;
-    color: #8994a8;
-    font-size: 9px;
+    color: #687783;
+    font-size: 10px;
 }
 
 #section-site-settings .site-settings-feedback {
