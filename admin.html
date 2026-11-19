@@ -852,16 +852,31 @@
             </div>
             <span class="admin-result-count" id="payments-count">0 Payments</span>
         </div>
-        <div class="admin-payment-toolbar">
-            <input type="search" id="payment-reference-search" class="admin-form-input" placeholder="Search by payment reference..." aria-label="Search payments by reference">
-            <select id="payment-status-filter" class="admin-form-input" aria-label="Filter payments by status">
-                <option value="all">All statuses</option>
-                <option value="pending">Pending</option>
-                <option value="successful">Successful</option>
-                <option value="used">Used</option>
-                <option value="failed">Failed</option>
-            </select>
-            <button type="button" class="admin-primary-button" id="search-payment-reference">Search</button>
+        <div class="admin-payment-toolbar admin-payment-advanced-toolbar">
+            <label class="admin-payment-search-wrap">
+                <span>Payment reference</span>
+                <input type="search" id="payment-reference-search" class="admin-form-input" placeholder="Search reference..." aria-label="Search payments by reference">
+            </label>
+            <label><span>Payment status</span>
+                <select id="payment-status-filter" class="admin-form-input" aria-label="Filter payments by status">
+                    <option value="all">All statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="successful">Successful</option>
+                    <option value="used">Used</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </label>
+            <label><span>Service</span>
+                <select id="payment-service-filter" class="admin-form-input" aria-label="Filter payments by service">
+                    <option value="all">All services</option>
+                </select>
+            </label>
+            <label><span>From date</span><input type="date" id="payment-date-from" class="admin-form-input" aria-label="Payments from date"></label>
+            <label><span>To date</span><input type="date" id="payment-date-to" class="admin-form-input" aria-label="Payments to date"></label>
+            <div class="admin-payment-filter-actions">
+                <button type="button" class="admin-primary-button" id="search-payment-reference">Apply filters</button>
+                <button type="button" class="admin-secondary-button" id="export-payments-csv">Export CSV</button>
+            </div>
         </div>
         <div class="admin-payments-list" id="payments-admin-list">
             <div class="admin-loading">Open Payments to load records.</div>
