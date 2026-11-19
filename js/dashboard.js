@@ -2071,6 +2071,15 @@ async function initializeDashboard() {
         logoutUser
     );
 
+    const profileSettingsDialog = $("profile-settings-dialog");
+    $("open-profile-settings")?.addEventListener("click", () => {
+        if (profileSettingsDialog && !profileSettingsDialog.open) profileSettingsDialog.showModal();
+    });
+    $("profile-settings-close")?.addEventListener("click", () => profileSettingsDialog?.close());
+    profileSettingsDialog?.addEventListener("click", (event) => {
+        if (event.target === profileSettingsDialog) profileSettingsDialog.close();
+    });
+
     $("profile-details-form")?.addEventListener("submit", saveProfileSettings);
     $("profile-password-form")?.addEventListener("submit", updateAccountPassword);
 
