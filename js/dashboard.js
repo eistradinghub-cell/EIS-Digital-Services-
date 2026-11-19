@@ -1140,6 +1140,79 @@ function updateApplicationOverview(applications) {
     });
 }
 
+
+/* =========================================
+   LOAD PAYMENT HISTORY
+========================================= */
+
+async function loadPaymentHistory() {
+    const container = $("payments-list");
+    if (!currentUser || !container) return;
+
+    container.replaceChildren();
+
+    try {
+        const { data, error } = await supabase
+            .from("payments")
+            .select("id,reference,service_name,amount,status,created_at")
+            .eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!data?.length) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 5;
+            cell.className = "table-message";
+            cell.textContent = "No payments found.";
+            row.appendChild(cell);
+            container.appendChild(row);
+            return;
+        }
+
+        data.forEach(payment => {
+            const row = document.createElement("tr");
+
+            const reference = document.createElement("td");
+            reference.textContent = payment.reference || "—";
+
+            const service = document.createElement("td");
+            service.textContent = payment.service_name || "—";
+
+            const date = document.createElement("td");
+            date.textContent = formatDate(payment.created_at);
+
+            const amount = document.createElement("td");
+            amount.textContent = formatCurrency(payment.amount);
+
+            const status = document.createElement("td");
+            const badge = document.createElement("span");
+            const rawStatus = String(payment.status || "pending").trim().toLowerCase();
+            const paid = ["successful", "success", "used", "paid"].includes(rawStatus);
+            const displayStatus = paid
+                ? "Paid"
+                : rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+            badge.className = "status-badge " + (paid ? "completed" : rawStatus.replace(/\s+/g, "_"));
+            badge.textContent = displayStatus;
+            status.appendChild(badge);
+
+            row.append(reference, service, date, amount, status);
+            container.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Payment history loading error:", error);
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 5;
+        cell.className = "table-message";
+        cell.textContent = "We could not load your payment history. Refresh the page to try again.";
+        row.appendChild(cell);
+        container.appendChild(row);
+    }
+}
+
 /* =========================================
    LOAD APPLICATIONS
 ========================================= */
@@ -1811,6 +1884,7 @@ async function initializeDashboard() {
     await Promise.all([
         loadServices(),
         loadApplications(),
+        loadPaymentHistory(),
         loadNotifications()
     ]);
 
@@ -1839,6 +1913,7 @@ initializeDashboard();
 window.EISDashboard = {
     loadServices,
     loadApplications,
+    loadPaymentHistory,
     loadNotifications,
     loadUserProfile,
     selectService,
