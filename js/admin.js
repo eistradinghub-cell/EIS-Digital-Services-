@@ -1964,6 +1964,7 @@ async function openConversation(conversationId) {
 const conversation = conversationsCache.find(item => item.id === conversationId);
 if (!conversation) { showNotice("Conversation not found.", "error"); return; }
 currentConversation = conversation;
+document.querySelector("#section-customer-care .admin-chat-layout")?.classList.add("has-active-conversation");
 currentChatMessages = [];
 chatMessageLoadSequence += 1;
 renderConversations();
@@ -2728,6 +2729,9 @@ $("chat-inbox-search")?.addEventListener("input", renderConversations);
 $("chat-inbox-filter")?.addEventListener("change", renderConversations);
 $("chat-inbox-sort")?.addEventListener("change", renderConversations);
 $("export-chat-transcript")?.addEventListener("click", exportCurrentChatTranscript);
+document.getElementById("admin-chat-back")?.addEventListener("click", () => {
+    document.querySelector("#section-customer-care .admin-chat-layout")?.classList.remove("has-active-conversation");
+});
 $("admin-chat-input")?.addEventListener("keydown", event => {
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
