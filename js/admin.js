@@ -132,8 +132,6 @@ function setupAdminPanelDisclosures() {
     const heading = header.querySelector("h2, h3, h4");
     const label = heading?.textContent?.trim() || "Panel";
     const contentId = `admin-panel-details-${index + 1}`;
-    const storageKey = `eis-admin-panel:${panel.closest(".admin-section")?.id || "admin"}:${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-
     const content = document.createElement("div");
     content.className = "admin-panel-content";
     content.id = contentId;
@@ -155,14 +153,9 @@ function setupAdminPanelDisclosures() {
       toggle.setAttribute("aria-expanded", String(expanded));
       toggle.querySelector(".admin-panel-toggle-label").textContent = expanded ? "Hide" : "View";
       toggle.setAttribute("aria-label", `${expanded ? "Hide" : "View"} ${label}`);
-      if (save) {
-        try { localStorage.setItem(storageKey, expanded ? "open" : "closed"); } catch (_) {}
-      }
     };
 
-    let initiallyOpen = false;
-    try { initiallyOpen = localStorage.getItem(storageKey) === "open"; } catch (_) {}
-    setExpanded(initiallyOpen, false);
+    setExpanded(false);
     toggle.addEventListener("click", () => {
       setExpanded(toggle.getAttribute("aria-expanded") !== "true");
     });
