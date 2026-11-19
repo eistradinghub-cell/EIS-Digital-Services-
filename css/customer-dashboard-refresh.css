@@ -275,3 +275,13 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
  .dashboard-page .notification-area{margin-left:auto!important}
  .dashboard-page .account-settings-button{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;padding:0!important}
 }
+
+
+/* Header alignment: keep the brand on the left and account controls on the same top row. */
+.dashboard-page .nav-row{display:flex!important;flex-wrap:wrap!important;align-items:center!important}
+.dashboard-page .nav-right{display:contents!important}
+.dashboard-page .header-actions{order:1;display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-left:auto;flex:0 0 auto}
+.dashboard-page .header-actions .notification-area{order:0;margin:0!important;flex:0 0 auto}
+.dashboard-page .header-actions .account-settings-button{order:1;margin:0!important;flex:0 0 auto}
+.dashboard-page .nav-links{order:2;width:100%;flex:0 0 100%;margin-top:4px}
+@media(max-width:520px){.dashboard-page .header-actions{gap:7px}.dashboard-page .header-actions .account-settings-button{width:40px;min-width:40px;height:40px;padding:0;font-size:0}.dashboard-page .header-actions .account-settings-button svg{width:19px;height:19px}}
