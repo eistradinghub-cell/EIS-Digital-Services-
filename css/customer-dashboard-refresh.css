@@ -266,3 +266,12 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
  .dashboard-page .profile-settings-dialog-header{padding:16px}
  .dashboard-page .profile-settings-dialog .profile-settings-content{padding:16px}
 }
+
+
+/* Keep account settings beside notifications at the far right of the header */
+.dashboard-page .notification-area{order:0!important;margin-left:auto!important}
+.dashboard-page .account-settings-button{order:1!important;margin-left:0!important;flex:0 0 auto!important;align-self:center}
+@media(max-width:700px){
+ .dashboard-page .notification-area{margin-left:auto!important}
+ .dashboard-page .account-settings-button{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;padding:0!important}
+}
