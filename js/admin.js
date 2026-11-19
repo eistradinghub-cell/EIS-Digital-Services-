@@ -125,73 +125,9 @@ return formData[key] ?? "";
 }
 
 function setupAdminPanelDisclosures() {
-  const panels = [
-    ...document.querySelectorAll(
-      ".admin-section .admin-panel:not(.admin-chat-list-panel):not(.admin-chat-window)"
-    )
-  ].filter(panel =>
-    panel.querySelector(":scope > .admin-panel-header")
-  );
-
-  panels.forEach((panel, index) => {
-    const heading = panel.querySelector(":scope > .admin-panel-header");
-    if (!heading || panel.dataset.disclosureReady === "true") return;
-
-    const sectionKey = panel.closest(".admin-section")?.id || "admin";
-    const panelKey = heading.querySelector("h3")?.textContent.trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-") || String(index);
-    const storageKey = `eis-admin-panel:${sectionKey}:${panelKey}`;
-
-    const content = document.createElement("div");
-    content.className = "admin-panel-content";
-    content.id = `admin-panel-content-${index}`;
-
-    while (heading.nextSibling) {
-      content.append(heading.nextSibling);
-    }
-    panel.append(content);
-
-    heading.classList.add("admin-panel-toggle");
-    heading.setAttribute("role", "button");
-    heading.setAttribute("tabindex", "0");
-    heading.setAttribute("aria-controls", content.id);
-
-    let expanded = false;
-    try {
-      expanded = localStorage.getItem(storageKey) === "open";
-    } catch (error) {
-      console.warn("Could not read admin panel preference:", error);
-    }
-
-    const setExpanded = (value, persist = true) => {
-      expanded = value;
-      panel.classList.toggle("is-expanded", expanded);
-      heading.setAttribute("aria-expanded", String(expanded));
-      content.hidden = !expanded;
-
-      if (persist) {
-        try {
-          localStorage.setItem(storageKey, expanded ? "open" : "closed");
-        } catch (error) {
-          console.warn("Could not save admin panel preference:", error);
-        }
-      }
-    };
-
-    heading.addEventListener("click", event => {
-      if (event.target.closest("a, button, input, select, textarea, label")) return;
-      setExpanded(!expanded);
-    });
-
-    heading.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        setExpanded(!expanded);
-      }
-    });
-
-    setExpanded(expanded, false);
+  // Keep every admin panel fully visible; no disclosure controls are added.
+  document.querySelectorAll(".admin-content .admin-panel").forEach(panel => {
+    panel.classList.remove("is-expanded");
     panel.dataset.disclosureReady = "true";
   });
 }
