@@ -1316,119 +1316,235 @@ failed: "Failed"
 return labels[normalized] || String(status || "Unknown").replace(/_/g, " ");
 }
 
+function getPaymentFilters() {
+    const reference = String($("payment-reference-search")?.value || "")
+        .trim().replace(/^eis-/i, "").replace(/[^a-z0-9]/gi, "").slice(0, 64);
+    return {
+        reference,
+        status: String($("payment-status-filter")?.value || "all").toLowerCase(),
+        service: String($("payment-service-filter")?.value || "all"),
+        dateFrom: String($("payment-date-from")?.value || ""),
+        dateTo: String($("payment-date-to")?.value || "")
+    };
+}
+
+function applyPaymentFilters(query, filters) {
+    if (filters.reference) query = query.ilike("reference", `%EIS-${filters.reference}%`);
+    if (filters.status !== "all") query = query.eq("status", filters.status);
+    if (filters.service !== "all") query = query.eq("service_name", filters.service);
+    if (filters.dateFrom) {
+        const fromDate = new Date(`${filters.dateFrom}T00:00:00`);
+        if (!Number.isNaN(fromDate.getTime())) query = query.gte("created_at", fromDate.toISOString());
+    }
+    if (filters.dateTo) {
+        const toDate = new Date(`${filters.dateTo}T00:00:00`);
+        if (!Number.isNaN(toDate.getTime())) {
+            toDate.setDate(toDate.getDate() + 1);
+            query = query.lt("created_at", toDate.toISOString());
+        }
+    }
+    return query;
+}
+
+function renderPaymentServiceOptions() {
+    const select = $("payment-service-filter");
+    if (!select) return;
+    const selected = select.value || "all";
+    const names = [...new Set([
+        ...servicesCache.map(service => service.name),
+        ...paymentsCache.map(payment => payment.service_name)
+    ].map(name => String(name || "").trim()).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b));
+    select.innerHTML = '<option value="all">All services</option>' +
+        names.map(name => `<option value="${escapeHTML(name)}">${escapeHTML(name)}</option>`).join("");
+    select.value = names.includes(selected) ? selected : "all";
+}
+
 async function loadPayments() {
-const container = $("payments-admin-list");
-if (!container) return;
-const requestId = ++paymentLoadSequence;
-setLoading("payments-admin-list", "Loading payment records...");
+    const container = $("payments-admin-list");
+    if (!container) return;
+    const requestId = ++paymentLoadSequence;
+    setLoading("payments-admin-list", "Loading payment records...");
+    const filters = getPaymentFilters();
+    const requestedPage = paymentsPage;
+    const from = (requestedPage - 1) * PAYMENTS_PAGE_SIZE;
+    let request = supabase
+        .from("payments")
+        .select("id,reference,user_id,service_name,amount,status,created_at", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(from, from + PAYMENTS_PAGE_SIZE - 1);
+    request = applyPaymentFilters(request, filters);
 
-const query = String($("payment-reference-search")?.value || "").trim().replace(/^eis-/i, "").replace(/[%_]/g, "");
-const statusFilter = String($("payment-status-filter")?.value || "all").toLowerCase();
-const requestedPage = paymentsPage;
-const from = (requestedPage - 1) * PAYMENTS_PAGE_SIZE;
-let request = supabase
-.from("payments")
-.select("id,reference,user_id,service_name,amount,status,created_at", { count: "exact" })
-.order("created_at", { ascending: false })
-.range(from, from + PAYMENTS_PAGE_SIZE - 1);
+    try {
+        const { data, error, count } = await request;
+        if (error) throw error;
+        if (requestId !== paymentLoadSequence) return;
+        paymentsTotal = Number(count || 0);
+        const pageCount = Math.max(1, Math.ceil(paymentsTotal / PAYMENTS_PAGE_SIZE));
+        if (paymentsPage > pageCount) {
+            paymentsPage = pageCount;
+            return loadPayments();
+        }
+        paymentsCache = data || [];
+        renderPaymentServiceOptions();
 
-if (query) request = request.ilike("reference", `%EIS-${query}%`);
-if (statusFilter !== "all") request = request.eq("status", statusFilter);
+        const userIds = [...new Set(paymentsCache.map(payment => payment.user_id).filter(Boolean))];
+        let profileMap = new Map();
+        if (userIds.length) {
+            const { data: profiles, error: profileError } = await supabase.rpc("admin_get_application_customers", {
+                p_user_ids: userIds
+            });
+            if (profileError) {
+                console.warn("Could not load payment customer details:", profileError);
+            } else {
+                profileMap = new Map((profiles || []).map(profile => [profile.id, profile]));
+            }
+        }
+        if (requestId !== paymentLoadSequence) return;
 
-try {
-const { data, error, count } = await request;
-if (error) throw error;
-if (requestId !== paymentLoadSequence) return;
-
-paymentsTotal = Number(count || 0);
-const pageCount = Math.max(1, Math.ceil(paymentsTotal / PAYMENTS_PAGE_SIZE));
-if (paymentsPage > pageCount) {
-paymentsPage = pageCount;
-return loadPayments();
-}
-paymentsCache = data || [];
-
-const userIds = [...new Set(paymentsCache.map(payment => payment.user_id).filter(Boolean))];
-let profileMap = new Map();
-if (userIds.length) {
-const { data: profiles, error: profileError } = await supabase.rpc("admin_get_application_customers", {
-p_user_ids: userIds
-});
-if (profileError) {
-console.warn("Could not load payment customer details:", profileError);
-} else {
-profileMap = new Map((profiles || []).map(profile => [profile.id, profile]));
-}
-}
-
-if (requestId !== paymentLoadSequence) return;
-const records = paymentsCache.map(payment => {
-const customer = profileMap.get(payment.user_id) || {};
-const customerName = String(customer.full_name || "Customer");
-const customerEmail = String(customer.email || "Email unavailable");
-const status = normalizeStatus(payment.status || "pending");
-const detailId = `payment-detail-${escapeHTML(payment.id)}`;
-return `
+        const records = paymentsCache.map(payment => {
+            const customer = profileMap.get(payment.user_id) || {};
+            const customerName = String(customer.full_name || "Customer");
+            const customerEmail = String(customer.email || "Email unavailable");
+            const status = normalizeStatus(payment.status || "pending");
+            const detailId = `payment-detail-${escapeHTML(payment.id)}`;
+            return `
 <article class="admin-payment-card">
-<div class="admin-payment-main">
-<div class="admin-payment-reference">
-<strong>${escapeHTML(payment.reference || "Reference unavailable")}</strong>
-<span>${escapeHTML(formatDate(payment.created_at))}</span>
-</div>
-<div class="admin-payment-customer">
-<strong>${escapeHTML(customerName)}</strong>
-<span>${escapeHTML(customerEmail)}</span>
-</div>
-<div class="admin-payment-service">
-<strong>${escapeHTML(payment.service_name || "Service unavailable")}</strong>
-<span>Payment amount</span>
-</div>
-<div class="admin-payment-total">
-<strong>${escapeHTML(formatCurrency(payment.amount))}</strong>
-<span class="admin-status ${escapeHTML(status)}">${escapeHTML(getPaymentStatusLabel(payment.status))}</span>
-</div>
-</div>
-<div class="admin-payment-actions">
-<button type="button" class="admin-small-button" data-toggle-payment aria-expanded="false" aria-controls="${detailId}">View details</button>
-</div>
-<div class="admin-payment-details" id="${detailId}" hidden>
-<div><span>Payment reference</span><strong>${escapeHTML(payment.reference || "Unavailable")}</strong></div>
-<div><span>Customer account</span><strong>${escapeHTML(customerEmail)}</strong></div>
-<div><span>Recorded date</span><strong>${escapeHTML(formatDate(payment.created_at))}</strong></div>
-<div><span>Verification status</span><strong>${escapeHTML(getPaymentStatusLabel(payment.status))}</strong></div>
-<button type="button" class="admin-secondary-button" data-copy-payment-ref="${escapeHTML(payment.reference || "")}">Copy reference</button>
-</div>
+    <div class="admin-payment-main">
+        <div class="admin-payment-reference">
+            <strong>${escapeHTML(payment.reference || "Reference unavailable")}</strong>
+            <span>${escapeHTML(formatDate(payment.created_at))}</span>
+        </div>
+        <div class="admin-payment-customer">
+            <strong>${escapeHTML(customerName)}</strong>
+            <span>${escapeHTML(customerEmail)}</span>
+        </div>
+        <div class="admin-payment-service">
+            <strong>${escapeHTML(payment.service_name || "Service unavailable")}</strong>
+            <span>Payment amount</span>
+        </div>
+        <div class="admin-payment-total">
+            <strong>${escapeHTML(formatCurrency(payment.amount))}</strong>
+            <span class="admin-status ${escapeHTML(status)}">${escapeHTML(getPaymentStatusLabel(payment.status))}</span>
+        </div>
+    </div>
+    <div class="admin-payment-actions">
+        <button type="button" class="admin-small-button" data-toggle-payment aria-expanded="false" aria-controls="${detailId}">View details</button>
+    </div>
+    <div class="admin-payment-details" id="${detailId}" hidden>
+        <div><span>Payment reference</span><strong>${escapeHTML(payment.reference || "Unavailable")}</strong></div>
+        <div><span>Customer account</span><strong>${escapeHTML(customerEmail)}</strong></div>
+        <div><span>Recorded date</span><strong>${escapeHTML(formatDate(payment.created_at))}</strong></div>
+        <div><span>Service</span><strong>${escapeHTML(payment.service_name || "Unavailable")}</strong></div>
+        <div><span>Amount</span><strong>${escapeHTML(formatCurrency(payment.amount))}</strong></div>
+        <div><span>Verification status</span><strong>${escapeHTML(getPaymentStatusLabel(payment.status))}</strong></div>
+        <button type="button" class="admin-secondary-button" data-copy-payment-ref="${escapeHTML(payment.reference || "")}">Copy reference</button>
+    </div>
 </article>`;
-});
+        });
+        if (!paymentsCache.length) {
+            showEmpty("payments-admin-list", Object.values(filters).some(value => value && value !== "all")
+                ? "No payments match these filters."
+                : "No payment records have been received yet.");
+        } else {
+            container.innerHTML = records.join("");
+        }
 
-if (!paymentsCache.length) {
-showEmpty("payments-admin-list", query || statusFilter !== "all" ? "No payments match these filters." : "No payment records have been received yet.");
-} else {
-container.innerHTML = records.join("");
+        if ($("payments-count")) {
+            $("payments-count").textContent = `${paymentsTotal.toLocaleString()} matching payment${paymentsTotal === 1 ? "" : "s"}`;
+        }
+        const pagination = $("payments-pagination");
+        if (pagination) {
+            pagination.hidden = paymentsTotal <= PAYMENTS_PAGE_SIZE;
+            const first = paymentsTotal ? from + 1 : 0;
+            const last = Math.min(from + PAYMENTS_PAGE_SIZE, paymentsTotal);
+            if ($("payments-page-summary")) $("payments-page-summary").textContent = `Showing ${first}–${last} of ${paymentsTotal}`;
+            if ($("payments-prev-page")) $("payments-prev-page").disabled = paymentsPage <= 1;
+            if ($("payments-next-page")) $("payments-next-page").disabled = paymentsPage >= pageCount;
+        }
+    } catch (error) {
+        if (requestId !== paymentLoadSequence) return;
+        console.error("Payments load error:", error);
+        showError("payments-admin-list", "Payment records could not be loaded. Please refresh and try again.");
+        if ($("payments-pagination")) $("payments-pagination").hidden = true;
+    }
 }
 
-if ($("payments-count")) {
-$("payments-count").textContent = query || statusFilter !== "all"
-? `Showing ${paymentsTotal} matching payments`
-: `${paymentsTotal.toLocaleString()} Payments`;
-}
-const pagination = $("payments-pagination");
-if (pagination) {
-pagination.hidden = paymentsTotal <= PAYMENTS_PAGE_SIZE;
-const first = paymentsTotal ? from + 1 : 0;
-const last = Math.min(from + PAYMENTS_PAGE_SIZE, paymentsTotal);
-if ($("payments-page-summary")) $("payments-page-summary").textContent = `Showing ${first}–${last} of ${paymentsTotal}`;
-if ($("payments-prev-page")) $("payments-prev-page").disabled = paymentsPage <= 1;
-if ($("payments-next-page")) $("payments-next-page").disabled = paymentsPage >= pageCount;
-}
-} catch (error) {
-if (requestId !== paymentLoadSequence) return;
-console.error("Payments load error:", error);
-showError("payments-admin-list", "Payment records could not be loaded. Please refresh and try again.");
-if ($("payments-pagination")) $("payments-pagination").hidden = true;
-}
+function csvSafePaymentCell(value) {
+    const text = String(value ?? "");
+    return /^[=+\-@]/.test(text) ? `'${text}` : text;
 }
 
+async function exportPaymentsCSV() {
+    const button = $("export-payments-csv");
+    if (!button || button.disabled) return;
+    const filters = getPaymentFilters();
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = "Preparing...";
+    try {
+        const rows = [];
+        let offset = 0;
+        const batchSize = 500;
+        while (true) {
+            let query = supabase.from("payments")
+                .select("id,reference,user_id,service_name,amount,status,created_at")
+                .order("created_at", { ascending: false })
+                .range(offset, offset + batchSize - 1);
+            query = applyPaymentFilters(query, filters);
+            const { data, error } = await query;
+            if (error) throw error;
+            const batch = data || [];
+            rows.push(...batch);
+            if (batch.length < batchSize) break;
+            offset += batchSize;
+        }
+
+        const profileMap = new Map();
+        const userIds = [...new Set(rows.map(row => row.user_id).filter(Boolean))];
+        for (let i = 0; i < userIds.length; i += 100) {
+            const { data, error } = await supabase.rpc("admin_get_application_customers", {
+                p_user_ids: userIds.slice(i, i + 100)
+            });
+            if (error) throw error;
+            (data || []).forEach(profile => profileMap.set(profile.id, profile));
+        }
+
+        const headers = ["Payment reference", "Customer name", "Customer email", "Service", "Amount (NGN)", "Status", "Recorded date"];
+        const csvRows = [headers, ...rows.map(row => {
+            const profile = profileMap.get(row.user_id) || {};
+            return [
+                row.reference,
+                profile.full_name || "Customer",
+                profile.email || "",
+                row.service_name,
+                row.amount,
+                getPaymentStatusLabel(row.status),
+                row.created_at
+            ];
+        })];
+        const csv = "\uFEFF" + csvRows.map(row => row.map(value => {
+            const safe = csvSafePaymentCell(value);
+            return `"${safe.replace(/"/g, '""')}"`;
+        }).join(",")).join("\r\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `eis-payments-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        showNotice(`Exported ${rows.length.toLocaleString()} payment records.`);
+    } catch (error) {
+        console.error("Payment export error:", error);
+        showNotice("Payment export failed. Please try again.");
+    } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+}
 async function refreshPayments() {
 await loadPayments();
 showNotice("Payment records refreshed.");
@@ -2459,7 +2575,10 @@ $("search-payment-reference")?.addEventListener("click", () => { paymentsPage = 
 $("payment-reference-search")?.addEventListener("keydown", event => {
 if (event.key === "Enter") { event.preventDefault(); paymentsPage = 1; loadPayments(); }
 });
-$("payment-status-filter")?.addEventListener("change", () => { paymentsPage = 1; loadPayments(); });
+["payment-status-filter", "payment-service-filter", "payment-date-from", "payment-date-to"].forEach(id => {
+$(id)?.addEventListener("change", () => { paymentsPage = 1; loadPayments(); });
+});
+$("export-payments-csv")?.addEventListener("click", exportPaymentsCSV);
 $("payments-prev-page")?.addEventListener("click", () => { paymentsPage = Math.max(1, paymentsPage - 1); loadPayments(); });
 $("payments-next-page")?.addEventListener("click", () => { paymentsPage += 1; loadPayments(); });
 
