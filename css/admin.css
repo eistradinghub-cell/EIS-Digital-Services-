@@ -3215,3 +3215,35 @@
 .admin-page .admin-customer-activity-item .admin-customer-activity-status { flex-shrink: 0; color: #53657d; text-transform: capitalize; }
 .admin-page .admin-customer-activity-note { grid-column: 1 / -1; margin: 0; }
 @media (max-width: 700px) { .admin-page .admin-customer-activity-content { grid-template-columns: minmax(0, 1fr); } .admin-page .admin-customer-activity-section { padding: 11px; } }
+/* Customer Care inbox refinements */
+.admin-page .admin-chat-inbox-heading { margin-bottom: 12px; }
+.admin-page .admin-chat-inbox-heading p { display: flex; align-items: center; gap: 7px; }
+.admin-page .admin-chat-inbox-heading p strong { color: var(--admin-blue); font-weight: 700; }
+.admin-page .admin-chat-heading-separator { color: #b5bfce; }
+.admin-page .admin-chat-tools { display: grid; grid-template-columns: minmax(0, 1fr) 145px; gap: 8px; margin-bottom: 13px; }
+.admin-page .admin-chat-tools input, .admin-page .admin-chat-tools select { width: 100%; min-width: 0; height: 39px; padding: 0 10px; border: 1px solid var(--admin-border); border-radius: 8px; background: #fff; color: var(--admin-text); font-size: 10px; }
+.admin-page .admin-chat-tools input:focus, .admin-page .admin-chat-tools select:focus { outline: none; border-color: var(--admin-blue); box-shadow: 0 0 0 3px rgba(40,100,232,.08); }
+.admin-page .admin-conversation-item { align-items: center; gap: 10px; }
+.admin-page .conversation-avatar { width: 36px; height: 36px; display: grid; place-items: center; font-size: 11px; font-weight: 750; }
+.admin-page .conversation-info { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.admin-page .conversation-info .conversation-item-topline, .admin-page .conversation-info .conversation-item-bottomline { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.admin-page .conversation-info .conversation-item-topline strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-page .conversation-info .conversation-item-topline time { flex-shrink: 0; color: #929db0; font-size: 9px; }
+.admin-page .conversation-info .conversation-email, .admin-page .conversation-info .conversation-preview { display: block; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; line-height: 1.45; }
+.admin-page .conversation-info .conversation-preview { color: var(--admin-muted); }
+.admin-page .conversation-item-bottomline { min-height: 18px; }
+.admin-page .conversation-status-label { font-size: 9px; color: #64748b; }
+.admin-page .conversation-status-label.open { color: #16845e; }
+.admin-page .conversation-status-label.closed { color: #7b8494; }
+.admin-page .admin-conversation-item.has-unread .conversation-item-topline strong { font-weight: 800; }
+.admin-page .admin-conversation-item .conversation-unread { min-width: 19px; height: 19px; padding: 0 5px; font-size: 9px; }
+.admin-page .admin-chat-header { gap: 12px; }
+.admin-page .admin-chat-header .chat-customer-details { min-width: 0; flex: 1; }
+.admin-page .admin-chat-status-button { flex-shrink: 0; min-height: 34px; padding: 7px 11px; border: 1px solid var(--admin-border); border-radius: 7px; background: #fff; color: #53657d; font-size: 10px; font-weight: 650; }
+.admin-page .admin-chat-status-button:hover { border-color: #b7c7e3; background: #f7f9ff; }
+.admin-page .admin-chat-status-button:disabled { opacity: .55; cursor: wait; }
+.admin-page .chat-attachment-link, .admin-page .chat-attachment-unavailable { margin: 7px 0 0; font-size: 10px; }
+.admin-page .chat-attachment-link a { color: inherit; text-decoration: underline; }
+.admin-page .chat-attachment-unavailable { opacity: .7; }
+@media (max-width: 760px) { .admin-page .admin-chat-layout { grid-template-columns: minmax(0, 1fr); gap: 13px; } .admin-page .admin-chat-list-panel { min-height: auto; padding: 13px; } .admin-page .admin-conversations-list { max-height: 300px; } .admin-page .admin-chat-window, .admin-page .admin-chat-active { min-height: 510px; } .admin-page .admin-chat-messages { min-height: 280px; max-height: 390px; padding: 13px; } .admin-page .admin-chat-header { padding: 12px; } .admin-page .admin-chat-status-button { padding: 7px 9px; font-size: 9px; } }
+@media (max-width: 420px) { .admin-page .admin-chat-tools { grid-template-columns: minmax(0, 1fr); } .admin-page .admin-chat-form { gap: 7px; padding: 10px; } .admin-page .admin-chat-form button { padding: 9px 12px; } }
