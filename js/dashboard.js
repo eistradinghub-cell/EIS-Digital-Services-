@@ -1158,8 +1158,10 @@ async function loadApplications() {
 
             // Show the complete application reference so the admin can
             // search for this exact application from the Applications dashboard.
-            reference.textContent =
-                String(application.id).toUpperCase();
+            const rawReference = String(application.id).toUpperCase();
+            reference.textContent = rawReference.startsWith("EIS-")
+                ? rawReference
+                : `EIS-${rawReference}`;
 
             const service = document.createElement("td");
 
