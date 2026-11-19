@@ -2421,3 +2421,67 @@
 /* =====================================================
    28. END OF EIS ADMIN CSS
 ===================================================== */
+
+
+/* Admin content panels: compact disclosure headers, with all tools hidden until requested. */
+.admin-page .admin-panel-header {
+    position: relative;
+    align-items: center;
+    margin-bottom: 0;
+    gap: 14px;
+}
+.admin-page .admin-panel-header > div:first-child {
+    min-width: 0;
+}
+.admin-page .admin-panel-toggle {
+    flex: 0 0 auto;
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 7px 10px;
+    border: 1px solid var(--admin-border);
+    border-radius: 7px;
+    background: #fff;
+    color: #526176;
+    font-size: 11px;
+    font-weight: 650;
+    transition: border-color .18s ease, color .18s ease, background .18s ease;
+}
+.admin-page .admin-panel-toggle:hover,
+.admin-page .admin-panel-toggle[aria-expanded="true"] {
+    border-color: #b9c9df;
+    background: #f7f9fc;
+    color: var(--admin-text);
+}
+.admin-page .admin-panel-toggle-mark {
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform .18s ease;
+}
+.admin-page .admin-panel-toggle[aria-expanded="true"] .admin-panel-toggle-mark {
+    transform: rotate(225deg) translate(-1px, -1px);
+}
+.admin-page .admin-panel-content {
+    padding-top: 19px;
+}
+.admin-page .admin-panel-content[hidden] {
+    display: none !important;
+}
+.admin-page .admin-panel.is-expanded .admin-panel-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--admin-border);
+}
+@media (max-width: 560px) {
+    .admin-page .admin-panel { padding: 16px; }
+    .admin-page .admin-panel-header { align-items: flex-start; }
+    .admin-page .admin-panel-toggle {
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+}
