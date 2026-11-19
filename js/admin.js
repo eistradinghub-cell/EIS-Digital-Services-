@@ -1479,12 +1479,7 @@ if ($("chat-customer-email")) $("chat-customer-email").textContent = conversatio
 if ($("chat-customer-avatar")) $("chat-customer-avatar").textContent = getInitials(name);
 const closed = String(conversation.status || "Open").toLowerCase() === "closed";
 if ($("chat-customer-status")) $("chat-customer-status").textContent = closed ? "Closed conversation" : "Open conversation";
-const toggle = $("chat-status-toggle");
-if (toggle) { toggle.textContent = closed ? "Reopen conversation" : "Close conversation"; toggle.dataset.nextStatus = closed ? "Open" : "Closed"; }
-const input = $("admin-chat-input");
-const send = $("admin-chat-send");
-if (input) { input.disabled = closed; input.placeholder = closed ? "Reopen this conversation to reply." : "Type your reply..."; }
-if (send) send.disabled = closed || isSendingMessage;
+
 }
 
 async function loadChatMessages(conversationId) {
@@ -1575,7 +1570,6 @@ if (!conversationId || !currentUser) { showNotice("Select a conversation first."
 const input = $("admin-chat-input");
 const content = input?.value.trim();
 if (!content) return;
-if (String(currentConversation?.status || "Open").toLowerCase() === "closed") { showNotice("Reopen this conversation before replying.", "error"); return; }
 isSendingMessage = true;
 const button = $("admin-chat-send");
 if (button) { button.disabled = true; button.textContent = "Sending..."; }
@@ -1592,31 +1586,8 @@ console.error("Send message error:", error);
 showNotice("Unable to send message. Please try again.", "error");
 } finally {
 isSendingMessage = false;
-if (button) { button.textContent = "Send"; button.disabled = String(currentConversation?.status || "Open").toLowerCase() === "closed"; }
+if (button) { button.textContent = "Send"; button.disabled = false; }
 }
-}
-
-async function updateConversationStatus() {
-const conversation = currentConversation;
-if (!conversation) return;
-const button = $("chat-status-toggle");
-const nextStatus = button?.dataset.nextStatus;
-if (!['Open', 'Closed'].includes(nextStatus)) return;
-if (button) { button.disabled = true; button.textContent = "Updating..."; }
-try {
-const { data, error } = await supabase.from("chat_conversations").update({ status: nextStatus }).eq("id", conversation.id).select("id,status").single();
-if (error) throw error;
-conversationsCache = conversationsCache.map(item => item.id === conversation.id ? { ...item, status: data.status } : item);
-const updatedConversation = conversationsCache.find(item => item.id === conversation.id) || { ...conversation, status: data.status };
-if (currentConversation?.id === conversation.id) { currentConversation = updatedConversation; updateChatConversationHeader(currentConversation); }
-updateConversationSummary();
-renderConversations();
-showNotice(nextStatus === "Closed" ? "Conversation closed." : "Conversation reopened.");
-} catch (error) {
-console.error("Conversation status update error:", error);
-showNotice("Unable to update conversation status. Please try again.", "error");
-if (button) button.textContent = String(conversation.status || "Open").toLowerCase() === "closed" ? "Reopen conversation" : "Close conversation";
-} finally { if (button) button.disabled = false; }
 }
 
 async function sendBroadcast(event) {
@@ -1977,8 +1948,6 @@ refreshConversations
 );
 $("chat-inbox-search")?.addEventListener("input", renderConversations);
 $("chat-inbox-filter")?.addEventListener("change", renderConversations);
-$("chat-status-toggle")?.addEventListener("click", updateConversationStatus);
-
 $("add-service-form")?.addEventListener(
 "submit",
 addService
