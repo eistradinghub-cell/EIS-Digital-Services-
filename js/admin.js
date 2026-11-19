@@ -1225,12 +1225,13 @@ async function exportCustomersCSV() {
 const button = $("export-customers-csv");
 if (button) { button.disabled = true; button.textContent = "Preparing..."; }
 try {
-const { request: baseRequest, fromValue, toValue } = getCustomerDirectoryQuery();
+const { fromValue, toValue } = getCustomerDirectoryQuery();
 if (fromValue && toValue && fromValue > toValue) throw new Error("The registration start date must be before the end date.");
 const allCustomers = [];
 const batchSize = 500;
 for (let offset = 0; ; offset += batchSize) {
-const { data, error } = await baseRequest.range(offset, offset + batchSize - 1);
+const { request } = getCustomerDirectoryQuery();
+const { data, error } = await request.range(offset, offset + batchSize - 1);
 if (error) throw error;
 const batch = data || [];
 allCustomers.push(...batch);
