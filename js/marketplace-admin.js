@@ -2176,73 +2176,6 @@ async function saveAdminSiteProfile(event) {
     }
 }
 
-async function loadSiteAdministrators() {
-    const container = $("site-admins-list");
-    if (!container) return;
-
-    container.innerHTML = `
-        <div class="admin-loading">Loading administrator accounts...</div>
-    `;
-
-    try {
-        const { data, error } = await supabase
-            .from("profiles")
-            .select("id,email,full_name,role")
-            .in("role", ["admin", "super_admin"])
-            .order("full_name", { ascending: true });
-
-        if (error) throw error;
-
-        const administrators = data || [];
-
-        if (!administrators.length) {
-            container.innerHTML = `
-                <div class="admin-empty">
-                    No administrator accounts were found.
-                </div>
-            `;
-            return;
-        }
-
-        container.innerHTML = administrators.map((item) => {
-            const role = String(item.role || "admin").toLowerCase();
-            const isSuper = role === "super_admin";
-
-            return `
-                <article class="site-settings-admin-row">
-
-                    <div class="site-settings-admin-person">
-                        <strong>
-                            ${escapeHTML(
-                                item.full_name ||
-                                item.email ||
-                                "Administrator"
-                            )}
-                        </strong>
-
-                        <small>${escapeHTML(item.email || "Email unavailable")}</small>
-                    </div>
-
-                    <span class="site-settings-role ${isSuper ? "super" : ""}">
-                        ${escapeHTML(role.replace("_", " "))}
-                    </span>
-
-                </article>
-            `;
-        }).join("");
-
-    } catch (error) {
-        console.error("Administrator list error:", error);
-
-        container.innerHTML = `
-            <div class="admin-error">
-                Unable to load administrator accounts.
-                ${escapeHTML(error.message || "")}
-            </div>
-        `;
-    }
-}
-
 function updateCurrentAdminInformation() {
     if (!siteSettingsProfile || !siteSettingsUser) return;
 
@@ -2326,13 +2259,7 @@ function setupSiteSettingsEvents() {
             "site-admin-avatar-preview",
             "Admin profile picture"
         );
-    });
-
-    $("site-admins-refresh")?.addEventListener(
-        "click",
-        loadSiteAdministrators
-    );
-}
+    });}
 
 async function initializeSiteSettings() {
     const section = $("section-site-settings");
@@ -2383,9 +2310,7 @@ async function initializeSiteSettings() {
         siteSettingsProfile = profile;
 
         updateCurrentAdminInformation();
-
         await loadSiteSettingsValues();
-        await loadSiteAdministrators();
 
     } catch (error) {
         console.error("Site Settings initialization error:", error);
