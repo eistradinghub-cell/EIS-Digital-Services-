@@ -1050,7 +1050,8 @@
             </div>
             <div class="admin-chat-tools">
                 <label class="admin-chat-search-wrap" for="chat-inbox-search"><span class="sr-only">Search conversations</span><input type="search" id="chat-inbox-search" placeholder="Search name, email or message..." autocomplete="off"></label>
-                <label class="admin-chat-filter-wrap" for="chat-inbox-filter"><span class="sr-only">Filter conversations</span><select id="chat-inbox-filter"><option value="all">All conversations</option><option value="unread">Unread</option><option value="open">Open</option><option value="closed">Closed</option></select></label>
+                <label class="admin-chat-filter-wrap" for="chat-inbox-filter"><span class="sr-only">Filter conversations</span><select id="chat-inbox-filter"><option value="all">All conversations</option><option value="unread">Needs a reply</option><option value="open">Open</option><option value="closed">Closed</option></select></label>
+                <label class="admin-chat-sort-wrap" for="chat-inbox-sort"><span class="sr-only">Sort conversations</span><select id="chat-inbox-sort" aria-label="Sort conversations"><option value="recent">Most recent</option><option value="unread">Unread first</option><option value="oldest">Oldest activity</option></select></label>
             </div>
             <div id="admin-conversations-list" class="admin-conversations-list">
                 <div class="admin-loading">Loading conversations...</div>
@@ -1071,7 +1072,9 @@
                         <h3 id="chat-customer-name">Customer</h3>
                         <span class="chat-customer-email" id="chat-customer-email">Email not available</span>
                         <span id="chat-customer-status">Conversation</span>
+                        <span id="chat-conversation-activity" class="chat-conversation-activity">Select a conversation</span>
                     </div>
+                    <button type="button" class="admin-secondary-button admin-chat-export-button" id="export-chat-transcript" disabled>Export chat</button>
                 </div>
 
                 <div class="admin-chat-messages" id="admin-chat-messages"></div>
