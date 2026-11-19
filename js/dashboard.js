@@ -556,7 +556,7 @@ function getPasswordStrength(password) {
         length: password.length >= 12,
         upper: /[A-Z]/.test(password),
         lower: /[a-z]/.test(password),
-        number: /\\d/.test(password),
+        number: /\d/.test(password),
         symbol: /[^A-Za-z0-9]/.test(password)
     };
 }
