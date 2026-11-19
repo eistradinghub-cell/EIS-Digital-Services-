@@ -938,7 +938,7 @@ function getReportStartDate(days) {
   return start;
 }
 
-async function fetchReportRows(table, fields, startISO, requestId) {
+async function fetchReportRows(table, fields, startISO, endISO, requestId) {
   const rows = [];
   let offset = 0;
   while (true) {
@@ -949,6 +949,7 @@ async function fetchReportRows(table, fields, startISO, requestId) {
       .order("id", { ascending: true })
       .range(offset, offset + REPORT_PAGE_SIZE - 1);
     if (startISO) query = query.gte("created_at", startISO);
+    if (endISO) query = query.lt("created_at", endISO);
     const { data, error } = await query;
     if (error) throw error;
     if (requestId !== reportsLoadSequence) return null;
@@ -990,6 +991,38 @@ function renderReportStatus(applications) {
       return `
         <div class="admin-report-status-row">
           <div><strong>${escapeHTML(labels[status] || status.replace(/_/g, " "))}</strong><span>${count.toLocaleString()} · ${percent}%</span></div>
+          <div class="admin-report-track"><span style="width:${percent}%"></span></div>
+        </div>`;
+    }).join("");
+}
+
+function renderReportPaymentStatus(payments) {
+  const container = $("report-payment-status");
+  if (!container) return;
+  const groups = new Map();
+  payments.forEach(payment => {
+    const status = normalizeStatus(payment.status || "pending");
+    const entry = groups.get(status) || { count: 0, amount: 0 };
+    entry.count += 1;
+    entry.amount += Number(payment.amount) || 0;
+    groups.set(status, entry);
+  });
+  if (!groups.size) {
+    showEmpty("report-payment-status", "No payment records were received during this period.");
+    return;
+  }
+  const labels = { successful: "Successful", used: "Used", pending: "Pending", failed: "Failed" };
+  const total = payments.length;
+  container.innerHTML = [...groups.entries()]
+    .sort((a, b) => b[1].count - a[1].count)
+    .map(([status, value]) => {
+      const percent = Math.round((value.count / total) * 100);
+      return `
+        <div class="admin-report-status-row">
+          <div>
+            <strong>${escapeHTML(labels[status] || status.replace(/_/g, " "))}</strong>
+            <span>${value.count.toLocaleString()} · ${percent}% · ${escapeHTML(formatCurrency(value.amount))}</span>
+          </div>
           <div class="admin-report-track"><span style="width:${percent}%"></span></div>
         </div>`;
     }).join("");
@@ -1074,17 +1107,24 @@ async function loadReports() {
   const requestId = ++reportsLoadSequence;
   const days = Number($("report-date-range")?.value || 30);
   const safeDays = [7, 30, 90].includes(days) ? days : 30;
+  const endDate = new Date();
   const startDate = getReportStartDate(safeDays);
   const startISO = startDate.toISOString();
+  const endISO = endDate.toISOString();
+  const previousStartDate = new Date(startDate);
+  previousStartDate.setDate(previousStartDate.getDate() - safeDays);
+  const previousStartISO = previousStartDate.toISOString();
   const refreshButton = $("refresh-reports");
   if (refreshButton) { refreshButton.disabled = true; refreshButton.textContent = "Loading..."; }
-  ["report-revenue-chart", "report-service-performance", "report-application-status"].forEach(id => setLoading(id, "Preparing report..."));
-  ["report-revenue", "report-paid-count", "report-application-count", "report-customer-count"].forEach(id => { if ($(id)) $(id).textContent = "—"; });
+  ["report-revenue-chart", "report-payment-status", "report-service-performance", "report-application-status"].forEach(id => setLoading(id, "Preparing report..."));
+  ["report-revenue", "report-paid-count", "report-application-count", "report-customer-count", "report-revenue-change"].forEach(id => { if ($(id)) $(id).textContent = "—"; });
+  if ($("report-revenue-comparison")) $("report-revenue-comparison").textContent = "Compared with the preceding period";
   try {
-    const [payments, applications, customerResult] = await Promise.all([
-      fetchReportRows("payments", "id,service_name,amount,status,created_at", startISO, requestId),
-      fetchReportRows("applications", "id,service_name,status,created_at", startISO, requestId),
-      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer").gte("created_at", startISO)
+    const [payments, applications, customerResult, previousPayments] = await Promise.all([
+      fetchReportRows("payments", "id,service_name,amount,status,created_at", startISO, endISO, requestId),
+      fetchReportRows("applications", "id,service_name,status,created_at", startISO, endISO, requestId),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "customer").gte("created_at", startISO).lt("created_at", endISO),
+      fetchReportRows("payments", "id,amount,status,created_at", previousStartISO, startISO, requestId)
     ]);
     if (requestId !== reportsLoadSequence) return;
     if (customerResult.error) throw customerResult.error;
@@ -1092,18 +1132,33 @@ async function loadReports() {
     const reportApplications = applications || [];
     const paidPayments = reportPayments.filter(payment => REPORT_PAID_STATUSES.has(normalizeStatus(payment.status)));
     const revenue = paidPayments.reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0);
+    const previousRevenue = (previousPayments || [])
+      .filter(payment => REPORT_PAID_STATUSES.has(normalizeStatus(payment.status)))
+      .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0);
+    const revenueChange = previousRevenue > 0
+      ? ((revenue - previousRevenue) / previousRevenue) * 100
+      : null;
     $("report-revenue").textContent = formatCurrency(revenue);
+    if ($("report-revenue-change")) {
+      $("report-revenue-change").textContent = revenueChange === null
+        ? (revenue > 0 ? "New revenue" : "—")
+        : `${revenueChange > 0 ? "+" : ""}${revenueChange.toFixed(1)}%`;
+    }
+    if ($("report-revenue-comparison")) {
+      $("report-revenue-comparison").textContent = `This period: ${formatCurrency(revenue)} · Previous: ${formatCurrency(previousRevenue)}`;
+    }
     $("report-paid-count").textContent = paidPayments.length.toLocaleString();
     $("report-application-count").textContent = reportApplications.length.toLocaleString();
     $("report-customer-count").textContent = Number(customerResult.count || 0).toLocaleString();
     renderReportRevenueChart(reportPayments, safeDays, startDate);
+    renderReportPaymentStatus(reportPayments);
     renderReportServices(reportPayments, reportApplications);
     renderReportStatus(reportApplications);
     if ($("report-range-description")) $("report-range-description").textContent = `Last ${safeDays} days`;
   } catch (error) {
     if (requestId !== reportsLoadSequence) return;
     console.error("Reports load error:", error);
-    ["report-revenue-chart", "report-service-performance", "report-application-status"].forEach(id => showError(id, "Report data could not be loaded. Please refresh and try again."));
+    ["report-revenue-chart", "report-payment-status", "report-service-performance", "report-application-status"].forEach(id => showError(id, "Report data could not be loaded. Please refresh and try again."));
     showNotice("Reports could not be loaded. Check administrator access and try again.", "error");
   } finally {
     if (requestId === reportsLoadSequence && refreshButton) { refreshButton.disabled = false; refreshButton.textContent = "↻ Refresh Reports"; }
