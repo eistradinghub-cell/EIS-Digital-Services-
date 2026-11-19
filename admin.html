@@ -579,6 +579,10 @@
                 <span class="sidebar-icon">✉</span><span>Send an update</span>
             </button>
 
+            <button type="button" class="sidebar-link" data-section="account-security" id="account-security-nav">
+                <span class="sidebar-icon">⌑</span><span>Account security</span>
+            </button>
+
             <button type="button" class="sidebar-link" data-section="staff-management" id="staff-management-nav">
                 <span class="sidebar-icon">♙</span><span>Staff &amp; Admin Management</span>
             </button>
@@ -1171,6 +1175,73 @@
             <button type="button" class="admin-secondary-button" id="audit-prev-page" disabled>Previous</button>
             <span id="audit-page-label">Page 1</span>
             <button type="button" class="admin-secondary-button" id="audit-next-page" disabled>Next</button>
+        </div>
+    </div>
+</section>
+
+<!-- ACCOUNT SECURITY -->
+<section class="admin-section" id="section-account-security">
+    <div class="admin-page-heading">
+        <div>
+            <h1>Account security</h1>
+            <p>Review this browser's session and manage access from other devices.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel admin-security-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Current session</h3>
+                <p>Session information for the browser you are using now.</p>
+            </div>
+        </div>
+        <div class="admin-security-content">
+            <div class="admin-security-grid">
+                <div class="admin-security-item">
+                    <span>Signed-in account</span>
+                    <strong id="security-account-email">Loading...</strong>
+                </div>
+                <div class="admin-security-item">
+                    <span>Account role</span>
+                    <strong id="security-account-role">—</strong>
+                </div>
+                <div class="admin-security-item">
+                    <span>Last successful sign-in</span>
+                    <strong id="security-last-signin">Loading...</strong>
+                </div>
+                <div class="admin-security-item">
+                    <span>Current session expires</span>
+                    <strong id="security-session-expiry">Loading...</strong>
+                </div>
+            </div>
+            <p class="admin-security-note" id="security-session-status" role="status" aria-live="polite">Checking your session...</p>
+        </div>
+    </div>
+
+    <div class="admin-panel admin-security-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Manage other sessions</h3>
+                <p>End access on devices or browsers you no longer use.</p>
+            </div>
+        </div>
+        <div class="admin-security-content">
+            <div class="admin-security-action">
+                <div>
+                    <strong>Sign out other devices</strong>
+                    <p>Ends every other active session while keeping this browser signed in.</p>
+                </div>
+                <button type="button" class="admin-secondary-button" id="security-signout-others">Sign out other devices</button>
+            </div>
+            <div class="admin-security-action admin-security-action-danger">
+                <div>
+                    <strong>Sign out everywhere</strong>
+                    <p>Ends all sessions, including this browser. You will need to sign in again.</p>
+                </div>
+                <button type="button" class="admin-danger-button" id="security-signout-all">Sign out everywhere</button>
+            </div>
+            <p class="admin-security-footnote">Supabase may allow an already-issued access token to remain valid until its expiry, even after its refresh session is revoked.</p>
+            <p class="admin-security-message" id="security-action-message" role="status" aria-live="polite"></p>
         </div>
     </div>
 </section>
