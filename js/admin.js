@@ -378,39 +378,24 @@ if (typeof app.form_data === "string") {
 try { formData = JSON.parse(app.form_data); } catch { formData = {}; }
 }
 
+// Display only the information the customer actually entered,
+// preserving the exact order of fields in the submitted form.
 Object.entries(formData).forEach(([key, value]) => {
 const label = key
 .replace(/[_-]+/g, " ")
 .replace(/([a-z])([A-Z])/g, "$1 $2")
-.replace(/\b\w/g, char => char.toUpperCase());
+.replace(/\\b\\w/g, char => char.toUpperCase());
 add(label, value);
 });
 
-const profile = app.customer || {};
-const known = [
-["First Name", formData.first_name ?? formData.firstname ?? app.first_name],
-["Last Name", formData.last_name ?? formData.lastname ?? app.last_name],
-["Email (Main)", formData.email ?? formData.email_address ?? profile.email],
-["Phone (Main)", formData.phone ?? formData.phone_number ?? profile.phone],
-["Service", app.service_name],
-["Amount", app.amount === null || app.amount === undefined ? "" : formatCurrency(app.amount)],
-["Reason", app.reason],
-["Customer Name", profile.full_name],
-["Customer Email", profile.email],
-["Customer Phone", profile.phone],
-["Application Reference", app.reference_id ?? app.application_id ?? app.id],
-["Submitted", formatDate(app.created_at)]
-];
-known.forEach(([label, value]) => {
-if (value === null || value === undefined || value === "") return;
-if (fields.some(field => field.label.toLowerCase() === label.toLowerCase())) return;
-add(label, value);
-});
 return fields;
 }
 
 function getApplicationHTML(app) {
-const customer = getCustomerName(app.customer);
+const account = app.customer || {};
+const accountName = account.full_name || account.email || "Account name unavailable";
+const accountEmail = account.email || "Account email unavailable";
+const reference = app.reference_id ?? app.application_id ?? app.id ?? "Unavailable";
 const fields = getApplicationFields(app);
 const pairs = [];
 for (let index = 0; index < fields.length; index += 2) {
@@ -426,10 +411,11 @@ return `
 <article class="admin-app-item admin-application-card">
 <header class="admin-application-card-head">
 <div class="admin-application-title">
-<strong>${escapeHTML(customer)}</strong>
-<span class="admin-application-reference">${escapeHTML(String(app.reference_id ?? app.application_id ?? app.id ?? "Application"))}</span>
+<strong>${escapeHTML(accountName)}</strong>
+<span class="admin-application-reference">${escapeHTML(accountEmail)}</span>
+<span class="admin-application-reference">Reference: ${escapeHTML(String(reference))}</span>
 </div>
-<time>${escapeHTML(formatDate(app.created_at))}</time>
+<time>Submitted: ${escapeHTML(formatDate(app.created_at))}</time>
 </header>
 <div class="admin-application-fields">
 ${pairs.map(pair => `
@@ -541,18 +527,15 @@ if (!app) {
 showNotice("Application not found.", "error");
 return "";
 }
+const profile = app.customer || {};
 const lines = [
-"Customer: " + getCustomerName(app.customer),
+"Account Name: " + String(profile.full_name || ""),
+"Account Email: " + String(profile.email || ""),
 "Application Reference: " + String(app.reference_id ?? app.application_id ?? app.id ?? ""),
-"Service: " + String(app.service_name || ""),
-"Amount: " + formatCurrency(app.amount),
-"Status: " + String(app.status || "In review"),
 "Submitted: " + formatDate(app.created_at)
 ];
 getApplicationFields(app).forEach(field => {
-if (!lines.some(line => line.toLowerCase().startsWith(field.label.toLowerCase() + ":"))) {
 lines.push(field.label + ": " + field.value);
-}
 });
 return lines.join("\n");
 }
