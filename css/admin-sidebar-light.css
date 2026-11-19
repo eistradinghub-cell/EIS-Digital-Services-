@@ -8,8 +8,8 @@
 .admin-page {
     --admin-navy: #142D4E;
     --admin-navy-light: #1B3B60;
-    --admin-blue: #12B894;
-    --admin-blue-hover: #0D927B;
+    --admin-blue: #168477;
+    --admin-blue-hover: #116B61;
 
     --admin-bg: #F4F7F8;
     --admin-white: #ffffff;
@@ -19,7 +19,7 @@
 
     --admin-border: #E1E8EB;
 
-    --admin-green: #12B894;
+    --admin-green: #168477;
     --admin-orange: #D99A42;
     --admin-red: #D94B52;
     --admin-purple: #687FA3;
@@ -159,9 +159,9 @@
 }
 
 .admin-page .global-admin-notice-button:hover {
-    background: #E7F8F4 !important;
+    background: #EAF5F2 !important;
     border-color: #C9DFDA !important;
-    color: #0D927B !important;
+    color: #116B61 !important;
 }
 
 .admin-page .global-admin-notice-count {
@@ -291,14 +291,14 @@
 
 .admin-page .global-admin-nav a:hover,
 .admin-page .global-admin-nav button:hover {
-    background: #E7F8F4 !important;
+    background: #EAF5F2 !important;
     border-color: #C9DFDA !important;
-    color: #0D927B !important;
+    color: #116B61 !important;
 }
 
 .admin-page .global-admin-nav a.active {
-    background: #12B894 !important;
-    border-color: #12B894 !important;
+    background: #168477 !important;
+    border-color: #168477 !important;
     color: #ffffff !important;
 
     box-shadow: 0 3px 9px rgba(22,132,119,.14) !important;
@@ -454,7 +454,7 @@
 }
 
 .admin-page .sidebar-link.active {
-    background: #12B894 !important;
+    background: #168477 !important;
 
     border-color: rgba(255,255,255,.08) !important;
 
@@ -573,9 +573,9 @@
 }
 
 .admin-page .admin-menu-toggle {
-    background: #E7F8F4 !important;
+    background: #EAF5F2 !important;
     border: 1px solid #D4EAE4 !important;
-    color: #0D927B !important;
+    color: #116B61 !important;
     border-radius: 7px !important;
 }
 
@@ -584,9 +584,9 @@
 }
 
 .admin-page .topbar-chat-button {
-    background: #E7F8F4 !important;
+    background: #EAF5F2 !important;
     border: 1px solid #D4EAE4 !important;
-    color: #0D927B !important;
+    color: #116B61 !important;
     border-radius: 7px !important;
 }
 
@@ -599,7 +599,7 @@
 
 .admin-page .topbar-logout:hover,
 .admin-page .topbar-link:hover {
-    color: #0D927B !important;
+    color: #116B61 !important;
 }
 
 /* =====================================================
@@ -611,7 +611,7 @@
 }
 
 .admin-page .admin-eyebrow {
-    color: #12B894 !important;
+    color: #168477 !important;
 }
 
 .admin-page .admin-page-heading h1 {
@@ -673,8 +673,8 @@
 
 .admin-page .stat-icon.blue,
 .admin-page .stat-icon.green {
-    background: #E7F8F4 !important;
-    color: #12B894 !important;
+    background: #EAF5F2 !important;
+    color: #168477 !important;
 }
 
 .admin-page .stat-icon.orange {
@@ -714,11 +714,11 @@
 }
 
 .admin-page .admin-text-button {
-    color: #12B894 !important;
+    color: #168477 !important;
 }
 
 .admin-page .admin-text-button:hover {
-    color: #0D927B !important;
+    color: #116B61 !important;
 }
 
 /* =====================================================
@@ -726,8 +726,8 @@
 ===================================================== */
 
 .admin-page .admin-primary-button {
-    background: #12B894 !important;
-    border: 1px solid #12B894 !important;
+    background: #168477 !important;
+    border: 1px solid #168477 !important;
     border-radius: 7px !important;
 
     color: #ffffff !important;
@@ -736,8 +736,8 @@
 }
 
 .admin-page .admin-primary-button:hover {
-    background: #0D927B !important;
-    border-color: #0D927B !important;
+    background: #116B61 !important;
+    border-color: #116B61 !important;
     color: #ffffff !important;
 }
 
@@ -749,9 +749,9 @@
 }
 
 .admin-page .admin-secondary-button:hover {
-    background: #E7F8F4 !important;
+    background: #EAF5F2 !important;
     border-color: #C9DFDA !important;
-    color: #0D927B !important;
+    color: #116B61 !important;
 }
 
 /* =====================================================
@@ -784,7 +784,7 @@
 .admin-page .marketplace-form-grid textarea:focus {
     outline: none !important;
 
-    border-color: #12B894 !important;
+    border-color: #168477 !important;
 
     box-shadow: 0 0 0 3px rgba(22,132,119,.10) !important;
 }
@@ -861,7 +861,7 @@
 }
 
 .admin-page .marketplace-admin-price {
-    color: #12B894 !important;
+    color: #168477 !important;
 }
 
 .admin-page .marketplace-admin-description {
@@ -869,8 +869,8 @@
 }
 
 .admin-page .marketplace-edit-button {
-    background: #E7F8F4 !important;
-    color: #0D927B !important;
+    background: #EAF5F2 !important;
+    color: #116B61 !important;
 }
 
 .admin-page .marketplace-edit-button:hover {
@@ -904,13 +904,13 @@
 ===================================================== */
 
 .admin-page .marketplace-status {
-    background: #E7F8F4 !important;
-    color: #0D927B !important;
+    background: #EAF5F2 !important;
+    color: #116B61 !important;
 }
 
 .admin-page .admin-notice.success {
-    background: #E7F8F4 !important;
-    color: #0D927B !important;
+    background: #EAF5F2 !important;
+    color: #116B61 !important;
     border-color: #D4EAE4 !important;
 }
 
@@ -949,7 +949,7 @@
     }
 
     .admin-page .sidebar-link.active {
-        background: #12B894 !important;
+        background: #168477 !important;
         color: #ffffff !important;
     }
 
