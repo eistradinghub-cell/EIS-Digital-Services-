@@ -497,48 +497,57 @@ function populateProfileSettings() {
     if (email) email.value = currentUser.email || "";
     if (fullName) fullName.value = currentProfile?.full_name || currentCustomerName || "";
     if (phone) phone.value = currentProfile?.phone || "";
+    ["full_name", "phone"].forEach(field => {
+        const input = $(field === "full_name" ? "profile-full-name" : "profile-phone");
+        const action = document.querySelector('[data-profile-edit="' + field + '"]');
+        if (input) input.readOnly = true;
+        if (action) action.textContent = "Edit";
+    });
 }
 
-async function saveProfileSettings(event) {
-    event.preventDefault();
-    if (!currentUser) return;
-    const button = $("profile-details-save");
-    const fullName = $("profile-full-name")?.value.trim() || "";
-    const phone = $("profile-phone")?.value.trim() || "";
-
-    if (!fullName) {
+async function saveProfileField(field, button) {
+    if (!currentUser || !["full_name", "phone"].includes(field)) return;
+    const input = $(field === "full_name" ? "profile-full-name" : "profile-phone");
+    const value = input?.value.trim() || "";
+    if (field === "full_name" && !value) {
         setProfileSettingsMessage("profile-details-message", "Please enter your full name.", "error");
+        input?.focus();
         return;
     }
-    if (phone && !/^[+()\d\s.-]{7,20}$/.test(phone)) {
+    if (field === "phone" && value && !/^[+()\\d\\s.-]{7,20}$/.test(value)) {
         setProfileSettingsMessage("profile-details-message", "Enter a valid phone number.", "error");
+        input?.focus();
         return;
     }
 
     button.disabled = true;
     button.textContent = "Saving...";
     try {
+        const update = field === "full_name" ? { full_name: value } : { phone: value || null };
         const { data, error } = await supabase
             .from("profiles")
-            .update({ full_name: fullName, phone: phone || null })
+            .update(update)
             .eq("id", currentUser.id)
             .select("id, full_name, phone")
             .maybeSingle();
-
         if (error) throw error;
         if (!data) throw new Error("Your profile could not be updated. Please refresh and try again.");
 
         currentProfile = { ...(currentProfile || {}), ...data };
-        currentCustomerName = data.full_name || fullName;
-        const welcome = $("welcome");
-        if (welcome) welcome.textContent = "Welcome back, " + currentCustomerName;
-        setProfileSettingsMessage("profile-details-message", "Your profile details have been saved.");
+        if (field === "full_name") {
+            currentCustomerName = data.full_name || value;
+            const welcome = $("welcome");
+            if (welcome) welcome.textContent = "Welcome back, " + currentCustomerName;
+        }
+        input.readOnly = true;
+        button.textContent = "Edit";
+        setProfileSettingsMessage("profile-details-message", field === "full_name" ? "Your full name has been saved." : "Your phone number has been saved.");
     } catch (error) {
-        console.error("Profile update error:", error);
+        console.error("Profile field update error:", error);
         setProfileSettingsMessage("profile-details-message", error.message || "We could not save your changes. Please try again.", "error");
+        button.textContent = "Save";
     } finally {
         button.disabled = false;
-        button.textContent = "Save changes";
     }
 }
 
@@ -2080,7 +2089,21 @@ async function initializeDashboard() {
         if (event.target === profileSettingsDialog) profileSettingsDialog.close();
     });
 
-    $("profile-details-form")?.addEventListener("submit", saveProfileSettings);
+    $("profile-details-form")?.addEventListener("click", event => {
+        const button = event.target.closest("[data-profile-edit]");
+        if (!button || button.disabled) return;
+        const field = button.dataset.profileEdit;
+        const input = $(field === "full_name" ? "profile-full-name" : "profile-phone");
+        if (!input) return;
+        if (input.readOnly) {
+            input.readOnly = false;
+            button.textContent = "Save";
+            setProfileSettingsMessage("profile-details-message", "");
+            input.focus();
+        } else {
+            saveProfileField(field, button);
+        }
+    });
     $("profile-password-form")?.addEventListener("submit", updateAccountPassword);
 
     if ($("pay-section")) {
