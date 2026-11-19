@@ -930,6 +930,11 @@
             <strong id="report-customer-count">—</strong>
             <small>Accounts created in this period</small>
         </article>
+        <article class="admin-report-stat">
+            <span>Revenue vs previous period</span>
+            <strong id="report-revenue-change">—</strong>
+            <small id="report-revenue-comparison">Compared with the preceding period</small>
+        </article>
     </div>
 
     <div class="admin-panel admin-report-panel">
@@ -944,6 +949,14 @@
     </div>
 
     <div class="admin-report-detail-grid">
+        <div class="admin-panel admin-report-panel">
+            <div class="admin-panel-header">
+                <div><h3>Payment status</h3><p>Transaction count and value by current status.</p></div>
+            </div>
+            <div id="report-payment-status" class="admin-report-list">
+                <div class="admin-loading">Report data will appear here.</div>
+            </div>
+        </div>
         <div class="admin-panel admin-report-panel">
             <div class="admin-panel-header">
                 <div><h3>Service performance</h3><p>Services ranked by verified revenue.</p></div>
