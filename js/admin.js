@@ -1675,80 +1675,12 @@ async function loadChatMessages(conversationId) {
 const requestId = ++chatMessageLoadSequence;
 setLoading("admin-chat-messages", "Loading messages...");
 const { data, error } = await supabase.from("chat_messages")
-.select("id,conversation_id,sender_id,sender_role,content,attachment_url,is_read,created_at")
+.select("id,conversation_id,sender_id,sender_role,content,is_read,created_at")
 .eq("conversation_id", conversationId)
 .order("created_at", { ascending: true });
 if (requestId !== chatMessageLoadSequence || currentConversation?.id !== conversationId) return;
 if (error) { console.error("Chat messages error:", error); showError("admin-chat-messages", "Messages could not be loaded. Please try again."); return; }
 renderChatMessages(data || []);
-}
-
-function getSafeChatAttachmentUrl(value) {
-try {
-const url = new URL(String(value || ''), window.location.origin);
-return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
-} catch (error) { return ''; }
-}
-function renderChatMessages(messages) {
-const container = $("admin-chat-messages");
-if (!container) return;
-
-if (!messages.length) {
-showEmpty(
-"admin-chat-messages",
-"No messages in this conversation yet."
-);
-return;
-}
-
-container.innerHTML = messages.map(message => {
-const senderRole = String(message.sender_role || "")
-.toLowerCase();
-
-const isAdmin = senderRole === "admin";
-
-return `
-<div class="chat-message ${isAdmin ? "admin" : "customer"}">
-<div>
-${escapeHTML(message.content)}
-</div>
-${getSafeChatAttachmentUrl(message.attachment_url) ? `
-<p class="chat-attachment-link">Attachment: <a href="${escapeHTML(getSafeChatAttachmentUrl(message.attachment_url))}" target="_blank" rel="noopener noreferrer">View attachment</a></p>
-` : message.attachment_url ? '<p class="chat-attachment-unavailable">Attachment link unavailable.</p>' : ""}
-<time>
-${escapeHTML(formatDate(message.created_at))}
-</time>
-</div>
-`;
-}).join("");
-
-container.scrollTop = container.scrollHeight;
-}
-
-/* FIX: Mark opened customer messages as read and reset the sidebar badge. */
-async function markConversationRead(conversationId) {
-try {
-const { error: messagesError } = await supabase.from("chat_messages")
-.update({ is_read: true })
-.eq("conversation_id", conversationId)
-.eq("sender_role", "customer")
-.eq("is_read", false);
-if (messagesError) throw messagesError;
-// The database trigger maintains unread_admin_count for each message marked read.
-const { data: conversationData, error: conversationError } = await supabase.from("chat_conversations")
-.select("unread_admin_count")
-.eq("id", conversationId)
-.single();
-if (conversationError) throw conversationError;
-conversationsCache = conversationsCache.map(item => item.id === conversationId ? { ...item, unread_admin_count: Number(conversationData.unread_admin_count || 0) } : item);
-if (currentConversation?.id === conversationId) currentConversation = conversationsCache.find(item => item.id === conversationId) || currentConversation;
-updateConversationSummary();
-renderConversations();
-if (typeof renderStatistics === 'function') renderStatistics();
-} catch (error) {
-console.error("Mark conversation read error:", error);
-showNotice("Messages opened, but their read status could not be updated.", "error");
-}
 }
 
 async function sendChatMessage(event) {
