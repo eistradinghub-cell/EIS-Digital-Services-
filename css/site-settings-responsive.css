@@ -141,3 +141,164 @@
         min-height: 100px;
     }
 }
+
+
+/* Site Settings cards: match the Admin Dashboard without decorative copy. */
+#section-site-settings > .admin-page-heading {
+    margin: 0 0 20px;
+}
+
+#section-site-settings > .admin-page-heading h1 {
+    color: #17243a;
+    font-size: clamp(25px, 3vw, 30px);
+    font-weight: 650;
+    letter-spacing: -0.035em;
+}
+
+#section-site-settings .admin-panel {
+    margin: 0 0 16px;
+    overflow: hidden;
+    border: 1px solid #e3e9ed;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(16, 28, 54, 0.035);
+}
+
+#section-site-settings .admin-panel-header {
+    min-height: 86px;
+    padding: 16px 18px;
+    border: 0;
+    background: #fff;
+}
+
+#section-site-settings .site-settings-panel-heading {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 14px;
+}
+
+#section-site-settings .site-settings-icon {
+    display: flex;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #eaf5f2;
+    color: #168477;
+}
+
+#section-site-settings .site-settings-icon svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#section-site-settings .admin-panel-header h3 {
+    min-width: 0;
+    margin: 0;
+    color: #17243a;
+    font-size: 16px;
+    font-weight: 620;
+    letter-spacing: -0.015em;
+}
+
+#section-site-settings .admin-panel-toggle {
+    display: flex;
+    width: 100%;
+    min-height: 46px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #17243a;
+    text-align: left;
+}
+
+#section-site-settings .admin-panel-toggle-label {
+    color: #17243a;
+    font: inherit;
+}
+
+#section-site-settings .admin-panel-toggle-mark {
+    flex: 0 0 9px;
+    width: 9px;
+    height: 9px;
+    margin-right: 4px;
+    border-right: 2px solid #738092;
+    border-bottom: 2px solid #738092;
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform .18s ease;
+}
+
+#section-site-settings .admin-panel.is-expanded .admin-panel-toggle-mark {
+    transform: rotate(225deg) translate(-1px, -1px);
+}
+
+#section-site-settings .admin-panel-content {
+    padding: 18px;
+    border-top: 1px solid #edf0f3;
+}
+
+#section-site-settings .admin-form-group label,
+#section-site-settings .admin-settings-grid span {
+    color: #536174;
+    font-size: 12px;
+    font-weight: 550;
+}
+
+#section-site-settings .admin-form-group small {
+    color: #778394;
+}
+
+#section-site-settings .admin-primary-button {
+    min-height: 40px;
+    padding: 0 18px;
+    border-radius: 6px;
+    background: #168477;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#section-site-settings .admin-primary-button:hover {
+    background: #116b61;
+}
+
+@media (max-width: 700px) {
+    #section-site-settings .admin-panel {
+        margin-bottom: 13px;
+        border-radius: 11px;
+    }
+
+    #section-site-settings .admin-panel-header {
+        min-height: 76px;
+        padding: 13px 14px;
+    }
+
+    #section-site-settings .site-settings-panel-heading {
+        gap: 11px;
+    }
+
+    #section-site-settings .site-settings-icon {
+        flex-basis: 42px;
+        width: 42px;
+        height: 42px;
+    }
+
+    #section-site-settings .admin-panel-header h3 {
+        font-size: 15px;
+    }
+
+    #section-site-settings .admin-panel-content {
+        padding: 14px;
+    }
+}
