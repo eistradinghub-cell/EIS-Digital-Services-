@@ -2,6 +2,8 @@
 -- Applied to the linked Supabase project as:
 -- admin_audit_log_and_super_admin_reader
 -- audit_log_super_admin_read_policy
+-- tighten_audit_actor_role_checks
+-- allow_system_payment_and_service_audit_events
 --
 -- Records only operational metadata. It deliberately excludes customer form_data,
 -- chat contents, credentials, tokens and website setting values.
@@ -52,18 +54,18 @@ BEGIN
 
     IF TG_TABLE_NAME = 'profiles' THEN
         IF TG_OP <> 'UPDATE' OR OLD.role IS NOT DISTINCT FROM NEW.role THEN RETURN NULL; END IF;
-        IF v_actor_role <> 'super_admin' THEN RETURN NULL; END IF;
+        IF coalesce(v_actor_role, '') <> 'super_admin' THEN RETURN NULL; END IF;
         v_entity_id := NEW.id;
         v_action := 'administrator_role_changed';
         v_summary := jsonb_build_object('previous_role', OLD.role, 'new_role', NEW.role);
 
     ELSIF TG_TABLE_NAME = 'applications' THEN
         IF TG_OP = 'UPDATE' AND OLD.status IS DISTINCT FROM NEW.status THEN
-            IF v_actor_role NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
+            IF coalesce(v_actor_role, '') NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
             v_entity_id := NEW.id;
             v_action := 'application_status_changed';
             v_summary := jsonb_build_object('service', NEW.service_name, 'previous_status', OLD.status, 'new_status', NEW.status);
-        ELSIF TG_OP = 'DELETE' AND v_actor_role IN ('admin', 'super_admin') THEN
+        ELSIF TG_OP = 'DELETE' AND coalesce(v_actor_role, '') IN ('admin', 'super_admin') THEN
             v_entity_id := OLD.id;
             v_action := 'application_deleted';
             v_summary := jsonb_build_object('service', OLD.service_name);
@@ -73,13 +75,13 @@ BEGIN
 
     ELSIF TG_TABLE_NAME = 'payments' THEN
         IF TG_OP <> 'UPDATE' OR OLD.status IS NOT DISTINCT FROM NEW.status THEN RETURN NULL; END IF;
-        IF v_actor_role NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
+        IF v_actor_id IS NOT NULL AND coalesce(v_actor_role, '') NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
         v_entity_id := NEW.id;
         v_action := 'payment_status_changed';
         v_summary := jsonb_build_object('service', NEW.service_name, 'amount', NEW.amount, 'previous_status', OLD.status, 'new_status', NEW.status);
 
     ELSIF TG_TABLE_NAME = 'services' THEN
-        IF v_actor_id IS NOT NULL AND v_actor_role NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
+        IF v_actor_id IS NOT NULL AND coalesce(v_actor_role, '') NOT IN ('admin', 'super_admin') THEN RETURN NULL; END IF;
         IF TG_OP = 'INSERT' THEN
             v_entity_id := NEW.id;
             v_action := 'service_created';
