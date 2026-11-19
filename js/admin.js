@@ -558,13 +558,20 @@ const options = [
 return `
 <article class="admin-app-item admin-application-card" data-application-card="${escapeHTML(app.id)}">
 <header class="admin-application-card-head">
-<div class="admin-application-title">
+<button type="button" class="admin-application-summary" data-toggle-application="${escapeHTML(app.id)}" aria-expanded="false" aria-controls="application-details-${escapeHTML(app.id)}">
+<span class="admin-application-title">
 <strong class="admin-account-name">${escapeHTML(accountName)}</strong>
 <span class="admin-account-email">${escapeHTML(accountEmail)}</span>
 <span class="admin-application-reference">Reference: ${escapeHTML(String(reference))}</span>
-</div>
+</span>
+<span class="admin-application-summary-meta">
 <time>Submitted: ${escapeHTML(formatDate(app.created_at))}</time>
+<span class="admin-status ${escapeHTML(normalizeStatus(app.status))}">${escapeHTML(String(app.status || "In review").replace(/_/g, " "))}</span>
+<span class="admin-application-expand-mark" aria-hidden="true">+</span>
+</span>
+</button>
 </header>
+<div class="admin-application-details" id="application-details-${escapeHTML(app.id)}" hidden>
 <div class="admin-application-fields">
 ${pairs.map(pair => `
 <div class="admin-application-row">
@@ -588,6 +595,7 @@ ${options.map(([value, label]) => `
 </div>
 <button type="button" class="admin-copy-all-button" data-copy-application="${escapeHTML(app.id)}">Copy All Information</button>
 </footer>
+</div>
 </article>`;
 }
 
@@ -699,37 +707,61 @@ return formatApplicationReference(app.reference_id ?? app.application_id ?? app.
 .trim().toLowerCase();
 }
 
+const APPLICATIONS_PAGE_SIZE = 10;
+let applicationsPage = 1;
+
 function renderApplications() {
 const searchInput = $("application-reference-search");
+const statusInput = $("application-status-filter");
 const query = String(searchInput?.value || "").trim().toLowerCase().replace(/^eis-/, "");
-const filteredApplications = query
-? applicationsCache.filter(app => getApplicationReference(app).replace(/^eis-/, "").includes(query))
-: applicationsCache;
+const statusFilter = String(statusInput?.value || "all").toLowerCase();
+const filteredApplications = applicationsCache.filter(app => {
+const matchesReference = !query || getApplicationReference(app).replace(/^eis-/, "").includes(query);
+const matchesStatus = statusFilter === "all" || normalizeStatus(app.status).replace(/_/g, " ") === statusFilter;
+return matchesReference && matchesStatus;
+});
+const pageCount = Math.max(1, Math.ceil(filteredApplications.length / APPLICATIONS_PAGE_SIZE));
+applicationsPage = Math.min(Math.max(1, applicationsPage), pageCount);
+const start = (applicationsPage - 1) * APPLICATIONS_PAGE_SIZE;
+const visibleApplications = filteredApplications.slice(start, start + APPLICATIONS_PAGE_SIZE);
 
 if (!applicationsCache.length) {
-showEmpty("applications-full-list", "No applications found.");
+showEmpty("applications-full-list", "No applications have been received yet.");
 if ($("applications-count")) $("applications-count").textContent = "0 Applications";
 if ($("applications-badge")) $("applications-badge").style.display = "none";
+if ($("applications-pagination")) $("applications-pagination").hidden = true;
 return;
 }
 
 if (!filteredApplications.length) {
-showEmpty("applications-full-list", "No application found with that reference number.");
+showEmpty("applications-full-list", "No applications match these filters.");
 } else if ($("applications-full-list")) {
-$("applications-full-list").innerHTML =
-filteredApplications.map(getApplicationHTML).join("");
+$("applications-full-list").innerHTML = visibleApplications.map(getApplicationHTML).join("");
 }
 
 if ($("applications-count")) {
-$("applications-count").textContent = query
+$("applications-count").textContent = query || statusFilter !== "all"
 ? `Showing ${filteredApplications.length} of ${applicationsCache.length} Applications`
 : `${applicationsCache.length} Applications`;
+}
+
+const pagination = $("applications-pagination");
+if (pagination) {
+pagination.hidden = filteredApplications.length <= APPLICATIONS_PAGE_SIZE;
+if ($("applications-page-summary")) {
+const first = filteredApplications.length ? start + 1 : 0;
+const last = Math.min(start + APPLICATIONS_PAGE_SIZE, filteredApplications.length);
+$("applications-page-summary").textContent = `Showing ${first}–${last} of ${filteredApplications.length}`;
+}
+if ($("applications-prev-page")) $("applications-prev-page").disabled = applicationsPage <= 1;
+if ($("applications-next-page")) $("applications-next-page").disabled = applicationsPage >= pageCount;
 }
 }
 
 function searchApplicationByReference() {
 const input = $("application-reference-search");
 const query = String(input?.value || "").trim().toLowerCase().replace(/^eis-/, "");
+applicationsPage = 1;
 if (!query) {
 showNotice("Enter an application reference number to search.", "error");
 input?.focus();
@@ -748,6 +780,8 @@ return;
 const exactMatch = matches.find(app => getApplicationReference(app).replace(/^eis-/, "") === query);
 const target = exactMatch || matches[0];
 const card = document.querySelector(`[data-application-card="${CSS.escape(String(target.id))}"]`);
+const summaryButton = card?.querySelector("[data-toggle-application]");
+if (summaryButton?.getAttribute("aria-expanded") !== "true") summaryButton?.click();
 card?.scrollIntoView({ behavior: "smooth", block: "start" });
 if (matches.length > 1 && !exactMatch) {
 showNotice(`${matches.length} matching applications found. Showing the first match.`);
@@ -1742,7 +1776,10 @@ $("refresh-applications")?.addEventListener(
 refreshApplications
 );
 
-$("application-reference-search")?.addEventListener("input", renderApplications);
+$("application-reference-search")?.addEventListener("input", () => { applicationsPage = 1; renderApplications(); });
+$("application-status-filter")?.addEventListener("change", () => { applicationsPage = 1; renderApplications(); });
+$("applications-prev-page")?.addEventListener("click", () => { applicationsPage = Math.max(1, applicationsPage - 1); renderApplications(); });
+$("applications-next-page")?.addEventListener("click", () => { applicationsPage += 1; renderApplications(); });
 $("application-reference-search")?.addEventListener("keydown", event => {
 if (event.key === "Enter") {
 event.preventDefault();
@@ -1781,6 +1818,14 @@ sendChatMessage
 // Application status is saved only when the Save Status button is pressed.
 
 document.addEventListener("click", event => {
+const applicationToggle = event.target.closest("[data-toggle-application]");
+if (applicationToggle) {
+const expanded = applicationToggle.getAttribute("aria-expanded") === "true";
+applicationToggle.setAttribute("aria-expanded", String(!expanded));
+const details = document.getElementById(applicationToggle.getAttribute("aria-controls"));
+if (details) details.hidden = expanded;
+return;
+}
 const copyFieldButton = event.target.closest("[data-copy-value]");
 if (copyFieldButton) {
 event.preventDefault();
