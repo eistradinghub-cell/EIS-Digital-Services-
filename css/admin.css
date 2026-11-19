@@ -860,9 +860,63 @@
 .admin-page .admin-overview-grid {
     display: grid;
 
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
     gap: 19px;
+}
+
+.admin-page .admin-recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.admin-page .admin-recent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-page .admin-recent-item:first-child {
+    padding-top: 2px;
+}
+
+.admin-page .admin-recent-item:last-child {
+    padding-bottom: 2px;
+    border-bottom: 0;
+}
+
+.admin-page .admin-recent-details {
+    min-width: 0;
+}
+
+.admin-page .admin-recent-details strong {
+    display: block;
+    color: var(--admin-text);
+    font-size: 12px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.admin-page .admin-recent-details span {
+    display: block;
+    margin-top: 5px;
+    color: var(--admin-muted);
+    font-size: 10px;
+}
+
+.admin-page .admin-recent-status {
+    flex: 0 0 auto;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #f1f4f7;
+    color: #596779;
+    font-size: 10px;
+    font-weight: 650;
+    text-transform: capitalize;
 }
 
 .admin-page .admin-result-count {
