@@ -3459,3 +3459,18 @@
     }
     .admin-page .admin-payment-filter-actions button { width: 100%; }
 }
+
+
+/* Expanded financial reporting */
+.admin-page .admin-report-summary-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.admin-page #report-revenue-change { font-size: clamp(18px, 2vw, 24px); }
+.admin-page #report-revenue-comparison { line-height: 1.5; overflow-wrap: anywhere; }
+@media (max-width: 1050px) {
+  .admin-page .admin-report-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .admin-page .admin-report-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 380px) {
+  .admin-page .admin-report-summary-grid { grid-template-columns: minmax(0, 1fr); }
+}
