@@ -22,6 +22,7 @@ const AUDIT_PAGE_SIZE = 25;
 let servicesCache = [];
 let conversationsCache = [];
 let currentConversation = null;
+let currentChatMessages = [];
 let conversationLoadSequence = 0;
 let chatMessageLoadSequence = 0;
 let realtimeChannels = [];
@@ -1902,7 +1903,8 @@ return conversations.map(item => ({ ...item, customer: profileMap.get(item.custo
 function getVisibleConversations() {
 const query = String($("chat-inbox-search")?.value || "").trim().toLocaleLowerCase();
 const filter = String($("chat-inbox-filter")?.value || "all").toLowerCase();
-return conversationsCache.filter(conversation => {
+const sort = String($("chat-inbox-sort")?.value || "recent").toLowerCase();
+const filtered = conversationsCache.filter(conversation => {
 const unread = Number(conversation.unread_admin_count || 0) > 0;
 const status = String(conversation.status || "Open").trim().toLowerCase();
 if (filter === "unread" && !unread) return false;
@@ -1911,6 +1913,15 @@ if (filter === "closed" && status !== "closed") return false;
 if (!query) return true;
 const searchable = [getCustomerName(conversation.customer), conversation.customer?.email, conversation.last_message].join(' ').toLocaleLowerCase();
 return searchable.includes(query);
+});
+return filtered.sort((a, b) => {
+const aTime = new Date(a.last_message_at || a.created_at || 0).getTime() || 0;
+const bTime = new Date(b.last_message_at || b.created_at || 0).getTime() || 0;
+if (sort === "unread") {
+const unreadDiff = Number(b.unread_admin_count || 0) - Number(a.unread_admin_count || 0);
+if (unreadDiff) return unreadDiff;
+}
+return sort === "oldest" ? aTime - bTime : bTime - aTime;
 });
 }
 
@@ -1970,6 +1981,8 @@ if ($("chat-customer-email")) $("chat-customer-email").textContent = conversatio
 if ($("chat-customer-avatar")) $("chat-customer-avatar").textContent = getInitials(name);
 const closed = String(conversation.status || "Open").toLowerCase() === "closed";
 if ($("chat-customer-status")) $("chat-customer-status").textContent = closed ? "Closed conversation" : "Open conversation";
+if ($("chat-conversation-activity")) $("chat-conversation-activity").textContent = `Last activity: ${formatDate(conversation.last_message_at || conversation.created_at)}`;
+if ($("export-chat-transcript")) $("export-chat-transcript").disabled = currentChatMessages.length === 0;
 
 }
 
@@ -1977,7 +1990,7 @@ async function loadChatMessages(conversationId) {
 const requestId = ++chatMessageLoadSequence;
 setLoading("admin-chat-messages", "Loading messages...");
 const { data, error } = await supabase.from("chat_messages")
-.select("id,conversation_id,sender_id,sender_role,content,is_read,created_at")
+.select("id,conversation_id,sender_id,sender_role,content,attachment_url,is_read,created_at")
 .eq("conversation_id", conversationId)
 .order("created_at", { ascending: true });
 if (requestId !== chatMessageLoadSequence || currentConversation?.id !== conversationId) return;
@@ -1989,6 +2002,8 @@ renderChatMessages(data || []);
 function renderChatMessages(messages) {
 const container = $("admin-chat-messages");
 if (!container) return;
+currentChatMessages = Array.isArray(messages) ? messages : [];
+if ($("export-chat-transcript")) $("export-chat-transcript").disabled = currentChatMessages.length === 0;
 
 if (!messages.length) {
 showEmpty("admin-chat-messages", "No messages in this conversation yet.");
@@ -2003,6 +2018,17 @@ return `
 <div>
 ${escapeHTML(message.content)}
 </div>
+${(() => {
+    const rawUrl = String(message.attachment_url || "").trim();
+    if (!rawUrl) return "";
+    try {
+        const parsed = new URL(rawUrl);
+        if (!["https:", "http:"].includes(parsed.protocol)) return '<p class="chat-attachment-unavailable">Attachment link unavailable.</p>';
+        return `<p class="chat-attachment-link"><a href="${escapeHTML(parsed.href)}" target="_blank" rel="noopener noreferrer">Open attachment</a></p>`;
+    } catch (_) {
+        return '<p class="chat-attachment-unavailable">Attachment link unavailable.</p>';
+    }
+})()}
 <time>
 ${escapeHTML(formatDate(message.created_at))}
 </time>
@@ -2011,6 +2037,37 @@ ${escapeHTML(formatDate(message.created_at))}
 }).join("");
 
 container.scrollTop = container.scrollHeight;
+}
+
+function exportCurrentChatTranscript() {
+    if (!currentConversation || !currentChatMessages.length) {
+        showNotice("There are no messages to export.", "error");
+        return;
+    }
+    const customerName = getCustomerName(currentConversation.customer);
+    const lines = [
+        "EIS Digital Services — Customer Support Transcript",
+        `Customer: ${customerName}`,
+        `Email: ${currentConversation.customer?.email || "Not available"}`,
+        `Conversation started: ${formatDate(currentConversation.created_at)}`,
+        `Last activity: ${formatDate(currentConversation.last_message_at || currentConversation.created_at)}`,
+        "",
+        ...currentChatMessages.flatMap(message => [
+            `[${formatDate(message.created_at)}] ${String(message.sender_role || "user").toUpperCase()}`,
+            String(message.content || ""),
+            message.attachment_url ? `Attachment: ${String(message.attachment_url)}` : "",
+            ""
+        ])
+    ];
+    const blob = new Blob(["\\uFEFF" + lines.join("\\r\\n")], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `eis-chat-transcript-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
 }
 
 async function sendChatMessage(event) {
@@ -2668,6 +2725,14 @@ refreshConversations
 );
 $("chat-inbox-search")?.addEventListener("input", renderConversations);
 $("chat-inbox-filter")?.addEventListener("change", renderConversations);
+$("chat-inbox-sort")?.addEventListener("change", renderConversations);
+$("export-chat-transcript")?.addEventListener("click", exportCurrentChatTranscript);
+$("admin-chat-input")?.addEventListener("keydown", event => {
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        $("admin-chat-form")?.requestSubmit();
+    }
+});
 $("add-service-form")?.addEventListener(
 "submit",
 addService
