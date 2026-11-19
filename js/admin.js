@@ -291,6 +291,8 @@ const allowedSections = new Set([
 "marketplace",
 "applications",
 "payments",
+"reports",
+"customers",
 "customer-care",
 "prices",
 "broadcast",
