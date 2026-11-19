@@ -3495,38 +3495,44 @@
  .admin-page .admin-chat-header .admin-chat-export-button { margin-left: 0; }
 }
 
-/* Customer Care: keep Inbox and Chat side by side without allowing
-   their contents to collide when the admin workspace is narrow. */
-.admin-page .admin-main-wrapper {
-    container: admin-workspace / inline-size;
-    min-width: 0;
-}
-
+/* Customer Care — responsive layout
+   Desktop: persistent inbox and conversation panes.
+   Mobile: switch between the inbox and one full-width conversation. */
 .admin-page #section-customer-care,
 .admin-page #section-customer-care .admin-chat-layout,
 .admin-page #section-customer-care .admin-chat-list-panel,
-.admin-page #section-customer-care .admin-chat-window {
+.admin-page #section-customer-care .admin-chat-window,
+.admin-page #section-customer-care .admin-chat-active {
     min-width: 0;
     box-sizing: border-box;
 }
 
 .admin-page #section-customer-care .admin-chat-layout {
+    display: grid;
     width: 100%;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 12px;
+    grid-template-columns: minmax(270px, 0.78fr) minmax(0, 1.55fr);
+    align-items: stretch;
+    gap: 18px;
+    min-height: 560px;
+}
+
+.admin-page #section-customer-care .admin-chat-list-panel,
+.admin-page #section-customer-care .admin-chat-window {
+    min-width: 0;
+    min-height: 560px;
+}
+
+.admin-page #section-customer-care .admin-chat-list-panel {
+    padding: 17px;
 }
 
 .admin-page #section-customer-care .admin-chat-tools {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 8px;
 }
 
-.admin-page #section-customer-care .admin-chat-tools label {
-    display: block;
-    width: 100%;
-    min-width: 0;
-}
-
+.admin-page #section-customer-care .admin-chat-tools label,
 .admin-page #section-customer-care .admin-chat-tools input,
 .admin-page #section-customer-care .admin-chat-tools select {
     display: block;
@@ -3535,250 +3541,194 @@
     box-sizing: border-box;
 }
 
-.admin-page #section-customer-care .admin-chat-tools .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+.admin-page #section-customer-care .admin-conversations-list {
+    min-width: 0;
 }
 
-.admin-page #section-customer-care .admin-chat-list-panel {
-    padding: 12px;
+.admin-page #section-customer-care .admin-conversation-item {
+    min-width: 0;
+    align-items: flex-start;
+}
+
+.admin-page #section-customer-care .conversation-info {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.admin-page #section-customer-care .conversation-info .conversation-item-topline {
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.admin-page #section-customer-care .conversation-info .conversation-item-topline strong {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.admin-page #section-customer-care .conversation-info .conversation-email,
+.admin-page #section-customer-care .conversation-info .conversation-preview {
+    max-width: 100%;
 }
 
 .admin-page #section-customer-care .admin-chat-window {
     overflow: hidden;
 }
 
-.admin-page #section-customer-care .admin-chat-empty {
-    min-width: 0;
-    padding: 16px 10px;
-    overflow-wrap: anywhere;
-}
-
-.admin-page #section-customer-care .admin-chat-empty p {
-    max-width: 100%;
+.admin-page #section-customer-care .admin-chat-active {
+    min-height: 560px;
 }
 
 .admin-page #section-customer-care .admin-chat-header {
     min-width: 0;
     flex-wrap: wrap;
-    padding: 12px;
 }
 
 .admin-page #section-customer-care .chat-customer-details {
     min-width: 0;
+    flex: 1 1 150px;
     overflow-wrap: anywhere;
 }
 
 .admin-page #section-customer-care .admin-chat-messages {
     min-width: 0;
-    padding: 12px;
+    min-height: 0;
+    flex: 1 1 auto;
+    max-height: none;
+    overflow-y: auto;
+}
+
+.admin-page #section-customer-care .chat-message {
+    max-width: min(80%, 620px);
+    overflow-wrap: anywhere;
 }
 
 .admin-page #section-customer-care .admin-chat-form {
     min-width: 0;
-    gap: 7px;
-    padding: 10px;
+    align-items: flex-end;
 }
 
 .admin-page #section-customer-care .admin-chat-form textarea {
     min-width: 0;
+    width: 100%;
 }
 
-@container admin-workspace (min-width: 761px) {
+.admin-page #section-customer-care .admin-chat-back-button {
+    display: none;
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
     .admin-page #section-customer-care .admin-chat-layout {
-        grid-template-columns: minmax(230px, 0.75fr) minmax(0, 1.5fr);
-        gap: 17px;
+        grid-template-columns: minmax(245px, 0.85fr) minmax(0, 1.35fr);
+        gap: 14px;
     }
 
     .admin-page #section-customer-care .admin-chat-list-panel {
-        padding: 17px;
+        padding: 13px;
     }
 
-    .admin-page #section-customer-care .admin-chat-tools {
-        grid-template-columns: minmax(0, 1fr) 145px 130px;
+    .admin-page #section-customer-care .admin-chat-header {
+        gap: 9px;
+        padding: 12px;
     }
 }
 
-/* Customer Care: Android-sized workspace refinements */
-@container admin-workspace (max-width: 760px) {
+@media (max-width: 760px) {
     .admin-page #section-customer-care .admin-chat-layout {
-        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-        gap: 8px;
-        min-height: 430px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-list-panel,
-    .admin-page #section-customer-care .admin-chat-window {
-        min-height: 430px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-list-panel {
-        padding: 9px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-inbox-heading {
-        padding: 2px 0 9px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-inbox-heading h3 {
-        font-size: 12px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-inbox-heading p {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 3px 5px;
-        font-size: 9px;
-        line-height: 1.4;
-    }
-
-    .admin-page #section-customer-care .admin-chat-tools {
+        display: grid;
         grid-template-columns: minmax(0, 1fr);
-        gap: 6px;
-        margin-bottom: 9px;
+        gap: 0;
+        min-height: 0;
     }
 
-    .admin-page #section-customer-care .admin-chat-tools input,
-    .admin-page #section-customer-care .admin-chat-tools select {
-        height: 34px;
-        padding: 0 7px;
-        font-size: 9px;
-    }
-
-    .admin-page #section-customer-care .admin-conversations-list {
-        gap: 7px;
-        max-height: 340px;
-    }
-
-    .admin-page #section-customer-care .admin-conversation-item {
-        min-width: 0;
-        gap: 6px;
-        padding: 8px 6px;
-        align-items: flex-start;
-    }
-
-    .admin-page #section-customer-care .conversation-avatar {
-        width: 29px;
-        height: 29px;
-        flex: 0 0 29px;
-        font-size: 9px;
-    }
-
-    .admin-page #section-customer-care .conversation-info {
-        min-width: 0;
+    .admin-page #section-customer-care .admin-chat-list-panel {
+        display: block;
         width: 100%;
-        overflow-wrap: anywhere;
+        min-height: 0;
+        padding: 16px;
     }
 
-    .admin-page #section-customer-care .conversation-info strong {
-        font-size: 9px;
-        white-space: normal;
-        overflow-wrap: anywhere;
+    .admin-page #section-customer-care .admin-chat-window {
+        display: none;
+        width: 100%;
+        min-height: 0;
+        height: min(72vh, 680px);
     }
 
-    .admin-page #section-customer-care .conversation-info span,
-    .admin-page #section-customer-care .conversation-info p {
-        font-size: 8px;
-        overflow-wrap: anywhere;
+    .admin-page #section-customer-care .admin-chat-layout.has-active-conversation .admin-chat-list-panel {
+        display: none;
     }
 
-    .admin-page #section-customer-care .admin-chat-empty {
-        padding: 12px 7px;
+    .admin-page #section-customer-care .admin-chat-layout.has-active-conversation .admin-chat-window {
+        display: flex;
     }
 
-    .admin-page #section-customer-care .chat-empty-icon {
-        width: 38px;
-        height: 38px;
-        margin-bottom: 9px;
-        font-size: 19px;
+    .admin-page #section-customer-care .admin-chat-back-button {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        padding: 7px 10px;
+        border: 1px solid var(--admin-border);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--admin-text);
+        font-size: 12px;
+        font-weight: 650;
     }
 
-    .admin-page #section-customer-care .admin-chat-empty h3 {
-        font-size: 11px;
+    .admin-page #section-customer-care .admin-chat-header {
+        flex-wrap: nowrap;
+        gap: 9px;
+        padding: 10px;
     }
 
-    .admin-page #section-customer-care .admin-chat-empty p {
-        font-size: 9px;
-        line-height: 1.5;
+    .admin-page #section-customer-care .admin-chat-header .admin-chat-export-button {
+        margin-left: auto;
+        padding: 7px 9px;
+        white-space: nowrap;
+    }
+
+    .admin-page #section-customer-care .chat-customer-details {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .admin-page #section-customer-care .admin-chat-messages {
+        min-height: 0;
+        max-height: none;
+        padding: 12px;
+    }
+
+    .admin-page #section-customer-care .admin-chat-form {
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .admin-page #section-customer-care .admin-chat-form textarea {
+        min-height: 42px;
+        font-size: 14px;
+    }
+
+    .admin-page #section-customer-care .admin-chat-form button {
+        min-height: 42px;
+        padding: 9px 14px;
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-page #section-customer-care .admin-chat-list-panel {
+        padding: 12px;
     }
 
     .admin-page #section-customer-care .admin-chat-header {
         gap: 7px;
-        padding: 9px 7px;
-    }
-
-    .admin-page #section-customer-care .chat-customer-avatar {
-        width: 30px;
-        height: 30px;
-        flex: 0 0 30px;
-        font-size: 11px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-header h3 {
-        font-size: 10px;
-        overflow-wrap: anywhere;
-    }
-
-    .admin-page #section-customer-care .admin-chat-header .chat-customer-email,
-    .admin-page #section-customer-care .admin-chat-header #chat-customer-status,
-    .admin-page #section-customer-care .chat-conversation-activity {
-        font-size: 8px;
-        overflow-wrap: anywhere;
+        padding: 8px;
     }
 
     .admin-page #section-customer-care .admin-chat-header .admin-chat-export-button {
-        min-height: 30px;
-        margin: 0;
-        padding: 6px 8px;
-        font-size: 8px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-messages {
-        min-height: 230px;
-        max-height: 320px;
-        gap: 8px;
-        padding: 8px 6px;
-    }
-
-    .admin-page #section-customer-care .chat-message {
-        max-width: 94%;
-        padding: 8px;
+        padding: 6px 7px;
         font-size: 9px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-form {
-        align-items: stretch;
-        gap: 5px;
-        padding: 7px 6px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-form textarea {
-        min-height: 38px;
-        padding: 7px;
-        font-size: 9px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-form button {
-        min-width: 42px;
-        padding: 7px 8px;
-        font-size: 9px;
-    }
-}
-
-@container admin-workspace (max-width: 360px) {
-    .admin-page #section-customer-care .admin-chat-layout {
-        grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
-        gap: 6px;
-    }
-
-    .admin-page #section-customer-care .admin-chat-list-panel {
-        padding: 7px 5px;
     }
 }
