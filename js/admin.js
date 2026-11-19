@@ -439,7 +439,7 @@ const options = [
 ["Rejected", "Rejected"]
 ];
 return `
-<article class="admin-app-item admin-application-card">
+<article class="admin-app-item admin-application-card" data-application-card="${escapeHTML(app.id)}">
 <header class="admin-application-card-head">
 <div class="admin-application-title">
 <strong class="admin-account-name">${escapeHTML(accountName)}</strong>
@@ -571,28 +571,65 @@ lines.push(field.label + ": " + field.value);
 return lines.join("\n");
 }
 
-function renderApplications() {
-if (!applicationsCache.length) {
-showEmpty(
-"applications-full-list",
-"No applications found."
-);
-
-if ($("applications-count")) {
-$("applications-count").textContent = "0 Applications";
+function getApplicationReference(app) {
+return String(app.reference_id ?? app.application_id ?? app.id ?? "")
+.trim().toLowerCase();
 }
+
+function renderApplications() {
+const searchInput = $("application-reference-search");
+const query = String(searchInput?.value || "").trim().toLowerCase();
+const filteredApplications = query
+? applicationsCache.filter(app => getApplicationReference(app).includes(query))
+: applicationsCache;
+
+if (!applicationsCache.length) {
+showEmpty("applications-full-list", "No applications found.");
+if ($("applications-count")) $("applications-count").textContent = "0 Applications";
 if ($("applications-badge")) $("applications-badge").style.display = "none";
 return;
 }
 
-if ($("applications-full-list")) {
+if (!filteredApplications.length) {
+showEmpty("applications-full-list", "No application found with that reference number.");
+} else if ($("applications-full-list")) {
 $("applications-full-list").innerHTML =
-applicationsCache.map(getApplicationHTML).join("");
+filteredApplications.map(getApplicationHTML).join("");
 }
 
 if ($("applications-count")) {
-$("applications-count").textContent =
-`${applicationsCache.length} Applications`;
+$("applications-count").textContent = query
+? `Showing ${filteredApplications.length} of ${applicationsCache.length} Applications`
+: `${applicationsCache.length} Applications`;
+}
+}
+
+function searchApplicationByReference() {
+const input = $("application-reference-search");
+const query = String(input?.value || "").trim().toLowerCase();
+if (!query) {
+showNotice("Enter an application reference number to search.", "error");
+input?.focus();
+return;
+}
+
+renderApplications();
+const matches = applicationsCache.filter(app =>
+getApplicationReference(app).includes(query)
+);
+if (!matches.length) {
+showNotice("No application found with that reference number.", "error");
+return;
+}
+
+const exactMatch = matches.find(app => getApplicationReference(app) === query);
+const target = exactMatch || matches[0];
+const card = document.querySelector(`[data-application-card="${CSS.escape(String(target.id))}"]`);
+card?.scrollIntoView({ behavior: "smooth", block: "start" });
+if (matches.length > 1 && !exactMatch) {
+showNotice(`${matches.length} matching applications found. Showing the first match.`);
+} else {
+showNotice("Application found.");
 }
 }
 
@@ -1581,6 +1618,15 @@ $("refresh-applications")?.addEventListener(
 "click",
 refreshApplications
 );
+
+$("application-reference-search")?.addEventListener("input", renderApplications);
+$("application-reference-search")?.addEventListener("keydown", event => {
+if (event.key === "Enter") {
+event.preventDefault();
+searchApplicationByReference();
+}
+});
+$("search-application-reference")?.addEventListener("click", searchApplicationByReference);
 
 $("refresh-services")?.addEventListener(
 "click",
