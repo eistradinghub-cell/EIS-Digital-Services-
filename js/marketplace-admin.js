@@ -1361,7 +1361,7 @@ function siteSettingsMarkup() {
 
             <header class="site-settings-hero">
                 <div>
-                    <span class="site-settings-kicker">✦ CONFIGURATION CENTER</span>
+                    
                     <h1>Site Settings</h1>
                     <p>Customize your website identity, homepage visuals and administrator profile from one place.</p>
                 </div>
