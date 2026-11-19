@@ -363,7 +363,37 @@ customer: profileMap.get(app.user_id) || null
 
 function getApplicationFields(app) {
 const fields = [];
-const add = (label, value) => {
+const formData = (() => {
+if (app.form_data && typeof app.form_data === "object") return app.form_data;
+if (typeof app.form_data === "string") {
+try { return JSON.parse(app.form_data); } catch { return {}; }
+}
+return {};
+})();
+const orderedFields = [
+["KEGOW ACC NUMBER:", ["kegow_acc_number", "kegow_acc_number"]],
+["AGENT LOCATION STATE:", ["agent_location_state"]],
+["BVN NO:", ["bvn_no"]],
+["BANK NAME:", ["bank_name"]],
+["ACCOUNT NO:", ["account_no"]],
+["ACCOUNT NAME:", ["account_name"]],
+["AGENT FIRST NAME:", ["agent_first_name"]],
+["MIDDLE NAME:", ["middle_name"]],
+["LAST NAME:", ["last_name"]],
+["EMAIL:", ["email"]],
+["ALTERNATIVE EMAIL:", ["alternative_email"]],
+["PHONE NO.:", ["phone", "phone_no"]],
+["ALTERNATIVE PHONE NO.:", ["alternative_phone_no", "alternative_phone"]],
+["HOME ADDRESS:", ["home_address"]],
+["STATE OF RESIDENCE:", ["state_of_residence"]],
+["DATE OF BIRTH:", ["date_of_birth"]],
+["LOCAL GOVT:", ["local_govt", "local_government"]],
+["GEO POLITICAL ZONE:", ["geo_political_zone", "geopolitical_zone"]]
+];
+orderedFields.forEach(([label, keys]) => {
+const key = keys.find(name => Object.prototype.hasOwnProperty.call(formData, name));
+if (key === undefined) return;
+const value = formData[key];
 if (value === null || value === undefined || value === "") return;
 let display = value;
 if (typeof display === "object") {
@@ -371,23 +401,7 @@ try { display = JSON.stringify(display, null, 2); }
 catch { display = String(display); }
 }
 fields.push({ label, value: String(display) });
-};
-
-let formData = app.form_data && typeof app.form_data === "object" ? app.form_data : {};
-if (typeof app.form_data === "string") {
-try { formData = JSON.parse(app.form_data); } catch { formData = {}; }
-}
-
-// Display only the information the customer actually entered,
-// preserving the exact order of fields in the submitted form.
-Object.entries(formData).forEach(([key, value]) => {
-const label = key
-.replace(/[_-]+/g, " ")
-.replace(/([a-z])([A-Z])/g, "$1 $2")
-.replace(/\\b\\w/g, char => char.toUpperCase());
-add(label, value);
 });
-
 return fields;
 }
 
@@ -397,10 +411,7 @@ const accountName = account.full_name || account.email || "Account name unavaila
 const accountEmail = account.email || "Account email unavailable";
 const reference = app.reference_id ?? app.application_id ?? app.id ?? "Unavailable";
 const fields = getApplicationFields(app);
-const pairs = [];
-for (let index = 0; index < fields.length; index += 2) {
-pairs.push([fields[index], fields[index + 1] || null]);
-}
+const pairs = fields.map(field => [field]);
 const options = [
 ["In review", "In Review"],
 ["In progress", "In Progress"],
