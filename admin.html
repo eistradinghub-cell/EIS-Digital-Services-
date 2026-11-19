@@ -789,15 +789,38 @@
             <span class="admin-result-count" id="applications-count">0 Applications</span>
         </div>
         <div class="admin-application-toolbar">
-            <input type="search" id="application-reference-search" class="admin-form-input" placeholder="Search by application reference..." aria-label="Search applications by reference number">
-            <select id="application-status-filter" class="admin-form-input" aria-label="Filter applications by status">
-                <option value="all">All statuses</option>
-                <option value="in review">In review</option>
-                <option value="in progress">In progress</option>
-                <option value="completed">Completed</option>
-                <option value="rejected">Rejected</option>
-            </select>
-            <button type="button" class="admin-primary-button" id="search-application-reference">Search</button>
+            <label class="admin-application-search-wrap">
+                <span class="sr-only">Search applications</span>
+                <input type="search" id="application-reference-search" class="admin-form-input" placeholder="Search reference, customer or service..." aria-label="Search by reference, customer name, email or service">
+            </label>
+            <label>
+                <span class="sr-only">Filter by status</span>
+                <select id="application-status-filter" class="admin-form-input" aria-label="Filter applications by status">
+                    <option value="all">All statuses</option>
+                    <option value="in review">In review</option>
+                    <option value="in progress">In progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </label>
+            <label>
+                <span class="sr-only">Filter by service</span>
+                <select id="application-service-filter" class="admin-form-input" aria-label="Filter applications by service">
+                    <option value="all">All services</option>
+                </select>
+            </label>
+            <label>
+                <span class="sr-only">Submitted from</span>
+                <input type="date" id="application-date-from" class="admin-form-input" aria-label="Applications submitted from">
+            </label>
+            <label>
+                <span class="sr-only">Submitted to</span>
+                <input type="date" id="application-date-to" class="admin-form-input" aria-label="Applications submitted to">
+            </label>
+            <div class="admin-application-filter-actions">
+                <button type="button" class="admin-primary-button" id="search-application-reference">Apply filters</button>
+                <button type="button" class="admin-secondary-button" id="export-applications-csv">Export CSV</button>
+            </div>
         </div>
         <div class="admin-apps-list" id="applications-full-list">
             <div class="admin-loading">Loading applications...</div>
