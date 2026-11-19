@@ -514,7 +514,7 @@ async function saveProfileField(field, button) {
         input?.focus();
         return;
     }
-    if (field === "phone" && value && !/^[+()\\d\\s.-]{7,20}$/.test(value)) {
+    if (field === "phone" && value && !/^[+()\d\s.-]{7,20}$/.test(value)) {
         setProfileSettingsMessage("profile-details-message", "Enter a valid phone number.", "error");
         input?.focus();
         return;
