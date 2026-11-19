@@ -285,3 +285,14 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 .dashboard-page .header-actions .account-settings-button{order:1;margin:0!important;flex:0 0 auto}
 .dashboard-page .nav-links{order:2;width:100%;flex:0 0 100%;margin-top:4px}
 @media(max-width:520px){.dashboard-page .header-actions{gap:7px}.dashboard-page .header-actions .account-settings-button{width:40px;min-width:40px;height:40px;padding:0;font-size:0}.dashboard-page .header-actions .account-settings-button svg{width:19px;height:19px}}
+
+
+/* Individual profile field editing */
+.dashboard-page .profile-settings-label-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dashboard-page .profile-settings-label-row label{margin:0}
+.dashboard-page .profile-field-action{flex:0 0 auto;padding:4px 9px;border:1px solid #d7e2e1;border-radius:5px;background:#fff;color:var(--eis-teal-dark);font-size:11px;font-weight:650;cursor:pointer}
+.dashboard-page .profile-field-action:hover{background:#f2f7f6;border-color:#a9c8c0}
+.dashboard-page .profile-field-action:disabled{opacity:.6;cursor:wait}
+.dashboard-page .profile-field-action:focus-visible{outline:3px solid rgba(22,132,119,.2);outline-offset:2px}
+.dashboard-page .profile-settings-field input[readonly]{background:#f5f7f7;color:#66737b;cursor:default}
+.dashboard-page .profile-settings-field input:not([readonly]){background:#fff;border-color:var(--eis-teal)}
