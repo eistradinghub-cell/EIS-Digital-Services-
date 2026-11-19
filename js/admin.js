@@ -147,7 +147,7 @@ function setupAdminPanelDisclosures() {
     toggle.innerHTML = '<span class="admin-panel-toggle-label">View</span><span class="admin-panel-toggle-mark" aria-hidden="true"></span>';
     header.append(toggle);
 
-    const setExpanded = (expanded, save = true) => {
+    const setExpanded = (expanded) => {
       content.hidden = !expanded;
       panel.classList.toggle("is-expanded", expanded);
       toggle.setAttribute("aria-expanded", String(expanded));
