@@ -130,35 +130,44 @@ function setupAdminPanelDisclosures() {
     if (!header || panel.dataset.disclosureReady === "true") return;
 
     const heading = header.querySelector("h2, h3, h4");
-    const label = heading?.textContent?.trim() || "Panel details";
-    const panelId = panel.id || `admin-panel-content-${index + 1}`;
-    const contentId = `${panelId}-disclosure`;
+    const label = heading?.textContent?.trim() || "Panel";
+    const contentId = `admin-panel-details-${index + 1}`;
+    const storageKey = `eis-admin-panel:${panel.closest(".admin-section")?.id || "admin"}:${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
     const content = document.createElement("div");
     content.className = "admin-panel-content";
     content.id = contentId;
     content.hidden = true;
 
+    while (header.nextSibling) content.append(header.nextSibling);
+    panel.append(content);
+
     const toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "admin-panel-toggle";
-    toggle.setAttribute("aria-expanded", "false");
     toggle.setAttribute("aria-controls", contentId);
-    toggle.innerHTML = '<span class="admin-panel-toggle-label">Open</span><span class="admin-panel-toggle-mark" aria-hidden="true"></span>';
-    toggle.setAttribute("aria-label", `Open ${label}`);
-
-    while (header.nextSibling) content.append(header.nextSibling);
-    panel.append(content);
+    toggle.innerHTML = '<span class="admin-panel-toggle-label">View</span><span class="admin-panel-toggle-mark" aria-hidden="true"></span>';
     header.append(toggle);
-    panel.dataset.disclosureReady = "true";
 
+    const setExpanded = (expanded, save = true) => {
+      content.hidden = !expanded;
+      panel.classList.toggle("is-expanded", expanded);
+      toggle.setAttribute("aria-expanded", String(expanded));
+      toggle.querySelector(".admin-panel-toggle-label").textContent = expanded ? "Hide" : "View";
+      toggle.setAttribute("aria-label", `${expanded ? "Hide" : "View"} ${label}`);
+      if (save) {
+        try { localStorage.setItem(storageKey, expanded ? "open" : "closed"); } catch (_) {}
+      }
+    };
+
+    let initiallyOpen = false;
+    try { initiallyOpen = localStorage.getItem(storageKey) === "open"; } catch (_) {}
+    setExpanded(initiallyOpen, false);
     toggle.addEventListener("click", () => {
-      const expanded = toggle.getAttribute("aria-expanded") === "true";
-      toggle.setAttribute("aria-expanded", String(!expanded));
-      content.hidden = expanded;
-      toggle.querySelector(".admin-panel-toggle-label").textContent = expanded ? "Open" : "Close";
-      toggle.setAttribute("aria-label", `${expanded ? "Open" : "Close"} ${label}`);
-      panel.classList.toggle("is-expanded", !expanded);
+      setExpanded(toggle.getAttribute("aria-expanded") !== "true");
     });
+
+    panel.dataset.disclosureReady = "true";
   });
 }
 
