@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/admin.css?v=30">
     <link rel="stylesheet" href="css/shared-navigation.css?v=2">
     <link rel="stylesheet" href="css/admin-sidebar-light.css?v=2">
-    <link rel="stylesheet" href="css/site-settings-responsive.css?v=4">
+    <link rel="stylesheet" href="css/site-settings-responsive.css?v=5">
 
     <style>
         .marketplace-form-grid {
@@ -888,54 +888,54 @@
 <section class="admin-section" id="section-site-settings">
     <div class="admin-page-heading">
         <div>
-            
-            <h1>Website settings</h1>
-            <p>Manage the logo, homepage images and administrator access.</p>
+            <span class="admin-eyebrow">CONFIGURATION</span>
+            <h1>Site Settings</h1>
+            <p>Manage your website appearance, homepage images and administrator profile.</p>
         </div>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Website logo</h3>
-                <p>Upload the logo used on the website.</p>
+                <h3>Website Logo</h3>
+                <p>Upload and change the logo displayed across the website.</p>
             </div>
         </div>
 
         <form id="site-logo-form" class="admin-form">
             <div class="admin-form-group">
-                <label for="site-logo-file">Logo file</label>
+                <label for="site-logo-file">Choose new logo</label>
                 <input type="file" id="site-logo-file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
                 <small>PNG, JPG, WEBP or SVG. Recommended: transparent background.</small>
             </div>
 
             <div id="site-logo-preview" class="admin-settings-preview">
-                <span>Current logo</span>
+                <span>Current logo preview will appear here.</span>
             </div>
 
-            <button type="submit" class="admin-primary-button" id="site-logo-save">Save logo</button>
+            <button type="submit" class="admin-primary-button" id="site-logo-save">Save Website Logo</button>
         </form>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Homepage images</h3>
-                <p>Upload the images displayed on the homepage.</p>
+                <h3>Homepage Images</h3>
+                <p>Change the images used on the homepage.</p>
             </div>
         </div>
 
         <form id="site-home-images-form" class="admin-form">
             <div class="admin-form-group">
-                <label for="site-home-image-one">Image 1</label>
+                <label for="site-home-image-one">Homepage Image 1</label>
                 <input type="file" id="site-home-image-one" accept="image/png,image/jpeg,image/webp">
                 <div id="site-home-image-one-preview" class="admin-settings-preview">
-                    <span>Current image</span>
+                    <span>Current image preview will appear here.</span>
                 </div>
             </div>
 
             <div class="admin-form-group">
-                <label for="site-home-image-two">Image 2</label>
+                <label for="site-home-image-two">Homepage Image 2</label>
                 <input type="file" id="site-home-image-two" accept="image/png,image/jpeg,image/webp">
                 <div id="site-home-image-two-preview" class="admin-settings-preview">
                     <span>Current image preview will appear here.</span>
@@ -943,101 +943,87 @@
             </div>
 
             <div class="admin-form-group">
-                <label for="site-home-image-three">Image 3</label>
+                <label for="site-home-image-three">Homepage Image 3</label>
                 <input type="file" id="site-home-image-three" accept="image/png,image/jpeg,image/webp">
                 <div id="site-home-image-three-preview" class="admin-settings-preview">
                     <span>Current image preview will appear here.</span>
                 </div>
             </div>
 
-            <button type="submit" class="admin-primary-button" id="site-home-images-save">Save images</button>
+            <button type="submit" class="admin-primary-button" id="site-home-images-save">Save Homepage Images</button>
         </form>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Customer care profile</h3>
-                <p>Name and photo displayed in Customer Care.</p>
+                <h3>Admin Profile</h3>
+                <p>Set the administrator name and profile picture shown to customers in Customer Care.</p>
             </div>
         </div>
 
         <form id="site-admin-profile-form" class="admin-form">
             <div class="admin-form-group">
-                <label for="site-admin-display-name">Display name</label>
-                <input type="text" id="site-admin-display-name" maxlength="80" placeholder="Enter a display name">
+                <label for="site-admin-display-name">Display Name</label>
+                <input type="text" id="site-admin-display-name" maxlength="80" placeholder="Enter admin display name">
             </div>
 
             <div class="admin-form-group">
-                <label for="site-admin-avatar-file">Profile photo</label>
+                <label for="site-admin-avatar-file">Admin Profile Picture</label>
                 <input type="file" id="site-admin-avatar-file" accept="image/png,image/jpeg,image/webp">
                 <div id="site-admin-avatar-preview" class="admin-settings-preview">
-                    <span>Current profile photo</span>
+                    <span>Current profile picture preview will appear here.</span>
                 </div>
             </div>
 
-            <button type="submit" class="admin-primary-button" id="site-admin-profile-save">Save profile</button>
+            <button type="submit" class="admin-primary-button" id="site-admin-profile-save">Save Admin Profile</button>
         </form>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Administrator access</h3>
-                <p>Change the role assigned to a registered account.</p>
+                <h3>Manage Administrators</h3>
+                <p>Only the Super Admin can promote registered customer accounts to Admin or remove Admin access.</p>
             </div>
         </div>
 
-        <form id="admin-manage-form" class="admin-form" autocomplete="off">
-            <div class="admin-form-group">
-                <label for="admin-manage-email">Registered email</label>
-                <input type="email" id="admin-manage-email" name="admin_email" required maxlength="254"
-                    placeholder="Enter registered email address"
-                    autocomplete="off" autocapitalize="none" spellcheck="false">
-                <small>Use the email address linked to the account.</small>
-            </div>
-            <div class="admin-form-group">
-                <label for="admin-manage-action">Action</label>
-                <select id="admin-manage-action" required>
-                    <option value="make_admin">Grant Admin access</option>
-                    <option value="remove_admin">Remove Admin access</option>
-                </select>
-            </div>
-            <button type="submit" class="admin-primary-button" id="admin-manage-submit">Submit</button>
-        </form>
+        <div id="site-admins-list" class="admin-services-list">
+            <div class="admin-loading">Loading registered accounts...</div>
+        </div>
 
         <div class="admin-settings-notice">
-            <strong>Access restrictions</strong>
-            <p>Only the Super Admin can change administrator roles. Changes are checked against registered accounts. Super Admin access cannot be changed here. Regular Admin accounts cannot access these settings.</p>
+            <strong>How to add an Admin</strong>
+            <p>The person must first create a normal customer account on the website. Their account will then appear here, where the Super Admin can select “Make Admin”. Admin accounts cannot access Site Settings or manage other administrators.</p>
         </div>
     </div>
 
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div>
-                <h3>Signed-in account</h3>
-                <p>Details for the current session.</p>
+                <h3>Current Administrator Account</h3>
+                <p>Signed-in administrator information.</p>
             </div>
         </div>
 
         <div class="admin-settings-grid">
             <div class="admin-setting-item">
-                <span>Name</span>
+                <span>Administrator Name</span>
                 <strong id="settings-admin-name">Loading...</strong>
             </div>
 
             <div class="admin-setting-item">
-                <span>Email address</span>
+                <span>Administrator Email</span>
                 <strong id="settings-admin-email">Loading...</strong>
             </div>
 
             <div class="admin-setting-item">
-                <span>Role</span>
+                <span>Account Role</span>
                 <strong id="settings-admin-role">Loading...</strong>
             </div>
 
             <div class="admin-setting-item">
-                <span>Website</span>
+                <span>Platform</span>
                 <strong>EIS Digital Services</strong>
             </div>
         </div>
