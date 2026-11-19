@@ -127,7 +127,7 @@ return formData[key] ?? "";
 function setupAdminPanelDisclosures() {
   const attachPanels = (root = document) => {
     const candidates = [];
-    if (root instanceof Element && root.matches(".admin-section .admin-panel")) {
+    if (root instanceof Element && root.matches(".admin-section .admin-panel:not(.admin-chat-list-panel):not(.admin-chat-window)")) {
       candidates.push(root);
     }
     if (root.querySelectorAll) {
@@ -154,7 +154,7 @@ function setupAdminPanelDisclosures() {
       const storageKey = `eis-admin-panel:${sectionKey}:${panelKey}`;
       const body = document.createElement("div");
       body.className = "admin-panel-content";
-      body.id = `admin-panel-content-${sectionKey}-${panelKey}-${index}`;
+      body.id = `admin-panel-content-${sectionKey}-${panelKey}-${document.querySelectorAll(".admin-panel-content").length + 1}`;
 
       const toggle = document.createElement("button");
       toggle.type = "button";
