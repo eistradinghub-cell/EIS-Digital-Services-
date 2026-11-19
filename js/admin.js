@@ -4,6 +4,11 @@ let currentUser = null;
 let currentProfile = null;
 let applicationsCache = [];
 let paymentsCache = [];
+let customersCache = [];
+let customersPage = 1;
+let customersTotal = 0;
+let customerLoadSequence = 0;
+const CUSTOMERS_PAGE_SIZE = 10;
 let paymentsPage = 1;
 let paymentsTotal = 0;
 let paymentLoadSequence = 0;
@@ -849,6 +854,101 @@ button.textContent = originalButtonText;
 }
 if (statusSelect?.isConnected) statusSelect.disabled = false;
 }
+}
+
+async function loadCustomers() {
+const container = $("admin-customers-list");
+if (!container) return;
+const requestId = ++customerLoadSequence;
+setLoading("admin-customers-list", "Loading customer accounts...");
+
+const rawQuery = String($("customer-search")?.value || "").trim();
+const query = rawQuery.replace(/[^\\p{L}\\p{N}@.+\\- ]/gu, "").trim().slice(0, 80);
+const from = (customersPage - 1) * CUSTOMERS_PAGE_SIZE;
+
+try {
+let request = supabase
+.from("profiles")
+.select("id,full_name,email,phone,created_at", { count: "exact" })
+.eq("role", "customer")
+.order("created_at", { ascending: false })
+.range(from, from + CUSTOMERS_PAGE_SIZE - 1);
+
+if (query) {
+const pattern = query.replace(/[%_]/g, "");
+request = request.or(`full_name.ilike.%${pattern}%,email.ilike.%${pattern}%,phone.ilike.%${pattern}%`);
+}
+
+const { data, error, count } = await request;
+if (error) throw error;
+if (requestId !== customerLoadSequence) return;
+
+customersTotal = Number(count || 0);
+const pageCount = Math.max(1, Math.ceil(customersTotal / CUSTOMERS_PAGE_SIZE));
+if (customersPage > pageCount) {
+customersPage = pageCount;
+return loadCustomers();
+}
+customersCache = data || [];
+
+if (!customersCache.length) {
+showEmpty("admin-customers-list", query ? "No customer accounts match this search." : "No customer accounts have been registered yet.");
+} else {
+$("admin-customers-list").innerHTML = customersCache.map(customer => {
+const name = String(customer.full_name || "").trim() || "Name not provided";
+const email = String(customer.email || "").trim() || "Email unavailable";
+const detailId = `customer-detail-${escapeHTML(customer.id)}`;
+return `
+<article class="admin-customer-card">
+<button type="button" class="admin-customer-summary" data-toggle-customer aria-expanded="false" aria-controls="${detailId}">
+<span class="admin-customer-identity">
+<strong>${escapeHTML(name)}</strong>
+<span>${escapeHTML(email)}</span>
+</span>
+<span class="admin-customer-meta">
+<time>${escapeHTML(formatShortDate(customer.created_at) || "Date unavailable")}</time>
+<span class="admin-customer-expand-mark" aria-hidden="true">+</span>
+</span>
+</button>
+<div class="admin-customer-details" id="${detailId}" hidden>
+<div><span>Full name</span><strong>${escapeHTML(name)}</strong></div>
+<div><span>Email address</span><strong>${escapeHTML(email)}</strong></div>
+<div><span>Phone number</span><strong>${escapeHTML(customer.phone || "Not provided")}</strong></div>
+<div><span>Account created</span><strong>${escapeHTML(formatDate(customer.created_at))}</strong></div>
+<div class="admin-customer-actions">
+<button type="button" class="admin-secondary-button" data-copy-customer-email="${escapeHTML(customer.email || "")}">Copy email</button>
+${customer.phone ? `<button type="button" class="admin-secondary-button" data-copy-customer-phone="${escapeHTML(customer.phone)}">Copy phone</button>` : ""}
+</div>
+</div>
+</article>`;
+}).join("");
+}
+
+if ($("customers-count")) {
+$("customers-count").textContent = query
+? `Showing ${customersTotal} matching customers`
+: `${customersTotal.toLocaleString()} Customers`;
+}
+const pagination = $("customers-pagination");
+if (pagination) {
+pagination.hidden = customersTotal <= CUSTOMERS_PAGE_SIZE;
+const first = customersTotal ? from + 1 : 0;
+const last = Math.min(from + CUSTOMERS_PAGE_SIZE, customersTotal);
+if ($("customers-page-summary")) $("customers-page-summary").textContent = `Showing ${first}–${last} of ${customersTotal}`;
+if ($("customers-prev-page")) $("customers-prev-page").disabled = customersPage <= 1;
+if ($("customers-next-page")) $("customers-next-page").disabled = customersPage >= pageCount;
+}
+} catch (error) {
+if (requestId !== customerLoadSequence) return;
+console.error("Customers load error:", error);
+showError("admin-customers-list", "Customer accounts could not be loaded. Please refresh and try again.");
+if ($("customers-pagination")) $("customers-pagination").hidden = true;
+}
+}
+
+async function refreshCustomers() {
+await loadCustomers();
+showNotice("Customer directory refreshed.");
 }
 
 function getPaymentStatusLabel(status) {
@@ -1722,6 +1822,7 @@ target.classList.add("active");
 
 if (sectionName === "applications") markApplicationsAsSeen();
 if (sectionName === "payments") loadPayments();
+if (sectionName === "customers") loadCustomers();
 
 document.querySelectorAll(".sidebar-link").forEach(link => {
 link.classList.toggle(
@@ -1735,6 +1836,7 @@ overview: "Overview",
 marketplace: "Marketplace",
 applications: "Applications",
 payments: "Payments",
+customers: "Customers",
 "customer-care": "Customer Care",
 prices: "Prices Management",
 broadcast: "Broadcast Message",
@@ -1929,6 +2031,14 @@ $("refresh-applications")?.addEventListener(
 refreshApplications
 );
 $("refresh-payments")?.addEventListener("click", refreshPayments);
+$("refresh-customers")?.addEventListener("click", refreshCustomers);
+$("search-customers")?.addEventListener("click", () => { customersPage = 1; loadCustomers(); });
+$("customer-search")?.addEventListener("keydown", event => {
+if (event.key === "Enter") { event.preventDefault(); customersPage = 1; loadCustomers(); }
+});
+$("customers-prev-page")?.addEventListener("click", () => { customersPage = Math.max(1, customersPage - 1); loadCustomers(); });
+$("customers-next-page")?.addEventListener("click", () => { customersPage += 1; loadCustomers(); });
+
 $("search-payment-reference")?.addEventListener("click", () => { paymentsPage = 1; loadPayments(); });
 $("payment-reference-search")?.addEventListener("keydown", event => {
 if (event.key === "Enter") { event.preventDefault(); paymentsPage = 1; loadPayments(); }
@@ -1979,6 +2089,26 @@ sendChatMessage
 // Application status is saved only when the Save Status button is pressed.
 
 document.addEventListener("click", event => {
+const customerToggle = event.target.closest("[data-toggle-customer]");
+if (customerToggle) {
+const expanded = customerToggle.getAttribute("aria-expanded") === "true";
+customerToggle.setAttribute("aria-expanded", String(!expanded));
+const details = document.getElementById(customerToggle.getAttribute("aria-controls"));
+if (details) details.hidden = expanded;
+return;
+}
+const customerCopyEmail = event.target.closest("[data-copy-customer-email]");
+if (customerCopyEmail) {
+event.preventDefault();
+copyTextToClipboard(customerCopyEmail.dataset.copyCustomerEmail || "", customerCopyEmail);
+return;
+}
+const customerCopyPhone = event.target.closest("[data-copy-customer-phone]");
+if (customerCopyPhone) {
+event.preventDefault();
+copyTextToClipboard(customerCopyPhone.dataset.copyCustomerPhone || "", customerCopyPhone);
+return;
+}
 const paymentToggle = event.target.closest("[data-toggle-payment]");
 if (paymentToggle) {
 const expanded = paymentToggle.getAttribute("aria-expanded") === "true";
