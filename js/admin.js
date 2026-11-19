@@ -2,6 +2,7 @@ import { supabase } from "./supabase.js";
 const $ = (id) => document.getElementById(id);
 let currentUser = null;
 let currentProfile = null;
+let currentAdminSession = null;
 let applicationsCache = [];
 let paymentsCache = [];
 let customersCache = [];
@@ -305,6 +306,7 @@ const allowedSections = new Set([
 "customer-care",
 "prices",
 "broadcast",
+"account-security",
 ...(isSuperAdmin ? ["site-settings", "staff-management", "audit-log"] : [])
 ]);
 const sectionToRestore = allowedSections.has(savedSection)
@@ -1857,6 +1859,7 @@ if (sectionName === "reports") loadReports();
 if (sectionName === "customers") loadCustomers();
 if (sectionName === "staff-management") loadManagedAdmins();
 if (sectionName === "audit-log") loadAuditLogs();
+if (sectionName === "account-security") loadAdminSecuritySession();
 
 document.querySelectorAll(".sidebar-link").forEach(link => {
 link.classList.toggle(
@@ -1877,6 +1880,7 @@ prices: "Prices Management",
 broadcast: "Broadcast Message",
 "site-settings": "Site Settings",
 "staff-management": "Staff & Admin Management",
+"account-security": "Account security",
 "audit-log": "Activity Log"
 };
 
@@ -1931,6 +1935,71 @@ $("admin-overlay")?.classList.remove("active");
 document.body.style.overflow = "";
 }
 
+async function loadAdminSecuritySession() {
+    const status = $("security-session-status");
+    if (status) status.textContent = "Checking your current session...";
+
+    try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        const session = data?.session;
+        if (!session?.user) {
+            if (status) status.textContent = "Your session is no longer active. Please sign in again.";
+            return;
+        }
+
+        currentAdminSession = session;
+        const user = session.user;
+        const expiry = session.expires_at ? new Date(session.expires_at * 1000) : null;
+        $("security-account-email").textContent = user.email || currentProfile?.email || "Unavailable";
+        $("security-account-role").textContent = currentProfile?.role || "Administrator";
+        $("security-last-signin").textContent = user.last_sign_in_at ? formatDate(user.last_sign_in_at) : "Not available";
+        $("security-session-expiry").textContent = expiry && !Number.isNaN(expiry.getTime()) ? formatDate(expiry.toISOString()) : "Managed by Supabase Auth";
+        if (status) status.textContent = "This browser has an active authenticated session.";
+    } catch (error) {
+        console.error("Admin session status error:", error);
+        if (status) status.textContent = "We could not retrieve session details. Refresh this section and try again.";
+    }
+}
+
+async function signOutOtherAdminSessions() {
+    const confirmed = window.confirm("Sign out of EIS Digital Services on all other devices and browsers, while keeping this session active?");
+    if (!confirmed) return;
+    const button = $("security-signout-others");
+    const message = $("security-action-message");
+    if (button) { button.disabled = true; button.textContent = "Signing out..."; }
+    if (message) message.textContent = "";
+    try {
+        const { error } = await supabase.auth.signOut({ scope: "others" });
+        if (error) throw error;
+        if (message) message.textContent = "Other sessions have been revoked. This browser remains signed in.";
+        await loadAdminSecuritySession();
+    } catch (error) {
+        console.error("Other admin sessions sign-out error:", error);
+        if (message) message.textContent = "We could not end the other sessions. Check your connection and try again.";
+    } finally {
+        if (button) { button.disabled = false; button.textContent = "Sign out other devices"; }
+    }
+}
+
+async function signOutAllAdminSessions() {
+    const confirmed = window.confirm("This will sign out this account on every device and browser, including this one. Continue?");
+    if (!confirmed) return;
+    const button = $("security-signout-all");
+    if (button) { button.disabled = true; button.textContent = "Signing out..."; }
+    try {
+        await removeRealtimeSubscriptions();
+        const { error } = await supabase.auth.signOut({ scope: "global" });
+        if (error) throw error;
+        window.location.replace("index.html");
+    } catch (error) {
+        console.error("All admin sessions sign-out error:", error);
+        const message = $("security-action-message");
+        if (message) message.textContent = "We could not end all sessions. Check your connection and try again.";
+        if (button) { button.disabled = false; button.textContent = "Sign out everywhere"; }
+    }
+}
+
 async function logoutAdmin() {
 const confirmed = window.confirm(
 "Are you sure you want to log out?"
@@ -1941,7 +2010,7 @@ if (!confirmed) return;
 try {
 await removeRealtimeSubscriptions();
 
-const { error } = await supabase.auth.signOut();
+const { error } = await supabase.auth.signOut({ scope: "local" });
 
 if (error) throw error;
 
@@ -2201,6 +2270,8 @@ $("admin-manage-form")?.addEventListener("submit", event => {
   setManagedAdminRole($("admin-manage-email")?.value || "", true, $("admin-manage-submit"));
 });
 $("refresh-managed-admins")?.addEventListener("click", loadManagedAdmins);
+$("security-signout-others")?.addEventListener("click", signOutOtherAdminSessions);
+$("security-signout-all")?.addEventListener("click", signOutAllAdminSessions);
 $("refresh-audit-logs")?.addEventListener("click", loadAuditLogs);
 $("search-audit-logs")?.addEventListener("click", () => { auditPage = 1; loadAuditLogs(); });
 $("audit-search")?.addEventListener("keydown", event => {
