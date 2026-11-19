@@ -2782,3 +2782,110 @@
   .admin-page .admin-page-heading h1 { font-size: 21px; }
   .admin-page .admin-heading-actions { align-items: flex-start; flex-direction: column; }
 }
+
+
+/* Applications: compact filtering, predictable paging and click-to-open records */
+.admin-page .admin-application-toolbar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(150px, 210px) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #edf0f5;
+}
+.admin-page .admin-application-toolbar .admin-form-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+}
+.admin-page .admin-application-summary {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 15px 17px;
+    border: 0;
+    background: #fff;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.admin-page .admin-application-summary:hover {
+    background: #fbfcff;
+}
+.admin-page .admin-application-summary:focus-visible {
+    outline: 2px solid var(--admin-blue);
+    outline-offset: -3px;
+}
+.admin-page .admin-application-summary-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex: 0 0 auto;
+}
+.admin-page .admin-application-summary-meta time {
+    color: #64748b;
+    font-size: 10px;
+}
+.admin-page .admin-application-expand-mark {
+    display: inline-flex;
+    width: 27px;
+    height: 27px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dce3ed;
+    border-radius: 50%;
+    color: #475569;
+    font-size: 18px;
+    line-height: 1;
+}
+.admin-page .admin-application-summary[aria-expanded="true"] .admin-application-expand-mark {
+    transform: rotate(45deg);
+}
+.admin-page .admin-application-details[hidden],
+.admin-page .admin-application-pagination[hidden] {
+    display: none !important;
+}
+.admin-page .admin-application-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid #edf0f5;
+    color: #64748b;
+    font-size: 12px;
+}
+.admin-page .admin-application-page-actions {
+    display: flex;
+    gap: 8px;
+}
+.admin-page .admin-application-page-actions button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+@media (max-width: 700px) {
+    .admin-page .admin-application-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 13px;
+    }
+    .admin-page .admin-application-summary {
+        align-items: flex-start;
+        padding: 13px;
+    }
+    .admin-page .admin-application-summary-meta {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 7px;
+    }
+    .admin-page .admin-application-summary-meta time {
+        text-align: right;
+    }
+    .admin-page .admin-application-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px;
+    }
+}
