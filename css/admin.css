@@ -2767,3 +2767,57 @@
   .admin-page .admin-page-heading h1 { font-size: 21px; }
   .admin-page .admin-heading-actions { align-items: flex-start; flex-direction: column; }
 }
+
+
+/* Admin accordion: activate a section from its full heading row. */
+.admin-page .admin-panel-header-trigger {
+  position: relative;
+  cursor: pointer;
+  padding-right: 58px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .16s ease;
+}
+.admin-page .admin-panel-header-trigger:hover {
+  background: #f8faf9;
+}
+.admin-page .admin-panel-header-trigger:focus-visible {
+  outline: 2px solid #5b8790;
+  outline-offset: -3px;
+  border-radius: 6px;
+}
+.admin-page .admin-panel-indicator {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-right: 1.7px solid #64777c;
+  border-bottom: 1.7px solid #64777c;
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform .2s ease;
+}
+.admin-page .admin-panel.is-expanded .admin-panel-indicator {
+  transform: translateY(-25%) rotate(225deg);
+}
+.admin-page .admin-panel.is-expanded .admin-panel-header {
+  background: #fbfcfc;
+  border-bottom: 1px solid var(--admin-border);
+}
+.admin-page .admin-panel-content {
+  padding: 20px 18px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .admin-page .admin-panel-content:not([hidden]) {
+    animation: adminAccordionReveal .18s ease-out;
+  }
+  @keyframes adminAccordionReveal {
+    from { opacity: .65; }
+    to { opacity: 1; }
+  }
+}
+@media (max-width: 560px) {
+  .admin-page .admin-panel-header-trigger { padding-right: 44px; }
+  .admin-page .admin-panel-indicator { right: 17px; }
+  .admin-page .admin-panel-content { padding: 16px 13px; }
+}
