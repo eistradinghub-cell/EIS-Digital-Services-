@@ -1124,7 +1124,7 @@ async function loadApplications() {
     try {
         const { data, error } = await supabase
             .from("applications")
-            .select("id,user_id,service_name,amount,status,created_at,form_data")
+            .select("id,user_id,service_name,amount,status,created_at,applicant_name")
             .eq("user_id", currentUser.id)
             .order("created_at", { ascending: false });
 
@@ -1149,21 +1149,8 @@ async function loadApplications() {
 
             const name = document.createElement("td");
 
-            const submittedForm = normalizeCustomerFormData(
-                application.form_data
-            );
-
-            const applicantName = [
-                submittedForm.agent_first_name,
-                submittedForm.middle_name,
-                submittedForm.last_name
-            ]
-                .map(cleanCustomerName)
-                .filter(Boolean)
-                .join(" ");
-
             name.textContent =
-                applicantName ||
+                cleanCustomerName(application.applicant_name) ||
                 currentCustomerName ||
                 getCustomerDisplayName(currentProfile, currentUser) ||
                 "Customer";
