@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="css/styles.css?v=18">
 <link rel="stylesheet" href="css/shared-navigation.css?v=2">
 <link rel="stylesheet" href="css/dashboard-notifications.css?v=2">
-<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=3">
+<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=4">
 
 <style>
 *{box-sizing:border-box}
@@ -1158,7 +1158,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                 <span class="payment-history-action" aria-hidden="true">View</span>
             </summary>
             <div class="payment-history-content">
-                <div class="table-wrapper">
+                <div class="table-wrapper payment-history-scroll" role="region" aria-label="Payment history records" tabindex="0">
                     <table class="applications-table payments-table">
                         <thead>
                             <tr>
