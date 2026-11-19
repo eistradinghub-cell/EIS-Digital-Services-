@@ -1544,11 +1544,19 @@ container.scrollTop = container.scrollHeight;
 /* FIX: Mark opened customer messages as read and reset the sidebar badge. */
 async function markConversationRead(conversationId) {
 try {
-const { error: messagesError } = await supabase.from("chat_messages").update({ is_read: true }).eq("conversation_id", conversationId).eq("sender_role", "customer").eq("is_read", false);
+const { error: messagesError } = await supabase.from("chat_messages")
+.update({ is_read: true })
+.eq("conversation_id", conversationId)
+.eq("sender_role", "customer")
+.eq("is_read", false);
 if (messagesError) throw messagesError;
-const { error: conversationError } = await supabase.from("chat_conversations").update({ unread_admin_count: 0 }).eq("id", conversationId);
+// The database trigger maintains unread_admin_count for each message marked read.
+const { data: conversationData, error: conversationError } = await supabase.from("chat_conversations")
+.select("unread_admin_count")
+.eq("id", conversationId)
+.single();
 if (conversationError) throw conversationError;
-conversationsCache = conversationsCache.map(item => item.id === conversationId ? { ...item, unread_admin_count: 0 } : item);
+conversationsCache = conversationsCache.map(item => item.id === conversationId ? { ...item, unread_admin_count: Number(conversationData.unread_admin_count || 0) } : item);
 if (currentConversation?.id === conversationId) currentConversation = conversationsCache.find(item => item.id === conversationId) || currentConversation;
 updateConversationSummary();
 renderConversations();
