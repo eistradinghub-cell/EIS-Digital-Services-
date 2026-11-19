@@ -270,10 +270,13 @@ currentProfile = profile;
 const isSuperAdmin = String(profile.role || "").toLowerCase() === "super_admin";
 const siteSettingsLink = document.querySelector('[data-section="site-settings"]');
 const siteSettingsSection = $("section-site-settings");
+const staffManagementLink = document.querySelector('[data-section="staff-management"]');
+const staffManagementSection = $("section-staff-management");
 if (!isSuperAdmin) {
   siteSettingsLink?.remove();
   siteSettingsSection?.remove();
-} else {
+  staffManagementLink?.remove();
+  staffManagementSection?.remove();
 }
 
 updateAdminIdentity();
@@ -296,7 +299,7 @@ const allowedSections = new Set([
 "customer-care",
 "prices",
 "broadcast",
-...(isSuperAdmin ? ["site-settings"] : [])
+...(isSuperAdmin ? ["site-settings", "staff-management"] : [])
 ]);
 const sectionToRestore = allowedSections.has(savedSection)
 ? savedSection
@@ -1859,8 +1862,8 @@ button.textContent = "Send Broadcast";
 }
 
 function openSection(sectionName) {
-if (sectionName === "site-settings" && String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
-  showNotice("Only the Super Admin can access Site Settings.", "error");
+if (["site-settings", "staff-management"].includes(sectionName) && String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
+  showNotice("Only the Super Admin can access this section.", "error");
   return;
 }
 const sections = document.querySelectorAll(
@@ -1886,6 +1889,7 @@ if (sectionName === "applications") markApplicationsAsSeen();
 if (sectionName === "payments") loadPayments();
 if (sectionName === "reports") loadReports();
 if (sectionName === "customers") loadCustomers();
+if (sectionName === "staff-management") loadManagedAdmins();
 
 document.querySelectorAll(".sidebar-link").forEach(link => {
 link.classList.toggle(
@@ -1904,7 +1908,8 @@ customers: "Customers",
 "customer-care": "Customer Care",
 prices: "Prices Management",
 broadcast: "Broadcast Message",
-"site-settings": "Site Settings"
+"site-settings": "Site Settings",
+"staff-management": "Staff & Admin Management"
 };
 
 if ($("breadcrumb-current")) {
@@ -2028,14 +2033,55 @@ button.textContent = "↻ Refresh Data";
 }
 }
 
+async function loadManagedAdmins() {
+  const container = $("managed-admin-list");
+  if (!container) return;
+  if (String(currentProfile?.role || "").toLowerCase() !== "super_admin") return;
+  setLoading("managed-admin-list", "Loading administrator accounts...");
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id,email,full_name,role,created_at")
+    .in("role", ["admin", "super_admin"])
+    .order("created_at", { ascending: true });
+  if (error) {
+    console.error("Administrator list error:", error);
+    showError("managed-admin-list", "Administrator accounts could not be loaded. Please refresh and try again.");
+    return;
+  }
+  const admins = data || [];
+  if ($("managed-admin-count")) $("managed-admin-count").textContent = `${admins.length} administrator${admins.length === 1 ? "" : "s"}`;
+  if (!admins.length) {
+    showEmpty("managed-admin-list", "No administrator accounts were found.");
+    return;
+  }
+  container.innerHTML = admins.map(account => {
+    const isSuper = String(account.role || "").toLowerCase() === "super_admin";
+    const isCurrent = account.id === currentProfile?.id;
+    const displayName = String(account.full_name || "Name not set");
+    const email = String(account.email || "Email unavailable");
+    return `
+      <article class="admin-staff-row">
+        <div class="admin-staff-identity">
+          <span class="admin-staff-avatar">${escapeHTML(getInitials(displayName))}</span>
+          <div><strong>${escapeHTML(displayName)}</strong><span>${escapeHTML(email)}</span></div>
+        </div>
+        <div class="admin-staff-meta">
+          <span class="admin-staff-role ${isSuper ? "super" : ""}">${isSuper ? "Super Admin" : "Admin"}</span>
+          <small>${isCurrent ? "Your account" : `Added ${escapeHTML(formatShortDate(account.created_at))}`}</small>
+        </div>
+        ${!isSuper && !isCurrent ? `<button type="button" class="admin-secondary-button danger" data-revoke-admin="${escapeHTML(email)}">Remove access</button>` : ""}
+      </article>`;
+  }).join("");
+}
+
 async function setManagedAdminRole(email, makeAdmin, button) {
   if (String(currentProfile?.role || "").toLowerCase() !== "super_admin") {
     showNotice("Only the Super Admin can manage administrator accounts.", "error");
     return;
   }
   const normalizedEmail = String(email || "").trim().toLowerCase();
-  if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-    showNotice("Enter a valid email address.", "error");
+  if (!normalizedEmail || normalizedEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    showNotice("Enter a valid registered email address.", "error");
     return;
   }
   const action = makeAdmin ? "grant Admin access to " + normalizedEmail : "remove Admin access from " + normalizedEmail;
@@ -2047,23 +2093,27 @@ async function setManagedAdminRole(email, makeAdmin, button) {
       p_make_admin: makeAdmin
     });
     if (error) throw error;
-    showNotice(makeAdmin ? "Admin access successfully granted to " + normalizedEmail : "Admin access removed from " + normalizedEmail);
-    $("admin-manage-email")?.value && ($("admin-manage-email").value = "");
-    $("admin-manage-action") && ($("admin-manage-action").value = "make_admin");
+    showNotice(makeAdmin ? "Admin access successfully granted." : "Admin access successfully removed.");
+    if ($("admin-manage-email")) $("admin-manage-email").value = "";
+    await loadManagedAdmins();
   } catch (error) {
     console.error("Super Admin role update error:", error);
     showNotice(error.message || "Unable to update administrator access.", "error");
   } finally {
-    if (button) { button.disabled = false; button.textContent = "Submit"; }
+    if (button) { button.disabled = false; button.textContent = "Grant Admin Access"; }
   }
 }
 
 function setupEventListeners() {
 $("admin-manage-form")?.addEventListener("submit", event => {
   event.preventDefault();
-  const email = $("admin-manage-email")?.value || "";
-  const makeAdmin = $("admin-manage-action")?.value === "make_admin";
-  setManagedAdminRole(email, makeAdmin, $("admin-manage-submit"));
+  setManagedAdminRole($("admin-manage-email")?.value || "", true, $("admin-manage-submit"));
+});
+$("refresh-managed-admins")?.addEventListener("click", loadManagedAdmins);
+document.addEventListener("click", event => {
+  const revokeButton = event.target.closest("[data-revoke-admin]");
+  if (!revokeButton) return;
+  setManagedAdminRole(revokeButton.dataset.revokeAdmin || "", false, revokeButton);
 });
 
 $("nav-logout")?.addEventListener(
