@@ -2084,6 +2084,10 @@ async function setManagedAdminRole(email, makeAdmin, button) {
     showNotice("Enter a valid registered email address.", "error");
     return;
   }
+  if (normalizedEmail === String(currentProfile?.email || "").trim().toLowerCase()) {
+    showNotice("You cannot change your own administrator role.", "error");
+    return;
+  }
   const action = makeAdmin ? "grant Admin access to " + normalizedEmail : "remove Admin access from " + normalizedEmail;
   if (!window.confirm("Are you sure you want to " + action + "?")) return;
   if (button) { button.disabled = true; button.textContent = "Processing..."; }
