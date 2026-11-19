@@ -24,7 +24,7 @@
 }
 
 .dashboard-page .notification-button:hover {
-    color: #168477 !important;
+    color: #12B894 !important;
     background: #F2F8F6 !important;
     border-color: #BFDCD5 !important;
 }
@@ -132,7 +132,7 @@
 
     background: #FFFFFF !important;
     border: 1px solid #E7EDEF !important;
-    border-left: 3px solid #168477 !important;
+    border-left: 3px solid #12B894 !important;
     border-radius: 10px !important;
 
     box-shadow: 0 2px 5px rgba(20,45,78,.025) !important;
@@ -146,7 +146,7 @@
 .dashboard-page .notification-item:hover {
     background: #F4F9F7 !important;
     border-color: #D5E7E1 !important;
-    border-left-color: #116B61 !important;
+    border-left-color: #0D927B !important;
     box-shadow: 0 4px 12px rgba(20,45,78,.05) !important;
 }
 
