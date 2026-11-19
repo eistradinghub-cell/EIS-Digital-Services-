@@ -863,7 +863,7 @@ const requestId = ++customerLoadSequence;
 setLoading("admin-customers-list", "Loading customer accounts...");
 
 const rawQuery = String($("customer-search")?.value || "").trim();
-const query = rawQuery.replace(/[^\\p{L}\\p{N}@.+\\- ]/gu, "").trim().slice(0, 80);
+const query = rawQuery.replace(/[^\p{L}\p{N}@.+\- ]/gu, "").trim().slice(0, 80);
 const from = (customersPage - 1) * CUSTOMERS_PAGE_SIZE;
 
 try {
