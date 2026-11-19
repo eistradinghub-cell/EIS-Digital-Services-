@@ -1352,7 +1352,8 @@ function renderPaymentServiceOptions() {
     const selected = select.value || "all";
     const names = [...new Set([
         ...servicesCache.map(service => service.name),
-        ...paymentsCache.map(payment => payment.service_name)
+        ...paymentsCache.map(payment => payment.service_name),
+        selected !== "all" ? selected : ""
     ].map(name => String(name || "").trim()).filter(Boolean))]
         .sort((a, b) => a.localeCompare(b));
     select.innerHTML = '<option value="all">All services</option>' +
