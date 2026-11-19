@@ -195,3 +195,10 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 @media(max-width:760px){
   .dashboard-page .payment-history-scroll{max-height:min(58vh,340px)}
 }
+
+
+/* Payment receipt action */
+.dashboard-page .payment-receipt-button{padding:7px 10px;border:1px solid #cbded9;border-radius:5px;background:#fff;color:var(--eis-teal-dark);font-size:11px;font-weight:650;white-space:nowrap;cursor:pointer}
+.dashboard-page .payment-receipt-button:hover{background:#f1f7f5;border-color:#9fc5ba}
+.dashboard-page .payment-receipt-button:focus-visible{outline:3px solid rgba(22,132,119,.2);outline-offset:2px}
+.dashboard-page .receipt-unavailable{color:#89949b;font-size:11px}
