@@ -1683,6 +1683,34 @@ if (error) { console.error("Chat messages error:", error); showError("admin-chat
 renderChatMessages(data || []);
 }
 
+
+function renderChatMessages(messages) {
+const container = $("admin-chat-messages");
+if (!container) return;
+
+if (!messages.length) {
+showEmpty("admin-chat-messages", "No messages in this conversation yet.");
+return;
+}
+
+container.innerHTML = messages.map(message => {
+const senderRole = String(message.sender_role || "").toLowerCase();
+const isAdmin = senderRole === "admin";
+return `
+<div class="chat-message ${isAdmin ? "admin" : "customer"}">
+<div>
+${escapeHTML(message.content)}
+</div>
+<time>
+${escapeHTML(formatDate(message.created_at))}
+</time>
+</div>
+`;
+}).join("");
+
+container.scrollTop = container.scrollHeight;
+}
+
 async function sendChatMessage(event) {
 event.preventDefault();
 if (isSendingMessage) return;
