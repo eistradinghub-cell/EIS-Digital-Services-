@@ -319,7 +319,13 @@ showError("applications-full-list", error.message);
 return;
 }
 
-applicationsCache = data || [];
+// Keep the newest customer submissions first, even if the RPC
+// response ordering changes in a future database update.
+applicationsCache = (data || []).slice().sort((a, b) => {
+const dateA = new Date(a.created_at || 0).getTime();
+const dateB = new Date(b.created_at || 0).getTime();
+return dateB - dateA;
+});
 await loadApplicationCustomers();
 renderApplications();
 if ($("section-applications")?.classList.contains("active")) markApplicationsAsSeen();
@@ -554,7 +560,10 @@ return lines.join("\n");
 }
 
 function renderApplications() {
-const recent = applicationsCache.slice(0, 5);
+const recent = applicationsCache
+.slice()
+.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+.slice(0, 5);
 
 if (!applicationsCache.length) {
 showEmpty(
