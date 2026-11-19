@@ -913,6 +913,7 @@ const customer = profileMap.get(payment.user_id) || {};
 const customerName = String(customer.full_name || "Customer");
 const customerEmail = String(customer.email || "Email unavailable");
 const status = normalizeStatus(payment.status || "pending");
+const detailId = `payment-detail-${escapeHTML(payment.id)}`;
 return `
 <article class="admin-payment-card">
 <div class="admin-payment-main">
@@ -932,6 +933,16 @@ return `
 <strong>${escapeHTML(formatCurrency(payment.amount))}</strong>
 <span class="admin-status ${escapeHTML(status)}">${escapeHTML(getPaymentStatusLabel(payment.status))}</span>
 </div>
+</div>
+<div class="admin-payment-actions">
+<button type="button" class="admin-small-button" data-toggle-payment aria-expanded="false" aria-controls="${detailId}">View details</button>
+</div>
+<div class="admin-payment-details" id="${detailId}" hidden>
+<div><span>Payment reference</span><strong>${escapeHTML(payment.reference || "Unavailable")}</strong></div>
+<div><span>Customer account</span><strong>${escapeHTML(customerEmail)}</strong></div>
+<div><span>Recorded date</span><strong>${escapeHTML(formatDate(payment.created_at))}</strong></div>
+<div><span>Verification status</span><strong>${escapeHTML(getPaymentStatusLabel(payment.status))}</strong></div>
+<button type="button" class="admin-secondary-button" data-copy-payment-ref="${escapeHTML(payment.reference || "")}">Copy reference</button>
 </div>
 </article>`;
 });
@@ -1968,6 +1979,21 @@ sendChatMessage
 // Application status is saved only when the Save Status button is pressed.
 
 document.addEventListener("click", event => {
+const paymentToggle = event.target.closest("[data-toggle-payment]");
+if (paymentToggle) {
+const expanded = paymentToggle.getAttribute("aria-expanded") === "true";
+paymentToggle.setAttribute("aria-expanded", String(!expanded));
+const details = document.getElementById(paymentToggle.getAttribute("aria-controls"));
+if (details) details.hidden = expanded;
+paymentToggle.textContent = expanded ? "View details" : "Hide details";
+return;
+}
+const paymentCopyButton = event.target.closest("[data-copy-payment-ref]");
+if (paymentCopyButton) {
+event.preventDefault();
+copyTextToClipboard(paymentCopyButton.dataset.copyPaymentRef || "", paymentCopyButton);
+return;
+}
 const applicationToggle = event.target.closest("[data-toggle-application]");
 if (applicationToggle) {
 const expanded = applicationToggle.getAttribute("aria-expanded") === "true";
