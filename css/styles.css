@@ -14,8 +14,8 @@
     --ln: #e2e8f0;
     --ln2: #cbd5e1;
 
-    --blue: #2450D8;
-    --blue-2: #4169E1;
+    --blue: #1f4fe0;
+    --blue-2: #3a68ff;
     --blue-deep: #0d2a63;
     --blue-soft: #eaf0ff;
 
@@ -691,8 +691,8 @@ tbody tr:hover {
 .chat-header {
     background: linear-gradient(
         135deg,
-        #2450D8,
-        #4169E1
+        #1f4fe0,
+        #3a68ff
     );
 
     color: white;
