@@ -1,0 +1,89 @@
+/* EIS Customer Dashboard — cohesive professional refresh */
+:root{
+  --eis-ink:#142d4e;
+  --eis-muted:#687783;
+  --eis-teal:#168477;
+  --eis-teal-dark:#116b61;
+  --eis-teal-soft:#eaf5f2;
+  --eis-line:#e1e8eb;
+  --eis-canvas:#f4f7f8;
+  --eis-card:#fff;
+}
+body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!important;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important}
+.dashboard-page .site-header{position:sticky;top:0;background:rgba(255,255,255,.97)!important;border-bottom:1px solid var(--eis-line)!important;box-shadow:0 2px 10px rgba(20,45,78,.05)!important;backdrop-filter:blur(12px)!important}
+.dashboard-page .nav-row{max-width:1240px;min-height:72px;padding:10px 24px;flex-wrap:nowrap;gap:24px}
+.dashboard-page .brand{gap:11px}
+.dashboard-page .brand-mark{width:40px;height:40px}
+.dashboard-page .brand-text b{font-size:20px;color:var(--eis-ink)!important;letter-spacing:.2px}
+.dashboard-page .brand-text span{font-size:11px;color:var(--eis-muted)!important;letter-spacing:.25px}
+.dashboard-page .nav-right{display:flex;align-items:center;gap:14px;margin-left:auto}
+.dashboard-page .nav-links{order:0;width:auto;display:flex;align-items:center;gap:5px;margin:0}
+.dashboard-page .nav-links .btn,.dashboard-page .nav-links #nav-logout{width:auto;min-width:0;min-height:40px;padding:9px 14px;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;color:#526171!important;font-size:13px;font-weight:650;white-space:nowrap;box-shadow:none!important}
+.dashboard-page .nav-links .btn:hover,.dashboard-page .nav-links #nav-logout:hover{background:#f1f5f5!important;color:var(--eis-ink)!important}
+.dashboard-page .nav-links .btn.active{background:var(--eis-teal-soft)!important;border-color:#d4eae4!important;color:var(--eis-teal-dark)!important}
+.dashboard-page .notification-area{order:0;margin:0}
+.dashboard-page .notification-button{width:40px;height:40px;border:1px solid var(--eis-line)!important;border-radius:9px;background:#fff!important;color:var(--eis-ink)!important}
+.dashboard-page .notification-button:hover{background:#f7faf9!important;border-color:#c9dfda!important}
+.dashboard-page .notification-dropdown{border:1px solid var(--eis-line)!important;border-radius:12px!important;box-shadow:0 14px 36px rgba(20,45,78,.13)!important}
+.dashboard-page .dashboard-main{max-width:1240px!important;padding:30px 24px 38px!important}
+.dashboard-page .dashboard-intro{min-height:174px!important;display:flex;flex-direction:column;justify-content:center;padding:30px 34px!important;margin:0 0 22px!important;background:linear-gradient(115deg,#fff 0%,#f7fbfa 100%)!important;border:1px solid var(--eis-line)!important;border-left:5px solid var(--eis-teal)!important;border-radius:14px!important;box-shadow:0 3px 14px rgba(20,45,78,.045)!important}
+.dashboard-page .dashboard-intro h1{margin:0 0 10px!important;color:var(--eis-ink)!important;font-size:clamp(26px,3vw,34px)!important;font-weight:750!important;line-height:1.2!important;letter-spacing:-.8px!important}
+.dashboard-page .dashboard-intro p{max-width:760px;color:var(--eis-muted)!important;font-size:15px!important;line-height:1.7!important}
+.dashboard-page .dashboard-card{padding:25px!important;margin-bottom:22px!important;background:var(--eis-card)!important;border:1px solid var(--eis-line)!important;border-radius:13px!important;box-shadow:0 3px 14px rgba(20,45,78,.045)!important}
+.dashboard-page .section-heading{margin-bottom:7px!important;color:var(--eis-ink)!important;font-size:19px!important;font-weight:720!important;letter-spacing:-.25px}
+.dashboard-page .section-description{margin-bottom:18px!important;color:var(--eis-muted)!important;font-size:13px!important;line-height:1.65!important}
+.dashboard-page .svcs{grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr))!important;gap:15px!important;margin-top:18px!important}
+.dashboard-page .service-card{min-height:190px;padding:19px!important;border:1px solid var(--eis-line)!important;border-top:3px solid var(--eis-teal)!important;border-radius:11px!important;background:#fff!important;box-shadow:0 2px 8px rgba(20,45,78,.025)!important}
+.dashboard-page .service-card:hover{transform:translateY(-3px)!important;border-color:#c9dfda!important;box-shadow:0 9px 24px rgba(20,45,78,.08)!important}
+.dashboard-page .service-card h3{color:var(--eis-ink)!important;font-size:15px!important;font-weight:700!important}
+.dashboard-page .service-card p{color:var(--eis-teal-dark)!important;font-size:18px!important;font-weight:750!important}
+.dashboard-page .service-card .service-description{color:var(--eis-muted)!important;font-size:12px!important;line-height:1.65!important}
+.dashboard-page .service-card button,.dashboard-page .btn-primary,.dashboard-page #btn-pay{min-height:42px;background:var(--eis-teal)!important;border:1px solid var(--eis-teal)!important;border-radius:8px!important;color:#fff!important;font-size:13px!important;font-weight:700!important;box-shadow:none!important}
+.dashboard-page .service-card button:hover,.dashboard-page .btn-primary:hover,.dashboard-page #btn-pay:hover{background:var(--eis-teal-dark)!important;border-color:var(--eis-teal-dark)!important}
+.dashboard-page #pay-section{padding:22px!important;background:#f7f9fa!important;border:1px solid var(--eis-line)!important;border-radius:11px!important}
+.dashboard-page #pay-section h3{color:var(--eis-ink)!important}
+.dashboard-page .form-grid{gap:17px!important}
+.dashboard-page .form-grid label{color:var(--eis-ink)!important;font-size:12px!important;font-weight:700!important}
+.dashboard-page .form-grid input,.dashboard-page .form-grid select,.dashboard-page .form-grid textarea{min-height:45px;border:1px solid #d8e0e4!important;border-radius:8px!important;background:#fff!important}
+.dashboard-page .form-grid input:focus,.dashboard-page .form-grid select:focus,.dashboard-page .form-grid textarea:focus{border-color:var(--eis-teal)!important;outline:3px solid rgba(22,132,119,.13)!important}
+.dashboard-page .privacy-note{background:#f2f7f6!important;border:1px solid #ddeadf!important;border-left:4px solid var(--eis-teal)!important;border-radius:8px!important;color:#526761!important}
+.dashboard-page .table-wrapper{border:1px solid var(--eis-line)!important;border-radius:10px!important}
+.dashboard-page .applications-table th{padding:14px 15px!important;background:#f3f6f7!important;color:var(--eis-ink)!important;font-size:11px!important;letter-spacing:.35px;text-transform:uppercase}
+.dashboard-page .applications-table td{padding:15px!important;border-bottom:1px solid #edf0f2!important;color:#53616d!important}
+.dashboard-page .applications-table tbody tr:hover{background:#fafcfc}
+.dashboard-page .status-badge{padding:6px 10px!important;border-radius:20px!important;font-size:11px!important}
+.dashboard-page .customer-care-banner{padding:24px 27px!important;background:#fff!important;border:1px solid var(--eis-line)!important;border-left:4px solid var(--eis-teal)!important;border-radius:13px!important;box-shadow:0 3px 14px rgba(20,45,78,.045)!important}
+.dashboard-page .customer-care-banner h2{color:var(--eis-ink)!important}
+.dashboard-page .customer-care-banner p{color:var(--eis-muted)!important}
+.dashboard-page .customer-care-banner a{padding:11px 18px!important;border:1px solid var(--eis-teal)!important;border-radius:8px!important;background:var(--eis-teal)!important;color:#fff!important}
+.dashboard-page .customer-care-banner a:hover{background:var(--eis-teal-dark)!important}
+.dashboard-page .site-footer{background:#fff!important;border-top:1px solid var(--eis-line)!important;color:var(--eis-muted)!important}
+.dashboard-page button:focus-visible,.dashboard-page a:focus-visible{outline:3px solid rgba(22,132,119,.25)!important;outline-offset:3px!important}
+@media(max-width:760px){
+ .dashboard-page .nav-row{flex-wrap:wrap;gap:10px 12px;padding:11px 14px}
+ .dashboard-page .nav-right{display:contents}
+ .dashboard-page .notification-area{order:0;margin-left:auto}
+ .dashboard-page .nav-links{order:2;width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ .dashboard-page .nav-links .btn,.dashboard-page .nav-links #nav-logout{min-height:42px;padding:8px 5px;font-size:12px;white-space:normal}
+ .dashboard-page .dashboard-main{padding:19px 13px 28px!important}
+ .dashboard-page .dashboard-intro{min-height:0!important;padding:22px 19px!important;border-radius:12px!important}
+ .dashboard-page .dashboard-intro h1{font-size:25px!important;letter-spacing:-.5px!important}
+ .dashboard-page .dashboard-intro p{font-size:13px!important}
+ .dashboard-page .dashboard-card{padding:19px 15px!important}
+ .dashboard-page .svcs{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .dashboard-page .service-card{min-height:0;padding:14px!important}
+ .dashboard-page .service-card h3{font-size:14px!important}
+ .dashboard-page .service-card p{font-size:16px!important}
+ .dashboard-page .service-card .service-description{font-size:11px!important}
+ .dashboard-page .service-card button{font-size:12px!important;padding:10px 6px!important}
+ .dashboard-page .form-grid{grid-template-columns:1fr!important}
+ .dashboard-page .form-grid .full{grid-column:auto!important}
+ .dashboard-page .customer-care-banner{align-items:flex-start;flex-direction:column;padding:20px!important}
+ .dashboard-page .customer-care-banner a{width:100%;text-align:center}
+}
+@media(max-width:390px){
+ .dashboard-page .nav-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dashboard-page .svcs{grid-template-columns:1fr!important}
+ .dashboard-page .dashboard-intro h1{font-size:23px!important}
+}
+@media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *:before,.dashboard-page *:after{transition:none!important;animation:none!important}}
