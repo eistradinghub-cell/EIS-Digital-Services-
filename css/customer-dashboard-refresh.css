@@ -132,3 +132,16 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 .dashboard-page .track-dialog-footer button{min-width:72px;padding:9px 15px;border:1px solid var(--eis-ink);border-radius:5px;background:var(--eis-ink);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
 .dashboard-page .track-dialog-footer button:hover{background:#203f63}
 @media(max-width:520px){.dashboard-page .track-dialog-header,.dashboard-page .track-current-status{padding-left:17px;padding-right:17px}.dashboard-page .track-details{padding-left:17px;padding-right:17px}.dashboard-page .track-details>div{grid-template-columns:105px minmax(0,1fr)}.dashboard-page .track-update{margin-left:17px;margin-right:17px}.dashboard-page .track-dialog-footer{padding-left:17px;padding-right:17px}}
+
+
+/* Payment history */
+.dashboard-page .payments-table{min-width:700px}
+.dashboard-page .payments-table th,
+.dashboard-page .payments-table td{white-space:nowrap}
+.dashboard-page .payments-table td:first-child{font-size:12px;font-weight:600;color:var(--eis-ink)}
+.dashboard-page .payments-table td:nth-child(4){font-weight:650;color:var(--eis-ink)}
+.dashboard-page .table-message{text-align:center!important;padding:22px!important;color:var(--eis-muted)!important}
+@media(max-width:760px){
+ .dashboard-page .payment-history-section{padding:19px 15px!important}
+ .dashboard-page .payments-table{min-width:650px}
+}
