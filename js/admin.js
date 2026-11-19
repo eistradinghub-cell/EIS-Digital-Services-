@@ -485,6 +485,7 @@ const dateB = new Date(b.created_at || 0).getTime();
 return dateB - dateA;
 });
 await loadApplicationCustomers();
+updateApplicationServiceOptions();
 renderApplications();
 if ($("section-applications")?.classList.contains("active")) markApplicationsAsSeen();
 renderStatistics();
@@ -737,16 +738,49 @@ return formatApplicationReference(app.reference_id ?? app.application_id ?? app.
 const APPLICATIONS_PAGE_SIZE = 10;
 let applicationsPage = 1;
 
-function renderApplications() {
-const searchInput = $("application-reference-search");
-const statusInput = $("application-status-filter");
-const query = String(searchInput?.value || "").trim().toLowerCase().replace(/^eis-/, "");
-const statusFilter = String(statusInput?.value || "all").toLowerCase();
-const filteredApplications = applicationsCache.filter(app => {
-const matchesReference = !query || getApplicationReference(app).replace(/^eis-/, "").includes(query);
+function getFilteredApplications() {
+const query = String($("application-reference-search")?.value || "").trim().toLowerCase().replace(/^eis-/, "");
+const statusFilter = String($("application-status-filter")?.value || "all").toLowerCase();
+const serviceFilter = String($("application-service-filter")?.value || "all").toLowerCase();
+const fromValue = $("application-date-from")?.value || "";
+const toValue = $("application-date-to")?.value || "";
+const fromTime = fromValue ? new Date(`${fromValue}T00:00:00`).getTime() : null;
+const toTime = toValue ? new Date(`${toValue}T23:59:59.999`).getTime() : null;
+
+return applicationsCache.filter(app => {
+const customer = app.customer || {};
+const searchable = [
+getApplicationReference(app),
+app.service_name,
+customer.full_name,
+customer.email
+].join(" ").toLowerCase();
+const matchesQuery = !query || searchable.includes(query) || getApplicationReference(app).replace(/^eis-/, "").includes(query);
 const matchesStatus = statusFilter === "all" || normalizeStatus(app.status).replace(/_/g, " ") === statusFilter;
-return matchesReference && matchesStatus;
+const matchesService = serviceFilter === "all" || String(app.service_name || "").trim().toLowerCase() === serviceFilter;
+const createdAt = new Date(app.created_at || 0).getTime();
+const matchesFrom = fromTime === null || createdAt >= fromTime;
+const matchesTo = toTime === null || createdAt <= toTime;
+return matchesQuery && matchesStatus && matchesService && matchesFrom && matchesTo;
 });
+}
+
+function updateApplicationServiceOptions() {
+const select = $("application-service-filter");
+if (!select) return;
+const current = select.value || "all";
+const services = [...new Set(applicationsCache.map(app => String(app.service_name || "").trim()).filter(Boolean))]
+.sort((a, b) => a.localeCompare(b));
+select.innerHTML = '<option value="all">All services</option>' + services.map(service =>
+`<option value="${escapeHTML(service)}">${escapeHTML(service)}</option>`
+).join("");
+select.value = services.some(service => service.toLowerCase() === current.toLowerCase())
+? services.find(service => service.toLowerCase() === current.toLowerCase())
+: "all";
+}
+
+function renderApplications() {
+const filteredApplications = getFilteredApplications();
 const pageCount = Math.max(1, Math.ceil(filteredApplications.length / APPLICATIONS_PAGE_SIZE));
 applicationsPage = Math.min(Math.max(1, applicationsPage), pageCount);
 const start = (applicationsPage - 1) * APPLICATIONS_PAGE_SIZE;
@@ -767,7 +801,14 @@ $("applications-full-list").innerHTML = visibleApplications.map(getApplicationHT
 }
 
 if ($("applications-count")) {
-$("applications-count").textContent = query || statusFilter !== "all"
+const hasFilters = Boolean(
+$("application-reference-search")?.value.trim() ||
+$("application-status-filter")?.value !== "all" ||
+$("application-service-filter")?.value !== "all" ||
+$("application-date-from")?.value ||
+$("application-date-to")?.value
+);
+$("applications-count").textContent = hasFilters
 ? `Showing ${filteredApplications.length} of ${applicationsCache.length} Applications`
 : `${applicationsCache.length} Applications`;
 }
@@ -785,36 +826,46 @@ if ($("applications-next-page")) $("applications-next-page").disabled = applicat
 }
 }
 
-function searchApplicationByReference() {
-const input = $("application-reference-search");
-const query = String(input?.value || "").trim().toLowerCase().replace(/^eis-/, "");
+function applyApplicationFilters() {
 applicationsPage = 1;
-if (!query) {
-showNotice("Enter an application reference number to search.", "error");
-input?.focus();
+if ($("application-date-from")?.value && $("application-date-to")?.value &&
+$("application-date-from").value > $("application-date-to").value) {
+showNotice("The start date must be before the end date.", "error");
 return;
 }
-
 renderApplications();
-const matches = applicationsCache.filter(app =>
-getApplicationReference(app).replace(/^eis-/, "").includes(query)
-);
-if (!matches.length) {
-showNotice("No application found with that reference number.", "error");
-return;
+const count = getFilteredApplications().length;
+showNotice(count ? `${count} matching applications found.` : "No applications match these filters.", count ? "success" : "error");
 }
 
-const exactMatch = matches.find(app => getApplicationReference(app).replace(/^eis-/, "") === query);
-const target = exactMatch || matches[0];
-const card = document.querySelector(`[data-application-card="${CSS.escape(String(target.id))}"]`);
-const summaryButton = card?.querySelector("[data-toggle-application]");
-if (summaryButton?.getAttribute("aria-expanded") !== "true") summaryButton?.click();
-card?.scrollIntoView({ behavior: "smooth", block: "start" });
-if (matches.length > 1 && !exactMatch) {
-showNotice(`${matches.length} matching applications found. Showing the first match.`);
-} else {
-showNotice("Application found.");
+function exportApplicationsCSV() {
+const rows = getFilteredApplications();
+if (!rows.length) {
+showNotice("There are no matching applications to export.", "error");
+return;
 }
+const headers = ["Application reference", "Service", "Customer name", "Customer email", "Amount (NGN)", "Status", "Submitted", "Payment reference"];
+const quote = value => `"${String(value ?? "").replace(/"/g, '""')}"`;
+const csv = [headers, ...rows.map(app => [
+formatApplicationReference(app.reference_id ?? app.application_id ?? app.id ?? ""),
+app.service_name || "",
+app.customer?.full_name || "",
+app.customer?.email || "",
+Number(app.amount || 0).toFixed(2),
+app.status || "In review",
+app.created_at || "",
+app.payment_reference || ""
+])].map(row => row.map(quote).join(",")).join("\r\n");
+const blob = new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+const url = URL.createObjectURL(blob);
+const link = document.createElement("a");
+link.href = url;
+link.download = `eis-applications-${new Date().toISOString().slice(0, 10)}.csv`;
+document.body.appendChild(link);
+link.click();
+link.remove();
+URL.revokeObjectURL(url);
+showNotice(`Exported ${rows.length} application records.`);
 }
 
 async function updateApplicationStatus(appId, newStatus, button = null) {
@@ -2337,17 +2388,22 @@ $("payment-status-filter")?.addEventListener("change", () => { paymentsPage = 1;
 $("payments-prev-page")?.addEventListener("click", () => { paymentsPage = Math.max(1, paymentsPage - 1); loadPayments(); });
 $("payments-next-page")?.addEventListener("click", () => { paymentsPage += 1; loadPayments(); });
 
-$("application-reference-search")?.addEventListener("input", () => { applicationsPage = 1; renderApplications(); });
-$("application-status-filter")?.addEventListener("change", () => { applicationsPage = 1; renderApplications(); });
+["application-reference-search", "application-status-filter", "application-service-filter", "application-date-from", "application-date-to"].forEach(id => {
+$(id)?.addEventListener(id === "application-reference-search" ? "input" : "change", () => {
+applicationsPage = 1;
+renderApplications();
+});
+});
 $("applications-prev-page")?.addEventListener("click", () => { applicationsPage = Math.max(1, applicationsPage - 1); renderApplications(); });
 $("applications-next-page")?.addEventListener("click", () => { applicationsPage += 1; renderApplications(); });
 $("application-reference-search")?.addEventListener("keydown", event => {
 if (event.key === "Enter") {
 event.preventDefault();
-searchApplicationByReference();
+applyApplicationFilters();
 }
 });
-$("search-application-reference")?.addEventListener("click", searchApplicationByReference);
+$("search-application-reference")?.addEventListener("click", applyApplicationFilters);
+$("export-applications-csv")?.addEventListener("click", exportApplicationsCSV);
 
 $("refresh-services")?.addEventListener(
 "click",
