@@ -553,6 +553,7 @@ async function saveProfileField(field, button) {
 
 function getPasswordStrength(password) {
     return {
+        length: password.length >= 8,
         upper: /[A-Z]/.test(password),
         lower: /[a-z]/.test(password),
         number: /\d/.test(password),
@@ -571,10 +572,10 @@ function updatePasswordStrength() {
     });
     const fill = $("profile-password-strength-fill");
     const label = $("profile-password-strength-label");
-    const strength = passed === 4 ? "Strong" : passed >= 2 ? "Getting stronger" : password ? "Weak" : "Password strength";
+    const strength = passed === 5 ? "Strong" : passed >= 3 ? "Getting stronger" : password ? "Weak" : "Password strength";
     if (fill) {
-        fill.style.width = (passed * 25) + "%";
-        fill.dataset.strength = passed === 4 ? "strong" : passed >= 2 ? "medium" : "weak";
+        fill.style.width = (passed * 20) + "%";
+        fill.dataset.strength = passed === 5 ? "strong" : passed >= 3 ? "medium" : "weak";
     }
     if (label) label.textContent = strength;
     updatePasswordMatch();
