@@ -1273,7 +1273,7 @@ function openApplicationTracking(application) {
     statusBox.append(label, badge);
 
     const fields = [
-        ["Reference number", reference],
+        ["Reference", reference],
         ["Service", application.service_name || "Service"],
         ["Date submitted", formatDateTime(application.created_at)]
     ];
@@ -1290,17 +1290,17 @@ function openApplicationTracking(application) {
     });
 
     const messages = {
-        pending: "Your application has been received and is waiting to be reviewed.",
-        submitted: "Your application has been received and is waiting to be reviewed.",
-        in_progress: "Your application is being processed by our team.",
-        processing: "Your application is being processed by our team.",
-        completed: "Your application has been marked as completed.",
+        pending: "We have received your application. It is waiting to be reviewed.",
+        submitted: "We have received your application. It is waiting to be reviewed.",
+        in_progress: "Our team is currently working on your application.",
+        processing: "Our team is currently working on your application.",
+        completed: "Your application has been completed.",
         approved: "Your application has been approved.",
-        rejected: "Your application was not approved. Please contact support for assistance."
+        rejected: "Your application was not approved. Please contact our support team for assistance."
     };
 
     note.textContent = messages[normalized] ||
-        "This is the latest status available for your application. Contact support if you need more information.";
+        "This is the latest status recorded for your application. Please contact support if you need an update.";
 
     if (typeof dialog.showModal === "function") dialog.showModal();
     else dialog.setAttribute("open", "");
