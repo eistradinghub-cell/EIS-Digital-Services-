@@ -13,7 +13,7 @@
 .admin-page {
     --admin-navy: #101c36;
     --admin-navy-light: #192947;
-    --admin-blue: #2864e8;
+    --admin-blue: #2450D8;
     --admin-blue-hover: #1d50c5;
 
     --admin-bg: #f3f6fb;
@@ -1106,7 +1106,7 @@
 .admin-page .admin-status.in-review,
 .admin-page .admin-status.processing {
     background: #edf3ff;
-    color: #2864e8;
+    color: #2450D8;
 }
 
 .admin-page .admin-status.completed,
@@ -2232,7 +2232,7 @@
 }
 
 .admin-page .admin-application-card:nth-child(3n + 3) {
-    border-left-color: #2864e8;
+    border-left-color: #2450D8;
 }
 
 .admin-page .admin-application-card-head {
@@ -2691,7 +2691,7 @@
   cursor: pointer;
 }
 .admin-page .admin-panel-toggle:focus-visible {
-  outline: 2px solid #168477;
+  outline: 2px solid #12B894;
   outline-offset: 2px;
 }
 .admin-page .admin-panel-toggle-mark {
@@ -2972,7 +2972,7 @@
 }
 .admin-page .admin-status.used {
     background: #edf3ff;
-    color: #2864e8;
+    color: #2450D8;
 }
 .admin-page .admin-status.failed {
     background: #fff0f0;
