@@ -180,6 +180,23 @@ setupNavigation();
 setupSidebar();
 setupEventListeners();
 await loadAllDashboardData();
+
+// Restore the last admin section after refresh instead of forcing Overview.
+const savedSection = sessionStorage.getItem("eis_admin_current_section");
+const allowedSections = new Set([
+"overview",
+"marketplace",
+"applications",
+"customer-care",
+"prices",
+"broadcast",
+...(isSuperAdmin ? ["site-settings"] : [])
+]);
+const sectionToRestore = allowedSections.has(savedSection)
+? savedSection
+: "overview";
+openSection(sectionToRestore);
+
 setupRealtime();
 
 console.log("EIS Admin Dashboard initialized.");
@@ -1349,6 +1366,12 @@ section.classList.remove("active");
 
 const target = $("section-" + sectionName);
 if (!target) return;
+
+try {
+sessionStorage.setItem("eis_admin_current_section", sectionName);
+} catch (error) {
+console.warn("Could not save current admin section:", error);
+}
 
 target.classList.add("active");
 
