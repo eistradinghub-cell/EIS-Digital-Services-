@@ -2224,7 +2224,7 @@
 
 .admin-page .admin-application-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     padding: 9px 0;
     border-bottom: 1px solid #edf0f4;
