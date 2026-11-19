@@ -125,11 +125,89 @@ return formData[key] ?? "";
 }
 
 function setupAdminPanelDisclosures() {
-  // Keep every admin panel fully visible; no disclosure controls are added.
-  document.querySelectorAll(".admin-content .admin-panel").forEach(panel => {
-    panel.classList.remove("is-expanded");
-    panel.dataset.disclosureReady = "true";
-  });
+  const attachPanels = (root = document) => {
+    const candidates = [];
+    if (root instanceof Element && root.matches(".admin-section .admin-panel")) {
+      candidates.push(root);
+    }
+    if (root.querySelectorAll) {
+      candidates.push(...root.querySelectorAll(
+        ".admin-section .admin-panel:not(.admin-chat-list-panel):not(.admin-chat-window)"
+      ));
+    }
+
+    candidates.forEach((panel, index) => {
+      if (panel.dataset.disclosureReady === "true") return;
+
+      const heading = panel.querySelector(":scope > .admin-panel-header");
+      if (!heading) return;
+
+      const movableNodes = [...heading.childNodes].filter(node => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return true;
+        return !node.matches("button, a, input, select, textarea, label");
+      });
+      if (!movableNodes.length) return;
+
+      const sectionKey = panel.closest(".admin-section")?.id || "admin";
+      const title = heading.querySelector("h3")?.textContent.trim() || "panel";
+      const panelKey = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const storageKey = `eis-admin-panel:${sectionKey}:${panelKey}`;
+      const body = document.createElement("div");
+      body.className = "admin-panel-content";
+      body.id = `admin-panel-content-${sectionKey}-${panelKey}-${index}`;
+
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "admin-panel-toggle";
+      toggle.setAttribute("aria-controls", body.id);
+
+      movableNodes.forEach(node => toggle.append(node));
+      const mark = document.createElement("span");
+      mark.className = "admin-panel-toggle-mark";
+      mark.setAttribute("aria-hidden", "true");
+      toggle.append(mark);
+      heading.prepend(toggle);
+
+      while (heading.nextSibling) body.append(heading.nextSibling);
+      panel.append(body);
+
+      let expanded = false;
+      try {
+        expanded = localStorage.getItem(storageKey) === "open";
+      } catch (_) {}
+
+      const setExpanded = (value, persist = true) => {
+        expanded = value;
+        panel.classList.toggle("is-expanded", expanded);
+        toggle.setAttribute("aria-expanded", String(expanded));
+        body.hidden = !expanded;
+        if (persist) {
+          try {
+            localStorage.setItem(storageKey, expanded ? "open" : "closed");
+          } catch (_) {}
+        }
+      };
+
+      toggle.addEventListener("click", () => setExpanded(!expanded));
+      setExpanded(expanded, false);
+      panel.dataset.disclosureReady = "true";
+    });
+  };
+
+  attachPanels();
+  if (!window.eisAdminPanelObserver) {
+    window.eisAdminPanelObserver = new MutationObserver(records => {
+      records.forEach(record => {
+        record.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE) attachPanels(node);
+        });
+      });
+    });
+    window.eisAdminPanelObserver.observe(
+      document.querySelector(".admin-content") || document.body,
+      { childList: true, subtree: true }
+    );
+  }
 }
 
 async function initializeAdmin() {
