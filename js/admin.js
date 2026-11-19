@@ -919,6 +919,10 @@ return `
 <button type="button" class="admin-secondary-button" data-copy-customer-email="${escapeHTML(customer.email || "")}">Copy email</button>
 ${customer.phone ? `<button type="button" class="admin-secondary-button" data-copy-customer-phone="${escapeHTML(customer.phone)}">Copy phone</button>` : ""}
 </div>
+<div class="admin-customer-activity">
+<button type="button" class="admin-secondary-button admin-customer-activity-toggle" data-view-customer-activity="${escapeHTML(customer.id)}" aria-expanded="false" aria-controls="customer-activity-${escapeHTML(customer.id)}">View account activity</button>
+<div class="admin-customer-activity-content" id="customer-activity-${escapeHTML(customer.id)}" hidden><div class="admin-loading">Account activity has not been loaded.</div></div>
+</div>
 </div>
 </article>`;
 }).join("");
@@ -944,6 +948,35 @@ console.error("Customers load error:", error);
 showError("admin-customers-list", "Customer accounts could not be loaded. Please refresh and try again.");
 if ($("customers-pagination")) $("customers-pagination").hidden = true;
 }
+}
+
+async function loadCustomerActivity(customerId, panel, button) {
+if (!customerId || !panel || !button) return;
+button.disabled = true;
+button.textContent = "Loading activity...";
+panel.hidden = false;
+panel.innerHTML = '<div class="admin-loading">Loading recent applications and payments...</div>';
+try {
+const [applicationResult, paymentResult] = await Promise.all([
+supabase.from("applications").select("id,service_name,amount,status,created_at,payment_reference").eq("user_id", customerId).order("created_at", { ascending: false }).limit(10),
+supabase.from("payments").select("id,reference,service_name,amount,status,created_at").eq("user_id", customerId).order("created_at", { ascending: false }).limit(10)
+]);
+if (applicationResult.error) throw applicationResult.error;
+if (paymentResult.error) throw paymentResult.error;
+const applications = applicationResult.data || [];
+const payments = paymentResult.data || [];
+const applicationMarkup = applications.length ? applications.map(item => `<li class="admin-customer-activity-item"><div><strong>${escapeHTML(item.service_name || "Service unavailable")}</strong><span>${escapeHTML(formatDate(item.created_at))}</span></div><div><span class="admin-customer-activity-status">${escapeHTML(item.status || "Status unavailable")}</span><strong>${escapeHTML(formatCurrency(item.amount))}</strong></div>${item.payment_reference ? `<small>Payment reference: ${escapeHTML(item.payment_reference)}</small>` : ""}</li>`).join("") : '<li class="admin-customer-activity-empty">No applications recorded.</li>';
+const paymentMarkup = payments.length ? payments.map(item => `<li class="admin-customer-activity-item"><div><strong>${escapeHTML(item.service_name || "Service unavailable")}</strong><span>${escapeHTML(formatDate(item.created_at))}</span></div><div><span class="admin-customer-activity-status">${escapeHTML(getPaymentStatusLabel(item.status))}</span><strong>${escapeHTML(formatCurrency(item.amount))}</strong></div>${item.reference ? `<small>Reference: ${escapeHTML(item.reference)}</small>` : ""}</li>`).join("") : '<li class="admin-customer-activity-empty">No payments recorded.</li>';
+panel.innerHTML = `<div class="admin-customer-activity-section"><h4>Recent applications <span>${applications.length}</span></h4><ul>${applicationMarkup}</ul></div><div class="admin-customer-activity-section"><h4>Recent payments <span>${payments.length}</span></h4><ul>${paymentMarkup}</ul></div><p class="admin-customer-activity-note">Showing up to 10 recent records in each category. Submitted form details are not displayed here.</p>`;
+button.dataset.loaded = "true";
+button.textContent = "Hide account activity";
+button.setAttribute("aria-expanded", "true");
+} catch (error) {
+console.error("Customer activity load error:", error);
+panel.innerHTML = '<div class="admin-error">Account activity could not be loaded. Please try again.</div>';
+button.textContent = "Retry account activity";
+button.setAttribute("aria-expanded", "true");
+} finally { button.disabled = false; }
 }
 
 async function refreshCustomers() {
@@ -2095,6 +2128,20 @@ const expanded = customerToggle.getAttribute("aria-expanded") === "true";
 customerToggle.setAttribute("aria-expanded", String(!expanded));
 const details = document.getElementById(customerToggle.getAttribute("aria-controls"));
 if (details) details.hidden = expanded;
+return;
+}
+const customerActivityButton = event.target.closest("[data-view-customer-activity]");
+if (customerActivityButton) {
+event.preventDefault();
+const panel = document.getElementById(customerActivityButton.getAttribute("aria-controls"));
+if (customerActivityButton.dataset.loaded === "true") {
+const expanded = customerActivityButton.getAttribute("aria-expanded") === "true";
+if (panel) panel.hidden = expanded;
+customerActivityButton.setAttribute("aria-expanded", String(!expanded));
+customerActivityButton.textContent = expanded ? "View account activity" : "Hide account activity";
+} else if (!customerActivityButton.disabled) {
+loadCustomerActivity(customerActivityButton.dataset.viewCustomerActivity, panel, customerActivityButton);
+}
 return;
 }
 const customerCopyEmail = event.target.closest("[data-copy-customer-email]");
