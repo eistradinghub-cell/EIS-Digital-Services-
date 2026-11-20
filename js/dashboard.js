@@ -1324,8 +1324,8 @@ async function loadPaymentHistory() {
     const container = $("payments-list");
     if (!currentUser || !container) return;
 
-    container.replaceChildren();
-
+    // Keep the current rows visible while refreshing so the page does not collapse
+    // and pull the customer away from their current scroll position.
     try {
         const { data, error } = await supabase
             .from("payments")
@@ -1509,6 +1509,7 @@ async function loadApplications() {
         if (error) throw error;
 
         updateApplicationOverview(data || []);
+        container.replaceChildren();
 
         if (!data?.length) {
             const row = document.createElement("tr");
@@ -1583,6 +1584,7 @@ async function loadApplications() {
 
     } catch (error) {
         console.error("Applications loading error:", error);
+        container.replaceChildren();
 
         const row = document.createElement("tr");
         const cell = document.createElement("td");
