@@ -2416,6 +2416,90 @@
     color: var(--admin-blue);
 }
 
+.admin-page .admin-application-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.admin-page .admin-send-application {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 46px;
+    padding: 6px 13px 6px 8px;
+    border: 1px solid #174b91;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #123b75 0%, #1766bd 58%, #2385d1 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(20, 82, 153, .20), inset 0 1px 0 rgba(255,255,255,.16);
+    cursor: pointer;
+    text-align: left;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.admin-page .admin-send-application:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+    box-shadow: 0 7px 17px rgba(20, 82, 153, .28);
+}
+
+.admin-page .admin-send-bot {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 8px;
+    background: rgba(255,255,255,.15);
+}
+
+.admin-page .admin-send-bot svg {
+    display: block;
+    width: 25px;
+    height: 25px;
+}
+
+.admin-page .admin-send-copy {
+    display: grid;
+    gap: 2px;
+    line-height: 1.1;
+}
+
+.admin-page .admin-send-copy strong {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+.admin-page .admin-send-copy small {
+    color: rgba(255,255,255,.78);
+    font-size: 9px;
+    font-weight: 600;
+}
+
+.admin-page .admin-send-arrow {
+    margin-left: 3px;
+    color: rgba(255,255,255,.9);
+    font-size: 17px;
+    line-height: 1;
+}
+
+@media (max-width: 700px) {
+    .admin-page .admin-application-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .admin-page .admin-send-application {
+        min-height: 44px;
+    }
+}
+
+
 .admin-page .admin-application-card button:disabled {
     opacity: .6;
     cursor: wait;
