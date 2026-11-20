@@ -622,7 +622,10 @@ ${options.map(([value, label]) => `
 </select>
 <button type="button" class="admin-primary-button admin-save-status" data-save-app-status="${escapeHTML(app.id)}">Save Status</button>
 </div>
+<div class="admin-application-actions">
 <button type="button" class="admin-copy-all-button" data-copy-application="${escapeHTML(app.id)}">Copy All Information</button>
+<button type="button" class="admin-primary-button admin-send-application" data-send-application="${escapeHTML(app.id)}">Send</button>
+</div>
 </footer>
 </div>
 </article>`;
@@ -2829,6 +2832,12 @@ copyTextToClipboard(
 getApplicationCopyText(copyAllButton.dataset.copyApplication),
 copyAllButton
 );
+return;
+}
+const sendApplicationButton = event.target.closest("[data-send-application]");
+if (sendApplicationButton) {
+event.preventDefault();
+showNotice("The Send button is in place. Google Forms transfer still needs its secure sending endpoint configured in Site Settings.", "error");
 return;
 }
 const saveStatusButton = event.target.closest("[data-save-app-status]");
