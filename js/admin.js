@@ -464,7 +464,39 @@ return `
 }).join("");
 }
 
+function captureApplicationListPosition() {
+const cards = [...document.querySelectorAll("[data-application-card]")];
+const anchor = cards.find(card => {
+const rect = card.getBoundingClientRect();
+return rect.bottom > 0 && rect.top < window.innerHeight;
+});
+return {
+scrollX: window.scrollX,
+scrollY: window.scrollY,
+cardId: anchor?.getAttribute("data-application-card") || null,
+cardTop: anchor ? anchor.getBoundingClientRect().top : null
+};
+}
+
+function restoreApplicationListPosition(position) {
+if (!position) return;
+const restore = () => {
+if (position.cardId) {
+const card = [...document.querySelectorAll("[data-application-card]")]
+.find(item => item.getAttribute("data-application-card") === position.cardId);
+if (card) {
+const difference = card.getBoundingClientRect().top - position.cardTop;
+window.scrollTo(position.scrollX, window.scrollY + difference);
+return;
+}
+}
+window.scrollTo(position.scrollX, position.scrollY);
+};
+requestAnimationFrame(() => requestAnimationFrame(restore));
+}
+
 async function loadApplications() {
+const listPosition = captureApplicationListPosition();
 setLoading("applications-full-list", "Loading applications...");
 
 const { data, error } = await supabase
@@ -486,6 +518,7 @@ return dateB - dateA;
 await loadApplicationCustomers();
 updateApplicationServiceOptions();
 renderApplications();
+restoreApplicationListPosition(listPosition);
 if ($("section-applications")?.classList.contains("active")) markApplicationsAsSeen();
 renderStatistics();
 }
