@@ -624,7 +624,20 @@ ${options.map(([value, label]) => `
 </div>
 <div class="admin-application-actions">
 <button type="button" class="admin-copy-all-button" data-copy-application="${escapeHTML(app.id)}">Copy All Information</button>
-<button type="button" class="admin-primary-button admin-send-application" data-send-application="${escapeHTML(app.id)}">Send</button>
+<button type="button" class="admin-send-application" data-send-application="${escapeHTML(app.id)}" aria-label="Send application to Google Forms">
+<span class="admin-send-bot" aria-hidden="true">
+<svg viewBox="0 0 32 32" role="img" focusable="false">
+<path d="M16 3v4M13.5 3h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+<rect x="5" y="8" width="22" height="18" rx="6" fill="currentColor" opacity=".16"/>
+<rect x="7" y="10" width="18" height="14" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+<circle cx="12.5" cy="16" r="1.7" fill="currentColor"/>
+<circle cx="19.5" cy="16" r="1.7" fill="currentColor"/>
+<path d="M12 20h8M3 14v6M29 14v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>
+</span>
+<span class="admin-send-copy"><strong>Send</strong><small>to Google Forms</small></span>
+<span class="admin-send-arrow" aria-hidden="true">↗</span>
+</button>
 </div>
 </footer>
 </div>
