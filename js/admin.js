@@ -84,10 +84,8 @@ clearTimeout(noticeTimer);
 notice.textContent = message;
 notice.className = "admin-notice " + type;
 notice.hidden = false;
-notice.scrollIntoView({
-behavior: "smooth",
-block: "nearest"
-});
+// Keep the administrator at the current application card.
+ // Do not scroll the page to the notice; that can jump the list back to the first application.
 noticeTimer = setTimeout(() => {
 notice.hidden = true;
 }, 6000);
