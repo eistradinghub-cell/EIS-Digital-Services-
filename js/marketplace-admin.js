@@ -713,7 +713,8 @@ let siteSettingsProfile = null;
 let siteSettingsValues = {
     site_logo: null,
     home_images: {},
-    admin_profile: {}
+    admin_profile: {},
+    application_google_form_url: ""
 };
 
 const siteSettingsPreviewURLs = [];
@@ -786,7 +787,8 @@ async function loadSiteSettingsValues() {
         .in("setting_key", [
             "site_logo",
             "home_images",
-            "admin_profile"
+            "admin_profile",
+            "application_google_form_url"
         ]);
 
     if (error) throw error;
@@ -794,7 +796,8 @@ async function loadSiteSettingsValues() {
     siteSettingsValues = {
         site_logo: null,
         home_images: {},
-        admin_profile: {}
+        admin_profile: {},
+        application_google_form_url: ""
     };
 
     (data || []).forEach((row) => {
@@ -805,6 +808,10 @@ async function loadSiteSettingsValues() {
     const logo = siteSettingsValues.site_logo;
     const images = siteSettingsValues.home_images || {};
     const profile = siteSettingsValues.admin_profile || {};
+    const googleFormUrl = String(siteSettingsValues.application_google_form_url || "").trim();
+
+    if ($("site-google-form-url")) $("site-google-form-url").value = googleFormUrl;
+    if ($("site-google-form-status")) $("site-google-form-status").textContent = googleFormUrl ? "Google Form link is connected." : "No Google Form connected.";
 
     setSiteSettingsPreview(
         "site-logo-preview",
@@ -1160,7 +1167,73 @@ function updateCurrentAdminInformation() {
     }
 }
 
+
+function isValidGoogleFormUrl(value) {
+    try {
+        const url = new URL(value);
+        return url.protocol === "https:" &&
+            (url.hostname === "docs.google.com" || url.hostname === "forms.gle") &&
+            (url.hostname === "forms.gle" || url.pathname.includes("/forms/"));
+    } catch {
+        return false;
+    }
+}
+
+async function saveGoogleFormSettings(event) {
+    event.preventDefault();
+    const input = $("site-google-form-url");
+    const button = $("site-google-form-save");
+    const value = String(input?.value || "").trim();
+
+    if (!isValidGoogleFormUrl(value)) {
+        siteSettingsFeedback("Enter a valid Google Forms link.", "error");
+        input?.focus();
+        return;
+    }
+
+    setSettingsButton(button, true, "Save");
+    try {
+        await saveSiteSetting("application_google_form_url", value);
+        siteSettingsValues.application_google_form_url = value;
+        if ($("site-google-form-status")) {
+            $("site-google-form-status").textContent = "Google Form link is connected.";
+        }
+        siteSettingsFeedback("Google Form link saved successfully.");
+    } catch (error) {
+        console.error("Google Form settings save error:", error);
+        siteSettingsFeedback(error.message || "Unable to save Google Form link.", "error");
+    } finally {
+        setSettingsButton(button, false, "Save");
+    }
+}
+
+async function clearGoogleFormSettings() {
+    const button = $("site-google-form-clear");
+    if (!siteSettingsUser?.id) {
+        siteSettingsFeedback("Your administrator session is not available.", "error");
+        return;
+    }
+
+    if (!window.confirm("Remove the connected Google Form link?")) return;
+
+    button.disabled = true;
+    try {
+        await saveSiteSetting("application_google_form_url", "");
+        siteSettingsValues.application_google_form_url = "";
+        if ($("site-google-form-url")) $("site-google-form-url").value = "";
+        if ($("site-google-form-status")) $("site-google-form-status").textContent = "No Google Form connected.";
+        siteSettingsFeedback("Google Form link removed.");
+    } catch (error) {
+        console.error("Google Form settings removal error:", error);
+        siteSettingsFeedback(error.message || "Unable to remove Google Form link.", "error");
+    } finally {
+        button.disabled = false;
+    }
+}
+
 function setupSiteSettingsEvents() {
+    $("site-google-form-settings")?.addEventListener("submit", saveGoogleFormSettings);
+    $("site-google-form-clear")?.addEventListener("click", clearGoogleFormSettings);
     $("site-logo-form")?.addEventListener("submit", saveSiteLogo);
 
     $("site-home-images-form")?.addEventListener(
