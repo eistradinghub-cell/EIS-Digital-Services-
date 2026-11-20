@@ -1428,6 +1428,26 @@
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div class="site-settings-panel-heading">
+                <span class="site-settings-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"/></svg></span>
+                <h3>Google Form</h3>
+            </div>
+        </div>
+        <form id="site-google-form-settings" class="admin-form">
+            <div class="admin-form-group">
+                <label for="site-google-form-url">Application Google Form link</label>
+                <input type="url" id="site-google-form-url" inputmode="url" autocomplete="url" placeholder="https://forms.google.com/..." maxlength="1000">
+                <small id="site-google-form-status">No Google Form connected.</small>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button type="submit" class="admin-primary-button" id="site-google-form-save">Save</button>
+                <button type="button" class="admin-secondary-button" id="site-google-form-clear">Remove link</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <div class="site-settings-panel-heading">
                 <span class="site-settings-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.4-3.1 2.4-5 5.5-5s5.1 1.9 5.5 5M17 8h4M19 6v4"/></svg></span>
                 <h3>Staff access</h3>
                 
