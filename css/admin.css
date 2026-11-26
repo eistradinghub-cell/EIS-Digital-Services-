@@ -4081,3 +4081,62 @@
         border-radius: 0;
     }
 }
+
+
+/* Applications: reduce vertical spacing inside each submitted application */
+.admin-page #section-applications .admin-application-card-head {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    gap: 6px !important;
+}
+.admin-page #section-applications .admin-application-title {
+    gap: 2px !important;
+}
+.admin-page #section-applications .admin-application-title .admin-account-name {
+    line-height: 1.2 !important;
+}
+.admin-page #section-applications .admin-application-reference {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+.admin-page #section-applications .admin-application-fields {
+    padding-top: 2px !important;
+    padding-bottom: 3px !important;
+}
+.admin-page #section-applications .admin-application-row {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    gap: 4px !important;
+}
+.admin-page #section-applications .admin-application-label,
+.admin-page #section-applications .admin-application-value {
+    line-height: 1.25 !important;
+}
+.admin-page #section-applications .admin-application-card-foot {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    gap: 5px !important;
+}
+.admin-page #section-applications .admin-application-card-foot button,
+.admin-page #section-applications .admin-application-card-foot select {
+    min-height: 28px !important;
+}
+@media (max-width: 760px) {
+    .admin-page #section-applications .admin-application-card-head {
+        padding-top: 3px !important;
+        padding-bottom: 3px !important;
+    }
+    .admin-page #section-applications .admin-application-fields {
+        padding-top: 1px !important;
+        padding-bottom: 2px !important;
+    }
+    .admin-page #section-applications .admin-application-row {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        gap: 3px !important;
+    }
+    .admin-page #section-applications .admin-application-card-foot {
+        padding-top: 3px !important;
+        padding-bottom: 3px !important;
+    }
+}
