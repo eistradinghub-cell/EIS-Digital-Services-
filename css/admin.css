@@ -3956,3 +3956,14 @@
         padding-left: 12px;
     }
 }
+
+
+/* Applications grouped by service */
+.admin-page .admin-application-group{margin:0;border-bottom:1px solid #e9edf3}
+.admin-page .admin-application-group:last-child{border-bottom:0}
+.admin-page .admin-application-group-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px;background:#f7f9fb;border-top:1px solid #e9edf3}
+.admin-page .admin-application-group-heading h3{margin:0;color:#203344;font-size:14px;font-weight:750}
+.admin-page .admin-application-group-heading span{display:block;margin-top:4px;color:#718096;font-size:11px}
+.admin-page .admin-application-group-heading>strong{flex:0 0 auto;padding:5px 10px;border:1px solid #dce5e9;border-radius:20px;background:#fff;color:#365365;font-size:11px;font-weight:700}
+.admin-page .admin-application-group-list{display:flex;flex-direction:column;gap:10px;padding:12px;background:#fff}
+@media(max-width:600px){.admin-page .admin-application-group-heading{align-items:flex-start;padding:14px}.admin-page .admin-application-group-list{padding:9px}}
