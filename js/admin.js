@@ -190,7 +190,7 @@ function setupAdminPanelDisclosures() {
 
       let expanded = false;
       try {
-        expanded = localStorage.getItem(storageKey) === "open";
+        expanded = localStorage.getItem(storageKey) !== "closed";
       } catch (_) {}
 
       const setExpanded = (value, persist = true) => {
