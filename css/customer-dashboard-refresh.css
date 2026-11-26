@@ -332,22 +332,22 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 .dashboard-page .profile-session-danger:disabled{opacity:.6;cursor:wait}
 @media(max-width:520px){.dashboard-page .profile-session-action{align-items:flex-start;flex-direction:column;gap:12px}.dashboard-page .profile-session-danger{width:100%}}
 
-/* Compact payment history card on Android-sized screens */
+/* Compact Payment History vertically on Android-sized screens */
 @media(max-width:520px){
   .dashboard-page .payment-history-section{
-    width:50%!important;
-    max-width:50%!important;
-    margin-right:auto!important;
+    width:100%!important;
+    max-width:100%!important;
     margin-left:0!important;
+    margin-right:0!important;
   }
   .dashboard-page .payment-history-toggle{
-    align-items:flex-start!important;
-    flex-direction:column!important;
+    align-items:center!important;
+    flex-direction:row!important;
     gap:8px!important;
-    padding:13px 14px!important;
+    padding:10px 14px!important;
   }
-  .dashboard-page .payment-history-toggle strong{font-size:14px!important}
-  .dashboard-page .payment-history-toggle small{font-size:11px!important;line-height:1.4}
-  .dashboard-page .payment-history-action{font-size:12px!important}
-  .dashboard-page .payment-history-content{padding:0 10px 12px!important}
+  .dashboard-page .payment-history-toggle strong{font-size:13px!important}
+  .dashboard-page .payment-history-toggle small{display:none!important}
+  .dashboard-page .payment-history-action{font-size:11px!important}
+  .dashboard-page .payment-history-content{padding:0 10px 10px!important}
 }
