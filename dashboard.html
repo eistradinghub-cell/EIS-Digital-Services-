@@ -1169,6 +1169,50 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 }
 </style>
 
+<style id="eis-service-cards-layout-fix">
+/* Service cards: restore a clean responsive layout without fixed card heights. */
+.dashboard-page .svcs{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  gap:16px!important;
+}
+.dashboard-page .service-card{
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:18px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  border:1px solid var(--eis-line,#e1e8eb)!important;
+  border-top:3px solid var(--eis-teal,#168477)!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  box-shadow:0 2px 8px rgba(20,45,78,.035)!important;
+}
+.dashboard-page .service-card h3{font-size:15px!important;line-height:1.45!important}
+.dashboard-page .service-card .service-description{font-size:12px!important;line-height:1.6!important}
+.dashboard-page .service-card button{
+  width:100%!important;
+  min-height:42px!important;
+  margin-top:auto!important;
+  padding:10px 12px!important;
+}
+@media(max-width:900px){
+  .dashboard-page .svcs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+  .dashboard-page .svcs{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+  }
+  .dashboard-page .service-card{padding:16px!important}
+  .dashboard-page .service-card h3{font-size:15px!important}
+  .dashboard-page .service-card p{font-size:17px!important}
+  .dashboard-page .service-card .service-description{font-size:12px!important}
+  .dashboard-page .service-card button{min-height:44px!important;font-size:13px!important}
+}
+</style>
 </head>
 
 <body class="dashboard-page">
