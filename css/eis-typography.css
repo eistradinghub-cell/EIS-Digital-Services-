@@ -1,0 +1,21 @@
+/* EIS Digital Services — shared typography */
+/* Inter is the single UI typeface across public, customer and admin pages. */
+:root {
+    --eis-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html,
+html body,
+html body :not(svg):not(svg *):not(i):not([class*="icon"]):not([class*="fa-"]):not([class*="material-icons"]) {
+    font-family: var(--eis-font-family) !important;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: var(--eis-font-family) !important;
+}
