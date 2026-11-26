@@ -200,22 +200,17 @@ function applyDashboardWelcomeStyle() {
 
     style.textContent = `
         .dashboard-page .dashboard-intro {
-            background: linear-gradient(
-                118deg,
-                #e8f1ff 0%,
-                #f1f6ff 48%,
-                #dceaff 100%
-            ) !important;
-            border: 1px solid #c9dcfa !important;
-            box-shadow: 0 8px 24px rgba(34,83,145,.10) !important;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
         }
 
         .dashboard-page .dashboard-intro h1 {
-            color: #174b91 !important;
+            color: #26343f !important;
         }
 
         .dashboard-page .dashboard-intro p {
-            color: #647c9b !important;
+            color: #66737d !important;
         }
 
         #pay-section .eis-payment-box {
@@ -475,7 +470,7 @@ function escapeHTML(value) {
 }
 
 function getServiceDescription() {
-    return "Select this service to review the fee and start your application.";
+    return "View the fee and apply for this service.";
 }
 
 
