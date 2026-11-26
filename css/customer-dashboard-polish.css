@@ -83,3 +83,5 @@ body.dashboard-page{background:var(--dash-canvas)!important;color:var(--dash-ink
  .dashboard-page .overview-stat strong{font-size:23px!important}
 }
 @media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *::before,.dashboard-page *::after{transition:none!important;animation:none!important}}
+
+.dashboard-page .payment-history-section{padding:0!important;overflow:hidden!important}
