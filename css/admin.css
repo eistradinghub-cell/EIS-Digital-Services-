@@ -4045,3 +4045,39 @@
         padding: 7px 9px !important;
     }
 }
+
+
+/* Applications: extend the application area into the content side gutters */
+.admin-page #section-applications {
+    width: calc(100% + 68px);
+    margin-left: -34px;
+    margin-right: -34px;
+}
+.admin-page #section-applications > .admin-panel {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
+.admin-page #section-applications .admin-application-group-list {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+@media (max-width: 1100px) {
+    .admin-page #section-applications {
+        width: calc(100% + 44px);
+        margin-left: -22px;
+        margin-right: -22px;
+    }
+}
+@media (max-width: 760px) {
+    .admin-page #section-applications {
+        width: calc(100% + 28px);
+        margin-left: -14px;
+        margin-right: -14px;
+    }
+    .admin-page #section-applications > .admin-panel {
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+    }
+}
