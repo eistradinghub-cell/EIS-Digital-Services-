@@ -478,6 +478,16 @@ function getServiceDescription() {
     return "Select this service to review the fee and start your application.";
 }
 
+function updateServiceAccountFieldLabel() {
+    const label = document.querySelector('label[for="f-kegow-account"]');
+    if (!label) return;
+
+    const isParkwayService = /parkway/i.test(String(selectedService?.name || ""));
+    label.textContent = isParkwayService
+        ? "PARKWAY ACCOUNT NUMBER:"
+        : "KEGOW ACC NUMBER:";
+}
+
 
 /* =========================================
    PROFILE & ACCOUNT SETTINGS
@@ -747,6 +757,7 @@ function selectService(service) {
     }
 
     selectedService = service;
+    updateServiceAccountFieldLabel();
 
     currentPaymentReference = null;
 
@@ -792,6 +803,7 @@ function renderPaymentReview() {
             const form = $("app-form");
             if (!form) return;
             applicationModeActive = true;
+            updateServiceAccountFieldLabel();
             form.style.display = "block";
             section.style.display = "none";
             form.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1088,6 +1100,7 @@ async function restoreVerifiedPayment(reference) {
             name: result.service_name,
             price: result.amount
         };
+        updateServiceAccountFieldLabel();
 
         if (section) {
             section.innerHTML = `
@@ -1123,6 +1136,7 @@ async function restoreVerifiedPayment(reference) {
         if ($("app-form")) {
             const form = $("app-form");
             const heading = form.querySelector("h2");
+            updateServiceAccountFieldLabel();
 
             if (heading) {
                 heading.textContent = String(selectedService.name || "Service") + " application";
@@ -1927,7 +1941,7 @@ async function submitApplication(event) {
     }
 
     const accountNumberFields = [
-        ["Kegow account number", formData.kegow_acc_number],
+        [ /parkway/i.test(String(selectedService.name || "")) ? "Parkway account number" : "Kegow account number", formData.kegow_acc_number ],
         ["Account number", formData.account_no]
     ];
 
@@ -2138,6 +2152,7 @@ function restoreApplicationDraft() {
         }
 
         selectedService = service;
+        updateServiceAccountFieldLabel();
         restoreApplicationFormData(draft.form_data || {});
 
         renderPaymentReview();
