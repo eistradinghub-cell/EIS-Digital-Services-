@@ -777,39 +777,40 @@ function renderPaymentReview() {
 
     section.style.display = "block";
 
+    if (String(currentProfile?.role || "").trim().toLowerCase() === "super_admin") {
+        section.innerHTML = `
+            <h3>Application</h3>
+            <div class="eis-payment-box">
+                <div class="eis-payment-label">SERVICE</div>
+                <h4 style="margin:0 0 15px;">${escapeHTML(selectedService.name || "Service")}</h4>
+                <div class="eis-payment-note">Super Admin applications can be submitted without payment.</div>
+            </div>
+            <button id="btn-start-superadmin-application" type="button" class="btn btn-primary">Continue to application</button>
+        `;
+
+        $("btn-start-superadmin-application")?.addEventListener("click", () => {
+            const form = $("app-form");
+            if (!form) return;
+            applicationModeActive = true;
+            form.style.display = "block";
+            section.style.display = "none";
+            form.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        return;
+    }
+
     section.innerHTML = `
         <h3>Payment summary</h3>
-
         <div class="eis-payment-box">
-            <div class="eis-payment-label">
-                SERVICE
-            </div>
-
-            <h4 style="margin:0 0 15px;">
-                ${escapeHTML(selectedService.name || "Service")}
-            </h4>
-
-            <div class="eis-payment-label">
-                AMOUNT DUE
-            </div>
-
-            <div class="eis-payment-price">
-                ${formatCurrency(selectedService.price)}
-            </div>
+            <div class="eis-payment-label">SERVICE</div>
+            <h4 style="margin:0 0 15px;">${escapeHTML(selectedService.name || "Service")}</h4>
+            <div class="eis-payment-label">AMOUNT DUE</div>
+            <div class="eis-payment-price">${formatCurrency(selectedService.price)}</div>
         </div>
-
         <div class="eis-payment-note">
             You'll be taken to Paystack to complete your payment securely. Once your payment is confirmed, your application form will open here.
         </div>
-
-        <button
-            id="btn-pay"
-            type="button"
-            class="btn btn-primary"
-        >
-            Pay securely with Paystack
-        </button>
-
+        <button id="btn-pay" type="button" class="btn btn-primary">Pay securely with Paystack</button>
         <p id="pay-msg" class="msg" aria-live="polite"></p>
     `;
 
@@ -1859,7 +1860,9 @@ async function submitApplication(event) {
         return;
     }
 
-    if (!currentPaymentReference) {
+    const isSuperAdmin = String(currentProfile?.role || "").trim().toLowerCase() === "super_admin";
+
+    if (!isSuperAdmin && !currentPaymentReference) {
         showMessage(
             "We need to confirm your payment before you can submit this application.",
             "err",
@@ -1957,13 +1960,15 @@ async function submitApplication(event) {
     }
 
     try {
-        const { data, error } = await supabase.rpc(
-            "submit_application_with_payment",
-            {
+        const { data, error } = isSuperAdmin
+            ? await supabase.rpc("submit_application_without_payment", {
+                p_service_id: selectedService.id,
+                p_form_data: formData
+            })
+            : await supabase.rpc("submit_application_with_payment", {
                 p_payment_reference: currentPaymentReference,
                 p_form_data: formData
-            }
-        );
+            });
 
         if (error) {
             if (error.code === "23505") {
