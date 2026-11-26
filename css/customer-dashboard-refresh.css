@@ -78,8 +78,24 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
  .dashboard-page .service-card button{font-size:12px!important;padding:10px 6px!important}
  .dashboard-page .form-grid{grid-template-columns:1fr!important}
  .dashboard-page .form-grid .full{grid-column:auto!important}
- .dashboard-page .customer-care-banner{align-items:flex-start;flex-direction:column;padding:20px!important}
- .dashboard-page .customer-care-banner a{width:100%;text-align:center}
+ .dashboard-page .customer-care-banner{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:10px;
+    padding:15px 16px!important;
+    border-radius:10px!important;
+}
+ .dashboard-page .customer-care-banner h2{font-size:16px!important;line-height:1.35}
+ .dashboard-page .customer-care-banner p{font-size:12px!important;line-height:1.5;margin:5px 0 0}
+ .dashboard-page .customer-care-banner a{
+    align-self:flex-start;
+    width:auto;
+    min-height:36px;
+    padding:8px 13px!important;
+    font-size:12px!important;
+    line-height:1.2;
+    text-align:center;
+}
 }
 @media(max-width:390px){
  .dashboard-page .nav-links{grid-template-columns:repeat(2,minmax(0,1fr))}
