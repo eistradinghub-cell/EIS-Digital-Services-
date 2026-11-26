@@ -11,7 +11,7 @@
 
     <title>EIS Digital Services | Applications & Digital Support</title>
 
-    <link rel="stylesheet" href="./css/styles.css?v=17">
+    <link rel="stylesheet" href="./css/styles.css?v=18">
     <link rel="stylesheet" href="./css/homepage-theme.css?v=2">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1328,5 +1328,31 @@
 
 <script type="module" src="./js/auth.js?v=20"></script>
 
+<style id="eis-android-responsive">
+@media (max-width:700px){
+ html,body{width:100%;max-width:100%;overflow-x:clip}
+ body{font-size:15px}
+ img,svg,video,iframe{max-width:100%}
+ .home-section{padding:42px 14px!important}
+ .home-container{width:100%!important;max-width:100%!important}
+ .home-service-grid,.home-about-grid,.home-hero-grid,.home-feature-grid{grid-template-columns:minmax(0,1fr)!important}
+ .home-service-card{min-width:0!important;width:100%!important;padding:18px!important}
+ .home-section-heading{margin-bottom:24px!important}
+ .home-section-heading h2,.home-copy h2{font-size:clamp(23px,6vw,30px)!important}
+ .home-section-heading p,.home-copy p{font-size:14px!important;line-height:1.65}
+ .home-nav,.navbar,.site-header .nav-row{flex-wrap:wrap!important;gap:10px!important;padding:10px 14px!important}
+ .home-nav-links,.nav-links{width:100%;flex-wrap:wrap;gap:8px}
+ .home-nav-links a,.nav-links a,.nav-links button{min-height:44px}
+ .auth-card,.login-card,.signup-card,.auth-panel{width:calc(100% - 24px)!important;max-width:460px!important;margin:12px auto!important;padding:20px 16px!important}
+ input,select,textarea{max-width:100%;font-size:16px!important}
+ button,.btn{min-height:44px}
+ .home-section img{height:auto;object-fit:contain}
+}
+@media(max-width:380px){
+ .home-section{padding:34px 12px!important}
+ .home-service-card{padding:15px!important}
+ .auth-card,.login-card,.signup-card,.auth-panel{padding:17px 13px!important}
+}
+</style>
 </body>
 </html>
