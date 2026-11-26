@@ -817,6 +817,10 @@ body.lightbox-active{
  }
 }
 </style>
+
+<style id="eis-route-protection">html.eis-route-check body{visibility:hidden!important}</style>
+<script type="module" src="js/route-guard.js?v=1"></script>
+<script>document.documentElement.classList.add("eis-route-check");</script>
 </head>
 
 <body class="marketplace-page">

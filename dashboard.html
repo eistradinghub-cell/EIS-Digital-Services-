@@ -1042,6 +1042,10 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 .dashboard-page .field-hint{display:block;margin-top:6px;color:#697582;font-size:12px;line-height:1.5}
 .dashboard-page .form-grid label{line-height:1.45}
 </style>
+
+<style id="eis-route-protection">html.eis-route-check body{visibility:hidden!important}</style>
+<script type="module" src="js/route-guard.js?v=1"></script>
+<script>document.documentElement.classList.add("eis-route-check");</script>
 </head>
 
 <body class="dashboard-page">
