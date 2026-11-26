@@ -3987,3 +3987,61 @@
         padding: 9px;
     }
 }
+
+
+/* Applications cards: wider footprint and shorter vertical profile */
+.admin-page #section-applications > .admin-panel {
+    padding: 6px !important;
+}
+.admin-page #section-applications .admin-application-group-list {
+    padding: 5px !important;
+    gap: 7px !important;
+}
+.admin-page #section-applications .admin-application-card {
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: 8px;
+}
+.admin-page #section-applications .admin-application-card-head {
+    padding: 8px 14px !important;
+    gap: 8px;
+}
+.admin-page #section-applications .admin-application-fields {
+    padding: 5px 12px 6px !important;
+}
+.admin-page #section-applications .admin-application-row {
+    gap: 7px !important;
+    padding: 5px 0 !important;
+}
+.admin-page #section-applications .admin-application-card-foot {
+    padding: 7px 12px !important;
+    gap: 7px;
+}
+@media (min-width: 761px) {
+    .admin-page #section-applications .admin-application-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 22px;
+    }
+}
+@media (max-width: 760px) {
+    .admin-page #section-applications > .admin-panel {
+        padding: 4px !important;
+    }
+    .admin-page #section-applications .admin-application-group-list {
+        padding: 4px !important;
+    }
+    .admin-page #section-applications .admin-application-card-head {
+        padding: 7px 10px !important;
+    }
+    .admin-page #section-applications .admin-application-fields {
+        padding: 4px 9px 5px !important;
+    }
+    .admin-page #section-applications .admin-application-row {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 5px !important;
+        padding: 5px 0 !important;
+    }
+    .admin-page #section-applications .admin-application-card-foot {
+        padding: 7px 9px !important;
+    }
+}
