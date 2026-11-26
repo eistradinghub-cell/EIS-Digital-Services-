@@ -817,6 +817,9 @@ body.lightbox-active{
  }
 }
 </style>
+
+<style id="eis-route-protection">html.eis-route-check body{visibility:hidden!important}</style>
+<script>document.documentElement.classList.add("eis-route-check");</script>
 </head>
 
 <body class="marketplace-page">
@@ -997,6 +1000,7 @@ logoutButton.textContent = "Log out";
 initializeHeader();
 </script>
 
+<script type="module" src="js/route-guard.js?v=1"></script>
 <script type="module" src="js/marketplace.js?v=4"></script>
 
 </body>
