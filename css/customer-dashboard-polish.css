@@ -1,0 +1,87 @@
+/* Customer dashboard: restrained, consistent styling */
+.dashboard-page{
+  --dash-ink:#26343f;
+  --dash-muted:#66737d;
+  --dash-line:#e0e5e8;
+  --dash-canvas:#f5f7f7;
+  --dash-accent:#287b70;
+  --dash-accent-hover:#20665d;
+  --dash-soft:#f1f6f5;
+}
+body.dashboard-page{background:var(--dash-canvas)!important;color:var(--dash-ink)!important;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important}
+.dashboard-page .site-header{background:#fff!important;border-bottom:1px solid var(--dash-line)!important;box-shadow:0 1px 4px rgba(25,40,50,.04)!important;backdrop-filter:none!important}
+.dashboard-page .brand-text b{color:#26343f!important;font-weight:700!important;letter-spacing:0!important}
+.dashboard-page .brand-text span{color:var(--dash-muted)!important;font-weight:500!important;letter-spacing:0!important}
+.dashboard-page .dashboard-main{max-width:1160px!important;padding:26px 22px 36px!important}
+.dashboard-page .dashboard-intro{min-height:0!important;margin:0 0 24px!important;padding:0 0 18px!important;display:block!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--dash-line)!important;border-radius:0!important;box-shadow:none!important}
+.dashboard-page .dashboard-intro h1{margin:0 0 6px!important;color:var(--dash-ink)!important;font-size:clamp(24px,2.7vw,31px)!important;font-weight:700!important;line-height:1.25!important;letter-spacing:-.45px!important}
+.dashboard-page .dashboard-intro p{max-width:680px!important;margin:0!important;color:var(--dash-muted)!important;font-size:14px!important;line-height:1.6!important}
+.dashboard-page .overview-heading h2,.dashboard-page .section-heading{color:var(--dash-ink)!important;font-weight:650!important;letter-spacing:0!important}
+.dashboard-page .overview-heading p,.dashboard-page .section-description{color:var(--dash-muted)!important;font-size:13px!important;line-height:1.55!important}
+.dashboard-page .overview-heading>a{color:var(--dash-accent)!important;font-weight:600!important}
+.dashboard-page .overview-grid{gap:12px!important}
+.dashboard-page .overview-stat{padding:16px!important;border:1px solid var(--dash-line)!important;border-radius:8px!important;background:#fff!important;box-shadow:none!important}
+.dashboard-page .overview-stat-label{color:var(--dash-muted)!important;font-weight:500!important}
+.dashboard-page .overview-stat strong{color:var(--dash-ink)!important;font-size:25px!important;font-weight:650!important}
+.dashboard-page .dashboard-card{padding:22px!important;margin-bottom:20px!important;background:#fff!important;border:1px solid var(--dash-line)!important;border-radius:9px!important;box-shadow:none!important}
+.dashboard-page .section-heading{margin-bottom:6px!important;font-size:19px!important}
+.dashboard-page .section-description{margin-bottom:16px!important}
+.dashboard-page .svcs{grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr))!important;gap:12px!important;margin-top:14px!important}
+.dashboard-page .service-card{min-height:0!important;padding:17px!important;border:1px solid var(--dash-line)!important;border-top:1px solid var(--dash-line)!important;border-radius:8px!important;background:#fff!important;box-shadow:none!important;transform:none!important;transition:border-color .15s ease!important}
+.dashboard-page .service-card:hover{transform:none!important;border-color:#b8d1cc!important;box-shadow:none!important}
+.dashboard-page .service-card h3{color:var(--dash-ink)!important;font-size:15px!important;font-weight:650!important;line-height:1.45!important}
+.dashboard-page .service-card p{color:var(--dash-ink)!important;font-size:17px!important;font-weight:650!important}
+.dashboard-page .service-card .service-description{color:var(--dash-muted)!important;font-size:13px!important;line-height:1.55!important}
+.dashboard-page .service-card button,.dashboard-page .btn-primary,.dashboard-page #btn-pay{min-height:42px!important;border:1px solid var(--dash-accent)!important;border-radius:6px!important;background:var(--dash-accent)!important;color:#fff!important;font-size:13px!important;font-weight:600!important;box-shadow:none!important}
+.dashboard-page .service-card button:hover,.dashboard-page .btn-primary:hover,.dashboard-page #btn-pay:hover{background:var(--dash-accent-hover)!important;border-color:var(--dash-accent-hover)!important}
+.dashboard-page #pay-section{padding:20px!important;background:#f8faf9!important;border:1px solid var(--dash-line)!important;border-radius:8px!important}
+.dashboard-page #pay-section h3{color:var(--dash-ink)!important;font-size:18px!important;font-weight:650!important}
+.dashboard-page #pay-section .eis-payment-note{background:var(--dash-soft)!important;color:#53665f!important}
+.dashboard-page .form-grid{gap:15px!important}
+.dashboard-page .form-grid label{color:#3e4c57!important;font-size:13px!important;font-weight:600!important;text-transform:none!important}
+.dashboard-page .form-grid input,.dashboard-page .form-grid select,.dashboard-page .form-grid textarea{min-height:44px!important;border:1px solid #d5dde1!important;border-radius:6px!important;background:#fff!important;color:var(--dash-ink)!important;font-size:14px!important}
+.dashboard-page .form-grid input:focus,.dashboard-page .form-grid select:focus,.dashboard-page .form-grid textarea:focus{border-color:var(--dash-accent)!important;outline:2px solid rgba(40,123,112,.12)!important;box-shadow:none!important}
+.dashboard-page .field-hint{color:var(--dash-muted)!important}
+.dashboard-page .privacy-note{padding:13px!important;background:#f7f9f8!important;border:1px solid var(--dash-line)!important;border-left:3px solid #9abbb3!important;border-radius:6px!important;color:#53645e!important}
+.dashboard-page .table-wrapper{border:1px solid var(--dash-line)!important;border-radius:8px!important}
+.dashboard-page .applications-table th{background:#f5f7f7!important;color:#52606b!important;font-size:11px!important;font-weight:600!important;letter-spacing:.15px!important;text-transform:none!important}
+.dashboard-page .applications-table td{color:#52606b!important}
+.dashboard-page .status-badge{border-radius:5px!important;font-weight:600!important}
+.dashboard-page .customer-care-banner{padding:20px 22px!important;background:#fff!important;border:1px solid var(--dash-line)!important;border-radius:9px!important;box-shadow:none!important}
+.dashboard-page .customer-care-banner h2{color:var(--dash-ink)!important;font-size:18px!important;font-weight:650!important}
+.dashboard-page .customer-care-banner p{color:var(--dash-muted)!important;font-size:13px!important}
+.dashboard-page .customer-care-banner a{border:1px solid var(--dash-accent)!important;border-radius:6px!important;background:var(--dash-accent)!important;color:#fff!important;font-size:13px!important;font-weight:600!important}
+.dashboard-page .site-footer{background:#fff!important;border-top:1px solid var(--dash-line)!important;color:var(--dash-muted)!important}
+.dashboard-page .notification-dropdown h3{color:var(--dash-ink)!important}
+.dashboard-page .notification-item strong{color:var(--dash-ink)!important}
+.dashboard-page .notification-item{border-left:2px solid #b8d1cc!important;box-shadow:none!important}
+.dashboard-page .notification-item:hover{box-shadow:none!important;transform:none!important}
+.dashboard-page .account-settings-button{border-color:var(--dash-line)!important;border-radius:6px!important;color:var(--dash-ink)!important;font-weight:600!important}
+.dashboard-page .account-settings-button:hover{background:#f6f8f8!important;border-color:#cbd6d9!important}
+.dashboard-page .profile-settings-primary{background:var(--dash-accent)!important;border-color:var(--dash-accent)!important;border-radius:6px!important;font-weight:600!important}
+.dashboard-page .profile-settings-primary:hover{background:var(--dash-accent-hover)!important}
+.dashboard-page .profile-field-action{color:var(--dash-accent-hover)!important;border-radius:5px!important}
+.dashboard-page .profile-settings-dialog,.dashboard-page .application-track-dialog{border-radius:10px!important;box-shadow:0 12px 36px rgba(25,40,50,.16)!important}
+.dashboard-page .track-dialog-footer button{background:var(--dash-accent)!important;border-color:var(--dash-accent)!important;border-radius:6px!important}
+.dashboard-page .track-dialog-footer button:hover{background:var(--dash-accent-hover)!important}
+.dashboard-page button:focus-visible,.dashboard-page a:focus-visible{outline:2px solid rgba(40,123,112,.3)!important;outline-offset:2px!important}
+@media(max-width:760px){
+ .dashboard-page .dashboard-main{padding:20px 14px 28px!important}
+ .dashboard-page .dashboard-intro{padding:0 0 15px!important;margin-bottom:20px!important}
+ .dashboard-page .dashboard-card{padding:18px 15px!important}
+ .dashboard-page .overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .dashboard-page .svcs{grid-template-columns:1fr!important}
+ .dashboard-page .service-card{padding:15px!important}
+ .dashboard-page .customer-care-banner{align-items:flex-start!important;flex-direction:column!important;padding:18px!important}
+ .dashboard-page .customer-care-banner a{width:100%;text-align:center}
+}
+@media(max-width:520px){
+ .dashboard-page .nav-links{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .dashboard-page .nav-links .btn,.dashboard-page .nav-links #nav-logout{font-size:12px!important}
+ .dashboard-page .overview-heading{align-items:flex-start!important}
+ .dashboard-page .overview-stat{padding:13px!important}
+ .dashboard-page .overview-stat strong{font-size:23px!important}
+}
+@media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *::before,.dashboard-page *::after{transition:none!important;animation:none!important}}
+
+.dashboard-page .payment-history-section{padding:0!important;overflow:hidden!important}
