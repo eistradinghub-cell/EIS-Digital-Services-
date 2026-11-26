@@ -80,7 +80,7 @@ export async function onRequestPost({ request, env }) {
       formData.middle_name,
       formData.last_name
     ].map(value => String(value || "").trim()).filter(Boolean).join(" ") || "Valued Customer";
-    const reference = String(application.id).slice(0, 8).toUpperCase();
+    const reference = `EIS-${String(application.id).toUpperCase()}`;
     const submittedAt = new Date(application.created_at).toLocaleString("en-NG", {
       dateStyle: "long",
       timeStyle: "short",
