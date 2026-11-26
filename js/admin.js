@@ -827,6 +827,21 @@ select.value = services.some(service => service.toLowerCase() === current.toLowe
 : "all";
 }
 
+function getApplicationServiceGroup(app) {
+const serviceName = String(app.service_name || '').toLowerCase();
+if (serviceName.includes('parkway')) return 'parkway';
+if (serviceName.includes('kegow')) return 'kegow';
+return 'other';
+}
+
+function renderApplicationGroup(title, groupKey, applications) {
+if (!applications.length) return '';
+const count = applications.length;
+return '<section class="admin-application-group admin-application-group-' + groupKey + '" aria-label="' + title + '">' +
+'<header class="admin-application-group-heading"><div><h3>' + title + '</h3><span>' + (groupKey === 'other' ? 'Other submitted services' : 'Customer submissions for this service') + '</span></div>' +
+'<strong>' + count.toLocaleString() + ' ' + (count === 1 ? 'application' : 'applications') + '</strong></header>' +
+'<div class="admin-application-group-list">' + applications.map(getApplicationHTML).join('') + '</div></section>';
+}
 function renderApplications() {
 const filteredApplications = getFilteredApplications();
 const pageCount = Math.max(1, Math.ceil(filteredApplications.length / APPLICATIONS_PAGE_SIZE));
@@ -845,7 +860,14 @@ return;
 if (!filteredApplications.length) {
 showEmpty("applications-full-list", "No applications match these filters.");
 } else if ($("applications-full-list")) {
-$("applications-full-list").innerHTML = visibleApplications.map(getApplicationHTML).join("");
+const kegowApplications = visibleApplications.filter(app => getApplicationServiceGroup(app) === "kegow");
+const parkwayApplications = visibleApplications.filter(app => getApplicationServiceGroup(app) === "parkway");
+const otherApplications = visibleApplications.filter(app => getApplicationServiceGroup(app) === "other");
+$("applications-full-list").innerHTML = [
+renderApplicationGroup("Kegow Applications", "kegow", kegowApplications),
+renderApplicationGroup("Parkway Applications", "parkway", parkwayApplications),
+renderApplicationGroup("Other Applications", "other", otherApplications)
+].filter(Boolean).join("");
 }
 
 if ($("applications-count")) {
