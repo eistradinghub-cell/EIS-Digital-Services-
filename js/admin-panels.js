@@ -30,7 +30,7 @@
     heading.setAttribute("aria-controls", body.id);
 
     let expanded = false;
-    try { expanded = localStorage.getItem(storageKey) === "open"; } catch (_) {}
+    try { expanded = localStorage.getItem(storageKey) !== "closed"; } catch (_) {}
     const setExpanded = (value, persist = true) => {
       expanded = value;
       panel.classList.toggle("is-expanded", expanded);
