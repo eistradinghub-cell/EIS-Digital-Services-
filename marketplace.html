@@ -7,7 +7,7 @@
 <meta name="description" content="Explore products and order directly from EIS Digital Services.">
 <title>Marketplace | EIS Digital Services</title>
 
-<link rel="stylesheet" href="css/styles.css?v=30">
+<link rel="stylesheet" href="css/styles.css?v=31">
 <link rel="stylesheet" href="css/shared-navigation.css?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1006,5 +1006,28 @@ initializeHeader();
 
 <script type="module" src="js/marketplace.js?v=4"></script>
 
+<style id="eis-android-responsive">
+@media(max-width:700px){
+ html,body{width:100%;max-width:100%;overflow-x:clip}
+ .marketplace-page .nav-row{grid-template-columns:minmax(0,1fr) auto!important;min-height:0!important;padding:10px 12px!important;gap:10px!important}
+ .marketplace-page .brand-mark{width:36px!important;height:36px!important}
+ .marketplace-page .brand-text b{font-size:18px!important}
+ .marketplace-page .brand-text span{font-size:11px!important}
+ .marketplace-page .nav-links{grid-column:1/-1!important;width:100%!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+ .marketplace-page .nav-links a,.marketplace-page .nav-links button{min-height:44px!important;flex:1 1 auto}
+ .marketplace-page .marketplace-main,.marketplace-page main{width:100%!important;max-width:100%!important;padding:14px 12px!important;margin:0 auto!important}
+ .marketplace-page .products-grid,.marketplace-page .marketplace-grid,.marketplace-page .product-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+ .marketplace-page .product-card,.marketplace-page .marketplace-card{width:100%!important;min-width:0!important}
+ .marketplace-page .product-card img,.marketplace-page .marketplace-card img{max-width:100%!important;height:auto!important;object-fit:cover}
+ .marketplace-page .marketplace-filter,.marketplace-page .filter-row{flex-wrap:wrap!important;gap:8px!important}
+ .marketplace-page input,.marketplace-page select,.marketplace-page textarea{width:100%!important;max-width:100%!important;min-width:0!important;font-size:16px!important}
+ .marketplace-page button,.marketplace-page .btn{min-height:44px}
+ .marketplace-page .notification-dropdown{width:min(340px,calc(100vw - 24px))!important;right:-8px!important}
+}
+@media(max-width:380px){
+ .marketplace-page .nav-row{padding:9px 10px!important}
+ .marketplace-page .marketplace-main,.marketplace-page main{padding:12px 10px!important}
+}
+</style>
 </body>
 </html>

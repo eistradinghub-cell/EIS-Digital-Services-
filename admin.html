@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#173b4b">
     <meta name="description" content="Manage EIS Digital Services applications, products and customer messages.">
     <title>Administration | EIS Digital Services</title>
-    <link rel="stylesheet" href="css/styles.css?v=28">
-    <link rel="stylesheet" href="css/admin.css?v=58">
+    <link rel="stylesheet" href="css/styles.css?v=29">
+    <link rel="stylesheet" href="css/admin.css?v=59">
     <link rel="stylesheet" href="css/shared-navigation.css?v=2">
     <link rel="stylesheet" href="css/admin-sidebar-light.css?v=2">
     <link rel="stylesheet" href="css/site-settings-responsive.css?v=9">
@@ -1628,5 +1628,40 @@ if (button && dropdown) {
 loadAdminNotifications();
 </script>
 
+<style id="eis-android-responsive">
+@media(max-width:760px){
+ html,body{width:100%;max-width:100%;overflow-x:clip}
+ .admin-page .admin-sidebar{width:min(290px,86vw)!important;max-width:86vw!important}
+ .admin-page .admin-main-wrapper{width:100%!important;min-width:0!important;margin-left:0!important;padding:0!important}
+ .admin-page .admin-main,.admin-page main{width:100%!important;max-width:100%!important;min-width:0!important;padding:12px!important}
+ .admin-page .admin-header,.admin-page .page-header,.admin-page .section-header{display:flex!important;flex-wrap:wrap!important;gap:10px!important}
+ .admin-page .admin-content,.admin-page .admin-section,.admin-page [id^="section-"]{width:100%!important;max-width:100%!important;min-width:0!important}
+ .admin-page .admin-application-card{width:100%!important;min-width:0!important;margin:0 0 12px!important}
+ .admin-page .admin-application-card-head{gap:8px!important;padding:10px 11px!important}
+ .admin-page .admin-application-card-body{padding:10px 11px!important}
+ .admin-page .admin-application-card-foot{gap:8px!important;padding:9px 11px!important}
+ .admin-page .admin-application-card button,.admin-page button,.admin-page .btn{min-height:42px}
+ .admin-page .admin-application-card .application-fields,.admin-page .admin-application-card .application-details{grid-template-columns:minmax(0,1fr)!important}
+ .admin-page .admin-stats-grid,.admin-page .stats-grid,.admin-page .dashboard-grid,.admin-page .admin-grid,.admin-page .form-grid,.admin-page .marketplace-form-grid,.admin-page .marketplace-products-grid{grid-template-columns:minmax(0,1fr)!important}
+ .admin-page .marketplace-form-grid,.admin-page .marketplace-products-grid{padding:12px!important;gap:12px!important}
+ .admin-page .marketplace-form-actions{padding:0 12px 12px!important}
+ .admin-page .marketplace-form-message{margin:0 12px 12px!important}
+ .admin-page input,.admin-page select,.admin-page textarea{width:100%!important;max-width:100%!important;min-width:0!important;font-size:16px!important}
+ .admin-page .admin-table-container,.admin-page .table-container,.admin-page .admin-table-wrap{max-width:100%!important;width:100%!important;overflow-x:auto!important}
+ .admin-page table{min-width:560px}
+ .admin-page .customer-care-layout,.admin-page .admin-customer-care,.admin-page .customer-care-container{display:flex!important;flex-direction:column!important;width:100%!important;min-width:0!important;height:auto!important;max-height:none!important}
+ .admin-page .admin-conversations-list,.admin-page #admin-conversations-list,.admin-page .admin-chat-panel,.admin-page #admin-chat-panel{width:100%!important;min-width:0!important;max-width:100%!important}
+ .admin-page #admin-conversations-list{max-height:260px!important;overflow-y:auto!important}
+ .admin-page #admin-chat-messages{min-height:180px!important;max-height:52dvh!important;overflow-y:auto!important}
+ .admin-page .admin-chat-messages{min-height:180px!important;max-height:52dvh!important;overflow-y:auto!important}
+ .admin-page .admin-sidebar.open{z-index:1200!important}
+ .admin-page .admin-overlay{z-index:1100!important}
+ .admin-page .notification-dropdown{width:min(340px,calc(100vw - 24px))!important}
+}
+@media(max-width:380px){
+ .admin-page .admin-main,.admin-page main{padding:10px!important}
+ .admin-page .admin-application-card-head,.admin-page .admin-application-card-body,.admin-page .admin-application-card-foot{padding-left:9px!important;padding-right:9px!important}
+}
+</style>
 </body>
                             </html>
