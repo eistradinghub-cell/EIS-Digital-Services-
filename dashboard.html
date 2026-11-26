@@ -6,1042 +6,12 @@
 <meta name="theme-color" content="#f5f6f7">
 <meta name="description" content="EIS Digital Services Customer Dashboard">
 <title>Dashboard | EIS Digital Services</title>
-<link rel="stylesheet" href="css/styles.css?v=18">
+<link rel="stylesheet" href="css/styles.css?v=19">
 <link rel="stylesheet" href="css/shared-navigation.css?v=2">
 <link rel="stylesheet" href="css/dashboard-notifications.css?v=2">
-<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=10">
+<link rel="stylesheet" href="css/customer-dashboard-refresh.css?v=11">
+<link rel="stylesheet" href="css/customer-dashboard-polish.css?v=1">
 
-<style>
-*{box-sizing:border-box}
-
-body.dashboard-page{
-    margin:0;
-    background:#edf4ff;
-    color:#172b4d;
-    font-family:Arial,Helvetica,sans-serif;
-}
-
-.dashboard-page .site-header{
-    position:sticky;
-    top:0;
-    z-index:1000;
-    background:rgba(255,255,255,.76);
-    -webkit-backdrop-filter:blur(14px);
-    backdrop-filter:blur(14px);
-    border-bottom:1px solid rgba(190,207,230,.72);
-    box-shadow:0 5px 20px rgba(20,55,105,.07);
-}
-
-.dashboard-page .nav-row{
-    max-width:1200px;
-    min-height:68px;
-    margin:auto;
-    padding:12px 20px;
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:12px 18px;
-}
-
-.dashboard-page .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-shrink:0;
-    text-decoration:none;
-}
-
-.dashboard-page .brand-mark{
-    width:42px;
-    height:42px;
-}
-
-.dashboard-page .brand-text{
-    display:flex;
-    flex-direction:column;
-}
-
-.dashboard-page .brand-text b{
-    color:#075bff;
-    font-size:21px;
-    line-height:1.2;
-}
-
-.dashboard-page .brand-text span{
-    color:#52709c;
-    font-size:12px;
-}
-
-.dashboard-page .nav-right{
-    display:contents;
-}
-
-.dashboard-page .notification-area{
-    position:relative;
-    order:0;
-    margin-left:auto;
-    flex-shrink:0;
-}
-
-.dashboard-page .nav-links{
-    order:3;
-    width:100%;
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:12px;
-    margin-top:4px;
-}
-
-.dashboard-page .nav-links .btn,
-.dashboard-page .nav-links #nav-logout{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:100%;
-    min-width:0;
-    min-height:60px;
-    padding:12px 8px;
-    border:2px solid #cbd3df;
-    border-radius:15px;
-    background:rgba(255,255,255,.88);
-    color:#10233f;
-    font-size:clamp(13px,1.8vw,19px);
-    font-weight:700;
-    line-height:1.2;
-    text-align:center;
-    text-decoration:none;
-    white-space:normal;
-    box-shadow:0 2px 5px rgba(25,50,85,.04);
-    cursor:pointer;
-}
-
-.dashboard-page .nav-links .btn.active{
-    background:#244fe0;
-    border-color:#244fe0;
-    color:#fff;
-    box-shadow:0 7px 17px rgba(36,79,224,.2);
-}
-
-.dashboard-page .nav-links #nav-logout{
-    color:#10233f;
-    border-color:#cbd3df;
-    background:rgba(255,255,255,.88);
-}
-
-.dashboard-page .notification-button{
-    position:relative;
-    width:42px;
-    height:42px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px solid #c7dcff;
-    border-radius:8px;
-    background:rgba(255,255,255,.88);
-    color:#075bff;
-    cursor:pointer;
-}
-
-.dashboard-page .notification-count{
-    position:absolute;
-    top:-6px;
-    right:-6px;
-    min-width:18px;
-    height:18px;
-    padding:0 4px;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    border-radius:20px;
-    background:#e33145;
-    color:#fff;
-    border:2px solid #fff;
-    font-size:10px;
-    font-weight:bold;
-}
-
-.dashboard-page .notification-dropdown{
-    position:absolute;
-    top:50px;
-    right:0;
-    z-index:1000;
-    width:min(350px,88vw);
-    max-height:390px;
-    overflow-y:auto;
-    padding:16px;
-    display:none;
-    border:1px solid #c7dcff;
-    border-radius:10px;
-    background:#fff;
-    box-shadow:0 12px 30px rgba(7,91,255,.14);
-}
-
-.dashboard-page .notification-dropdown.open{
-    display:block;
-}
-
-.dashboard-page .notification-item{
-    padding:12px 0;
-    border-bottom:1px solid #edf1f8;
-}
-
-.dashboard-page .notification-item:last-child{
-    border-bottom:0;
-}
-
-.dashboard-page .notification-item strong{
-    display:block;
-    margin-bottom:5px;
-    color:#075bff;
-    font-size:13px;
-}
-
-.dashboard-page .notification-item p{
-    color:#536b8d;
-    font-size:12px;
-    line-height:1.6;
-    overflow-wrap:anywhere;
-}
-
-.dashboard-page .notification-item time{
-    display:block;
-    margin-top:6px;
-    color:#8495ad;
-    font-size:10px;
-}
-
-.dashboard-page .dashboard-main{
-    max-width:1200px;
-    margin:auto;
-    padding:28px 20px;
-}
-
-.dashboard-page .dashboard-intro{
-    margin-bottom:22px;
-    padding:27px;
-    background:linear-gradient(115deg,#0647d9,#287bff);
-    border-radius:13px;
-    box-shadow:0 7px 22px rgba(7,91,255,.16);
-}
-
-.dashboard-page .dashboard-intro h1{
-    margin:0 0 9px;
-    color:#fff;
-    font-size:clamp(23px,4vw,30px);
-    line-height:1.35;
-}
-
-.dashboard-page .dashboard-intro p{
-    max-width:680px;
-    margin:0;
-    color:#e5efff;
-    font-size:14px;
-    line-height:1.7;
-}
-
-.dashboard-page .dashboard-card{
-    margin-bottom:22px;
-    padding:23px;
-    background:#fff;
-    border:1px solid #b9d2ff;
-    border-radius:13px;
-    box-shadow:0 5px 20px rgba(7,91,255,.09);
-}
-
-.dashboard-page .section-heading{
-    margin:0 0 8px;
-    color:#075bff;
-    font-size:20px;
-    font-weight:700;
-}
-
-.dashboard-page .section-description{
-    margin:0 0 18px;
-    color:#627795;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page .svcs{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(195px,1fr));
-    gap:12px;
-    margin-top:15px;
-}
-
-.dashboard-page .service-card{
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-    padding:14px;
-    background:#fff;
-    border:1px solid #c7dcff;
-    border-top:3px solid #1670ff;
-    border-radius:9px;
-    transition:transform .2s,border-color .2s,box-shadow .2s;
-}
-
-.dashboard-page .service-card:hover{
-    transform:translateY(-2px);
-    border-color:#8eb2ed;
-    box-shadow:0 7px 18px rgba(7,91,255,.10);
-}
-
-.dashboard-page .service-card h3{
-    margin:3px 0 9px;
-    color:#153f83;
-    font-size:15px;
-    line-height:1.45;
-    overflow-wrap:anywhere;
-}
-
-.dashboard-page .service-card p{
-    margin:0 0 10px;
-    color:#075bff;
-    font-size:16px;
-    font-weight:700;
-}
-
-.dashboard-page .service-card .service-description{
-    margin-bottom:13px;
-    color:#627795;
-    font-size:12px;
-    line-height:1.6;
-}
-
-.dashboard-page .service-card button{
-    width:100%;
-    margin-top:auto;
-    padding:10px 12px;
-    border:1px solid #075bff;
-    border-radius:7px;
-    background:#075bff;
-    color:#fff;
-    font-weight:600;
-    cursor:pointer;
-}
-
-.dashboard-page .service-card button:hover{
-    background:#0647d9;
-}
-
-.dashboard-page .btn-primary{
-    border:1px solid #075bff;
-    border-radius:7px;
-    background:#075bff;
-    color:#fff;
-    cursor:pointer;
-}
-
-.dashboard-page .btn-primary:hover{
-    background:#0647d9;
-}
-
-.dashboard-page #pay-section{
-    margin-top:22px;
-    padding:20px;
-    border:1px solid #b9d2ff;
-    border-radius:10px;
-    background:#edf4ff;
-}
-
-.dashboard-page #pay-section h3{
-    margin:0 0 10px;
-    color:#075bff;
-    font-size:18px;
-}
-
-.dashboard-page .demo{
-    padding:13px;
-    margin:14px 0;
-    border:1px solid #e9d79e;
-    border-radius:7px;
-    background:#fffaf0;
-    color:#765d24;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page #btn-pay{
-    width:100%;
-    min-height:45px;
-    padding:12px;
-    font-weight:700;
-}
-
-.dashboard-page #app-form{
-    margin-top:22px;
-}
-
-.dashboard-page .form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:16px;
-}
-
-.dashboard-page .form-grid>div{
-    min-width:0;
-}
-
-.dashboard-page .form-grid .full{
-    grid-column:1/-1;
-}
-
-.dashboard-page .form-grid label{
-    display:block;
-    margin-bottom:7px;
-    color:#294b7d;
-    font-size:13px;
-    font-weight:600;
-}
-
-.dashboard-page .form-grid input,
-.dashboard-page .form-grid select,
-.dashboard-page .form-grid textarea{
-    width:100%;
-    min-height:43px;
-    padding:10px 11px;
-    border:1px solid #ccd9ed;
-    border-radius:7px;
-    background:#fff;
-    color:#172b4d;
-    font:inherit;
-    font-size:14px;
-}
-
-.dashboard-page .form-grid input:focus,
-.dashboard-page .form-grid select:focus,
-.dashboard-page .form-grid textarea:focus{
-    outline:2px solid #d5e4ff;
-    border-color:#1670ff;
-}
-
-.dashboard-page .privacy-note{
-    margin:18px 0;
-    padding:14px;
-    border:1px solid #fecdca;
-    border-left:4px solid #d92d20;
-    border-radius:7px;
-    background:#fef3f2;
-    color:#b42318;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page .privacy-note strong{color:#b42318;font-weight:700}
-
-.dashboard-page .msg{
-    display:none;
-    margin-top:13px;
-    font-size:13px;
-}
-
-.dashboard-page .msg.ok{
-    color:#247448;
-}
-
-.dashboard-page .msg.err{
-    color:#b83232;
-}
-
-.dashboard-page .msg.info{
-    color:#075bff;
-}
-
-.dashboard-page .table-wrapper{
-    width:100%;
-    overflow-x:auto;
-    margin-top:18px;
-    border:1px solid #c7dcff;
-    border-radius:8px;
-}
-
-.dashboard-page .applications-table{
-    width:100%;
-    min-width:650px;
-    border-collapse:collapse;
-}
-
-.dashboard-page .applications-table th{
-    padding:13px 12px;
-    background:#e7f0ff;
-    color:#075bff;
-    text-align:left;
-    font-size:12px;
-    font-weight:700;
-    white-space:nowrap;
-}
-
-.dashboard-page .applications-table td{
-    padding:14px 12px;
-    border-bottom:1px solid #edf1f8;
-    color:#425979;
-    font-size:13px;
-}
-
-.dashboard-page .status-badge{
-    display:inline-block;
-    padding:5px 9px;
-    border-radius:20px;
-    background:#fff4df;
-    color:#946817;
-    font-size:11px;
-    font-weight:700;
-    white-space:nowrap;
-}
-
-.dashboard-page .status-badge.completed,
-.dashboard-page .status-badge.approved,
-.dashboard-page .status-badge.resolved{
-    background:#e9f5ed;
-    color:#287044;
-}
-
-.dashboard-page .status-badge.rejected,
-.dashboard-page .status-badge.cancelled{
-    background:#faeeee;
-    color:#a83232;
-}
-
-.dashboard-page .status-badge.processing,
-.dashboard-page .status-badge.in_review{
-    background:#eaf2ff;
-    color:#2458a5;
-}
-
-.dashboard-page .customer-care-banner{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:20px;
-    margin-bottom:22px;
-    padding:25px;
-    background:linear-gradient(120deg,#0647d9,#1670ff);
-    border:1px solid #075bff;
-    border-radius:13px;
-    box-shadow:0 7px 22px rgba(7,91,255,.18);
-}
-
-.dashboard-page .customer-care-banner h2{
-    margin:0 0 8px;
-    color:#fff;
-    font-size:21px;
-}
-
-.dashboard-page .customer-care-banner p{
-    margin:0;
-    color:#eaf2ff;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.dashboard-page .customer-care-banner a{
-    flex-shrink:0;
-    padding:11px 20px;
-    border:1px solid #fff;
-    border-radius:8px;
-    background:#fff;
-    color:#075bff;
-    font-size:13px;
-    font-weight:700;
-    text-decoration:none;
-}
-
-.dashboard-page .site-footer{
-    padding:22px 15px;
-    border-top:1px solid #c7dcff;
-    background:#fff;
-    color:#7185a3;
-    text-align:center;
-    font-size:12px;
-}
-
-@media(max-width:700px){
-    .dashboard-page .nav-row{
-        gap:9px;
-        padding:12px 13px;
-    }
-
-    .dashboard-page .brand-mark{
-        width:38px;
-        height:38px;
-    }
-
-    .dashboard-page .brand-text b{
-        font-size:19px;
-    }
-
-    .dashboard-page .nav-links{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:8px;
-        margin-top:3px;
-    }
-
-    .dashboard-page .nav-links .btn,
-    .dashboard-page .nav-links #nav-logout{
-        min-height:52px;
-        padding:10px 7px;
-        border-radius:12px;
-        font-size:14px;
-    }
-
-    .dashboard-page .dashboard-main{
-        padding:18px 12px;
-    }
-
-    .dashboard-page .dashboard-intro{
-        padding:21px 17px;
-    }
-
-    .dashboard-page .dashboard-card{
-        padding:18px 14px;
-    }
-
-    .dashboard-page .svcs{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:10px;
-    }
-
-    .dashboard-page .service-card{
-        padding:12px;
-    }
-
-    .dashboard-page .service-card h3{
-        font-size:14px;
-    }
-
-    .dashboard-page .service-card p{
-        font-size:15px;
-    }
-
-    .dashboard-page .service-card .service-description{
-        font-size:11px;
-    }
-
-    .dashboard-page .service-card button{
-        padding:9px 5px;
-        font-size:12px;
-    }
-
-    .dashboard-page .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .dashboard-page .form-grid .full{
-        grid-column:auto;
-    }
-
-    .dashboard-page .customer-care-banner{
-        align-items:flex-start;
-        flex-direction:column;
-        padding:19px;
-    }
-
-    .dashboard-page .customer-care-banner a{
-        width:100%;
-        text-align:center;
-    }
-}
-
-@media(max-width:370px){
-    .dashboard-page .svcs{
-        grid-template-columns:1fr;
-    }
-
-    .dashboard-page .nav-links{
-        gap:6px;
-    }
-
-    .dashboard-page .nav-links .btn,
-    .dashboard-page .nav-links #nav-logout{
-        font-size:12px;
-        min-height:48px;
-        padding:8px 5px;
-    }
-
-    .dashboard-page .brand-text b{
-        font-size:17px;
-    }
-}
-</style>
-
-<style id="eis-dashboard-professional-theme">
-:root{
-    --eis-page:#f5f6f7;
-    --eis-surface:#ffffff;
-    --eis-surface-soft:#f8f9fa;
-    --eis-text:#202a35;
-    --eis-muted:#697582;
-    --eis-border:#e3e7eb;
-    --eis-accent:#287b70;
-    --eis-accent-dark:#20665d;
-    --eis-accent-soft:#edf6f4;
-    --eis-success:#28784f;
-    --eis-warning:#9a7025;
-}
-body.dashboard-page{
-    background:var(--eis-page)!important;
-    color:var(--eis-text)!important;
-    font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important;
-}
-.dashboard-page .site-header{
-    background:rgba(255,255,255,.96)!important;
-    border-bottom:1px solid var(--eis-border)!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    -webkit-backdrop-filter:none!important;
-    backdrop-filter:none!important;
-}
-.dashboard-page .brand-text b{color:var(--eis-text)!important}
-.dashboard-page .brand-text span{color:var(--eis-muted)!important}
-.dashboard-page .notification-button{
-    color:var(--eis-text)!important;
-    border-color:var(--eis-border)!important;
-    background:#fff!important;
-}
-.dashboard-page .nav-links .btn,
-.dashboard-page .nav-links #nav-logout{
-    color:#46515d!important;
-    border:1px solid transparent!important;
-    background:transparent!important;
-    box-shadow:none!important;
-    border-radius:8px!important;
-    transition:background .18s ease,color .18s ease,border-color .18s ease!important;
-}
-.dashboard-page .nav-links .btn:hover,
-.dashboard-page .nav-links #nav-logout:hover{
-    background:#f1f3f4!important;
-    color:var(--eis-text)!important;
-}
-.dashboard-page .nav-links .btn.active{
-    color:var(--eis-accent-dark)!important;
-    background:var(--eis-accent-soft)!important;
-    border-color:#d9ebe7!important;
-    box-shadow:none!important;
-}
-.dashboard-page .dashboard-main{
-    max-width:1180px!important;
-    padding:30px 24px!important;
-}
-.dashboard-page .dashboard-intro{
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-left:4px solid var(--eis-accent)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    padding:25px 27px!important;
-}
-.dashboard-page .dashboard-intro h1{
-    color:var(--eis-text)!important;
-    font-size:clamp(23px,3vw,29px)!important;
-    letter-spacing:-.55px!important;
-}
-.dashboard-page .dashboard-intro p{
-    color:var(--eis-muted)!important;
-    font-size:14px!important;
-}
-.dashboard-page .dashboard-card{
-    background:var(--eis-surface)!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-    padding:24px!important;
-    margin-bottom:22px!important;
-}
-.dashboard-page .section-heading{
-    color:var(--eis-text)!important;
-    font-size:19px!important;
-    letter-spacing:-.2px!important;
-}
-.dashboard-page .section-description{
-    color:var(--eis-muted)!important;
-    line-height:1.65!important;
-}
-.dashboard-page .svcs{
-    grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;
-    gap:16px!important;
-}
-.dashboard-page .service-card{
-    padding:19px!important;
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:9px!important;
-    box-shadow:none!important;
-    transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
-}
-.dashboard-page .service-card:hover{
-    transform:translateY(-2px)!important;
-    border-color:#b9d5cf!important;
-    box-shadow:0 5px 16px rgba(35,75,68,.07)!important;
-}
-.dashboard-page .service-card h3{
-    color:#273541!important;
-    font-size:16px!important;
-    font-weight:650!important;
-    line-height:1.45!important;
-}
-.dashboard-page .service-card .service-description{
-    color:var(--eis-muted)!important;
-    font-size:13px!important;
-    line-height:1.65!important;
-}
-.dashboard-page .service-card p{
-    color:#273541!important;
-    font-size:18px!important;
-    font-weight:700!important;
-    letter-spacing:-.2px!important;
-}
-.dashboard-page .service-card button,
-.dashboard-page .btn-primary{
-    background:var(--eis-accent)!important;
-    border:1px solid var(--eis-accent)!important;
-    border-radius:7px!important;
-    color:#fff!important;
-    font-weight:650!important;
-    box-shadow:none!important;
-    transition:background .18s ease,border-color .18s ease,transform .18s ease!important;
-}
-.dashboard-page .service-card button:hover,
-.dashboard-page .btn-primary:hover{
-    background:var(--eis-accent-dark)!important;
-    border-color:var(--eis-accent-dark)!important;
-}
-.dashboard-page .service-card button:focus-visible,
-.dashboard-page .btn-primary:focus-visible,
-.dashboard-page .nav-links a:focus-visible,
-.dashboard-page .nav-links button:focus-visible{
-    outline:3px solid rgba(40,123,112,.25)!important;
-    outline-offset:2px!important;
-}
-.dashboard-page #pay-section{
-    margin-top:20px!important;
-    padding:22px!important;
-    background:var(--eis-surface-soft)!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:9px!important;
-}
-.dashboard-page #pay-section h3{
-    color:var(--eis-text)!important;
-    font-size:19px!important;
-    margin-bottom:15px!important;
-}
-.dashboard-page #pay-section>div:not(.demo){
-    border-color:var(--eis-border)!important;
-    border-radius:8px!important;
-    box-shadow:none!important;
-}
-.dashboard-page #pay-section>div:not(.demo) h4{
-    color:var(--eis-text)!important;
-}
-.dashboard-page #pay-section>div:not(.demo) strong{
-    color:var(--eis-accent-dark)!important;
-}
-.dashboard-page .demo{
-    background:#fbf8f0!important;
-    border:1px solid #eee4ca!important;
-    border-radius:8px!important;
-    color:#76643d!important;
-    line-height:1.65!important;
-}
-.dashboard-page #btn-pay{
-    min-height:46px!important;
-    border-radius:7px!important;
-    letter-spacing:.1px!important;
-}
-.dashboard-page .form-grid input,
-.dashboard-page .form-grid select,
-.dashboard-page .form-grid textarea{
-    border-color:#d9dfe4!important;
-    border-radius:7px!important;
-    background:#fff!important;
-}
-.dashboard-page .form-grid input:focus,
-.dashboard-page .form-grid select:focus,
-.dashboard-page .form-grid textarea:focus{
-    border-color:var(--eis-accent)!important;
-    outline:3px solid rgba(40,123,112,.12)!important;
-}
-.dashboard-page .privacy-note{
-    background:#f5f8f7!important;
-    border-color:#e0e9e6!important;
-    border-radius:8px!important;
-    color:#52645f!important;
-}
-.dashboard-page .table-wrapper{
-    border-color:var(--eis-border)!important;
-    border-radius:8px!important;
-}
-.dashboard-page .applications-table th{
-    background:#f5f7f8!important;
-    color:#56616d!important;
-    font-weight:650!important;
-}
-.dashboard-page .applications-table td{
-    color:#4d5965!important;
-}
-.dashboard-page .applications-table tr:last-child td{
-    border-bottom:0!important;
-}
-.dashboard-page .status-badge{
-    border-radius:5px!important;
-    font-weight:650!important;
-}
-.dashboard-page .customer-care-banner{
-    background:#fff!important;
-    border:1px solid var(--eis-border)!important;
-    border-radius:10px!important;
-    box-shadow:0 2px 8px rgba(25,35,45,.035)!important;
-}
-.dashboard-page .customer-care-banner h2{
-    color:var(--eis-text)!important;
-}
-.dashboard-page .customer-care-banner p{
-    color:var(--eis-muted)!important;
-}
-.dashboard-page .customer-care-banner a{
-    background:var(--eis-accent)!important;
-    border:1px solid var(--eis-accent)!important;
-    color:#fff!important;
-    border-radius:7px!important;
-}
-.dashboard-page .customer-care-banner a:hover{
-    background:var(--eis-accent-dark)!important;
-}
-.dashboard-page .site-footer{
-    background:#fff!important;
-    border-top:1px solid var(--eis-border)!important;
-    color:var(--eis-muted)!important;
-}
-@media(max-width:700px){
-    .dashboard-page .dashboard-main{padding:20px 13px!important}
-    .dashboard-page .dashboard-intro{padding:21px 18px!important}
-    .dashboard-page .dashboard-card{padding:18px 15px!important}
-    .dashboard-page #pay-section{padding:17px!important}
-    .dashboard-page .svcs{grid-template-columns:1fr!important}
-    .dashboard-page .service-card{padding:16px!important}
-}
-@media(prefers-reduced-motion:reduce){
-    .dashboard-page *,
-    .dashboard-page *::before,
-    .dashboard-page *::after{
-        scroll-behavior:auto!important;
-        transition:none!important;
-        animation:none!important;
-    }
-}
-</style>
-
-<style id="eis-dashboard-navy-teal">
-:root{--eis-navy:#142D4E;--eis-teal:#168477;--eis-teal-dark:#116B61;--eis-teal-soft:#EAF5F2;--eis-page:#F4F7F8;--eis-border:#E1E8EB;--eis-muted:#687783}
-body.dashboard-page{background:var(--eis-page)!important;color:#253342!important;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important}
-.dashboard-page .site-header{background:rgba(255,255,255,.97)!important;border-bottom:1px solid var(--eis-border)!important;box-shadow:0 2px 10px rgba(20,45,78,.045)!important}
-.dashboard-page .brand-text b,.dashboard-page .section-heading,.dashboard-page .dashboard-intro h1,.dashboard-page #pay-section h3,.dashboard-page .customer-care-banner h2{color:var(--eis-navy)!important}
-.dashboard-page .brand-text span,.dashboard-page .section-description,.dashboard-page .dashboard-intro p,.dashboard-page .customer-care-banner p{color:var(--eis-muted)!important}
-.dashboard-page .nav-links .btn,.dashboard-page .nav-links #nav-logout{color:#526171!important;border-color:transparent!important;background:transparent!important;box-shadow:none!important;border-radius:8px!important}
-.dashboard-page .nav-links .btn:hover,.dashboard-page .nav-links #nav-logout:hover{background:#F1F5F5!important;color:var(--eis-navy)!important}
-.dashboard-page .nav-links .btn.active{background:var(--eis-teal-soft)!important;border-color:#D4EAE4!important;color:var(--eis-teal-dark)!important;box-shadow:none!important}
-.dashboard-page .notification-button{color:var(--eis-navy)!important;border-color:var(--eis-border)!important;background:#fff!important}
-.dashboard-page .notification-dropdown{border-color:var(--eis-border)!important;box-shadow:0 12px 30px rgba(20,45,78,.12)!important}
-.dashboard-page .notification-dropdown h3,.dashboard-page .notification-item strong{color:var(--eis-navy)!important}
-.dashboard-page .dashboard-main{max-width:1180px!important}
-.dashboard-page .dashboard-intro{background:linear-gradient(115deg,#fff,#F7FBFA)!important;border:1px solid var(--eis-border)!important;border-left:4px solid var(--eis-teal)!important;border-radius:11px!important;box-shadow:0 3px 12px rgba(20,45,78,.045)!important}
-.dashboard-page .dashboard-intro h1{font-size:clamp(24px,3.2vw,31px)!important;font-weight:750!important;letter-spacing:-.55px!important}
-.dashboard-page .dashboard-card{background:#fff!important;border:1px solid var(--eis-border)!important;border-radius:11px!important;box-shadow:0 3px 13px rgba(20,45,78,.045)!important}
-.dashboard-page .svcs{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))!important;gap:16px!important}
-.dashboard-page .service-card{background:#fff!important;border:1px solid var(--eis-border)!important;border-top:3px solid var(--eis-teal)!important;border-radius:10px!important;box-shadow:0 2px 8px rgba(20,45,78,.025)!important;padding:18px!important}
-.dashboard-page .service-card:hover{border-color:#C9DFDA!important;box-shadow:0 8px 22px rgba(20,45,78,.075)!important;transform:translateY(-2px)!important}
-.dashboard-page .service-card h3{color:var(--eis-navy)!important;font-size:16px!important}
-.dashboard-page .service-card p{color:var(--eis-navy)!important;font-size:18px!important}
-.dashboard-page .service-card .service-description{color:var(--eis-muted)!important;font-size:13px!important}
-.dashboard-page .service-card button,.dashboard-page .btn-primary,.dashboard-page #btn-pay{background:var(--eis-teal)!important;border-color:var(--eis-teal)!important;color:#fff!important;border-radius:7px!important;box-shadow:none!important;font-weight:650!important}
-.dashboard-page .service-card button:hover,.dashboard-page .btn-primary:hover,.dashboard-page #btn-pay:hover{background:var(--eis-teal-dark)!important;border-color:var(--eis-teal-dark)!important}
-.dashboard-page #pay-section{background:#F7F9FA!important;border:1px solid var(--eis-border)!important;border-radius:10px!important}
-.dashboard-page #pay-section>div:not(.demo){border-color:var(--eis-border)!important;box-shadow:none!important}
-.dashboard-page #pay-section>div:not(.demo) h4{color:var(--eis-navy)!important}
-.dashboard-page #pay-section>div:not(.demo) strong{color:var(--eis-teal-dark)!important}
-.dashboard-page .demo{background:#FBF8F0!important;border-color:#EEE3C8!important;color:#75633E!important}
-.dashboard-page .form-grid label{color:var(--eis-navy)!important}
-.dashboard-page .form-grid input,.dashboard-page .form-grid select,.dashboard-page .form-grid textarea{border-color:#D8E0E4!important;border-radius:7px!important}
-.dashboard-page .form-grid input:focus,.dashboard-page .form-grid select:focus,.dashboard-page .form-grid textarea:focus{border-color:var(--eis-teal)!important;outline:3px solid rgba(22,132,119,.13)!important}
-.dashboard-page .privacy-note{background:#F2F7F6!important;border-color:#DDEAE6!important;color:#526761!important}
-.dashboard-page .msg.info{color:var(--eis-teal-dark)!important}
-.dashboard-page .table-wrapper{border-color:var(--eis-border)!important}
-.dashboard-page .applications-table th{background:#F3F6F7!important;color:var(--eis-navy)!important}
-.dashboard-page .applications-table td{border-bottom-color:#EDF0F2!important;color:#53616D!important}
-.dashboard-page .status-badge.processing,.dashboard-page .status-badge.in_review{background:var(--eis-teal-soft)!important;color:var(--eis-teal-dark)!important}
-.dashboard-page .customer-care-banner{background:#fff!important;border:1px solid var(--eis-border)!important;border-left:4px solid var(--eis-teal)!important;border-radius:11px!important;box-shadow:0 3px 13px rgba(20,45,78,.045)!important}
-.dashboard-page .customer-care-banner a{background:var(--eis-teal)!important;border-color:var(--eis-teal)!important;color:#fff!important;border-radius:7px!important}
-.dashboard-page .customer-care-banner a:hover{background:var(--eis-teal-dark)!important}
-.dashboard-page .site-footer{background:#fff!important;border-top:1px solid var(--eis-border)!important;color:var(--eis-muted)!important}
-.dashboard-page button:focus-visible,.dashboard-page a:focus-visible{outline:3px solid rgba(22,132,119,.25)!important;outline-offset:3px!important}
-@media(max-width:700px){.dashboard-page .dashboard-main{padding:20px 13px!important}.dashboard-page .dashboard-intro{padding:21px 18px!important}.dashboard-page .dashboard-card{padding:18px 15px!important}.dashboard-page .svcs{grid-template-columns:1fr!important}.dashboard-page .service-card{padding:16px!important}}
-@media(prefers-reduced-motion:reduce){.dashboard-page *,.dashboard-page *:before,.dashboard-page *:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-</style>
-
-<style id="eis-dashboard-reference-welcome">
-/* Compact reference welcome panel */
-.dashboard-page main.dashboard-main > .dashboard-intro{
- display:flex!important;
- flex-direction:column!important;
- justify-content:center!important;
- min-height:190px!important;
- margin:0 0 22px!important;
- padding:30px 42px!important;
- background:#fff!important;
- border:1px solid #e0e7e9!important;
- border-left:5px solid #168477!important;
- border-radius:24px!important;
- box-shadow:0 2px 9px rgba(20,45,78,.045)!important;
-}
-.dashboard-page main.dashboard-main > .dashboard-intro h1{
- max-width:1050px!important;
- margin:0 0 18px!important;
- color:#142D4E!important;
- font-size:clamp(30px,3.7vw,44px)!important;
- font-weight:750!important;
- line-height:1.15!important;
- letter-spacing:-1.1px!important;
-}
-.dashboard-page main.dashboard-main > .dashboard-intro p{
- max-width:1160px!important;
- margin:0!important;
- color:#78838d!important;
- font-size:clamp(16px,1.5vw,20px)!important;
- font-weight:400!important;
- line-height:1.55!important;
-}
-@media(max-width:700px){
- .dashboard-page main.dashboard-main > .dashboard-intro{
-  min-height:0!important;
-  padding:15px 14px!important;
-  border-left-width:3px!important;
-  border-radius:13px!important;
-  margin-bottom:16px!important;
- }
- .dashboard-page main.dashboard-main > .dashboard-intro h1{
-  margin:0 0 8px!important;
-  font-size:clamp(23px,5.8vw,27px)!important;
-  line-height:1.16!important;
-  letter-spacing:-.45px!important;
- }
- .dashboard-page main.dashboard-main > .dashboard-intro p{
-  font-size:clamp(13px,3.5vw,15px)!important;
-  line-height:1.4!important;
- }
-}
-@media(max-width:380px){
- .dashboard-page main.dashboard-main > .dashboard-intro{
-  padding:13px 12px!important;
-  border-radius:11px!important;
- }
- .dashboard-page main.dashboard-main > .dashboard-intro h1{font-size:23px!important;}
- .dashboard-page main.dashboard-main > .dashboard-intro p{font-size:13px!important;}
-}
-</style>
-
-<style id="eis-form-copy-styles">
-.dashboard-page .field-hint{display:block;margin-top:6px;color:#697582;font-size:12px;line-height:1.5}
-.dashboard-page .form-grid label{line-height:1.45}
-</style>
 </head>
 
 <body class="dashboard-page">
@@ -1051,9 +21,9 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 
         <a class="brand" href="dashboard.html">
             <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
-                <rect x="2" y="2" width="44" height="44" rx="9" fill="#075bff"/>
+                <rect x="2" y="2" width="44" height="44" rx="9" fill="#168477"/>
                 <path d="M14 32 L24 14 L34 32" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="24" cy="26" r="2.6" fill="#d8eaff"/>
+                <circle cx="24" cy="26" r="2.6" fill="#d9eeea"/>
             </svg>
 
             <span class="brand-text">
@@ -1119,16 +89,16 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 <main class="dashboard-main">
 
     <section class="dashboard-intro">
-        <h1>Welcome to EIS Digital Services</h1>
-        <p>Access the services you need, submit applications and keep track of your requests in one place.</p>
+        <h1 id="welcome">Welcome back</h1>
+        <p>Choose a service to start an application, or check the status of one you’ve submitted.</p>
     </section>
 
 
     <dialog class="profile-settings-dialog" id="profile-settings-dialog" aria-labelledby="profile-settings-title">
         <div class="profile-settings-dialog-header">
             <div>
-                <h2 id="profile-settings-title">Profile &amp; Account Settings</h2>
-                <p>Manage your personal details and account security.</p>
+                <h2 id="profile-settings-title">Profile and account</h2>
+                <p>Update your details or change your password.</p>
             </div>
             <button type="button" class="profile-settings-close" id="profile-settings-close" aria-label="Close account settings">&times;</button>
         </div>
@@ -1137,13 +107,13 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                 <form id="profile-details-form" class="profile-settings-form">
                     <div class="profile-settings-heading">
                         <h3>Personal details</h3>
-                        <p>Keep your account information up to date.</p>
+                        <p>Make sure your contact details are correct.</p>
                     </div>
                     <div class="profile-settings-grid">
                         <div class="profile-settings-field profile-settings-full">
                             <label for="profile-account-email">Registration email</label>
                             <input id="profile-account-email" type="email" readonly aria-describedby="profile-email-note">
-                            <small id="profile-email-note">This is the email address linked to your account. It cannot be changed.</small>
+                            <small id="profile-email-note">Your registration email cannot be changed.</small>
                         </div>
                         <div class="profile-settings-field">
                             <div class="profile-settings-label-row"><label for="profile-full-name">Full name</label><button class="profile-field-action" type="button" data-profile-edit="full_name">Edit</button></div>
@@ -1159,7 +129,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                 <form id="profile-password-form" class="profile-settings-form profile-password-form" novalidate>
                     <div class="profile-settings-heading">
                         <h3>Change password</h3>
-                        <p>Verify your current password before choosing a new one.</p>
+                        <p>Enter your current password, then choose a new one.</p>
                     </div>
                     <div class="profile-settings-grid">
                         <div class="profile-settings-field profile-settings-full">
@@ -1194,12 +164,12 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
                 <section class="profile-session-security" aria-labelledby="profile-session-title">
                     <div class="profile-settings-heading">
                         <h3 id="profile-session-title">Account security</h3>
-                        <p>Use this if you have signed in on a shared device or can no longer access a device.</p>
+                        <p>Sign out of your other devices if you no longer use them or have shared access.</p>
                     </div>
                     <div class="profile-session-action">
                         <div>
-                            <strong>End all other sessions</strong>
-                            <p>You’ll be signed out of EIS on this device and on your other browsers and devices. Sign in again to continue.</p>
+                            <strong>Sign out of other devices</strong>
+                            <p>This will sign you out on your other browsers and devices. You can sign in again whenever you need to.</p>
                         </div>
                         <button type="button" class="profile-session-danger" id="profile-signout-all">Sign out everywhere</button>
                     </div>
@@ -1212,10 +182,10 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     <section class="dashboard-overview" aria-label="Application overview">
         <div class="overview-heading">
             <div>
-                <h2>Application Overview</h2>
-                <p>Keep track of the requests you have submitted.</p>
+                <h2>Application summary</h2>
+                <p>Check the progress of your applications.</p>
             </div>
-            <a href="#my-applications">See all</a>
+            <a href="#my-applications">View applications</a>
         </div>
         <div class="overview-grid">
             <article class="overview-stat">
@@ -1247,7 +217,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
             <summary class="payment-history-toggle">
                 <span>
                     <strong>Payment History</strong>
-                    <small>View payments made for your applications</small>
+                    <small>Payments for your applications</small>
                 </span>
                 <span class="payment-history-action" aria-hidden="true">View</span>
             </summary>
@@ -1274,8 +244,8 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </section>
 
     <section class="card dashboard-card">
-        <h2 class="section-heading">Available services</h2>
-        <p class="section-description">Choose a service to review the fee and begin your application.</p>
+        <h2 class="section-heading">Services</h2>
+        <p class="section-description">Select a service to start an application.</p>
 
         <div id="services-container" class="svcs">
             <p>Loading services...</p>
@@ -1294,82 +264,82 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </section>
 
     <form class="card dashboard-card" id="app-form" style="display:none;">
-        <h2 class="section-heading">STILL ON BONANZA</h2>
-        <p class="section-description">Please complete all the details below carefully. Make sure the information matches your official records.</p>
+        <h2 class="section-heading">Still on Bonanza</h2>
+        <p class="section-description">Enter the details below using the information on your official records.</p>
 
         <div class="form-grid">
             <div>
-                <label for="f-kegow-account">KEGOW ACC NUMBER:</label>
+                <label for="f-kegow-account">Kegow account number</label>
                 <input type="text" id="f-kegow-account" name="kegow_acc_number" inputmode="numeric" pattern="[0-9]{10}" minlength="10" maxlength="10" autocomplete="off" title="Enter exactly 10 digits." required>
             </div>
 
             <div>
-                <label for="f-agent-state">AGENT LOCATION STATE:</label>
+                <label for="f-agent-state">Agent location state</label>
                 <input type="text" id="f-agent-state" name="agent_location_state" autocomplete="address-level1" required>
             </div>
 
             <div>
-                <label for="f-bvn">BVN NO:</label>
+                <label for="f-bvn">BVN</label>
                 <input type="text" id="f-bvn" name="bvn_no" inputmode="numeric" maxlength="11" pattern="[0-9]{11}" autocomplete="off" required>
             </div>
 
             <div>
-                <label for="f-bank-name">BANK NAME:</label>
+                <label for="f-bank-name">Bank name</label>
                 <input type="text" id="f-bank-name" name="bank_name" autocomplete="off" required>
             </div>
 
             <div>
-                <label for="f-account-no">ACCOUNT NO:</label>
+                <label for="f-account-no">Account number</label>
                 <input type="text" id="f-account-no" name="account_no" inputmode="numeric" pattern="[0-9]{10}" minlength="10" maxlength="10" autocomplete="off" title="Enter exactly 10 digits." required>
             </div>
 
             <div>
-                <label for="f-account-name">ACCOUNT NAME:</label>
+                <label for="f-account-name">Account name</label>
                 <input type="text" id="f-account-name" name="account_name" autocomplete="name" required>
             </div>
 
             <div>
-                <label for="f-agent-first-name">AGENT FIRST NAME:</label>
+                <label for="f-agent-first-name">Agent first name</label>
                 <input type="text" id="f-agent-first-name" name="agent_first_name" autocomplete="given-name" required>
             </div>
 
             <div>
-                <label for="f-middle-name">MIDDLE NAME:</label>
+                <label for="f-middle-name">Middle name</label>
                 <input type="text" id="f-middle-name" name="middle_name" autocomplete="additional-name" required>
             </div>
 
             <div>
-                <label for="f-last-name">LAST NAME:</label>
+                <label for="f-last-name">Last name</label>
                 <input type="text" id="f-last-name" name="last_name" autocomplete="family-name" required>
             </div>
 
             <div>
-                <label for="f-email">EMAIL:</label>
+                <label for="f-email">Email</label>
                 <input type="email" id="f-email" name="email" autocomplete="email" required>
             </div>
 
             <div>
-                <label for="f-alternative-email">ALTERNATIVE EMAIL:</label>
+                <label for="f-alternative-email">Alternative email</label>
                 <input type="email" id="f-alternative-email" name="alternative_email" autocomplete="off" required>
             </div>
 
             <div>
-                <label for="f-phone">PHONE NO:</label>
+                <label for="f-phone">Phone number</label>
                 <input type="text" id="f-phone" name="phone" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" autocomplete="tel" title="Enter exactly 11 digits." required>
             </div>
 
             <div>
-                <label for="f-alternative-phone">ALTERNATIVE PHONE NO:</label>
+                <label for="f-alternative-phone">Alternative phone number</label>
                 <input type="text" id="f-alternative-phone" name="alternative_phone_no" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" autocomplete="off" title="Enter exactly 11 digits." required>
             </div>
 
             <div class="full">
-                <label for="f-home-address">HOME ADDRESS:</label>
+                <label for="f-home-address">Home address</label>
                 <textarea id="f-home-address" name="home_address" rows="3" autocomplete="street-address" required></textarea>
             </div>
 
             <div>
-                <label for="f-residence-state">STATE OF RESIDENCE:</label>
+                <label for="f-residence-state">State of residence</label>
                 <select id="f-residence-state" name="state_of_residence" autocomplete="address-level1" required>
                     <option value="">Select your state of residence</option>
                     <option value="Abia">Abia</option>
@@ -1413,17 +383,17 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
             </div>
 
             <div>
-                <label for="f-date-of-birth">DATE OF BIRTH:</label>
+                <label for="f-date-of-birth">Date of birth</label>
                 <input type="date" id="f-date-of-birth" name="date_of_birth" autocomplete="bday" required>
             </div>
 
             <div>
-                <label for="f-local-govt">LOCAL GOVT:</label>
+                <label for="f-local-govt">Local government area</label>
                 <input type="text" id="f-local-govt" name="local_govt" required>
             </div>
 
             <div>
-                <label for="f-geopolitical-zone">GEO POLITICAL ZONE:</label>
+                <label for="f-geopolitical-zone">Geopolitical zone</label>
                 <select id="f-geopolitical-zone" name="geo_political_zone" required>
                     <option value="">Select geopolitical zone</option>
                     <option value="North Central">North Central</option>
@@ -1437,7 +407,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
         </div>
 
         <div class="privacy-note">
-            <strong>Note:</strong> Make sure your email address and phone number have not been used before for an Android BVN user.
+            <strong>Note:</strong> Use an email address and phone number that have not already been registered for an Android BVN account.
         </div>
 
         <button class="btn btn-primary" type="submit" style="width:100%;padding:12px;margin-top:5px;">
@@ -1448,8 +418,8 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     </form>
 
     <section class="card dashboard-card">
-        <h2 class="section-heading" id="my-applications">Your applications</h2>
-        <p class="section-description">View the applications you have submitted and check their latest status.</p>
+        <h2 class="section-heading" id="my-applications">Applications</h2>
+        <p class="section-description">Your submitted applications and their current status.</p>
 
         <div class="table-wrapper">
             <table class="applications-table">
@@ -1492,7 +462,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     <section class="customer-care-banner">
         <div>
             <h2>Need help?</h2>
-            <p>Contact our support team if you have a question about a service, payment or application.</p>
+            <p>Our support team can help with services, payments and applications.</p>
         </div>
         <a href="support.html">Contact support</a>
     </section>
