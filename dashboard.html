@@ -1173,9 +1173,9 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 /* Service cards: restore a clean responsive layout without fixed card heights. */
 .dashboard-page .svcs{
   display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   align-items:stretch!important;
-  gap:16px!important;
+  gap:18px!important;
 }
 .dashboard-page .service-card{
   min-width:0!important;
@@ -1203,7 +1203,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 }
 @media(max-width:700px){
   .dashboard-page .svcs{
-    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
     gap:12px!important;
   }
   .dashboard-page .service-card{padding:16px!important}
