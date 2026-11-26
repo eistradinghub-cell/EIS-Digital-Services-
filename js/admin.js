@@ -882,7 +882,15 @@ showNotice("The start date must be before the end date.", "error");
 return;
 }
 renderApplications();
-const count = getFilteredApplications().length;
+const filtered = getFilteredApplications();
+const count = filtered.length;
+const referenceQuery = String($("application-reference-search")?.value || "").trim();
+if (referenceQuery && filtered[0]) {
+    const card = document.querySelector(`[data-application-card="${CSS.escape(String(filtered[0].id))}"]`);
+    const summary = card?.querySelector("[data-toggle-application]");
+    if (summary && summary.getAttribute("aria-expanded") !== "true") summary.click();
+    card?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
 showNotice(count ? `${count} matching applications found.` : "No applications match these filters.", count ? "success" : "error");
 }
 
