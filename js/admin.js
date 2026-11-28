@@ -3060,7 +3060,7 @@ error
 realtimeChannels = [];
 }
 
-supabase.auth.onAuthStateChange((event, session) => {
+const adminAuthListener = supabase.auth.onAuthStateChange((event, session) => {
 if (event === "SIGNED_OUT") {
 currentUser = null;
 currentProfile = null;
@@ -3068,7 +3068,14 @@ removeRealtimeSubscriptions();
 }
 });
 
+async function destroyAdminPage() {
+await removeRealtimeSubscriptions();
+adminAuthListener?.data?.subscription?.unsubscribe?.();
+}
+document.addEventListener("eis:before-page-change", destroyAdminPage, { once: true });
+
 window.EISAdmin = {
+destroy: destroyAdminPage,
 refreshDashboard,
 refreshApplications,
 refreshPayments,
