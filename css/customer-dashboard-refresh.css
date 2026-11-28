@@ -368,13 +368,13 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
   .dashboard-page .payment-history-content{padding:0 10px 10px!important}
 }
 
-/* Android: fit the complete welcome title inside the intro card on one line. */
+/* Android: reduce the current mobile welcome title size by a further 20%. */
 @media (max-width:760px){
   .dashboard-page .dashboard-intro{min-width:0!important}
   .dashboard-page .dashboard-intro h1{
     display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
     margin-right:0!important;box-sizing:border-box!important;
-    font-size:clamp(11px,3.6vw,14px)!important;
+    font-size:clamp(8.8px,2.88vw,11.2px)!important;
     line-height:1.3!important;letter-spacing:-.25px!important;
     white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;
   }
