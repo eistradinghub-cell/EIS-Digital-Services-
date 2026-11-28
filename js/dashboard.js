@@ -16,6 +16,8 @@ let notificationsCache = [];
 let currentPaymentReference = null;
 let paymentBusy = false;
 let applicationModeActive = false;
+let paymentHistoryLoaded = false;
+let paymentHistoryLoading = false;
 
 const $ = id => document.getElementById(id);
 
@@ -1354,10 +1356,12 @@ function updateApplicationOverview(applications) {
 
 async function loadPaymentHistory() {
     const container = $("payments-list");
-    if (!currentUser || !container) return;
+    if (!currentUser || !container || paymentHistoryLoaded || paymentHistoryLoading) return;
 
-    // Keep the current rows visible while refreshing so the page does not collapse
-    // and pull the customer away from their current scroll position.
+    paymentHistoryLoading = true;
+    container.replaceChildren();
+
+    // Fetch this optional, collapsed panel only when the customer opens it.
     try {
         const { data, error } = await supabase
             .from("payments")
@@ -1375,6 +1379,7 @@ async function loadPaymentHistory() {
             cell.textContent = "No payments found.";
             row.appendChild(cell);
             container.appendChild(row);
+            paymentHistoryLoaded = true;
             return;
         }
 
@@ -1423,6 +1428,8 @@ async function loadPaymentHistory() {
             row.append(reference, service, date, amount, status, receipt);
             container.appendChild(row);
         });
+
+        paymentHistoryLoaded = true;
     } catch (error) {
         console.error("Payment history loading error:", error);
 
@@ -1433,6 +1440,8 @@ async function loadPaymentHistory() {
         cell.textContent = "We could not load your payment history. Refresh the page to try again.";
         row.appendChild(cell);
         container.appendChild(row);
+    } finally {
+        paymentHistoryLoading = false;
     }
 }
 
@@ -2259,10 +2268,15 @@ async function initializeDashboard() {
     await loadUserProfile();
     populateProfileSettings();
 
+    const paymentHistoryDetails = document.querySelector(".payment-history-details");
+    paymentHistoryDetails?.addEventListener("toggle", () => {
+        if (paymentHistoryDetails.open) loadPaymentHistory();
+    });
+
+
     await Promise.all([
         loadServices(),
         loadApplications(),
-        loadPaymentHistory(),
         loadNotifications()
     ]);
 

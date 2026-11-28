@@ -20,7 +20,10 @@ let auditPage = 1;
 let auditHasNextPage = false;
 const AUDIT_PAGE_SIZE = 25;
 let servicesCache = [];
+let servicesLoaded = false;
 let conversationsCache = [];
+let conversationsLoaded = false;
+let unreadConversationCount = 0;
 let currentConversation = null;
 let currentChatMessages = [];
 let conversationLoadSequence = 0;
@@ -28,6 +31,10 @@ let chatMessageLoadSequence = 0;
 let realtimeChannels = [];
 let noticeTimer = null;
 let isSendingMessage = false;
+let applicationReloadTimer = null;
+let unreadConversationReloadTimer = null;
+let conversationsReloadTimer = null;
+let chatMessagesReloadTimer = null;
 
 function escapeHTML(value) {
 return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -292,6 +299,7 @@ setupNavigation();
 setupSidebar();
 setupEventListeners();
 await loadAllDashboardData();
+document.documentElement.classList.remove("eis-admin-check");
 
 // Restore the last admin section after refresh instead of forcing Overview.
 const savedSection = sessionStorage.getItem("eis_admin_current_section");
@@ -322,6 +330,7 @@ showNotice(
 error.message || "Unable to initialize admin dashboard.",
 "error"
 );
+document.documentElement.classList.remove("eis-admin-check");
 }
 }
 
@@ -387,10 +396,11 @@ new Date().getFullYear();
 }
 
 async function loadAllDashboardData() {
-await Promise.allSettled([
+// Load only the data needed for the initial Overview. Marketplace,
+// Prices and Customer Care fetch their data the first time they are opened.
+await Promise.all([
 loadApplications(),
-loadServices(),
-loadConversations()
+loadUnreadConversationCount()
 ]);
 
 renderStatistics();
@@ -431,12 +441,9 @@ $("applications-badge").textContent = unreadCount;
 $("applications-badge").style.display = unreadCount ? "inline-flex" : "none";
 }
 
-const unread = conversationsCache.reduce((sum, conversation) => {
-return sum + Number(conversation.unread_admin_count || 0);
-}, 0);
-
 if ($("chat-badge")) {
-$("chat-badge").textContent = unread;
+$("chat-badge").textContent = unreadConversationCount;
+$("chat-badge").style.display = unreadConversationCount ? "inline-flex" : "none";
 }
 }
 
@@ -1707,6 +1714,7 @@ return;
 }
 
 servicesCache = data || [];
+servicesLoaded = true;
 renderServices();
 renderStatistics();
 }
@@ -1950,6 +1958,41 @@ showNotice(
 }
 }
 
+async function loadUnreadConversationCount() {
+const { data, error } = await supabase
+.from("chat_conversations")
+.select("unread_admin_count")
+.gt("unread_admin_count", 0);
+
+if (error) {
+console.warn("Unread conversation count could not be refreshed:", error);
+return;
+}
+
+unreadConversationCount = (data || []).reduce((sum, item) => {
+return sum + Math.max(0, Number(item.unread_admin_count || 0));
+}, 0);
+
+if ($("chat-badge")) {
+$("chat-badge").textContent = unreadConversationCount;
+$("chat-badge").style.display = unreadConversationCount ? "inline-flex" : "none";
+}
+}
+
+function scheduleConversationRefresh({ refreshList = false } = {}) {
+clearTimeout(unreadConversationReloadTimer);
+unreadConversationReloadTimer = setTimeout(loadUnreadConversationCount, 250);
+
+if (refreshList) {
+clearTimeout(conversationsReloadTimer);
+conversationsReloadTimer = setTimeout(() => {
+if ($("section-customer-care")?.classList.contains("active")) {
+loadConversations();
+}
+}, 250);
+}
+}
+
 async function loadConversations() {
 const requestId = ++conversationLoadSequence;
 setLoading("admin-conversations-list", "Loading conversations...");
@@ -1961,6 +2004,10 @@ if (error) { console.error('Conversation error:', error); showError('admin-conve
 const enriched = await loadConversationCustomers(data || []);
 if (requestId !== conversationLoadSequence) return;
 conversationsCache = enriched;
+unreadConversationCount = conversationsCache.reduce((sum, item) => {
+return sum + Math.max(0, Number(item.unread_admin_count || 0));
+}, 0);
+conversationsLoaded = true;
 if (currentConversation) currentConversation = conversationsCache.find(item => item.id === currentConversation.id) || null;
 updateConversationSummary();
 renderConversations();
@@ -2283,7 +2330,13 @@ console.warn("Could not save current admin section:", error);
 
 target.classList.add("active");
 
+if (sectionName === "marketplace") {
+  window.EISMarketplaceAdmin?.ensureLoaded?.();
+}
+
 if (sectionName === "applications") markApplicationsAsSeen();
+if (["marketplace", "prices"].includes(sectionName) && !servicesLoaded) loadServices();
+if (sectionName === "customer-care" && !conversationsLoaded) loadConversations();
 if (sectionName === "payments") loadPayments();
 if (sectionName === "reports") loadReports();
 if (sectionName === "customers") loadCustomers();
@@ -2962,7 +3015,12 @@ schema: "public",
 table: "applications"
 },
 () => {
-loadApplications();
+  // Coalesce rapid database events into one refresh instead of
+  // starting several overlapping application/profile queries.
+  clearTimeout(applicationReloadTimer);
+  applicationReloadTimer = setTimeout(() => {
+    loadApplications();
+  }, 250);
 }
 )
 .subscribe();
@@ -2996,7 +3054,10 @@ schema: "public",
 table: "services"
 },
 () => {
+servicesLoaded = false;
+if (["marketplace", "prices"].some(name => $("section-" + name)?.classList.contains("active"))) {
 loadServices();
+}
 }
 )
 .subscribe();
@@ -3013,7 +3074,8 @@ schema: "public",
 table: "chat_conversations"
 },
 () => {
-loadConversations();
+conversationsLoaded = false;
+scheduleConversationRefresh({ refreshList: true });
 }
 )
 .subscribe();
@@ -3034,10 +3096,16 @@ if (
 currentConversation &&
 payload.new?.conversation_id === currentConversation.id
 ) {
-loadChatMessages(currentConversation.id);
+clearTimeout(chatMessagesReloadTimer);
+chatMessagesReloadTimer = setTimeout(() => {
+if (currentConversation) loadChatMessages(currentConversation.id);
+}, 150);
 }
 
-loadConversations();
+if ($("section-customer-care")?.classList.contains("active")) {
+conversationsLoaded = false;
+scheduleConversationRefresh({ refreshList: true });
+}
 }
 )
 .subscribe();

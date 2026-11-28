@@ -4,6 +4,21 @@ const $ = (id) => document.getElementById(id);
 
 let adminUser = null;
 let products = [];
+let productsLoaded = false;
+let productsLoading = false;
+let resolveMarketplaceAdminReady;
+const marketplaceAdminReady = new Promise(resolve => {
+    resolveMarketplaceAdminReady = resolve;
+});
+
+window.EISMarketplaceAdmin = {
+    ensureLoaded: async () => {
+        const ready = await marketplaceAdminReady;
+        if (ready && !productsLoaded && !productsLoading) {
+            await loadProducts();
+        }
+    }
+};
 let selectedImages = [];
 let previewObjectURLs = [];
 
@@ -492,6 +507,9 @@ function renderProducts() {
 }
 
 async function loadProducts() {
+    if (productsLoading) return;
+    productsLoading = true;
+
     const container = $("marketplace-products-list");
 
     if (container) {
@@ -509,6 +527,7 @@ async function loadProducts() {
         if (error) throw error;
 
         products = data || [];
+        productsLoaded = true;
         renderProducts();
 
         if ($("stat-products")) {
@@ -525,6 +544,8 @@ async function loadProducts() {
                 </div>
             `;
         }
+    } finally {
+        productsLoading = false;
     }
 }
 
@@ -692,15 +713,31 @@ function setupMarketplaceAdmin() {
 }
 
 async function initializeMarketplaceAdmin() {
-    if (!$("marketplace-product-form")) return;
+    if (!$("marketplace-product-form")) {
+        resolveMarketplaceAdminReady(false);
+        return;
+    }
 
     try {
         await verifyAdmin();
         setupMarketplaceAdmin();
-        await loadProducts();
+
+        // Keep the Overview product total accurate without loading every
+        // product record and rendering the full management list up front.
+        const { count, error } = await supabase
+            .from("marketplace_products")
+            .select("id", { count: "exact", head: true });
+
+        if (error) throw error;
+        if ($("stat-products")) {
+            $("stat-products").textContent = Number(count || 0).toLocaleString();
+        }
+
+        resolveMarketplaceAdminReady(true);
     } catch (error) {
         console.error("Marketplace admin initialization error:", error);
         showMessage(error.message, "error");
+        resolveMarketplaceAdminReady(false);
     }
 }
 
