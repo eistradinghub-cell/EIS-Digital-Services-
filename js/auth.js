@@ -697,11 +697,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
         updateNavigation(null);
 
-        if (pendingVerificationEmail) {
-            showVerificationView(pendingVerificationEmail);
-        } else {
-            showView(viewHome);
-        }
+        showView(viewHome);
     }
 });
 
