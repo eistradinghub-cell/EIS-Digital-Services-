@@ -47,8 +47,8 @@ ${returnText ? `<div class="return"><strong>Expected return</strong>${escapeHTML
 </html>`;
 }
 
-async function readMaintenanceStatus() {
-    const cacheKey = new Request("https://eis-maintenance-cache.invalid/site-runtime-status");
+async function readMaintenanceStatus(request) {
+    const cacheKey = new Request(new URL("/__eis-internal/maintenance-status-cache", request.url).toString());
     try {
         if (typeof caches !== "undefined" && caches.default) {
             const cached = await caches.default.match(cacheKey);
@@ -93,7 +93,7 @@ export async function onRequest(context) {
     }
 
     try {
-        const status = await readMaintenanceStatus();
+        const status = await readMaintenanceStatus(context.request);
         if (status.maintenance_enabled !== true) return context.next();
 
         const headers = {
