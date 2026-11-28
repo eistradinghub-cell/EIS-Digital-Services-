@@ -699,7 +699,7 @@ async function loadServices() {
             const button = document.createElement("button");
 
             button.type = "button";
-            button.textContent = "View service";
+            button.textContent = "Select & Pay";
 
             card.tabIndex = 0;
             card.setAttribute("aria-label", `Select ${service.name || "service"}`);
