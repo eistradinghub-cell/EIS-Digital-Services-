@@ -1377,6 +1377,43 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
     }
 }
 </style>
+
+<style id="eis-service-card-sizing">
+/* Keep service cards evenly sized and make the service name easier to read. */
+.dashboard-page #services-container{
+    grid-auto-rows:1fr;
+    align-items:stretch;
+}
+.dashboard-page #services-container .service-card{
+    height:100%;
+    min-height:250px;
+    padding:20px;
+}
+.dashboard-page #services-container .service-card h3{
+    margin:4px 0 12px;
+    font-size:19px;
+    line-height:1.35;
+    font-weight:750;
+    letter-spacing:-.25px;
+}
+.dashboard-page #services-container .service-provider-label{
+    margin-bottom:14px;
+}
+@media(max-width:700px){
+    .dashboard-page #services-container .service-card{
+        min-height:232px;
+        padding:17px 15px;
+    }
+    .dashboard-page #services-container .service-card h3{
+        font-size:18px;
+        line-height:1.35;
+        margin-bottom:11px;
+    }
+    .dashboard-page #services-container .service-provider-label{
+        margin-bottom:12px;
+    }
+}
+</style>
 </head>
 
 <body class="dashboard-page">
