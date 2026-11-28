@@ -1,12 +1,28 @@
 {
   "version": 1,
   "include": [
-    "/",
-    "/*.html",
-    "/api/*"
+    "/*"
   ],
   "exclude": [
     "/admin.html",
-    "/api/paystack/webhook"
+    "/admin",
+    "/admin/*",
+    "/api/paystack/webhook",
+    "/css/*",
+    "/js/*",
+    "/supabase/*",
+    "/favicon.ico",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/*.png",
+    "/*.jpg",
+    "/*.jpeg",
+    "/*.webp",
+    "/*.svg",
+    "/*.ico",
+    "/*.woff",
+    "/*.woff2",
+    "/*.ttf",
+    "/*.map"
   ]
 }
