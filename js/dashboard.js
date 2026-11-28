@@ -10,6 +10,7 @@ let currentUser = null;
 let currentProfile = null;
 let currentCustomerName = "";
 let selectedService = null;
+let pendingApplicationDraft = null;
 let servicesCache = [];
 let notificationsCache = [];
 let currentPaymentReference = null;
@@ -753,6 +754,16 @@ function selectService(service) {
     }
 
     selectedService = service;
+
+    // Restore saved form fields only after the customer deliberately selects
+    // the same service again. A page refresh must never reopen Payment Summary.
+    if (
+        pendingApplicationDraft &&
+        String(pendingApplicationDraft.service_id) === String(service.id)
+    ) {
+        restoreApplicationFormData(pendingApplicationDraft.form_data || {});
+    }
+    pendingApplicationDraft = null;
 
     // Keep exactly one service visibly selected.
     const serviceCards = document.querySelectorAll("#services-container .service-card");
@@ -2157,11 +2168,9 @@ function restoreApplicationDraft() {
             return;
         }
 
-        selectedService = service;
-        updateServiceAccountFieldLabel();
-        restoreApplicationFormData(draft.form_data || {});
-
-        renderPaymentReview();
+        // Keep the saved application fields available, but do not select a
+        // service or reveal Payment Summary automatically after a refresh.
+        pendingApplicationDraft = draft;
 
     } catch (error) {
         console.error("Draft restoration error:", error);
