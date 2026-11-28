@@ -380,3 +380,45 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 
 /* Mobile welcome-card sizing is controlled by the dedicated reference-welcome rules in dashboard.html. */
 
+
+
+/* Service selection state */
+.dashboard-page #services-container .service-card{
+    position:relative;
+    cursor:pointer;
+    transition:border-color .18s ease, box-shadow .18s ease, background-color .18s ease, transform .18s ease;
+}
+.dashboard-page #services-container .service-card:focus-visible{
+    outline:3px solid rgba(22,132,119,.22);
+    outline-offset:3px;
+}
+.dashboard-page #services-container .service-card.is-selected{
+    border:2px solid #168477!important;
+    border-top:4px solid #168477!important;
+    background:#f3faf8!important;
+    box-shadow:0 0 0 3px rgba(22,132,119,.12), 0 7px 18px rgba(20,75,67,.09)!important;
+}
+.dashboard-page #services-container .service-card.is-selected::after{
+    content:"✓";
+    position:absolute;
+    top:9px;
+    right:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:#168477;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    line-height:1;
+}
+.dashboard-page #services-container .service-card.is-selected button{
+    background:#116d63!important;
+    border-color:#116d63!important;
+}
+@media(prefers-reduced-motion:reduce){
+    .dashboard-page #services-container .service-card{transition:none!important}
+}
