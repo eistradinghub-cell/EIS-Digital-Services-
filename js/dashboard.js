@@ -1361,8 +1361,7 @@ async function loadPaymentHistory() {
     paymentHistoryLoading = true;
     container.replaceChildren();
 
-    // Keep the current rows visible while refreshing so the page does not collapse
-    // and pull the customer away from their current scroll position.
+    // Fetch this optional, collapsed panel only when the customer opens it.
     try {
         const { data, error } = await supabase
             .from("payments")
@@ -1381,7 +1380,6 @@ async function loadPaymentHistory() {
             row.appendChild(cell);
             container.appendChild(row);
             paymentHistoryLoaded = true;
-            paymentHistoryLoading = false;
             return;
         }
 
