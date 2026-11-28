@@ -438,6 +438,7 @@ $("applications-badge").style.display = unreadCount ? "inline-flex" : "none";
 
 if ($("chat-badge")) {
 $("chat-badge").textContent = unreadConversationCount;
+$("chat-badge").style.display = unreadConversationCount ? "inline-flex" : "none";
 }
 }
 
