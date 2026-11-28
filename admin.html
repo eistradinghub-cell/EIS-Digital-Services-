@@ -8,7 +8,7 @@
     <meta name="description" content="Manage EIS Digital Services applications, products and customer messages.">
     <title>Administration | EIS Digital Services</title>
     <link rel="stylesheet" href="css/styles.css?v=28">
-    <link rel="stylesheet" href="css/admin.css?v=60">
+    <link rel="stylesheet" href="css/admin.css?v=61">
     <link rel="stylesheet" href="css/shared-navigation.css?v=3">
     <link rel="stylesheet" href="css/admin-sidebar-light.css?v=2">
     <link rel="stylesheet" href="css/site-settings-responsive.css?v=9">
@@ -1337,6 +1337,40 @@
 
     <div id="site-settings-feedback" class="admin-settings-notice" role="status" aria-live="polite" hidden></div>
 
+    <div class="admin-panel maintenance-mode-panel">
+        <div class="admin-panel-header">
+            <div>
+                <h3>Maintenance mode</h3>
+                <p>Temporarily pause customer access while you work on the website.</p>
+            </div>
+            <span id="maintenance-mode-badge" class="maintenance-mode-badge" data-state="live">Website live</span>
+        </div>
+
+        <div class="maintenance-mode-description">
+            When maintenance is enabled, customers will see a maintenance notice instead of the website. Customer pages and new service/payment requests will be paused. The admin dashboard and administrator sign-in remain available.
+        </div>
+
+        <form id="maintenance-mode-form" class="admin-form">
+            <div class="admin-form-group">
+                <label for="maintenance-mode-message">Message shown to customers</label>
+                <textarea id="maintenance-mode-message" rows="3" maxlength="500">We are carrying out scheduled maintenance. Please check back shortly.</textarea>
+                <small>Keep the message clear and let customers know what is happening.</small>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="maintenance-mode-return">Expected return time (optional)</label>
+                <input type="datetime-local" id="maintenance-mode-return">
+                <small>Leave this empty if you do not have a confirmed return time.</small>
+            </div>
+
+            <div class="maintenance-mode-actions">
+                <button type="button" id="maintenance-mode-enable" class="maintenance-enable-button">Enable maintenance</button>
+                <button type="button" id="maintenance-mode-disable" class="admin-primary-button" disabled>Resume website</button>
+            </div>
+            <p id="maintenance-mode-updated" class="maintenance-mode-updated" role="status" aria-live="polite">Checking current website status...</p>
+        </form>
+    </div>
+
     <div class="admin-panel">
         <div class="admin-panel-header">
             <div class="site-settings-panel-heading">
@@ -1493,7 +1527,7 @@
 </div>
 
 <!-- Main administration functionality -->
-<script type="module" src="js/admin.js?v=27"></script>
+<script type="module" src="js/admin.js?v=28"></script>
 
 <!-- Marketplace product management -->
 <script type="module" src="js/marketplace-admin.js?v=6"></script>
