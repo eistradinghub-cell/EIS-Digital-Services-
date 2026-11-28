@@ -4140,3 +4140,114 @@
         padding-bottom: 3px !important;
     }
 }
+
+
+/* Site maintenance controls */
+.maintenance-mode-panel .admin-panel-header {
+    align-items: flex-start;
+    gap: 14px;
+}
+.maintenance-mode-panel .admin-panel-header h3 {
+    margin: 0 0 5px;
+    color: #142d4e;
+}
+.maintenance-mode-panel .admin-panel-header p {
+    margin: 0;
+    color: #687783;
+    line-height: 1.55;
+}
+.maintenance-mode-badge {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 29px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #e8f6ef;
+    color: #16734a;
+    font-size: 11px;
+    font-weight: 700;
+}
+.maintenance-mode-badge[data-state="maintenance"] {
+    background: #fff1e8;
+    color: #a84618;
+}
+.maintenance-mode-description {
+    margin: 0 24px;
+    padding: 13px 15px;
+    border: 1px solid #e4eaf0;
+    border-radius: 10px;
+    background: #f8fafb;
+    color: #536474;
+    font-size: 13px;
+    line-height: 1.65;
+}
+.maintenance-mode-panel .admin-form {
+    padding-top: 18px;
+}
+.maintenance-mode-panel textarea,
+.maintenance-mode-panel input[type="datetime-local"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 13px;
+    border: 1px solid #dce4e9;
+    border-radius: 9px;
+    background: #fff;
+    color: #253342;
+    font: inherit;
+}
+.maintenance-mode-panel textarea {
+    min-height: 88px;
+    resize: vertical;
+}
+.maintenance-mode-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.maintenance-mode-actions button {
+    min-height: 42px;
+}
+.maintenance-enable-button {
+    padding: 10px 16px;
+    border: 1px solid #b83a3a;
+    border-radius: 8px;
+    background: #fff;
+    color: #a52f2f;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+.maintenance-enable-button:hover:not(:disabled) {
+    background: #fff3f1;
+}
+.maintenance-mode-actions button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+.maintenance-mode-updated {
+    margin: 13px 0 0;
+    color: #687783;
+    font-size: 12px;
+    line-height: 1.5;
+}
+@media (max-width: 600px) {
+    .maintenance-mode-panel .admin-panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .maintenance-mode-description {
+        margin: 0 15px;
+    }
+    .maintenance-mode-panel .admin-form {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .maintenance-mode-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+    .maintenance-mode-actions button {
+        width: 100%;
+    }
+}
