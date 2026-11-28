@@ -291,6 +291,7 @@ updateDate();
 setupNavigation();
 setupSidebar();
 setupEventListeners();
+setupGoogleFormSettings();
 await loadAllDashboardData();
 
 // Restore the last admin section after refresh instead of forcing Overview.
@@ -2694,6 +2695,11 @@ async function setManagedAdminRole(email, makeAdmin, button) {
   }
 }
 
+
+async function loadGoogleFormSettings(){const input=$("site-google-form-url"),status=$("site-google-form-status");if(!input||!status)return;try{const{data,error}=await supabase.from("site_settings").select("setting_value").eq("setting_key","google_form_url").maybeSingle();if(error)throw error;const v=typeof data?.setting_value==="string"?data.setting_value:data?.setting_value?.url||"";input.value=v;status.textContent=v?"Google Form link saved.":"No Google Form connected."}catch(e){console.error(e);status.textContent="Could not load the saved Google Form link."}}
+function setupGoogleFormSettings(){const form=$("site-google-form-settings"),input=$("site-google-form-url"),status=$("site-google-form-status"),save=$("site-google-form-save"),clear=$("site-google-form-clear");if(!form||form.dataset.ready==="true")return;form.dataset.ready="true";form.addEventListener("submit",async e=>{e.preventDefault();const value=input.value.trim();let u;try{u=new URL(value)}catch{showNotice("Enter a valid Google Form link.","error");return}if(u.hostname!=="docs.google.com"||!u.pathname.includes("/forms/")){showNotice("Use a Google Form link from docs.google.com.","error");return}save.disabled=true;save.textContent="Saving...";try{const{error}=await supabase.from("site_settings").upsert({setting_key:"google_form_url",setting_value:{url:value},updated_at:new Date().toISOString(),updated_by:currentUser.id},{onConflict:"setting_key"});if(error)throw error;status.textContent="Google Form link saved.";showNotice("Google Form link saved successfully.")}catch(err){showNotice("Could not save Google Form link: "+err.message,"error")}finally{save.disabled=false;save.textContent="Save"}});clear?.addEventListener("click",async()=>{if(!confirm("Remove the connected Google Form link?"))return;clear.disabled=true;try{const{error}=await supabase.from("site_settings").delete().eq("setting_key","google_form_url");if(error)throw error;input.value="";status.textContent="No Google Form connected.";showNotice("Google Form link removed.")}catch(e){showNotice("Could not remove the Google Form link: "+e.message,"error")}finally{clear.disabled=false}});loadGoogleFormSettings()}
+async function sendApplicationToGoogleForm(appId,button){const original=button.innerHTML;button.disabled=true;button.innerHTML='<span class="admin-send-copy"><strong>Sending...</strong><small>Please wait</small></span>';try{const{data,error}=await supabase.functions.invoke("google-form-transfer",{body:{application_id:appId}});if(error)throw error;if(!data?.success)throw new Error(data?.error||"Transfer failed.");showNotice("Application sent successfully. Reference: "+data.reference);button.innerHTML='<span class="admin-send-copy"><strong>Sent</strong><small>to Google Forms</small></span>';button.classList.add("is-sent")}catch(e){console.error(e);showNotice(e.message||"Google Form transfer failed.","error");button.innerHTML=original;button.disabled=false}}
+
 function setupEventListeners() {
 $("admin-manage-form")?.addEventListener("submit", event => {
   event.preventDefault();
@@ -2911,7 +2917,7 @@ return;
 const sendApplicationButton = event.target.closest("[data-send-application]");
 if (sendApplicationButton) {
 event.preventDefault();
-showNotice("The Send button is in place. Google Forms transfer still needs its secure sending endpoint configured in Site Settings.", "error");
+sendApplicationToGoogleForm(sendApplicationButton.dataset.sendApplication, sendApplicationButton);
 return;
 }
 const saveStatusButton = event.target.closest("[data-save-app-status]");
