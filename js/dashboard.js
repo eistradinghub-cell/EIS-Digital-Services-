@@ -199,24 +199,7 @@ function applyDashboardWelcomeStyle() {
     style.id = "eis-dashboard-welcome-style";
 
     style.textContent = `
-        .dashboard-page .dashboard-intro {
-            background: linear-gradient(
-                118deg,
-                #e8f1ff 0%,
-                #f1f6ff 48%,
-                #dceaff 100%
-            ) !important;
-            border: 1px solid #c9dcfa !important;
-            box-shadow: 0 8px 24px rgba(34,83,145,.10) !important;
-        }
-
-        .dashboard-page .dashboard-intro h1 {
-            color: #174b91 !important;
-        }
-
-        .dashboard-page .dashboard-intro p {
-            color: #647c9b !important;
-        }
+        /* Welcome panel appearance is controlled by the dashboard stylesheets. */
 
         #pay-section .eis-payment-box {
             padding: 17px;
