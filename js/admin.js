@@ -23,6 +23,7 @@ let servicesCache = [];
 let servicesLoaded = false;
 let conversationsCache = [];
 let conversationsLoaded = false;
+let unreadConversationCount = 0;
 let currentConversation = null;
 let currentChatMessages = [];
 let conversationLoadSequence = 0;
@@ -392,7 +393,10 @@ new Date().getFullYear();
 async function loadAllDashboardData() {
 // Load only the data needed for the initial Overview. Marketplace,
 // Prices and Customer Care fetch their data the first time they are opened.
-await loadApplications();
+await Promise.all([
+loadApplications(),
+loadUnreadConversationCount()
+]);
 
 renderStatistics();
 }
@@ -432,12 +436,8 @@ $("applications-badge").textContent = unreadCount;
 $("applications-badge").style.display = unreadCount ? "inline-flex" : "none";
 }
 
-const unread = conversationsCache.reduce((sum, conversation) => {
-return sum + Number(conversation.unread_admin_count || 0);
-}, 0);
-
 if ($("chat-badge")) {
-$("chat-badge").textContent = unread;
+$("chat-badge").textContent = unreadConversationCount;
 }
 }
 
@@ -1952,6 +1952,27 @@ showNotice(
 }
 }
 
+async function loadUnreadConversationCount() {
+const { data, error } = await supabase
+.from("chat_conversations")
+.select("unread_admin_count")
+.gt("unread_admin_count", 0);
+
+if (error) {
+console.warn("Unread conversation count could not be refreshed:", error);
+return;
+}
+
+unreadConversationCount = (data || []).reduce((sum, item) => {
+return sum + Math.max(0, Number(item.unread_admin_count || 0));
+}, 0);
+
+if ($("chat-badge")) {
+$("chat-badge").textContent = unreadConversationCount;
+$("chat-badge").style.display = unreadConversationCount ? "inline-flex" : "none";
+}
+}
+
 async function loadConversations() {
 const requestId = ++conversationLoadSequence;
 setLoading("admin-conversations-list", "Loading conversations...");
@@ -1963,6 +1984,9 @@ if (error) { console.error('Conversation error:', error); showError('admin-conve
 const enriched = await loadConversationCustomers(data || []);
 if (requestId !== conversationLoadSequence) return;
 conversationsCache = enriched;
+unreadConversationCount = conversationsCache.reduce((sum, item) => {
+return sum + Math.max(0, Number(item.unread_admin_count || 0));
+}, 0);
 conversationsLoaded = true;
 if (currentConversation) currentConversation = conversationsCache.find(item => item.id === currentConversation.id) || null;
 updateConversationSummary();
@@ -3027,6 +3051,7 @@ table: "chat_conversations"
 },
 () => {
 conversationsLoaded = false;
+loadUnreadConversationCount();
 if ($("section-customer-care")?.classList.contains("active")) {
 loadConversations();
 }
