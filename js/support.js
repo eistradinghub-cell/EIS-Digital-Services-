@@ -470,14 +470,12 @@ async function initializeSupport() {
    CLEANUP
 ========================================= */
 
-async function destroySupportPage() {
+window.addEventListener('beforeunload', () => {
     if (realtimeChannel) {
-        await supabase.removeChannel(realtimeChannel);
+        supabase.removeChannel(realtimeChannel);
         realtimeChannel = null;
     }
-}
-window.addEventListener('beforeunload', destroySupportPage);
-document.addEventListener('eis:before-page-change', destroySupportPage, { once: true });
+});
 
 /* =========================================
    START APPLICATION
@@ -495,6 +493,5 @@ window.EISSupport = {
     initializeSupport,
     loadMessages,
     sendMessage,
-    logout,
-    destroy: destroySupportPage
+    logout
 };

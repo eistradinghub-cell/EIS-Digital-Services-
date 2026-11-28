@@ -1,107 +1,122 @@
-/* EIS Digital Services: client-side navigation for the main application pages. */
+/* EIS DIGITAL SERVICES - SPA NAVIGATION */
+
 (() => {
     "use strict";
 
     if (window.EISSpaNavigationLoaded) return;
     window.EISSpaNavigationLoaded = true;
 
-    const APP_ROUTES = new Set([
+    const ROUTES = [
         "dashboard.html",
         "marketplace.html",
-        "admin.html",
-        "support.html"
-    ]);
+        "admin.html"
+    ];
 
-    let currentRoute = window.location.pathname.split("/").pop() || "dashboard.html";
-    let navigationInProgress = false;
-    let navigationSequence = 0;
+    let navigationNumber = 0;
+    let navigating = false;
 
-    function resolveAppLink(href) {
-        try {
-            const url = new URL(href, window.location.href);
-            const page = url.pathname.split("/").pop();
-            if (url.origin !== window.location.origin || !APP_ROUTES.has(page)) return null;
-            return { page, url };
-        } catch {
-            return null;
-        }
+    function getRoute(url) {
+        const parsed = new URL(url, location.href);
+        const file = parsed.pathname.split("/").pop();
+
+        if (!ROUTES.includes(file)) return null;
+
+        return { file, url: parsed };
     }
 
-    function updateActiveLinks(page) {
+    function updateActiveNavigation(route) {
         document.querySelectorAll("a[href]").forEach(link => {
-            const route = resolveAppLink(link.href);
-            if (!route) return;
-            const selected = route.page === page;
-            link.classList.toggle("active", selected);
-            link.classList.toggle("is-active", selected);
-            if (selected) link.setAttribute("aria-current", "page");
-            else link.removeAttribute("aria-current");
+            const destination = getRoute(link.href);
+            if (!destination) return;
+
+            const active = destination.file === route;
+
+            link.classList.toggle("active", active);
+            link.classList.toggle("is-active", active);
+
+            if (active) {
+                link.setAttribute("aria-current", "page");
+            } else {
+                link.removeAttribute("aria-current");
+            }
         });
     }
 
-    function updateDocumentHead(nextHead) {
-        const nextTitle = nextHead.querySelector("title");
-        if (nextTitle) document.title = nextTitle.textContent;
+    function updateStylesheets(parsedDocument) {
+        const current = Array.from(
+            document.head.querySelectorAll('link[rel="stylesheet"]')
+        );
 
-        document.head.querySelectorAll('meta[name="description"], meta[name="theme-color"]').forEach(node => node.remove());
-        nextHead.querySelectorAll('meta[name="description"], meta[name="theme-color"]').forEach(node => {
-            document.head.appendChild(node.cloneNode(true));
+        const next = Array.from(
+            parsedDocument.head.querySelectorAll('link[rel="stylesheet"]')
+        );
+
+        const nextHrefs = next.map(link =>
+            new URL(link.getAttribute("href"), location.href).href
+        );
+
+        current.forEach(link => {
+            if (
+                !nextHrefs.includes(link.href) &&
+                !link.dataset.keepSpa
+            ) {
+                link.remove();
+            }
         });
 
-        const nextStylesheets = [...nextHead.querySelectorAll('link[rel="stylesheet"]')]
-            .map(node => new URL(node.getAttribute("href"), window.location.href).href);
+        next.forEach(source => {
+            const href = new URL(
+                source.getAttribute("href"),
+                location.href
+            ).href;
 
-        document.head.querySelectorAll('link[rel="stylesheet"]').forEach(node => {
-            if (!nextStylesheets.includes(node.href) && node.dataset.keepSpa !== "true") node.remove();
-        });
+            const exists = Array.from(
+                document.head.querySelectorAll('link[rel="stylesheet"]')
+            ).some(link => link.href === href);
 
-        nextHead.querySelectorAll('link[rel="stylesheet"]').forEach(source => {
-            const href = new URL(source.getAttribute("href"), window.location.href).href;
-            const exists = [...document.head.querySelectorAll('link[rel="stylesheet"]')]
-                .some(node => node.href === href);
             if (!exists) {
-                const stylesheet = source.cloneNode(true);
-                stylesheet.href = href;
-                document.head.appendChild(stylesheet);
+                const link = document.createElement("link");
+                link.rel = "stylesheet";
+                link.href = href;
+                document.head.appendChild(link);
             }
-        });
-
-        document.head.querySelectorAll("style[data-eis-page-style]").forEach(node => node.remove());
-        nextHead.querySelectorAll("style").forEach(source => {
-            const style = source.cloneNode(true);
-            style.dataset.eisPageStyle = "true";
-            document.head.appendChild(style);
         });
     }
 
-    async function executePageScripts(nextBody, sequence) {
-        const pageScripts = [...nextBody.querySelectorAll("script")];
+    async function executePageScripts(parsedDocument) {
+        const scripts = Array.from(
+            parsedDocument.body.querySelectorAll("script")
+        );
 
-        for (const original of pageScripts) {
-            if (sequence !== navigationSequence) return;
-
-            // The navigation controller remains installed once for the whole session.
-            if (original.src && new URL(original.src, window.location.href).pathname.endsWith("/js/spa-navigation.js")) {
-                continue;
-            }
-
+        for (const oldScript of scripts) {
             const script = document.createElement("script");
-            for (const attribute of original.attributes) {
+
+            for (const attribute of oldScript.attributes) {
                 if (attribute.name === "src") {
-                    const source = new URL(attribute.value, window.location.href);
-                    source.searchParams.set("eis-page-load", String(sequence));
+                    const source = new URL(
+                        attribute.value,
+                        location.href
+                    );
+
+                    source.searchParams.set(
+                        "spa-navigation",
+                        String(++navigationNumber)
+                    );
+
                     script.src = source.href;
                 } else {
                     script.setAttribute(attribute.name, attribute.value);
                 }
             }
 
-            if (!original.src) script.textContent = original.textContent;
+            if (!oldScript.src) {
+                script.textContent = oldScript.textContent;
+            }
 
-            if (script.type === "module") {
-                await new Promise((resolve, reject) => {
+            if (script.type === "module" && script.src) {
+                await new Promise(resolve => {
                     script.onload = resolve;
-                    script.onerror = () => reject(new Error("Could not initialize page module: " + (script.src || "inline module")));
+                    script.onerror = resolve;
                     document.body.appendChild(script);
                 });
             } else {
@@ -110,114 +125,119 @@
         }
     }
 
-    async function navigateTo(href, options = {}) {
-        const route = resolveAppLink(href);
-        if (!route) return false;
+    async function navigate(url, options = {}) {
+        const route = getRoute(url);
+        if (!route || navigating) return;
 
-        if (route.page === currentRoute) {
-            if (route.url.hash) {
-                const target = document.getElementById(decodeURIComponent(route.url.hash.slice(1)));
-                target?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-            return true;
+        if (
+            options.history !== false &&
+            route.url.href === location.href
+        ) {
+            return;
         }
 
-        if (navigationInProgress) return true;
-
-        navigationInProgress = true;
-        const sequence = ++navigationSequence;
-        const previousPage = currentRoute;
+        navigating = true;
 
         try {
             const response = await fetch(route.url.href, {
-                method: "GET",
                 credentials: "same-origin",
-                cache: "no-cache",
-                headers: { "X-Requested-With": "EIS-Client-Navigation" }
+                headers: {
+                    "X-Requested-With": "EIS-SPA-Navigation"
+                }
             });
 
-            if (!response.ok) throw new Error("Page request returned HTTP " + response.status);
+            if (!response.ok) {
+                throw new Error(`Page request failed: ${response.status}`);
+            }
 
             const html = await response.text();
-            const nextDocument = new DOMParser().parseFromString(html, "text/html");
-            if (!nextDocument.body || !nextDocument.querySelector("body")) {
-                throw new Error("The requested page returned invalid HTML.");
+
+            const parsedDocument = new DOMParser().parseFromString(
+                html,
+                "text/html"
+            );
+
+            if (!parsedDocument.body) {
+                throw new Error("Invalid page response.");
             }
 
-            // Keep protected routes protected when changing pages without a document reload.
-            const routeGuard = await import(new URL("./route-guard.js", window.location.href).href);
-            const allowed = await routeGuard.enforceProtectedRoute();
-            if (!allowed) return true;
-            if (sequence !== navigationSequence) return true;
-
-            if (options.updateHistory !== false) {
-                window.history.pushState({ eisClientNavigation: true }, "", route.url.href);
+            if (options.history !== false) {
+                history.pushState(
+                    { eisSpa: true },
+                    "",
+                    route.url.href
+                );
             }
 
-            document.dispatchEvent(new CustomEvent("eis:before-page-change", {
-                detail: { from: previousPage, to: route.page }
-            }));
+            updateStylesheets(parsedDocument);
 
-            updateDocumentHead(nextDocument.head);
-            document.body.replaceWith(document.importNode(nextDocument.body, true));
-            currentRoute = route.page;
-            updateActiveLinks(currentRoute);
+            document.title =
+                parsedDocument.title || "EIS Digital Services";
 
-            if (route.url.hash) {
-                const id = decodeURIComponent(route.url.hash.slice(1));
-                document.getElementById(id)?.scrollIntoView();
-            } else {
-                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-            }
+            document.body.replaceWith(
+                document.importNode(parsedDocument.body, true)
+            );
 
-            await executePageScripts(nextDocument.body, sequence);
-            document.dispatchEvent(new CustomEvent("eis:page-loaded", {
-                detail: { route: currentRoute }
-            }));
-            return true;
+            updateActiveNavigation(route.file);
+
+            window.scrollTo(0, 0);
+
+            await executePageScripts(parsedDocument);
+
+            document.dispatchEvent(
+                new CustomEvent("eis:page-loaded", {
+                    detail: { route: route.file }
+                })
+            );
+
         } catch (error) {
-            console.error("EIS client navigation failed; falling back to standard page loading.", error);
-            if (options.allowFullLoad !== false) window.location.assign(route.url.href);
-            return false;
+            console.error("EIS SPA navigation error:", error);
+
+            if (options.fallback !== false) {
+                location.href = route.url.href;
+            }
         } finally {
-            navigationInProgress = false;
+            navigating = false;
         }
     }
 
-    // Capture navigation clicks before page-level handlers can trigger a document load.
-    window.addEventListener("click", event => {
-        if (event.defaultPrevented || event.button !== 0 ||
-            event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    document.addEventListener("click", event => {
+        if (
+            event.defaultPrevented ||
+            event.button !== 0 ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+        ) return;
 
-        const element = event.target instanceof Element ? event.target : event.target?.parentElement;
-        const link = element?.closest("a[href]");
-        if (!link || link.target && link.target.toLowerCase() !== "_self" ||
-            link.hasAttribute("download") ||
-            link.getAttribute("rel")?.split(/\s+/).includes("external")) return;
+        const link = event.target.closest("a");
 
-        const route = resolveAppLink(link.href);
+        if (!link || !link.href) return;
+        if (link.target && link.target !== "_self") return;
+        if (link.hasAttribute("download")) return;
+
+        const route = getRoute(link.href);
         if (!route) return;
 
-        // Same-page hash navigation remains native; cross-page app links use SPA navigation.
-        if (route.page === currentRoute) return;
+        if (new URL(link.href).origin !== location.origin) return;
 
         event.preventDefault();
-        event.stopPropagation();
-        navigateTo(route.url.href);
-    }, true);
+        navigate(link.href);
+    });
 
     window.addEventListener("popstate", () => {
-        const route = resolveAppLink(window.location.href);
-        if (route && route.page !== currentRoute) {
-            navigateTo(window.location.href, { updateHistory: false });
+        if (getRoute(location.href)) {
+            navigate(location.href, {
+                history: false,
+                fallback: true
+            });
         }
     });
 
-    // Mark the current page's inline styles so they can be replaced on the next route.
-    document.head.querySelectorAll("style").forEach(style => {
-        style.dataset.eisPageStyle = "true";
-    });
+    updateActiveNavigation(
+        location.pathname.split("/").pop()
+    );
 
-    window.EISNavigate = navigateTo;
-    updateActiveLinks(currentRoute);
+    console.info("EIS SPA Navigation initialized.");
 })();

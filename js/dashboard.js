@@ -1071,23 +1071,20 @@ function deactivateApplicationMode() {
     }
 }
 
-function protectApplicationFormUnload(event) {
+window.addEventListener("beforeunload", event => {
     if (!applicationModeActive) return;
     event.preventDefault();
     event.returnValue = "";
-}
+});
 
-function protectApplicationFormHistory() {
+window.addEventListener("popstate", () => {
     if (!applicationModeActive) return;
     window.history.pushState(
         { ...(window.history.state || {}), eisApplicationForm: true },
         "",
         window.location.href
     );
-}
-
-window.addEventListener("beforeunload", protectApplicationFormUnload);
-window.addEventListener("popstate", protectApplicationFormHistory);
+});
 
 async function restoreVerifiedPayment(reference) {
     const section = $("pay-section");
@@ -2279,7 +2276,7 @@ async function initializeDashboard() {
    AUTH STATE
 ========================================= */
 
-const dashboardAuthListener = supabase.auth.onAuthStateChange(event => {
+supabase.auth.onAuthStateChange(event => {
     if (event === "SIGNED_OUT") {
         window.location.replace("index.html");
     }
@@ -2287,19 +2284,11 @@ const dashboardAuthListener = supabase.auth.onAuthStateChange(event => {
 
 initializeDashboard();
 
-async function destroyDashboardPage() {
-    window.removeEventListener("beforeunload", protectApplicationFormUnload);
-    window.removeEventListener("popstate", protectApplicationFormHistory);
-    dashboardAuthListener?.data?.subscription?.unsubscribe?.();
-}
-document.addEventListener("eis:before-page-change", destroyDashboardPage, { once: true });
-
 /* =========================================
    PUBLIC DASHBOARD METHODS
 ========================================= */
 
 window.EISDashboard = {
-    destroy: destroyDashboardPage,
     loadServices,
     loadApplications,
     loadPaymentHistory,
