@@ -30,6 +30,7 @@ let chatMessageLoadSequence = 0;
 let realtimeChannels = [];
 let noticeTimer = null;
 let isSendingMessage = false;
+let applicationReloadTimer = null;
 
 function escapeHTML(value) {
 return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -2966,7 +2967,12 @@ schema: "public",
 table: "applications"
 },
 () => {
-loadApplications();
+  // Coalesce rapid database events into one refresh instead of
+  // starting several overlapping application/profile queries.
+  clearTimeout(applicationReloadTimer);
+  applicationReloadTimer = setTimeout(() => {
+    loadApplications();
+  }, 250);
 }
 )
 .subscribe();
