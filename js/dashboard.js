@@ -684,7 +684,13 @@ async function loadServices() {
 
             const title = document.createElement("h3");
 
-            title.textContent = service.name || "Service";
+            title.textContent = "Android BVN User";
+
+            const provider = document.createElement("span");
+            provider.className = "service-provider-label";
+            provider.textContent = /parkway/i.test(String(service.name || ""))
+                ? "Parkway"
+                : "Kegow";
 
             const description = document.createElement("div");
 
@@ -719,6 +725,7 @@ async function loadServices() {
 
             card.append(
                 title,
+                provider,
                 description,
                 price,
                 button
