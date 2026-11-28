@@ -20,7 +20,9 @@ let auditPage = 1;
 let auditHasNextPage = false;
 const AUDIT_PAGE_SIZE = 25;
 let servicesCache = [];
+let servicesLoaded = false;
 let conversationsCache = [];
+let conversationsLoaded = false;
 let currentConversation = null;
 let currentChatMessages = [];
 let conversationLoadSequence = 0;
@@ -387,11 +389,9 @@ new Date().getFullYear();
 }
 
 async function loadAllDashboardData() {
-await Promise.allSettled([
-loadApplications(),
-loadServices(),
-loadConversations()
-]);
+// Load only the data needed for the initial Overview. Marketplace,
+// Prices and Customer Care fetch their data the first time they are opened.
+await loadApplications();
 
 renderStatistics();
 }
@@ -1707,6 +1707,7 @@ return;
 }
 
 servicesCache = data || [];
+servicesLoaded = true;
 renderServices();
 renderStatistics();
 }
@@ -1961,6 +1962,7 @@ if (error) { console.error('Conversation error:', error); showError('admin-conve
 const enriched = await loadConversationCustomers(data || []);
 if (requestId !== conversationLoadSequence) return;
 conversationsCache = enriched;
+conversationsLoaded = true;
 if (currentConversation) currentConversation = conversationsCache.find(item => item.id === currentConversation.id) || null;
 updateConversationSummary();
 renderConversations();
@@ -2284,6 +2286,8 @@ console.warn("Could not save current admin section:", error);
 target.classList.add("active");
 
 if (sectionName === "applications") markApplicationsAsSeen();
+if (["marketplace", "prices"].includes(sectionName) && !servicesLoaded) loadServices();
+if (sectionName === "customer-care" && !conversationsLoaded) loadConversations();
 if (sectionName === "payments") loadPayments();
 if (sectionName === "reports") loadReports();
 if (sectionName === "customers") loadCustomers();
@@ -2996,7 +3000,10 @@ schema: "public",
 table: "services"
 },
 () => {
+servicesLoaded = false;
+if (["marketplace", "prices"].some(name => $("section-" + name)?.classList.contains("active"))) {
 loadServices();
+}
 }
 )
 .subscribe();
@@ -3013,7 +3020,10 @@ schema: "public",
 table: "chat_conversations"
 },
 () => {
+conversationsLoaded = false;
+if ($("section-customer-care")?.classList.contains("active")) {
 loadConversations();
+}
 }
 )
 .subscribe();
@@ -3037,7 +3047,9 @@ payload.new?.conversation_id === currentConversation.id
 loadChatMessages(currentConversation.id);
 }
 
+if ($("section-customer-care")?.classList.contains("active")) {
 loadConversations();
+}
 }
 )
 .subscribe();
