@@ -124,6 +124,16 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
 
 
 
+/* Application Overview cards: reduce vertical height on Android only */
+@media(max-width:760px){
+  .dashboard-page .overview-stat{padding:5px 15px}
+  .dashboard-page .overview-stat-label{font-size:10px;line-height:1.1}
+  .dashboard-page .overview-stat strong{margin-top:2px;font-size:20px;line-height:1}
+}
+@media(max-width:390px){
+  .dashboard-page .overview-stat{padding:5px 13px}
+}
+
 /* Application details */
 .dashboard-page .application-track-button{padding:7px 11px;border:1px solid #d5e0e2;border-radius:5px;background:#fff;color:var(--eis-ink);font-size:12px;font-weight:600;cursor:pointer}
 .dashboard-page .application-track-button:hover{border-color:#9bbeb5;background:#f7faf9;color:var(--eis-teal-dark)}
