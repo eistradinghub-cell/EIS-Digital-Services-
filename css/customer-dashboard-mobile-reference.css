@@ -101,23 +101,17 @@
   }
 
   .dashboard-page .payment-history-section {
-    width: calc(100% + 28px) !important;
-    margin: 0 -14px !important;
     padding: 0 !important;
-    box-sizing: border-box !important;
   }
 
   .dashboard-page .payment-history-toggle {
-    display: flex !important;
-    align-items: center !important;
-    min-height: 58px !important;
-    padding: 11px 16px !important;
+    min-height: 76px !important;
+    padding: 16px 19px !important;
     box-sizing: border-box !important;
   }
 
   .dashboard-page .payment-history-toggle strong {
-    font-size: 14px !important;
-    line-height: 1.25 !important;
+    font-size: 15px !important;
   }
 
   .dashboard-page .payment-history-toggle small,
