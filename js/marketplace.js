@@ -7,6 +7,8 @@ const WHATSAPP_NUMBER = "2347044034497";
 
 let allProducts = [];
 const sliderTimers = new Map();
+const visibleSliderCards = new Set();
+let sliderVisibilityObserver = null;
 
 let lightboxImages = [];
 let lightboxIndex = 0;
@@ -174,6 +176,8 @@ function moveSlider(card, direction) {
 }
 
 function startSlider(card) {
+    if (sliderVisibilityObserver && !visibleSliderCards.has(card)) return;
+
     const images = JSON.parse(card.dataset.images || "[]");
 
     if (images.length < 2) return;
@@ -511,8 +515,53 @@ function createProductCard(product) {
 
 /* RENDER PRODUCTS */
 
+function observeVisibleSliders() {
+    if (sliderVisibilityObserver) {
+        sliderVisibilityObserver.disconnect();
+        sliderVisibilityObserver = null;
+    }
+
+    visibleSliderCards.clear();
+
+    const cards = productsContainer.querySelectorAll("[data-slider-card]");
+    if (!cards.length) return;
+
+    // Older browsers still get working sliders, while modern browsers
+    // only animate product cards that are close to the visible screen.
+    if (!("IntersectionObserver" in window)) {
+        cards.forEach(startSlider);
+        return;
+    }
+
+    sliderVisibilityObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            const card = entry.target;
+
+            if (entry.isIntersecting) {
+                visibleSliderCards.add(card);
+                if (!document.hidden && !lightboxOpen) startSlider(card);
+            } else {
+                visibleSliderCards.delete(card);
+                stopSlider(card);
+            }
+        });
+    }, {
+        root: null,
+        rootMargin: "120px 0px",
+        threshold: 0.01
+    });
+
+    cards.forEach((card) => sliderVisibilityObserver.observe(card));
+}
+
 function renderProducts(products) {
     stopAllSliders();
+
+    if (sliderVisibilityObserver) {
+        sliderVisibilityObserver.disconnect();
+        sliderVisibilityObserver = null;
+    }
+    visibleSliderCards.clear();
 
     if (!products.length) {
         showMessage("No products found. Please check again later.");
@@ -523,9 +572,7 @@ function renderProducts(products) {
         .map(createProductCard)
         .join("");
 
-    productsContainer
-        .querySelectorAll("[data-slider-card]")
-        .forEach(startSlider);
+    observeVisibleSliders();
 }
 
 /* SEARCH */
@@ -654,9 +701,14 @@ document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
         stopAllSliders();
     } else if (!lightboxOpen) {
-        productsContainer
-            .querySelectorAll("[data-slider-card]")
-            .forEach(startSlider);
+        visibleSliderCards.forEach(startSlider);
+
+        // Fallback for browsers without IntersectionObserver.
+        if (!sliderVisibilityObserver) {
+            productsContainer
+                .querySelectorAll("[data-slider-card]")
+                .forEach(startSlider);
+        }
     }
 });
 
