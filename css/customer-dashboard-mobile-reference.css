@@ -145,12 +145,18 @@
   }
 
   .dashboard-page #services-container .service-card h3 {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
     margin: 2px 0 8px !important;
     color: var(--eis-navy, #142d4e) !important;
-    font-size: 14px !important;
+    font-size: clamp(10px, 3.05vw, 13px) !important;
     font-weight: 650 !important;
-    line-height: 1.4 !important;
-    overflow-wrap: anywhere !important;
+    line-height: 1.25 !important;
+    letter-spacing: -.2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
   }
 
   .dashboard-page #services-container .service-card .service-description {
@@ -220,6 +226,11 @@
 
   .dashboard-page #services-container .service-card h3 {
     font-size: 13px !important;
+  }
+
+  .dashboard-page #services-container .service-card h3 {
+    font-size: clamp(9px, 2.9vw, 11px) !important;
+    letter-spacing: -.25px !important;
   }
 
   .dashboard-page #services-container .service-card .service-description {
