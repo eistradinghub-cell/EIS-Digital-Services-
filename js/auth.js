@@ -791,7 +791,11 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     clearMessages();
 
-    const name = $('signup-name')?.value
+    const enteredName = $('signup-name')?.value
+        .trim()
+        .replace(/\s+/g, ' ');
+
+    const middleName = $('signup-middle-name')?.value
         .trim()
         .replace(/\s+/g, ' ');
 
@@ -806,13 +810,17 @@ $('form-signup')?.addEventListener('submit', async event => {
     const confirmPassword =
         $('signup-confirm-password')?.value;
 
-    const nameParts = name
-        ? name.split(' ').filter(Boolean)
+    const nameParts = enteredName
+        ? enteredName.split(' ').filter(Boolean)
         : [];
 
     const firstName = nameParts.shift() || '';
 
     const lastName = nameParts.join(' ');
+
+    const name = [firstName, middleName, lastName]
+        .filter(Boolean)
+        .join(' ');
 
     if (
         !firstName ||
@@ -879,6 +887,7 @@ $('form-signup')?.addEventListener('submit', async event => {
                         name: name,
                         full_name: name,
                         first_name: firstName,
+                        middle_name: middleName || null,
                         last_name: lastName,
                         phone: phone
                     }
