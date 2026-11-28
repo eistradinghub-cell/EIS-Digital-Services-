@@ -791,11 +791,15 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     clearMessages();
 
-    const enteredName = $('signup-name')?.value
+    const firstName = $('signup-first-name')?.value
         .trim()
         .replace(/\s+/g, ' ');
 
     const middleName = $('signup-middle-name')?.value
+        .trim()
+        .replace(/\s+/g, ' ');
+
+    const lastName = $('signup-last-name')?.value
         .trim()
         .replace(/\s+/g, ' ');
 
@@ -809,14 +813,6 @@ $('form-signup')?.addEventListener('submit', async event => {
 
     const confirmPassword =
         $('signup-confirm-password')?.value;
-
-    const nameParts = enteredName
-        ? enteredName.split(' ').filter(Boolean)
-        : [];
-
-    const firstName = nameParts.shift() || '';
-
-    const lastName = nameParts.join(' ');
 
     const name = [firstName, middleName, lastName]
         .filter(Boolean)
@@ -832,7 +828,7 @@ $('form-signup')?.addEventListener('submit', async event => {
 
         showMessage(
             'signup-error',
-            'Please enter both your first name and last name, then complete all fields.'
+            'Please enter your first name and last name, then complete all required fields.'
         );
 
         return;
