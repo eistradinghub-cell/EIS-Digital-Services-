@@ -54,6 +54,7 @@
 
 html {
     scroll-behavior: smooth;
+    background-color: var(--bg, #f4f7fc);
 }
 
 /* Keep same-origin page changes visually continuous on browsers that
@@ -73,11 +74,11 @@ html {
 
 @keyframes eis-page-out {
     from { opacity: 1; }
-    to { opacity: .94; }
+    to { opacity: 0; }
 }
 
 @keyframes eis-page-in {
-    from { opacity: .94; }
+    from { opacity: 0; }
     to { opacity: 1; }
 }
 
