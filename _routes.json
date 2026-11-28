@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "include": [
+    "/",
+    "/*.html",
+    "/api/*"
+  ],
+  "exclude": [
+    "/admin.html",
+    "/api/paystack/webhook"
+  ]
+}
