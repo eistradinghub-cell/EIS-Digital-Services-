@@ -11,7 +11,6 @@
 .global-admin-header,
 .navbar {
     view-transition-name: eis-site-header;
-    contain: paint;
 }
 
 /* Keep the shared top navigation visually continuous between pages. */
