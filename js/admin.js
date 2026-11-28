@@ -292,6 +292,7 @@ setupNavigation();
 setupSidebar();
 setupEventListeners();
 setupGoogleFormSettings();
+setupMaintenanceMode();
 await loadAllDashboardData();
 
 // Restore the last admin section after refresh instead of forcing Overview.
@@ -2695,6 +2696,143 @@ async function setManagedAdminRole(email, makeAdmin, button) {
   }
 }
 
+
+function formatMaintenanceDate(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleString("en-NG", {
+        day: "numeric", month: "short", year: "numeric",
+        hour: "numeric", minute: "2-digit"
+    });
+}
+
+function toLocalDateTimeInput(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString().slice(0, 16);
+}
+
+function renderMaintenanceModeStatus(row) {
+    const badge = $("maintenance-mode-badge");
+    const enable = $("maintenance-mode-enable");
+    const disable = $("maintenance-mode-disable");
+    const updated = $("maintenance-mode-updated");
+    const message = $("maintenance-mode-message");
+    const returnAt = $("maintenance-mode-return");
+    if (!badge || !row) return;
+
+    const active = row.maintenance_enabled === true;
+    badge.dataset.state = active ? "maintenance" : "live";
+    badge.textContent = active ? "Maintenance active" : "Website live";
+    if (enable) enable.disabled = active;
+    if (disable) disable.disabled = !active;
+
+    if (message && document.activeElement !== message) {
+        message.value = row.maintenance_message || "";
+    }
+    if (returnAt && document.activeElement !== returnAt) {
+        returnAt.value = toLocalDateTimeInput(row.expected_return_at);
+    }
+
+    if (updated) {
+        const stamp = row.updated_at ? formatMaintenanceDate(row.updated_at) : "";
+        updated.textContent = active
+            ? "Customer access is paused. " + (stamp ? "Last changed " + stamp + "." : "")
+            : "Customers can use the website normally. " + (stamp ? "Last changed " + stamp + "." : "");
+    }
+}
+
+async function loadMaintenanceMode() {
+    const status = $("maintenance-mode-updated");
+    try {
+        const { data, error } = await supabase
+            .from("site_runtime_status")
+            .select("maintenance_enabled,maintenance_message,expected_return_at,updated_at")
+            .eq("id", true)
+            .single();
+        if (error) throw error;
+        renderMaintenanceModeStatus(data);
+    } catch (error) {
+        console.error("Maintenance mode status could not be loaded:", error);
+        if (status) status.textContent = "Unable to load the current status. Check your connection and refresh this section.";
+        const enable = $("maintenance-mode-enable");
+        const disable = $("maintenance-mode-disable");
+        if (enable) enable.disabled = true;
+        if (disable) disable.disabled = true;
+    }
+}
+
+function setupMaintenanceMode() {
+    const form = $("maintenance-mode-form");
+    const enable = $("maintenance-mode-enable");
+    const disable = $("maintenance-mode-disable");
+    if (!form || form.dataset.ready === "true") return;
+    form.dataset.ready = "true";
+
+    const changeMode = async (active) => {
+        const messageInput = $("maintenance-mode-message");
+        const returnInput = $("maintenance-mode-return");
+        const message = String(messageInput?.value || "").trim();
+        if (!message) {
+            showNotice("Enter the message customers should see.", "error");
+            messageInput?.focus();
+            return;
+        }
+
+        const confirmation = active
+            ? "Enable maintenance mode now? Customers will no longer be able to open the website or submit new service requests."
+            : "Resume the website now? Customers will be able to access the services again.";
+        if (!window.confirm(confirmation)) return;
+
+        if (enable) enable.disabled = true;
+        if (disable) disable.disabled = true;
+        const status = $("maintenance-mode-updated");
+        if (status) status.textContent = active ? "Pausing customer access..." : "Restoring customer access...";
+
+        try {
+            let expectedReturnAt = null;
+            if (returnInput?.value) {
+                const parsed = new Date(returnInput.value);
+                if (Number.isNaN(parsed.getTime())) throw new Error("Enter a valid expected return time.");
+                expectedReturnAt = parsed.toISOString();
+            }
+
+            const { data, error } = await supabase
+                .from("site_runtime_status")
+                .update({
+                    maintenance_enabled: active,
+                    maintenance_message: message,
+                    expected_return_at: expectedReturnAt,
+                    updated_at: new Date().toISOString(),
+                    updated_by: currentUser.id
+                })
+                .eq("id", true)
+                .select("maintenance_enabled,maintenance_message,expected_return_at,updated_at")
+                .single();
+            if (error) throw error;
+
+            renderMaintenanceModeStatus(data);
+            showNotice(
+                active
+                    ? "Maintenance mode is active. Customers will now see the maintenance notice."
+                    : "The website is live again. Customer access has been restored."
+            );
+        } catch (error) {
+            console.error("Maintenance mode update failed:", error);
+            if (status) status.textContent = "The website status was not changed. " + (error.message || "Please try again.");
+            showNotice(error.message || "Unable to update maintenance mode.", "error");
+            await loadMaintenanceMode();
+        }
+    };
+
+    enable?.addEventListener("click", () => changeMode(true));
+    disable?.addEventListener("click", () => changeMode(false));
+    form.addEventListener("submit", event => event.preventDefault());
+    loadMaintenanceMode();
+}
 
 async function loadGoogleFormSettings(){const input=$("site-google-form-url"),status=$("site-google-form-status");if(!input||!status)return;try{const{data,error}=await supabase.from("site_settings").select("setting_value").eq("setting_key","google_form_url").maybeSingle();if(error)throw error;const v=typeof data?.setting_value==="string"?data.setting_value:data?.setting_value?.url||"";input.value=v;status.textContent=v?"Google Form link saved.":"No Google Form connected."}catch(e){console.error(e);status.textContent="Could not load the saved Google Form link."}}
 function setupGoogleFormSettings(){const form=$("site-google-form-settings"),input=$("site-google-form-url"),status=$("site-google-form-status"),save=$("site-google-form-save"),clear=$("site-google-form-clear");if(!form||form.dataset.ready==="true")return;form.dataset.ready="true";form.addEventListener("submit",async e=>{e.preventDefault();const value=input.value.trim();let u;try{u=new URL(value)}catch{showNotice("Enter a valid Google Form link.","error");return}if(u.hostname!=="docs.google.com"||!u.pathname.includes("/forms/")){showNotice("Use a Google Form link from docs.google.com.","error");return}save.disabled=true;save.textContent="Saving...";try{const{error}=await supabase.from("site_settings").upsert({setting_key:"google_form_url",setting_value:{url:value},updated_at:new Date().toISOString(),updated_by:currentUser.id},{onConflict:"setting_key"});if(error)throw error;status.textContent="Google Form link saved.";showNotice("Google Form link saved successfully.")}catch(err){showNotice("Could not save Google Form link: "+err.message,"error")}finally{save.disabled=false;save.textContent="Save"}});clear?.addEventListener("click",async()=>{if(!confirm("Remove the connected Google Form link?"))return;clear.disabled=true;try{const{error}=await supabase.from("site_settings").delete().eq("setting_key","google_form_url");if(error)throw error;input.value="";status.textContent="No Google Form connected.";showNotice("Google Form link removed.")}catch(e){showNotice("Could not remove the Google Form link: "+e.message,"error")}finally{clear.disabled=false}});loadGoogleFormSettings()}
