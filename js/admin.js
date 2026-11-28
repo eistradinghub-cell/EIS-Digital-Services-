@@ -2311,6 +2311,10 @@ console.warn("Could not save current admin section:", error);
 
 target.classList.add("active");
 
+if (sectionName === "marketplace") {
+  window.EISMarketplaceAdmin?.ensureLoaded?.();
+}
+
 if (sectionName === "applications") markApplicationsAsSeen();
 if (["marketplace", "prices"].includes(sectionName) && !servicesLoaded) loadServices();
 if (sectionName === "customer-care" && !conversationsLoaded) loadConversations();
