@@ -8,8 +8,27 @@
 }
 
 .site-header,
-.global-admin-header {
+.global-admin-header,
+.navbar {
     view-transition-name: eis-site-header;
+    contain: paint;
+}
+
+/* Keep the shared top navigation visually continuous between pages. */
+::view-transition-group(eis-site-header) {
+    z-index: 3000;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(eis-site-header),
+    ::view-transition-new(eis-site-header) {
+        animation: none;
+    }
 }
 
 ::view-transition-old(eis-site-header),
