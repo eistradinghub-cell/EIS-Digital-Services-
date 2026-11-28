@@ -679,6 +679,7 @@ async function loadServices() {
             const card = document.createElement("article");
 
             card.className = "service-card";
+            card.dataset.serviceId = String(service.id);
 
             const title = document.createElement("h3");
 
@@ -756,7 +757,7 @@ function selectService(service) {
     // Keep exactly one service visibly selected.
     const serviceCards = document.querySelectorAll("#services-container .service-card");
     serviceCards.forEach(card => {
-        const isSelected = card.querySelector("h3")?.textContent === (service.name || "Service");
+        const isSelected = card.dataset.serviceId === String(service.id);
         card.classList.toggle("is-selected", isSelected);
         card.setAttribute("aria-current", isSelected ? "true" : "false");
     });
