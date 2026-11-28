@@ -459,7 +459,7 @@ function escapeHTML(value) {
 }
 
 function getServiceDescription() {
-    return "Select this service to review the fee and start your application.";
+    return "View fee and apply.";
 }
 
 function updateServiceAccountFieldLabel() {
