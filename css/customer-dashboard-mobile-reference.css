@@ -228,7 +228,7 @@
   }
 
   .dashboard-page #services-container .service-card {
-    min-height: 160px !important;
+    min-height: 220px !important;
     padding: 10px 8px !important;
   }
 
@@ -237,7 +237,7 @@
   }
 
   .dashboard-page #services-container .service-card h3 {
-    font-size: clamp(10px, 3vw, 12px) !important;
+    font-size: 16px !important;
     letter-spacing: -.25px !important;
   }
 
