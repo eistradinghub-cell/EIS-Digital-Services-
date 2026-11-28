@@ -405,7 +405,14 @@ function goToDashboard() {
 
     redirecting = true;
 
-    window.location.replace('./dashboard.html');
+    // During maintenance, administrators use the existing sign-in page
+    // with this explicit flag and return directly to the admin workspace.
+    const adminAccess = new URLSearchParams(window.location.search)
+        .get('admin_access') === '1';
+
+    window.location.replace(
+        adminAccess ? './admin.html' : './dashboard.html'
+    );
 }
 
 /* =========================================
