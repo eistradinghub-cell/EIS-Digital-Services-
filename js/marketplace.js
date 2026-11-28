@@ -123,6 +123,12 @@ function stopAllSliders() {
 function showMessage(message, type = "empty") {
     stopAllSliders();
 
+    if (sliderVisibilityObserver) {
+        sliderVisibilityObserver.disconnect();
+        sliderVisibilityObserver = null;
+    }
+    visibleSliderCards.clear();
+
     productsContainer.innerHTML = `
         <div class="marketplace-${type}">
             ${escapeHTML(message)}
