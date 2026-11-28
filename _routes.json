@@ -7,7 +7,6 @@
     "/admin.html",
     "/admin",
     "/admin/*",
-    "/api/paystack/webhook",
     "/css/*",
     "/js/*",
     "/supabase/*",
