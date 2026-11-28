@@ -150,13 +150,13 @@
     min-width: 0 !important;
     margin: 2px 0 8px !important;
     color: var(--eis-navy, #142d4e) !important;
-    font-size: clamp(10px, 3.05vw, 13px) !important;
+    font-size: clamp(9px, 2.7vw, 11px) !important;
     font-weight: 650 !important;
     line-height: 1.25 !important;
     letter-spacing: -.2px !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
   }
 
   .dashboard-page #services-container .service-card .service-description {
@@ -229,7 +229,7 @@
   }
 
   .dashboard-page #services-container .service-card h3 {
-    font-size: clamp(9px, 2.9vw, 11px) !important;
+    font-size: clamp(8px, 2.5vw, 10px) !important;
     letter-spacing: -.25px !important;
   }
 
