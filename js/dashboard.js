@@ -1920,7 +1920,6 @@ async function submitApplication(event) {
         !formData.account_no ||
         !formData.account_name ||
         !formData.agent_first_name ||
-        !formData.middle_name ||
         !formData.last_name ||
         !formData.email ||
         !formData.alternative_email ||
