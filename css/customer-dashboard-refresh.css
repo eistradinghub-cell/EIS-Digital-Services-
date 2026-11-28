@@ -367,3 +367,21 @@ body.dashboard-page{background:var(--eis-canvas)!important;color:#253342!importa
   .dashboard-page .payment-history-action{font-size:11px!important}
   .dashboard-page .payment-history-content{padding:0 10px 10px!important}
 }
+
+/* Android: keep the welcome title on one line and inside its card. */
+@media (max-width:760px){
+  .dashboard-page .dashboard-intro h1{
+    font-size:clamp(15px,4.3vw,18px)!important;
+    line-height:1.25!important;
+    letter-spacing:-.35px!important;
+    white-space:nowrap!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+}
+@media (max-width:390px){
+  .dashboard-page .dashboard-intro h1{
+    font-size:clamp(14px,4.3vw,16px)!important;
+    letter-spacing:-.4px!important;
+  }
+}
