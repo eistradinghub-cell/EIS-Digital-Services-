@@ -277,6 +277,7 @@ return;
 }
 
 currentProfile = profile;
+document.documentElement.classList.remove("eis-admin-check");
 
 const isSuperAdmin = String(profile.role || "").toLowerCase() === "super_admin";
 const siteSettingsLink = document.querySelector('[data-section="site-settings"]');
@@ -329,6 +330,7 @@ showNotice(
 error.message || "Unable to initialize admin dashboard.",
 "error"
 );
+document.documentElement.classList.remove("eis-admin-check");
 }
 }
 
