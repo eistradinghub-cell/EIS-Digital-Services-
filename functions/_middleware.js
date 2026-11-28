@@ -83,12 +83,12 @@ export async function onRequest(context) {
     const path = url.pathname.toLowerCase();
 
     // Keep the administrator workspace and the payment provider's webhook online.
-    if (path === "/admin.html" || path === "/api/paystack/webhook") {
+    if (path === "/admin.html" || path === "/admin" || path.startsWith("/admin/") || path === "/api/paystack/webhook") {
         return context.next();
     }
 
     // Allows administrators to reach the existing sign-in page during maintenance.
-    if (path === "/index.html" && url.searchParams.get("admin_access") === "1") {
+    if ((path === "/index.html" || path === "/") && url.searchParams.get("admin_access") === "1") {
         return context.next();
     }
 
