@@ -744,7 +744,16 @@ body.dashboard-page{
 .dashboard-page .dashboard-intro p{
     color:var(--eis-muted)!important;
     font-size:14px!important;
-    min-height:3.4em!important;
+    min-height:0!important;
+}
+.dashboard-page .intro-mobile-break{display:none!important;}
+@media(max-width:700px){
+    .dashboard-page .dashboard-intro p{
+        font-size:12px!important;
+        line-height:1.5!important;
+        letter-spacing:-.15px!important;
+    }
+    .dashboard-page .intro-mobile-break{display:inline!important;}
 }
 .dashboard-page .dashboard-card{
     background:var(--eis-surface)!important;
@@ -1421,7 +1430,7 @@ body.dashboard-page{background:var(--eis-page)!important;color:#253342!important
 
     <section class="dashboard-intro">
         <h1>Welcome to EIS Digital Services</h1>
-        <p>Manage your services and applications in one place.</p>
+        <p>Access the services you need, submit applications<br class="intro-mobile-break"> and keep track of your requests in one place.</p>
     </section>
 
 
