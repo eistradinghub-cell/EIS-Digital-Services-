@@ -26,8 +26,7 @@ const isPasswordRecoveryRoute =
 
 let passwordRecoveryVerified = false;
 
-let pendingVerificationEmail =
-    sessionStorage.getItem('eis-pending-verification-email') || '';
+let pendingVerificationEmail = '';
 
 /* =========================================
    CREATE PROFESSIONAL EMAIL VERIFICATION
@@ -573,6 +572,9 @@ signupConfirmPassword?.addEventListener(
 
 async function initializeAuth() {
 
+    sessionStorage.removeItem('eis-pending-verification-email');
+    pendingVerificationEmail = '';
+
     updateNavigation(null);
 
     try {
@@ -601,11 +603,7 @@ async function initializeAuth() {
 
         updateNavigation(null);
 
-        if (pendingVerificationEmail) {
-            showVerificationView(pendingVerificationEmail);
-        } else {
-            showView(viewHome);
-        }
+        showView(viewHome);
 
     } catch (error) {
 
@@ -699,11 +697,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
         updateNavigation(null);
 
-        if (pendingVerificationEmail) {
-            showVerificationView(pendingVerificationEmail);
-        } else {
-            showView(viewHome);
-        }
+        showView(viewHome);
     }
 });
 
