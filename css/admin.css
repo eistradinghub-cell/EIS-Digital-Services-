@@ -4140,3 +4140,55 @@
         padding-bottom: 3px !important;
     }
 }
+
+
+/* Applications heading: prevent title, description and action from colliding */
+.admin-page .applications-page-heading {
+    align-items: center;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.admin-page .applications-heading-copy {
+    flex: 1 1 280px;
+    min-width: 0;
+}
+
+.admin-page .applications-heading-copy h1,
+.admin-page .applications-heading-copy p {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.admin-page .applications-heading-copy p {
+    max-width: 100%;
+}
+
+.admin-page .applications-page-heading > #refresh-applications {
+    flex: 0 0 auto;
+    max-width: 100%;
+    white-space: normal;
+}
+
+@media (max-width: 640px) {
+    .admin-page .applications-page-heading {
+        align-items: stretch;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .admin-page .applications-heading-copy {
+        flex-basis: 100%;
+        width: 100%;
+    }
+
+    .admin-page .applications-heading-copy p {
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .admin-page .applications-page-heading > #refresh-applications {
+        width: 100%;
+        justify-content: center;
+    }
+}
