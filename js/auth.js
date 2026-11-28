@@ -3,7 +3,7 @@ import { supabase } from './supabase.js';
 /* =========================================
    EIS DIGITAL SERVICES
    AUTHENTICATION SYSTEM
-   6-DIGIT EMAIL OTP VERIFICATION
+   Email confirmation disabled in application flow
 ========================================= */
 
 const $ = (id) => document.getElementById(id);
@@ -592,26 +592,6 @@ async function initializeAuth() {
 
         if (session) {
 
-            const user = session.user;
-
-            const isVerified =
-                !!(user.email_confirmed_at || user.confirmed_at);
-
-            if (!isVerified) {
-
-                await supabase.auth.signOut();
-
-                updateNavigation(null);
-
-                if (pendingVerificationEmail) {
-                    showVerificationView(pendingVerificationEmail);
-                } else {
-                    showView(viewHome);
-                }
-
-                return;
-            }
-
             updateNavigation(session);
 
             goToDashboard();
@@ -710,14 +690,7 @@ supabase.auth.onAuthStateChange((event, session) => {
             return;
         }
 
-        const user = session.user;
-
-        const isVerified =
-            !!(user.email_confirmed_at || user.confirmed_at);
-
-        if (isVerified) {
-            goToDashboard();
-        }
+        goToDashboard();
     }
 
     if (event === 'SIGNED_OUT') {
@@ -902,33 +875,19 @@ $('form-signup')?.addEventListener('submit', async event => {
             throw new Error('This email address has already been used. Please log in or use another email.');
         }
 
-        if (data.session) {
-
-            await supabase.auth.signOut();
-
+        if (!data.session) {
             throw new Error(
-                'Email confirmation is not enabled correctly. Please contact the website administrator.'
+                'Account created, but automatic sign-in is unavailable. Please disable email confirmation in Supabase Auth settings, then try again.'
             );
         }
 
-        pendingVerificationEmail = email;
-
-        sessionStorage.setItem(
-            'eis-pending-verification-email',
-            email
-        );
+        sessionStorage.removeItem('eis-pending-verification-email');
+        pendingVerificationEmail = '';
 
         event.target.reset();
-
         updatePasswordMatch();
 
-        showVerificationView(email);
-
-        showMessage(
-            'verify-success',
-            'Your account has been created. Please open your email and click the verification link to activate your account.',
-            'ok'
-        );
+        goToDashboard();
 
     } catch (error) {
 
@@ -1177,46 +1136,12 @@ $('form-login')?.addEventListener('submit', async event => {
                 password
             });
 
-        if (error) {
-
-            if (error.code === 'email_not_confirmed') {
-
-                pendingVerificationEmail = email;
-
-                sessionStorage.setItem(
-                    'eis-pending-verification-email',
-                    email
-                );
-
-                showVerificationView(email);
-
-                showMessage(
-                    'verify-error',
-                    'Please verify your email before logging in.'
-                );
-
-                return;
-            }
-
-            throw error;
-        }
+        if (error) throw error;
 
         if (!data.session || !data.user) {
 
             throw new Error(
                 'Login session could not be established.'
-            );
-        }
-
-        const isVerified =
-            !!(data.user.email_confirmed_at || data.user.confirmed_at);
-
-        if (!isVerified) {
-
-            await supabase.auth.signOut();
-
-            throw new Error(
-                'Please verify your email before accessing your account.'
             );
         }
 
