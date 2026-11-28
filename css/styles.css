@@ -56,6 +56,80 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Keep same-origin page changes visually continuous on browsers that
+   support cross-document View Transitions. Standard navigation remains
+   the fallback, so links, forms and browser history keep native behavior. */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root) {
+    animation: eis-page-out 150ms ease-out both;
+}
+
+::view-transition-new(root) {
+    animation: eis-page-in 190ms ease-out both;
+}
+
+@keyframes eis-page-out {
+    from { opacity: 1; }
+    to { opacity: .94; }
+}
+
+@keyframes eis-page-in {
+    from { opacity: .94; }
+    to { opacity: 1; }
+}
+
+/* Protected pages stay visible while the session check runs.
+   A restrained top progress line replaces the previous white blank screen
+   and prevents clicks until the route has been verified. */
+html.eis-route-check body,
+html.eis-admin-check body {
+    visibility: visible !important;
+}
+
+html.eis-route-check::before,
+html.eis-admin-check::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2147483646;
+    background: rgba(244, 247, 252, .10);
+    pointer-events: all;
+}
+
+html.eis-route-check::after,
+html.eis-admin-check::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2147483647;
+    width: 30%;
+    height: 3px;
+    border-radius: 0 3px 3px 0;
+    background: #168477;
+    box-shadow: 0 1px 5px rgba(22, 132, 119, .22);
+    pointer-events: none;
+    animation: eis-route-progress 1.05s ease-in-out infinite;
+}
+
+@keyframes eis-route-progress {
+    0% { transform: translateX(-110%); width: 26%; }
+    50% { width: 42%; }
+    100% { transform: translateX(390%); width: 26%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root),
+    html.eis-route-check::after,
+    html.eis-admin-check::after {
+        animation-duration: 1ms !important;
+    }
+}
+
 body {
     min-height: 100vh;
     background: var(--bg);
