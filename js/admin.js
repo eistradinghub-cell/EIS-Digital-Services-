@@ -277,7 +277,6 @@ return;
 }
 
 currentProfile = profile;
-document.documentElement.classList.remove("eis-admin-check");
 
 const isSuperAdmin = String(profile.role || "").toLowerCase() === "super_admin";
 const siteSettingsLink = document.querySelector('[data-section="site-settings"]');
@@ -300,6 +299,7 @@ setupNavigation();
 setupSidebar();
 setupEventListeners();
 await loadAllDashboardData();
+document.documentElement.classList.remove("eis-admin-check");
 
 // Restore the last admin section after refresh instead of forcing Overview.
 const savedSection = sessionStorage.getItem("eis_admin_current_section");
