@@ -32,6 +32,9 @@ let realtimeChannels = [];
 let noticeTimer = null;
 let isSendingMessage = false;
 let applicationReloadTimer = null;
+let unreadConversationReloadTimer = null;
+let conversationsReloadTimer = null;
+let chatMessagesReloadTimer = null;
 
 function escapeHTML(value) {
 return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -1974,6 +1977,20 @@ $("chat-badge").style.display = unreadConversationCount ? "inline-flex" : "none"
 }
 }
 
+function scheduleConversationRefresh({ refreshList = false } = {}) {
+clearTimeout(unreadConversationReloadTimer);
+unreadConversationReloadTimer = setTimeout(loadUnreadConversationCount, 250);
+
+if (refreshList) {
+clearTimeout(conversationsReloadTimer);
+conversationsReloadTimer = setTimeout(() => {
+if ($("section-customer-care")?.classList.contains("active")) {
+loadConversations();
+}
+}, 250);
+}
+}
+
 async function loadConversations() {
 const requestId = ++conversationLoadSequence;
 setLoading("admin-conversations-list", "Loading conversations...");
@@ -3056,10 +3073,7 @@ table: "chat_conversations"
 },
 () => {
 conversationsLoaded = false;
-loadUnreadConversationCount();
-if ($("section-customer-care")?.classList.contains("active")) {
-loadConversations();
-}
+scheduleConversationRefresh({ refreshList: true });
 }
 )
 .subscribe();
@@ -3080,11 +3094,15 @@ if (
 currentConversation &&
 payload.new?.conversation_id === currentConversation.id
 ) {
-loadChatMessages(currentConversation.id);
+clearTimeout(chatMessagesReloadTimer);
+chatMessagesReloadTimer = setTimeout(() => {
+if (currentConversation) loadChatMessages(currentConversation.id);
+}, 150);
 }
 
 if ($("section-customer-care")?.classList.contains("active")) {
-loadConversations();
+conversationsLoaded = false;
+scheduleConversationRefresh({ refreshList: true });
 }
 }
 )
