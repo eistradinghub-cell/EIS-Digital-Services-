@@ -1,0 +1,29 @@
+/* EIS page navigation: keep native multi-page navigation and avoid a blank transition. */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root) {
+    animation: eis-page-out 120ms ease-out both;
+}
+
+::view-transition-new(root) {
+    animation: eis-page-in 160ms ease-out both;
+}
+
+@keyframes eis-page-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes eis-page-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 1ms !important;
+    }
+}
