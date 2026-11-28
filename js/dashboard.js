@@ -791,6 +791,7 @@ function renderPaymentReview() {
 
     if (!section || !selectedService) return;
 
+    section.hidden = false;
     section.style.display = "block";
 
     if (String(currentProfile?.role || "").trim().toLowerCase() === "super_admin") {
