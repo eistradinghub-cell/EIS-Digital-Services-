@@ -679,6 +679,7 @@ async function loadServices() {
             const card = document.createElement("article");
 
             card.className = "service-card";
+            card.dataset.serviceId = String(service.id);
 
             const title = document.createElement("h3");
 
@@ -698,6 +699,18 @@ async function loadServices() {
 
             button.type = "button";
             button.textContent = "View service";
+
+            card.tabIndex = 0;
+            card.setAttribute("aria-label", `Select ${service.name || "service"}`);
+            card.addEventListener("click", event => {
+                if (event.target.closest("button")) return;
+                selectService(service);
+            });
+            card.addEventListener("keydown", event => {
+                if (event.target !== card || !["Enter", " "].includes(event.key)) return;
+                event.preventDefault();
+                selectService(service);
+            });
 
             button.addEventListener("click", () => {
                 selectService(service);
@@ -740,6 +753,15 @@ function selectService(service) {
     }
 
     selectedService = service;
+
+    // Keep exactly one service visibly selected.
+    const serviceCards = document.querySelectorAll("#services-container .service-card");
+    serviceCards.forEach(card => {
+        const isSelected = card.dataset.serviceId === String(service.id);
+        card.classList.toggle("is-selected", isSelected);
+        card.setAttribute("aria-current", isSelected ? "true" : "false");
+    });
+
     updateServiceAccountFieldLabel();
 
     currentPaymentReference = null;
